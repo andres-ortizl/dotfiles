@@ -26,5 +26,4 @@ export path=(
   "/usr/sbin"
   "/sbin"
   "/usr/local/opt/python@3.7/bin"
-  "/Users/andrew/Library/Python/3.7/lib/python/site-packages"
 )
