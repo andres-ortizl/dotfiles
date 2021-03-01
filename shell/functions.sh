@@ -35,3 +35,19 @@ reverse-search() {
   typeset -f zle-line-init >/dev/null && zle zle-line-init
   return $ret
 }
+
+
+function kubeconfig() {
+    KUBEHOME=~/.kube
+    setopt +o nomatch
+    for filename in ${KUBEHOME}/configs/**; do
+        if [[ -z "${KUBECONFIG}" ]]; then
+            export KUBECONFIG=${filename}
+        else
+            export KUBECONFIG=${filename}:${KUBECONFIG}
+        fi
+    done
+    # NOTE: Automatically generated config for docker kubernetes
+    KUBECONFIG=${KUBECONFIG}:${KUBEHOME}/config
+    source <(kubectl completion zsh)
+}
