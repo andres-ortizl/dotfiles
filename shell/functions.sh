@@ -39,6 +39,7 @@ reverse-search() {
 
 function kubeconfig() {
     KUBEHOME=~/.kube
+
     setopt +o nomatch
     for filename in ${KUBEHOME}/configs/**; do
         if [[ -z "${KUBECONFIG}" ]]; then
@@ -49,5 +50,8 @@ function kubeconfig() {
     done
     # NOTE: Automatically generated config for docker kubernetes
     KUBECONFIG=${KUBECONFIG}:${KUBEHOME}/config
+    
     source <(kubectl completion zsh)
+    source $DOTFILES_PATH/shell/kube-ps1.sh
+    PROMPT='$(kube_ps1)'$PROMPT
 }
