@@ -20,10 +20,11 @@ alias gpsf="git push --force"
 alias gpl="git pull --rebase --autostash"
 alias gb="git branch"
 alias gl="$DOTLY_PATH/bin/dot git pretty-log"
+alias gcb="git fetch -p && git branch -vv | grep ': gone]' | awk '{print $1}' | xargs git branch -D"
 
 # Utils
 alias k=kubectl
-alias i.='(idea $PWD &>/dev/null &)'
+alias p.='(pycharm $PWD &>/dev/null &)'
 alias c.='(code $PWD &>/dev/null &)'
 alias o.='open .'
 alias up='dot package update_all'
