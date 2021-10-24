@@ -1,48 +1,37 @@
 # vim:et sts=2 sw=2 ft=zsh
 
-_prompt_eriner_main() {
+function _prompt_main() {
   # This runs in a subshell
   RETVAL=${?}
   BG_COLOR=''
 
-  _prompt_eriner_status
-  _prompt_eriner_pwd
-  _prompt_eriner_git
-  _prompt_eriner_end
+  _prompt_status
+  _prompt_pwd
+  _prompt_git
+  _prompt_end
 }
 
-### Segment drawing
-# Utility functions to make it easy and re-usable to draw segmented prompts.
 
-# Begin a segment. Takes two arguments, background color and contents of the
-# new segment.
-_prompt_eriner_segment() {
+function _prompt_segment() {
   print -n "%K{${1}}"
   if [[ -n ${BG_COLOR} ]] print -n "%F{${BG_COLOR}}"
   print -n "${2}"
   BG_COLOR=${1}
 }
 
-
-_prompt_eriner_standout_segment() {
+function _prompt_standout_segment() {
   print -n "%S%F{${1}}"
   if [[ -n ${BG_COLOR} ]] print -n "%K{${BG_COLOR}}%k"
   print -n "${2}%s"
   BG_COLOR=${1}
 }
 
-# End the prompt, closing last segment.
-_prompt_eriner_end() {
+function _prompt_end() {
   print -n "%k%F{${BG_COLOR}}%f "
 }
 
-### Prompt components
-# Each component will draw itself, or hide itself if no information needs to
-# be shown.
 
-# Status: Was there an error? Am I root? Are there background jobs? Ranger
-# spawned shell? Python venv activated? Who and where am I (user@hostname)?
-_prompt_eriner_status() {
+function _prompt_status() {
   local segment=''
   if (( RETVAL )) segment+=' %F{red}✘'
   if (( EUID == 0 )) segment+=' %F{yellow}⚡'
@@ -51,21 +40,19 @@ _prompt_eriner_status() {
   if [[ -n ${VIRTUAL_ENV} ]] segment+=" %F{cyan}${VIRTUAL_ENV:t}"
   if [[ -n ${SSH_TTY} ]] segment+=" %F{%(!.yellow.default)}%n@%m"
   if [[ -n ${segment} ]]; then
-    _prompt_eriner_segment ${STATUS_COLOR} "${segment} "
+    _prompt_segment ${STATUS_COLOR} "${segment} "
   fi
 }
 
-# Pwd: current working directory.
-_prompt_eriner_pwd() {
+function _prompt_pwd() {
   local current_dir=${(%):-%~}
   if [[ ${current_dir} != '~' ]]; then
     current_dir="${${(@j:/:M)${(@s:/:)current_dir:h}#?}%/}/${current_dir:t}"
   fi
-  _prompt_eriner_standout_segment ${PWD_COLOR} " ${current_dir} "
+  _prompt_standout_segment ${PWD_COLOR} " ${current_dir} "
 }
 
-# Git: branch/detached head, dirty status.
-_prompt_eriner_git() {
+function _prompt_git() {
   if [[ -n ${git_info} ]]; then
     local git_color
     local git_dirty=${(e)git_info[dirty]}
@@ -74,7 +61,7 @@ _prompt_eriner_git() {
     else
       git_color=${CLEAN_COLOR}
     fi
-    _prompt_eriner_standout_segment ${git_color} " ${(e)git_info[prompt]}${git_dirty} "
+    _prompt_standout_segment ${git_color} " ${(e)git_info[prompt]}${git_dirty} "
   fi
 }
 
@@ -99,5 +86,5 @@ if (( ${+functions[git-info]} )); then
 fi
 
 export RPROMPT="%F{cyan}%@"
-PS1='$(_prompt_eriner_main)'
+PS1='$(_prompt_main)'
 unset RPS1
