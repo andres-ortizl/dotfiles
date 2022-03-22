@@ -1,0 +1,119 @@
+tap "candid82/brew"
+tap "mercury2269/tap"
+tap "secrethub/tools"
+tap "yqrashawn/goku"
+brew "blueutil"
+brew "glib"
+brew "pkg-config"
+brew "coreutils"
+brew "findutils"
+brew "gnu-sed"
+brew "gobject-introspection"
+brew "graphviz"
+brew "htop"
+brew "hyperfine"
+brew "libgcrypt"
+brew "mas"
+brew "protobuf"
+brew "subversion"
+brew "tcl-tk"
+brew "telnet"
+brew "the_silver_searcher"
+brew "yqrashawn/goku/goku"
+cask "bluetility"
+
+# Database
+brew "mysql", restart_service: true
+brew "openvpn", restart_service: true
+brew "postgresql", restart_service: true
+brew "mongocli"
+brew "mongosh"
+
+# Kubernetes-Docker
+brew "kubernetes-cli"
+brew "kube-ps1"
+brew "kubectx"
+cask "docker"
+brew "kind"
+brew "k9s"
+brew "helm"
+brew "hadolint"
+
+# key management
+cask "1password"
+cask "bitwarden"
+brew "secrethub/tools/secrethub-cli"
+
+# python
+brew "python@3.7"
+brew "python@3.10"
+brew "pipenv"
+brew "poetry"
+
+# github
+brew "act"
+
+# gitlab
+brew "gitlab-runner", restart_service: true
+
+# go
+brew "go"
+
+# node
+brew "node"
+
+# java
+brew "openjdk"
+
+# essentials
+cask "raycast"
+cask "rectangle"
+cask "notion"
+cask "firefox"
+cask "font-ibm-plex-mono"
+cask "iterm2"
+cask "karabiner-elements"
+cask "caffeine"
+brew "tldr"
+brew "vim"
+brew "wget"
+brew "zsh"
+brew "neovim"
+brew "direnv"
+brew "cask"
+brew "curl"
+brew "exa"
+brew "fzf"
+brew "bash"
+brew "bat"
+brew "jq"
+brew "make"
+tap "homebrew/bundle"
+tap "homebrew/cask"
+tap "homebrew/cask-fonts"
+tap "homebrew/core"
+tap "homebrew/services"
+
+# aws
+brew "awscli"
+brew "mercury2269/tap/sqsmover"
+
+# ide
+cask "visual-studio-code"
+cask "jetbrains-toolbox"
+
+# Fun
+cask "vlc"
+cask "whatsapp"
+cask "spotify"
+cask "telegram"
+cask "slack"
+cask "discord"
+cask "qbittorrent"
+brew "spotify-tui"
+
+# Id
+mas "GarageBand", id: 682658836
+mas "Keynote", id: 409183694
+mas "Numbers", id: 409203825
+mas "Pages", id: 409201541
