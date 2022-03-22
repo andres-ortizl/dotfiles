@@ -11,8 +11,6 @@ export FZF_DEFAULT_OPTS='
 
 export path=(
   "$HOME/bin"
-  "$DOTLY_PATH/bin"
-  "$DOTFILES_PATH/bin"
   "$JAVA_HOME/bin"
   "$GEM_HOME/bin"
   "$GOPATH/bin"
