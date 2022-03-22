@@ -1,21 +1,18 @@
-function cdd() {
-  cd "$(ls -d -- */ | fzf)" || echo "Invalid directory"
+function test_dotfiles() {
+  echo "Hello world"
 }
 
 function j() {
   fname=$(declare -f -F _z)
 
-  [ -n "$fname" ] || source "$DOTLY_PATH/modules/z/z.sh"
+  [ -n "$fname" ] || source "$MYPYDOTFILES/modules/z/z.sh"
 
   _z "$1"
 }
 
-function recent_dirs() {
-  # This script depends on pushd. It works better with autopush enabled in ZSH
-  escaped_home=$(echo $HOME | sed 's/\//\\\//g')
-  selected=$(dirs -p | sort -u | fzf)
-
-  cd "$(echo "$selected" | sed "s/\~/$escaped_home/")" || echo "Invalid directory"
+function measure_performance_shell() {
+  # shellcheck disable=SC2034
+  for i in $(seq 1 10); do time zsh -i -c exit; done
 }
 
 function reverse-search() {
@@ -36,7 +33,6 @@ function reverse-search() {
   return $ret
 }
 
-
 function kubeconfig() {
     KUBEHOME=~/.kube
 
@@ -50,12 +46,9 @@ function kubeconfig() {
     done
     # NOTE: Automatically generated config for docker kubernetes
     KUBECONFIG=${KUBECONFIG}:${KUBEHOME}/config
-    
-    source <(kubectl completion zsh)
-    source $DOTFILES_PATH/shell/kube-ps1.sh
-    PROMPT='$(kube_ps1)'$PROMPT
-}
 
+    source <(kubectl completion zsh)
+}
 
 function vpn-login {
   OP_USER_NAME="andres.ortiz"
@@ -63,6 +56,7 @@ function vpn-login {
   OP_HOST="clarity.1password.com"
   CRED_FILE="${HOME}/.vpn/credentials.txt"
 
+  rm "${CRED_FILE}"
   read -rs OP_PW
   eval "$(echo "${OP_PW}" | op signin ${OP_HOST})"
   PW=$(op get item "${OP_CRED_NAME}" | jq -r '.details.fields[1].value')$(op get totp "${OP_CRED_NAME}")

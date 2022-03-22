@@ -1,4 +1,3 @@
-[submodule "modules/dotly"]
-	path = modules/dotly
-	url = https://github.com/CodelyTV/dotly.git
-	branch = master
+[submodule "modules/z"]
+	path = modules/z
+	url = https://github.com/rupa/z.git
