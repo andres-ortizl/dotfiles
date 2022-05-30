@@ -22,8 +22,11 @@ alias gcb="git fetch -p && git branch -vv | grep ': gone]' | awk '{print $1}' | 
 
 # Utils
 alias k=kubectl
+alias cat=bat
 alias p.='(pycharm $PWD &>/dev/null &)'
 alias c.='(code $PWD &>/dev/null &)'
 alias o.='open .'
+alias s3ls="aws --profile=mgmt s3 ls"
+alias s3cp="aws --profile=mgmt s3 cp"
 alias python3=python3.7
 alias pip3=/usr/local/opt/python@3.7/bin/pip3
