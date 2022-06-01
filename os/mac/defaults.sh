@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # Close any open System Preferences panes, to prevent them from overriding
 # settings we’re about to change
 osascript -e 'tell application "System Preferences" to quit'
@@ -216,7 +217,7 @@ defaults write com.apple.dock autohide -bool true
 defaults write com.apple.dock showhidden -bool true
 
 # Dock in the left
-# defaults write com.apple.dock orientation -string left
+defaults write com.apple.dock orientation -string left
 
 # Disable recent applications
 defaults write com.apple.dock show-recents -bool false
