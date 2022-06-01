@@ -1,1 +1,7 @@
-/Users/andrew/.gitconfig
+# This is Git's per-user configuration file.
+[user]
+	name = Andrés Ortiz
+	email = andres.ortiz@clarity.ai
+
+[pull]
+	ff = only
