@@ -1,1 +1,3 @@
-/Users/andrew/.bash_profile
+source ~/.bashrc
+
+export PATH="$HOME/.poetry/bin:$PATH"
