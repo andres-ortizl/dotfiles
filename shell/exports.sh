@@ -24,4 +24,5 @@ export path=(
   "/usr/sbin"
   "/sbin"
   "/usr/local/opt/python@3.7/bin"
+  "/usr/local/opt/python@3.10/bin"
 )

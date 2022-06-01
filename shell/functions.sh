@@ -2,17 +2,19 @@ function test_dotfiles() {
   echo "Hello world"
 }
 
+function measure_performance_shell() {
+  # shellcheck disable=SC2034
+  for i in $(seq 1 10); do time zsh -i -c exit; done
+}
+
+
+
 function j() {
   fname=$(declare -f -F _z)
 
   [ -n "$fname" ] || source "$MYPYDOTFILES/modules/z/z.sh"
 
   _z "$1"
-}
-
-function measure_performance_shell() {
-  # shellcheck disable=SC2034
-  for i in $(seq 1 10); do time zsh -i -c exit; done
 }
 
 function reverse-search() {
@@ -50,7 +52,7 @@ function kubeconfig() {
     source <(kubectl completion zsh)
 }
 
-function vpn-login {
+function vpn-login() {
   OP_USER_NAME="andres.ortiz"
   OP_CRED_NAME="Clarity VPN login"
   OP_HOST="clarity.1password.com"
@@ -63,4 +65,36 @@ function vpn-login {
   echo -e "${OP_USER_NAME}\n${PW}" > "${CRED_FILE}"
 	sudo openvpn "${HOME}/.vpn/${OP_USER_NAME}.ovpn"
 	rm "${CRED_FILE}"
+}
+
+function dc(){
+  if docker ps >/dev/null 2>&1; then
+  container=$(docker ps | awk '{if (NR!=1) print $1 ": " $(NF)}' | fzf --height 40%)
+
+  if [[ -n $container ]]; then
+    container_id=$(echo $container | awk -F ': ' '{print $1}')
+
+    docker exec -it $container_id /bin/bash || docker exec -it $container_id /bin/sh
+  else
+    echo "You haven't selected any container! ༼つ◕_◕༽つ"
+  fi
+else
+  echo "Docker daemon is not running! (ಠ_ಠ)"
+fi
+}
+
+function ds(){
+  if docker ps >/dev/null 2>&1; then
+  container=$(docker ps | awk '{if (NR!=1) print $1 ": " $(NF)}' | fzf --height 40%)
+
+  if [[ -n $container ]]; then
+    container_id=$(echo $container | awk -F ': ' '{print $1}')
+
+    docker stop $container_id
+  else
+    echo "You haven't selected any container! ༼つ◕_◕༽つ"
+  fi
+else
+  echo "Docker daemon is not running! (ಠ_ಠ)"
+fi
 }

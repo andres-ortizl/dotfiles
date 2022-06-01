@@ -1,0 +1,13 @@
+[flake8]
+# Some sane defaults for the code style checker flake8
+max-line-length=160
+ignore=E501,E302,E722,W503
+exclude =
+    .tox
+    build
+    dist
+    .eggs
+    docs/conf.pyp
+    docs/conf.py
+    .ipynb_checkpoints
+    .pytest_cache
