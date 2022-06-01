@@ -3,9 +3,12 @@ alias sudo='sudo '
 
 alias ..="cd .."
 alias ...="cd ../.."
-alias ll="ls -l"
-alias la="ls -la"
+alias ll="lsd -l"
+alias la="lsd -la"
+alias ls="lsd"
 alias ~="cd ~"
+alias vim="nvim"
+alias vi="nvim"
 
 # Git
 alias gl="git log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
