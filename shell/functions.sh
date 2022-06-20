@@ -7,8 +7,6 @@ function measure_performance_shell() {
   for i in $(seq 1 10); do time zsh -i -c exit; done
 }
 
-
-
 function j() {
   fname=$(declare -f -F _z)
 
@@ -71,32 +69,32 @@ function dc(){
   if docker ps >/dev/null 2>&1; then
   container=$(docker ps | awk '{if (NR!=1) print $1 ": " $(NF)}' | fzf --height 40%)
 
-  if [[ -n $container ]]; then
-    container_id=$(echo $container | awk -F ': ' '{print $1}')
+    if [[ -n $container ]]; then
+      container_id=$(echo $container | awk -F ': ' '{print $1}')
 
-    docker exec -it $container_id /bin/bash || docker exec -it $container_id /bin/sh
+      docker exec -it $container_id /bin/bash || docker exec -it $container_id /bin/sh
+    else
+      echo "You haven't selected any container! ༼つ◕_◕༽つ"
+    fi
   else
-    echo "You haven't selected any container! ༼つ◕_◕༽つ"
-  fi
-else
   echo "Docker daemon is not running! (ಠ_ಠ)"
-fi
+  fi
 }
 
 function ds(){
   if docker ps >/dev/null 2>&1; then
   container=$(docker ps | awk '{if (NR!=1) print $1 ": " $(NF)}' | fzf --height 40%)
 
-  if [[ -n $container ]]; then
-    container_id=$(echo $container | awk -F ': ' '{print $1}')
+    if [[ -n $container ]]; then
+      container_id=$(echo $container | awk -F ': ' '{print $1}')
 
-    docker stop $container_id
+      docker stop $container_id
+    else
+      echo "You haven't selected any container! ༼つ◕_◕༽つ"
+    fi
   else
-    echo "You haven't selected any container! ༼つ◕_◕༽つ"
-  fi
-else
   echo "Docker daemon is not running! (ಠ_ಠ)"
-fi
+  fi
 }
 
 function fh() {
@@ -115,4 +113,28 @@ function ch() {
      from urls order by last_visit_time desc" |
   awk -F $sep '{printf "%-'$cols's  \x1b[36m%s\x1b[m\n", $1, $2}' |
   fzf --ansi --multi | sed 's#.*\(https*://\)#\1#' | xargs open
+}
+
+function psf() {
+  FZF_DEFAULT_COMMAND='ps -ef' \
+  fzf --bind 'ctrl-r:reload($FZF_DEFAULT_COMMAND)' \
+      --header 'Press CTRL-R to reload' --header-lines=1 \
+      --height=50% --layout=reverse
+}
+
+function rpgrp (){
+  INITIAL_QUERY=""
+  RG_PREFIX="rg --column --line-number --no-heading --color=always --smart-case "
+  FZF_DEFAULT_COMMAND="$RG_PREFIX '$INITIAL_QUERY'" \
+  fzf --bind "change:reload:$RG_PREFIX {q} || true" \
+      --ansi --disabled --query "$INITIAL_QUERY" \
+      --height=50% --layout=reverse
+}
+
+function s3csv() {
+  aws --profile=mgmt s3 cp "$1" - | bat -l csv
+}
+
+function s3json() {
+  aws --profile=mgmt s3 cp "$1" - | bat -l json
 }
