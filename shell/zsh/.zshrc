@@ -37,7 +37,9 @@ fi
 # Initialize modules.
 source ${ZIM_HOME}/init.zsh
 
+
 # ------------------------------
+
 # Post-init module configuration
 # ------------------------------
 
@@ -53,6 +55,8 @@ for key ('k') bindkey -M vicmd ${key} history-substring-search-up
 for key ('j') bindkey -M vicmd ${key} history-substring-search-down
 unset key
 # }}} End configuration added by Zim install
+
+
 
 export MYPYDOTFILES=/Users/andrew/.mypydotfiles
 source $MYPYDOTFILES/shell/main.sh
