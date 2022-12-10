@@ -1,11 +1,9 @@
 #!/bin/sh
 
 #Blurring
-picom --config ~/.config/picom/picom.conf &
+picom --experimental-backends --config ~/.config/picom/picom.conf &
 
 # systray volume
 volctl &
 
-#nitrogen
-nitrogen --restore &
-
+$HOME/.screenlayout/screenlayout.sh
