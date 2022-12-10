@@ -78,11 +78,26 @@ primary_widgets = [
     *workspaces(),
 
     separator(),
+    powerline('color8', 'dark'),
+    widget.CPU(
+        **base(bg='color8'),
+        format='C:{load_percent:4.1f}% ',
+        padding=0),
 
-    powerline('color4', 'dark'),
-
+    powerline('color7', 'color8'),
+    widget.ThermalSensor(**base(bg='color7'), padding=3, threshold=90),
+    powerline('color6', 'color7'),
+    icon(bg="color6", text=' '),
+    widget.Memory(**base(bg='color6'), padding=3,measure_mem='G'),
+    powerline('color5', 'color6'),
+    icon(bg="color5", text=' '),
+    widget.PulseVolume(
+        **base(bg='color5'),
+        padding=3,
+        volume_app='pavucontrol'
+    ),
+    powerline('color4', 'color5'),
     icon(bg="color4", text=' '),  # Icon: nf-fa-download
-
     widget.CheckUpdates(
         background=colors['color4'],
         colour_have_updates=colors['text'],
@@ -92,11 +107,9 @@ primary_widgets = [
         update_interval=1800,
         custom_command='checkupdates',
     ),
-
     powerline('color3', 'color4'),
 
     icon(bg="color3", text=' '),  # Icon: nf-fa-feed
-
     widget.Net(**base(bg='color3'), interface='enp34s0'),
 
     powerline('color2', 'color3'),
@@ -124,7 +137,7 @@ primary_widgets = [
         scroll_interval=0.3,
     ),
 
-    widget.Systray(background=colors['grey'], padding=5),
+    widget.Systray(background=colors['black'], padding=5),
 ]
 
 secondary_widgets = [

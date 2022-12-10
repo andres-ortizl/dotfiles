@@ -1,9 +1,9 @@
 #!/bin/sh
 
 #Blurring
-picom --experimental-backends --config ~/.config/picom/picom.conf &
+picom --config ~/.config/picom/picom.conf &
 
 # systray volume
 volctl &
 
-$HOME/.screenlayout/screenlayout.sh
+bash $HOME/.screenlayout/screenlayout.sh
