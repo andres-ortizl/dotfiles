@@ -2,5 +2,5 @@
 
 #Blurring
 picom &
-feh --bg-fill /home/andrew/code/gr3d/wallpapers/the-neon-shallows-redish.png
+feh --bg-fill /home/andrew/.dotfiles/os/wallpaper/stray.jpg
 bash $HOME/.screenlayout/screenlayout.sh
