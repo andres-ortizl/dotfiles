@@ -50,7 +50,7 @@ keys = [Key(key[0], key[1], *key[2:]) for key in [
     # ------------ App Configs ------------
 
     # Menu
-    ([mod], "space", lazy.spawn("rofi -show drun")),
+    ([mod], "space", lazy.spawn("/home/andrew/.config/rofi/launchers/type-7/launcher.sh", shell=True)),
 
     # BetterLockscreen
     ([mod, "control"], "l", lazy.spawn(
@@ -82,12 +82,12 @@ keys = [Key(key[0], key[1], *key[2:]) for key in [
     ([mod, "shift"], "r", lazy.spawn("redshift -x")),
 
     # Screenshot
-    ([mod], "s", lazy.spawn("/home/greed/.config/qtile/scripts/scrotshot.sh", shell=True)),
+    ([mod], "s", lazy.spawn("/home/andrew/.config/qtile/scripts/scrotshot.sh", shell=True)),
     ([mod, "shift"], "s", lazy.spawn(
         "/home/greed/.config/qtile/scripts/scrot_select.sh")),
 
     # mute mic
-    ([mod], "m", lazy.spawn("/home/greed/.config/qtile/scripts/mic_toggle.sh")),
+    ([mod], "m", lazy.spawn("/home/andrew/.config/qtile/scripts/mic_toggle.sh")),
 
     # Spotify
     ([mod, "shift"], "m", lazy.spawn("spotify")),

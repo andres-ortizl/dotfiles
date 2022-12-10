@@ -84,9 +84,9 @@ primary_widgets = [
         format='C:{load_percent:4.1f}% ',
         padding=0),
 
-    powerline('color7', 'color8'),
-    widget.ThermalSensor(**base(bg='color7'), padding=3, threshold=90),
-    powerline('color6', 'color7'),
+    powerline('color12', 'color8'),
+    widget.ThermalSensor(**base(bg='color12'), padding=3, threshold=90),
+    powerline('color6', 'color12'),
     icon(bg="color6", text=' '),
     widget.Memory(**base(bg='color6'), padding=3,measure_mem='G'),
     powerline('color5', 'color6'),
@@ -110,7 +110,7 @@ primary_widgets = [
     powerline('color3', 'color4'),
 
     icon(bg="color3", text=' '),  # Icon: nf-fa-feed
-    widget.Net(**base(bg='color3'), interface='enp34s0'),
+    widget.Net(**base(bg='color3'), interface='enp34s0',format='U {up} D {down} T {total}',prefix='M'),
 
     powerline('color2', 'color3'),
 

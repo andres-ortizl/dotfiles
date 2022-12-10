@@ -1,9 +1,6 @@
 #!/bin/sh
 
 #Blurring
-picom --config ~/.config/picom/picom.conf &
-
-# systray volume
-volctl &
-
+picom &
+feh --bg-fill /home/andrew/code/gr3d/wallpapers/the-neon-shallows-redish.png
 bash $HOME/.screenlayout/screenlayout.sh
