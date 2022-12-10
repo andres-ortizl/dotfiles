@@ -1,8 +1,5 @@
 from libqtile.config import Key
 from libqtile.command import lazy
-from libqtile.core import manager
-from libqtile import qtile
-
 
 mod = "mod4"
 
@@ -44,7 +41,6 @@ keys = [Key(key[0], key[1], *key[2:]) for key in [
 
     ([mod, "shift"], "q", lazy.spawn("alacritty -e sudo shutdown now")),
 
-
     # ([mod], "r", lazy.spawncmd()),
 
     # ------------ App Configs ------------
@@ -52,30 +48,18 @@ keys = [Key(key[0], key[1], *key[2:]) for key in [
     # Menu
     ([mod], "space", lazy.spawn("/home/andrew/.config/rofi/launchers/type-7/launcher.sh", shell=True)),
 
+    # Powermenu
+    ([mod], "end", lazy.spawn("/home/andrew/.config/rofi/powermenu/type-6/powermenu.sh", shell=True)),
+
     # BetterLockscreen
     ([mod, "control"], "l", lazy.spawn(
         "betterlockscreen -l")),
 
-    # Window Nav
-    ([mod, "shift"], "space", lazy.spawn("rofi -show window")),
-
-    # Kdocker
-    (["control", "shift"], "k", lazy.spawn("kdocker")),
-
     # Browser
     ([mod], "b", lazy.spawn("firefox")),
 
-    # Discord
-    ([mod], "d", lazy.spawn("discord")),
-
-    # File Explorer
-    ([mod], "e", lazy.spawn("thunar")),
-
     # Terminal
     ([mod], "Return", lazy.spawn("alacritty")),
-
-    # Nvim
-    ([mod], "v", lazy.spawn("alacritty -e nvim")),
 
     # Redshift
     ([mod], "r", lazy.spawn("redshift -O 2400")),
@@ -86,12 +70,8 @@ keys = [Key(key[0], key[1], *key[2:]) for key in [
     ([mod, "shift"], "s", lazy.spawn(
         "/home/greed/.config/qtile/scripts/scrot_select.sh")),
 
-    # mute mic
-    ([mod], "m", lazy.spawn("/home/andrew/.config/qtile/scripts/mic_toggle.sh")),
-
     # Spotify
     ([mod, "shift"], "m", lazy.spawn("spotify")),
-
 
     # ------------ Hardware Configs ------------
 

@@ -1,6 +1,5 @@
 from libqtile import widget
 from .theme import colors
-from qtile_extras.widget import decorations
 
 
 # Get the icons at https://www.nerdfonts.com/cheat-sheet (you need a Nerd Font)
@@ -10,16 +9,6 @@ def base(fg='text', bg='dark'):
         'foreground': colors[fg],
         'background': colors[bg]
     }
-
-
-decoration_spotify = {
-    "decorations": [
-        decorations.PowerLineDecoration(
-            path="rounded_left"
-
-        )
-    ]
-}
 
 
 def separator():
@@ -74,21 +63,53 @@ def workspaces():
     ]
 
 
+def clock():
+    pass
+
+
+def layout():
+    pass
+
+
+def net():
+    pass
+
+
+def updates():
+    pass
+
+
+def memory():
+    pass
+
+
+def temp():
+    pass
+
+
+def cpu():
+    pass
+
+
+def volume():
+    pass
+
+
 primary_widgets = [
     *workspaces(),
 
     separator(),
-    powerline('color8', 'dark'),
+    powerline('color10', 'dark'),
     widget.CPU(
-        **base(bg='color8'),
+        **base(bg='color10'),
         format='C:{load_percent:4.1f}% ',
         padding=0),
 
-    powerline('color12', 'color8'),
+    powerline('color12', 'color10'),
     widget.ThermalSensor(**base(bg='color12'), padding=3, threshold=90),
     powerline('color6', 'color12'),
     icon(bg="color6", text=' '),
-    widget.Memory(**base(bg='color6'), padding=3,measure_mem='G'),
+    widget.Memory(**base(bg='color6'), padding=3, measure_mem='G'),
     powerline('color5', 'color6'),
     icon(bg="color5", text=' '),
     widget.PulseVolume(
@@ -110,7 +131,7 @@ primary_widgets = [
     powerline('color3', 'color4'),
 
     icon(bg="color3", text=' '),  # Icon: nf-fa-feed
-    widget.Net(**base(bg='color3'), interface='enp34s0',format='U {up} D {down} T {total}',prefix='M'),
+    widget.Net(**base(bg='color3'), interface='enp34s0', format='U {up} D {down} T {total}', prefix='M'),
 
     powerline('color2', 'color3'),
 
@@ -123,19 +144,6 @@ primary_widgets = [
     icon(bg="color1", fontsize=17, text=' '),  # Icon: nf-mdi-calendar_clock
 
     widget.Clock(**base(bg='color1'), format='%d/%m/%Y - %H:%M '),
-
-    powerline('dark', 'color1'),
-    widget.Mpris2(
-        **decoration_spotify,
-        foreground='ffffff',
-        name="spotify",
-        paused_text=" : {track}",
-        stop_text="  ",
-        display_metadata=["xesam:title", "xesam:artist"],
-        objname="org.mpris.MediaPlayer2.spotify",
-        width=175,
-        scroll_interval=0.3,
-    ),
 
     widget.Systray(background=colors['black'], padding=5),
 ]
