@@ -27,7 +27,7 @@ pacman-contrib stow cbatticon pamixer pcmanfm alacritty redshift scrot
 
 paru -S jetbrains-toolbox discord spotify neovim picom-git bison xcb-util-cursor \
 rofi-git bspwm-git qtile-git qtile-extras-git python2-iwscan python-dbus-next-git \
-nitrogen-git nerd-fonts-cascadia-code arandr ightdm-webkit-theme-aether openssh
+nitrogen-git nerd-fonts-cascadia-code arandr ightdm-webkit-theme-aether openssh tldrrofi feh sudo pulseaudio pavucontrol
 
 paru -S gobuster sqlmap nmap john-git responder
 
