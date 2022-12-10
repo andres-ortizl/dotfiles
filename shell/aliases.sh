@@ -33,3 +33,4 @@ alias s3ls="aws --profile=mgmt s3 ls"
 alias s3cp="aws --profile=mgmt s3 cp"
 alias python3=python3.7
 alias pip3=/usr/local/opt/python@3.7/bin/pip3
+alias top="htop -s PERCENT_MEM"

@@ -27,7 +27,7 @@ pacman-contrib stow cbatticon pamixer pcmanfm alacritty redshift scrot
 
 paru -S jetbrains-toolbox discord spotify neovim picom bison xcb-util-cursor \
 rofi-git bspwm-git qtile-git qtile-extras-git python2-iwscan python-dbus-next-git \
-nitrogen-git nerd-fonts-cascadia-code arandr ightdm-webkit-theme-aether openssh tldrrofi feh sudo pulseaudio pavucontrol
+nitrogen-git nerd-fonts-cascadia-code arandr ightdm-webkit-theme-aether openssh tldrrofi feh sudo pulseaudio pavucontrol direnv
 
 paru -S gobuster sqlmap nmap john-git responder
 
@@ -38,3 +38,6 @@ curl -fsSL https://raw.githubusercontent.com/zimfw/install/master/install.zsh | 
 sudo usermod -a -G docker andrew
 sudo systemctl enable docker
 sudo systemctl start docker
+
+# rofi styles
+#https://github.com/adi1090x/rofi
