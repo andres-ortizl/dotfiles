@@ -7,9 +7,7 @@ keys = [Key(key[0], key[1], *key[2:]) for key in [
     # ------------ Window Configs ------------
 
     # Switch between windows in current stack pane
-    ([mod], "j", lazy.layout.down()),
     ([mod], "k", lazy.layout.up()),
-    ([mod], "h", lazy.layout.left()),
     ([mod], "l", lazy.layout.right()),
 
     # Change window sizes (MonadTall)
@@ -20,8 +18,7 @@ keys = [Key(key[0], key[1], *key[2:]) for key in [
     ([mod, "shift"], "f", lazy.window.toggle_floating()),
 
     # Move windows up or down in current stack
-    ([mod, "shift"], "j", lazy.layout.shuffle_down()),
-    ([mod, "shift"], "k", lazy.layout.shuffle_up()),
+    #([mod, "downarrow"], lazy.layout.shuffle_down()),
 
     # Toggle between different layouts as defined below
     ([mod], "Tab", lazy.next_layout()),
@@ -36,20 +33,17 @@ keys = [Key(key[0], key[1], *key[2:]) for key in [
 
     # Restart Qtile
     ([mod, "control"], "r", lazy.restart()),
-
     ([mod, "control"], "q", lazy.shutdown()),
-
     ([mod, "shift"], "q", lazy.spawn("alacritty -e sudo shutdown now")),
 
-    # ([mod], "r", lazy.spawncmd()),
 
     # ------------ App Configs ------------
 
     # Menu
-    ([mod], "space", lazy.spawn("/home/andrew/.config/rofi/launchers/type-7/launcher.sh", shell=True)),
+    ([mod], "space", lazy.spawn("/home/andrew/.config/rofi/launchers/type-4/launcher.sh", shell=True)),
 
     # Powermenu
-    ([mod], "end", lazy.spawn("/home/andrew/.config/rofi/powermenu/type-6/powermenu.sh", shell=True)),
+    ([mod], "end", lazy.spawn("/home/andrew/.config/rofi/powermenu/type-2/powermenu.sh", shell=True)),
 
     # BetterLockscreen
     ([mod, "control"], "l", lazy.spawn(
@@ -68,7 +62,7 @@ keys = [Key(key[0], key[1], *key[2:]) for key in [
     # Screenshot
     ([mod], "s", lazy.spawn("/home/andrew/.config/qtile/scripts/scrotshot.sh", shell=True)),
     ([mod, "shift"], "s", lazy.spawn(
-        "/home/greed/.config/qtile/scripts/scrot_select.sh")),
+        "/home/andrew/.config/qtile/scripts/scrot_select.sh")),
 
     # Spotify
     ([mod, "shift"], "m", lazy.spawn("spotify")),
