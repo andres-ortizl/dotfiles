@@ -1,6 +1,4 @@
 #!/bin/sh
-
-#Blurring
-picom &
-feh --bg-fill /home/andrew/.dotfiles/os/wallpaper/stray.jpg
 bash $HOME/.screenlayout/screenlayout.sh
+feh --bg-fill $HOME/.dotfiles/os/wallpaper/ign_dudeOnBuilding3.png
+picom &
