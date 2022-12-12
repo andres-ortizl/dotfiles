@@ -106,6 +106,7 @@ function ch() {
   cols=$(( COLUMNS / 3 ))
   sep='{::}'
 
+  # May change depending on your operating system
   cp -f ~/Library/Application\ Support/Google/Chrome/Default/History /tmp/h
 
   sqlite3 -separator $sep /tmp/h \
