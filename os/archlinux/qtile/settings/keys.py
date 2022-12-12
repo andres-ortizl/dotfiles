@@ -62,7 +62,7 @@ keys = [Key(key[0], key[1], *key[2:]) for key in [
     # Screenshot
     ([mod], "s", lazy.spawn("/home/andrew/.config/qtile/scripts/scrotshot.sh", shell=True)),
     ([mod, "shift"], "s", lazy.spawn(
-        "/home/andrew/.config/qtile/scripts/scrot_select.sh")),
+        "/home/andrew/.config/qtile/scripts/scrot_select.sh", shell=True)),
 
     # Spotify
     ([mod, "shift"], "m", lazy.spawn("spotify")),
