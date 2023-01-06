@@ -1,7 +1,9 @@
-# This is Git's per-user configuration file.
 [user]
-	name = Andrés Ortiz
-	email = andres.ortiz@clarity.ai
-
+        email = andres.ortiz.xyz@gmail.com
+        name = andres-ortizl
 [pull]
-	ff = only
+        rebase = true
+[rebase]
+        autoStash = true
+[push]
+        autoSetupRemote = true

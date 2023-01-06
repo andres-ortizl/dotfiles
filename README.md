@@ -2,7 +2,7 @@
 
 It's a collection of my dotfiles for Arch & Mac OS X.
 
-## Showcase for Arch :
+## Showcase for Arch ( Qtile ) :
 
 ![Qtile1](./screenshots/empty.png)
 ![picom1](./screenshots/picom-terminal-not-focused.png)
@@ -89,7 +89,7 @@ You can reset it using the keybinding `mod + shift + r`
 
 ### Problems
 
-In case the network widget is not working use `ip addr` to find your wireless modem, then :
+In case the network widget is not working use `ip addr` to find your interface, then :
 
 ```python
 #Open the file ../qtile/settings/widget.py :
@@ -108,3 +108,64 @@ To install all of the apps I use :
 
 I also have some scripts for minor things like screenshot and toggling the mic.
 You can find them in `os/archilinux/qtile/scripts.`
+
+## Showcase for Arch ( Hyprland ) :
+
+![Hyprland1](./screenshots/hyprland-1.png)
+![Hyprland2](./screenshots/hyprland.png)
+![Hyprland3](./screenshots/hyprland-rofi.png)
+
+- Window Manager : [Hyprland](https://github.com/hyprwm/Hyprland)
+- Bar : [Waybar](https://github.com/Alexays/Waybar)
+- Notification Daemon : [Dunst](https://github.com/dunst-project/dunst)
+- Wallpaper loader : [swww](https://github.com/Horus645/swww)
+- Window Switcher : [rofi](https://github.com/davatorium/rofi)
+- Terminal Theme for Alacritty : [Catppuccin (Mocha Flavour)](https://github.com/catppuccin/alacritty)
+- Terminal Font : [Caskaydia Cove](https://github.com/ryanoasis/nerd-fonts/releases/download/v2.2.2/CascadiaCode.zip)
+- Firefox : [Dracula](https://draculatheme.com/firefox)
+
+### Installation (Arch Based) :
+
+```bash
+paru -S hyprland-git 
+waybar-hyprland-git cava kitty rofi xdg-desktop-portal-hyprland-git grim slurp jq dunst wl-clipboard swaylock-effects-git btop swww polkit-kde-agent 
+nerd-fonts-jetbrains-mono playerctl socat inotify-tools-git
+```
+
+Again, if i'm missing something you can check the full list in the [packages](./os/archlinux/package.list) file.
+
+Clone this repo:
+
+```bash
+git clone https://github.com/andres-ortizl/dot-files.git andrew-dotfiles
+```
+
+This will overwrite your current configuration files for this applications.
+Copy configuration files to `~/.config`:
+
+```bash
+cd andrew-dotfiles/os/archlinux && cp -r hypr/ rofi/ swaylock/ wallpapers/ dunst/ ~/.config/
+```
+
+### Hyprland Configuration
+
+You can find the configuration files for Hyprland in `os/archlinux/hypr/`. The main configuration file is hyprland.conf.
+The default configuration is for two monitors, 4 workspaces, but you can change it to your liking. You can configure
+here keybindings, workspaces, effects, etc. More info in the [Hyprland Wiki](https://wiki.hyprland.org/)
+
+### Waybar Configuration
+
+Waybar is a highly customizable Wayland bar for Sway and Wlroots based compositors. You can find the configuration file
+in `os/archlinux/waybar/config`. You can customize the bar for each monitor. You can also change the default theme in
+the file `os/archlinux/waybar/style.css`
+
+If you want to customize your temperature sensor, you may want to take a look to your folder `/sys/class/hwmon/`, maybe
+your sensor is different than the one that I have. Wiki here : [Waybar Wiki](https://github.com/Alexays/Waybar/wiki)
+
+### Gammastep
+
+Redsfhit like program for wayland so you can control the color temperature of your screen.
+
+### Cursor
+
+https://github.com/catppuccin/cursorsgs
