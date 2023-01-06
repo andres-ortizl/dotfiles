@@ -10,7 +10,7 @@ function measure_performance_shell() {
 function j() {
   fname=$(declare -f -F _z)
 
-  [ -n "$fname" ] || source "$MYPYDOTFILES/modules/z/z.sh"
+  [ -n "$fname" ] || source "/usr/share/z/z.sh"
 
   _z "$1"
 }

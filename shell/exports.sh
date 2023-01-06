@@ -23,4 +23,5 @@ export path=(
   "/usr/bin"
   "/usr/sbin"
   "/sbin"
+  "/home/andrew/.local/share/JetBrains/Toolbox/scripts"
 )
