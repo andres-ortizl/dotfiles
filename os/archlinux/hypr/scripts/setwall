@@ -56,4 +56,5 @@ fi
 
 printf "$GREEN[INFO]$NC Setting wallpaper to $var (${wallpapers[$(($var - 1))]})\n"
 
-swww img $HOME/.config/wallpapers/${wallpapers[$(($var - 1))]}
+swww img $HOME/.config/wallpapers/${wallpapers[$(($var - 1))]} -o HDMI-A-1
+swww img $HOME/.config/wallpapers/${wallpapers[$(($var))]} -o DP-3

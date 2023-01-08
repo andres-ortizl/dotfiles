@@ -44,8 +44,8 @@
     "spacing": 5
   },
   "cpu": {"interval": 10, "format":" {}% ", "max-length": 10},
-  "temperature#cpu": {"format": " {temperatureC}°C", "hwmon-path":"/sys/class/hwmon/hwmon1/temp1_input"},
-  "temperature#gpu": {"format": " {temperatureC}°C", "hwmon-path":"/sys/class/hwmon/hwmon2/temp1_input"},
+  "temperature#cpu": {"format": " {temperatureC}°C", "hwmon-path":"/sys/class/hwmon/hwmon2/temp1_input"},
+  "temperature#gpu": {"format": " {temperatureC}°C", "hwmon-path":"/sys/class/hwmon/hwmon3/temp1_input"},
   "clock": {
     "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
     "format-alt": " {:%a %b %d}",
