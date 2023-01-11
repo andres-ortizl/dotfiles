@@ -16,10 +16,25 @@ It's a collection of my dotfiles for Arch & Mac OS X.
 - Terminal Font : [Caskaydia Cove](https://github.com/ryanoasis/nerd-fonts/releases/download/v2.2.2/CascadiaCode.zip)
 - Firefox : [Dracula](https://draculatheme.com/firefox)
 
-### Installation (Arch Based) :
+## Showcase for Arch ( Hyprland ) :
+
+![Hyprland1](./screenshots/hyprland-1.png)
+![Hyprland2](./screenshots/hyprland.png)
+![Hyprland3](./screenshots/hyprland-rofi.png)
+
+- Window Manager : [Hyprland](https://github.com/hyprwm/Hyprland)
+- Bar : [Waybar](https://github.com/Alexays/Waybar)
+- Notification Daemon : [Dunst](https://github.com/dunst-project/dunst)
+- Wallpaper loader : [swww](https://github.com/Horus645/swww)
+- Window Switcher : [rofi](https://github.com/davatorium/rofi)
+- Terminal Theme for Alacritty : [Catppuccin (Mocha Flavour)](https://github.com/catppuccin/alacritty)
+- Terminal Font : [Caskaydia Cove](https://github.com/ryanoasis/nerd-fonts/releases/download/v2.2.2/CascadiaCode.zip)
+- Firefox : [Dracula](https://draculatheme.com/firefox)
+
+### Installation Qtile dots (Arch Based) :
 
 I've a bunch of packages installed but you can install the bare minimum to get started.
-In case I'm missing something you can check the full list in the [packages](./os/archlinux/package.list) file.
+In case I'm missing something you can check the full list in the [packages](./config/package.list) file.
 
 ```bash
 paru -S nerd-fonts-cascadia-code nerd-fonts-ubuntu picom qtile-extras-git qtile-git rofi alacritty python2-iwscan xcb-util-cursor
@@ -35,7 +50,7 @@ This will overwrite your current configuration files for this applications.
 Copy configuration files to `~/.config`:
 
 ```bash
-cd andrew-dotfiles/os/archlinux && cp -r alacritty/ picom/ qtile/ rofi/ tmux.conf ~/.config/
+cd andrew-dotfiles/config && cp -r alacritty/ picom/ qtile/ rofi/ tmux.conf ~/.config/
 ```
 
 # Configuration
@@ -43,19 +58,19 @@ cd andrew-dotfiles/os/archlinux && cp -r alacritty/ picom/ qtile/ rofi/ tmux.con
 ### Qtile autostart
 
 You may need to change here the paths to the apps you want to autostart and its locations.
-Do it on `os/archlinux/qtile/autostart.sh`
+Do it on `config/qtile/autostart.sh`
 
 ### Qtile themes
 
-The themes are stored in `os/archlinux/qtile/themes/`. They are nothing but simple json file.
+The themes are stored in `config/qtile/themes/`. They are nothing but simple json file.
 The default and only theme right now is `dracula.json` but you can add or edit this file.
-You can change the default theme editing the file `os/archlinux/qtile/themes/config.json`
+You can change the default theme editing the file `config/qtile/themes/config.json`
 
 ### Qtile Extra configuration
 
-- edit default keybindings in `os/archlinux/qtile/settings/keys.py`
-- edit widgets in `os/archlinux/qtile/settings/widgets.py`
-- edit workspaces in `os/archlinux/qtile/settings/groups.py`
+- edit default keybindings in `config/qtile/settings/keys.py`
+- edit widgets in `config/qtile/settings/widgets.py`
+- edit workspaces in `config/qtile/settings/groups.py`
 
 Some of the keybindings are:
 
@@ -68,7 +83,7 @@ Some of the keybindings are:
 
 Rofi is a window switcher, run dialog, ssh-launcher started as a clone of simpleswitcher.
 
-- edit styles in `os/archlinux/rofi/config.rasi`
+- edit styles in `config/rofi/config.rasi`
 - Theme : Dracula
 
 You can find extra themes here : [Rofi Themes](https://github.com/adi1090x/rofi)
@@ -78,7 +93,7 @@ change it.
 ### Picom
 
 Picom is a lightweight compositor for X11. It's used to add transparency to windows.
-You can find the configuration file in `os/archlinux/picom/picom.conf`
+You can find the configuration file in `config/picom/picom.conf`
 
 ### Redshift
 
@@ -109,22 +124,7 @@ To install all of the apps I use :
 I also have some scripts for minor things like screenshot and toggling the mic.
 You can find them in `os/archilinux/qtile/scripts.`
 
-## Showcase for Arch ( Hyprland ) :
-
-![Hyprland1](./screenshots/hyprland-1.png)
-![Hyprland2](./screenshots/hyprland.png)
-![Hyprland3](./screenshots/hyprland-rofi.png)
-
-- Window Manager : [Hyprland](https://github.com/hyprwm/Hyprland)
-- Bar : [Waybar](https://github.com/Alexays/Waybar)
-- Notification Daemon : [Dunst](https://github.com/dunst-project/dunst)
-- Wallpaper loader : [swww](https://github.com/Horus645/swww)
-- Window Switcher : [rofi](https://github.com/davatorium/rofi)
-- Terminal Theme for Alacritty : [Catppuccin (Mocha Flavour)](https://github.com/catppuccin/alacritty)
-- Terminal Font : [Caskaydia Cove](https://github.com/ryanoasis/nerd-fonts/releases/download/v2.2.2/CascadiaCode.zip)
-- Firefox : [Dracula](https://draculatheme.com/firefox)
-
-### Installation (Arch Based) :
+### Installation Hypr (Arch Based) :
 
 ```bash
 paru -S hyprland-git 
@@ -132,7 +132,7 @@ waybar-hyprland-git cava kitty rofi xdg-desktop-portal-hyprland-git grim slurp j
 nerd-fonts-jetbrains-mono playerctl socat inotify-tools-git
 ```
 
-Again, if i'm missing something you can check the full list in the [packages](./os/archlinux/package.list) file.
+Again, if i'm missing something you can check the full list in the [packages](./config/package.list) file.
 
 Clone this repo:
 
@@ -144,20 +144,20 @@ This will overwrite your current configuration files for this applications.
 Copy configuration files to `~/.config`:
 
 ```bash
-cd andrew-dotfiles/os/archlinux && cp -r hypr/ rofi/ swaylock/ wallpapers/ dunst/ ~/.config/
+cd andrew-dotfiles/config && cp -r hypr/ rofi/ swaylock/ wallpapers/ dunst/ ~/.config/
 ```
 
 ### Hyprland Configuration
 
-You can find the configuration files for Hyprland in `os/archlinux/hypr/`. The main configuration file is hyprland.conf.
+You can find the configuration files for Hyprland in `config/hypr/`. The main configuration file is hyprland.conf.
 The default configuration is for two monitors, 4 workspaces, but you can change it to your liking. You can configure
 here keybindings, workspaces, effects, etc. More info in the [Hyprland Wiki](https://wiki.hyprland.org/)
 
 ### Waybar Configuration
 
 Waybar is a highly customizable Wayland bar for Sway and Wlroots based compositors. You can find the configuration file
-in `os/archlinux/waybar/config`. You can customize the bar for each monitor. You can also change the default theme in
-the file `os/archlinux/waybar/style.css`
+in `config/waybar/config`. You can customize the bar for each monitor. You can also change the default theme in
+the file `config/waybar/style.css`
 
 If you want to customize your temperature sensor, you may want to take a look to your folder `/sys/class/hwmon/`, maybe
 your sensor is different than the one that I have. Wiki here : [Waybar Wiki](https://github.com/Alexays/Waybar/wiki)
