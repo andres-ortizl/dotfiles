@@ -1,5 +1,10 @@
 # dotfile
 
+# Badge for macos and linux
+
+![example workflow](https://github.com/andres-ortizl/dot-files/actions/workflows/tests.yml/badge.svg)
+ [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 It's a collection of my dotfiles for Arch & Mac OS X.
 
 ## Showcase for Arch ( Qtile ) :
