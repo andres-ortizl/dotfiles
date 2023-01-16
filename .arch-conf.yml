@@ -1,0 +1,29 @@
+- defaults:
+    link:
+      relink: true
+
+- clean: [ '~' ]
+
+- link:
+    ~/.zshrc: config/.zshrc
+    ~/.bashrc: config/.bashrc
+    ~/.zlogin: config/.zlogin
+    ~/key-bindings.zsh: config/key-bindings.zsh
+    ~/.zimrc: config/.zimrc
+    ~/.gitconfig: config/git/.gitconfig
+    ~/.config/BetterDiscord: config/BetterDiscord/*
+    ~/.config/btop: config/btop/*
+    ~/.config/dunst: config/dunst/*
+    ~/.config/hypr: config/hypr/*
+    ~/.config/kitty: config/kitty/*
+    ~/.config/picom: config/picom/*
+    ~/.config/qtile: config/qtile/*
+    ~/.config/rofi: config/rofi/*
+    ~/.config/swaylock: config/swaylock/*
+    ~/.config/wallpaper: config/wallpaper/*
+    ~/.config/waybar: config/waybar/*
+    ~/.config/alacritty: config/alacritty/*
+
+
+- shell:
+    - [ git submodule update --init --recursive, Installing submodules ]
