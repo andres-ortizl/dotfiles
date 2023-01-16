@@ -1,0 +1,17 @@
+- defaults:
+    link:
+      relink: true
+
+- clean: [ '~' ]
+
+- link:
+    ~/.zshrc: config/.zshrc
+    ~/.bashrc: config/.bashrc
+    ~/key-bindings.zsh: config/key-bindings.zsh
+    ~/.zimrc: config/.zimrc
+    ~/.gitconfig: config/git/.gitconfig
+    ~/.config/karabiner/karabiner.json: config/karabiner/karabiner.json
+    ~/iterm2: config/iterm2
+
+- shell:
+    - [ git submodule update --init --recursive, Installing submodules ]

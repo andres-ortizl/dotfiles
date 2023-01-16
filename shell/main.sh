@@ -1,4 +1,4 @@
-source "$MYPYDOTFILES/shell/aliases.sh"
-source "$MYPYDOTFILES/shell/exports.sh"
-source "$MYPYDOTFILES/shell/functions.sh"
-export PATH="$MYPYDOTFILES/shell/functions/:$PATH"
+source "$DOTFILES/shell/aliases.sh"
+source "$DOTFILES/shell/exports.sh"
+source "$DOTFILES/shell/functions.sh"
+export PATH="$DOTFILES/shell/functions/:$PATH"
