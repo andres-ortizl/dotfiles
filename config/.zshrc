@@ -59,12 +59,12 @@ unset key
 
 [ -f /usr/share/fzf/key-bindings.zsh ] && source /usr/share/fzf/key-bindings.zsh
 [ -f /usr/share/fzf/completion.zsh ] && source /usr/share/fzf/completion.zsh
-export MYPYDOTFILES=/Users/andrew/.mypydotfiles
-source $MYPYDOTFILES/shell/main.sh
+export DOTFILES=/Users/andrew/.DOTFILES
+source $DOTFILES/shell/main.sh
 
 _evalcache direnv hook zsh
 
 #eval "$(direnv hook zsh)"
 export PATH="/usr/local/opt/kubernetes-cli@1.22/bin:$PATH"
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-source $MYPYDOTFILES/shell/main.sh
+
