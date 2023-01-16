@@ -173,3 +173,7 @@ Redsfhit like program for wayland so you can control the color temperature of yo
 ### Cursor
 
 https://github.com/catppuccin/cursorsgs
+
+### Contact
+
+If you have any questions or suggestions, feel free to contact me at andres.ortiz.xyz@gmail.com
