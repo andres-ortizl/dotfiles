@@ -10,7 +10,7 @@ OS=$(uname -s)
 if [[ $OS == "Darwin" ]]; then
   CONFIG=".mac-conf.yml"
 elif [[ $OS == "Linux" ]]; then
-  CONFIG=".arc-conf.yml"
+  CONFIG=".arch-conf.yml"
 else
   echo "Unsupported OS: $OS"
   exit 1
