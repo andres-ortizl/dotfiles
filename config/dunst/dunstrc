@@ -4,7 +4,7 @@
     ### Display ###
 
     # Which monitor should the notifications be displayed on.
-    monitor = 0
+    monitor = 1
 
     # Display notification on focused monitor.  Possible modes are:
     #   mouse: follow mouse pointer
@@ -250,8 +250,8 @@
     # These settings are Wayland-specific. They have no effect when using X11
 
     # Uncomment this if you want to let notications appear under fullscreen
-    # applications (default: overlay)
-    layer = bottom
+    #applications (default: overlay)
+    layer = overlay
 
     # Set this to true to use X11 output on Wayland.
     force_xwayland = false
