@@ -10,7 +10,7 @@ function measure_performance_shell() {
 function j() {
   fname=$(declare -f -F _z)
 
-  [ -n "$fname" ] || source "/usr/share/z/z.sh"
+  [ -n "$fname" ] || source "$DOTFILES/modules/z/z.sh"
 
   _z "$1"
 }

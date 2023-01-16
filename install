@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+set -e
+
+DOTBOT_DIR="modules/dotbot"
+DOTBOT_BIN="bin/dotbot"
+OS = $(uname -s)
+
+# Select proper conf
+if [[ $OS == "Darwin" ]]; then
+  CONFIG = ".mac-conf.yml"
+elif [[ $OS == "Linux" ]]; then
+  CONFIG = ".arc-conf.yml"
+else
+  echo "Unsupported OS: $OS"
+  exit 1
+fi
+
+
+# Set global $DOTFILES env var in .bashrc and .zshrc if not already set
+IF [[ -z $DOTFILES ]]; THEN
+  echo "export DOTFILES=$PWD" >> ~/.bashrc
+  echo "source $PWD/shell/main.sh" >> ~/.bashrc
+  echo "export DOTFILES=$PWD" >> ~/.zshrc
+  echo "source $PWD/shell/main.sh" >> ~/.zshrc
+  source ~/.bashrc
+  source ~/.zshrc
+fi
+
+
+
+BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+cd "${BASEDIR}"
+git -C "${DOTBOT_DIR}" submodule sync --quiet --recursive
+git submodule update --init --recursive "${DOTBOT_DIR}"
+
+"${BASEDIR}/${DOTBOT_DIR}/${DOTBOT_BIN}" -d "${BASEDIR}" -c "${CONFIG}" "${@}"
