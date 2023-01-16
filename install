@@ -18,7 +18,7 @@ fi
 
 
 # Set global $DOTFILES env var in .bashrc and .zshrc if not already set
-if [[ -z $DOTFILES ]]; THEN
+if [[ -z $DOTFILES ]]; then
   echo "export DOTFILES=$PWD" >> ~/.bashrc
   echo "source $PWD/shell/main.sh" >> ~/.bashrc
   echo "export DOTFILES=$PWD" >> ~/.zshrc
