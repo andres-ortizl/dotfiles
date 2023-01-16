@@ -1,6 +1,9 @@
 - defaults:
     link:
       relink: true
+      create: true
+      force: true
+      glob: true
 
 - clean: [ '~' ]
 
@@ -11,18 +14,18 @@
     ~/key-bindings.zsh: config/key-bindings.zsh
     ~/.zimrc: config/.zimrc
     ~/.gitconfig: config/git/.gitconfig
-    ~/.config/BetterDiscord: config/BetterDiscord/*
-    ~/.config/btop: config/btop/*
-    ~/.config/dunst: config/dunst/*
-    ~/.config/hypr: config/hypr/*
-    ~/.config/kitty: config/kitty/*
-    ~/.config/picom: config/picom/*
-    ~/.config/qtile: config/qtile/*
-    ~/.config/rofi: config/rofi/*
-    ~/.config/swaylock: config/swaylock/*
-    ~/.config/wallpaper: config/wallpaper/*
-    ~/.config/waybar: config/waybar/*
-    ~/.config/alacritty: config/alacritty/*
+    ~/.config/BetterDiscord: config/BetterDiscord/**
+    ~/.config/btop: config/btop/**
+    ~/.config/dunst/dunstrc: config/dunst/dunstrc
+    ~/.config/hypr: config/hypr/**
+    ~/.config/kitty: config/kitty/**
+    ~/.config/picom: config/picom/**
+    ~/.config/qtile: config/qtile/**
+    ~/.config/rofi: config/rofi/**
+    ~/.config/swaylock/config: config/swaylock/config
+    ~/.config/wallpaper: config/wallpaper/**
+    ~/.config/waybar: config/waybar/**
+    ~/.config/alacritty: config/alacritty/**
 
 
 - shell:

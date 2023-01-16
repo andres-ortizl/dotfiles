@@ -17,6 +17,15 @@ else
 fi
 
 
+BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+cd "${BASEDIR}"
+git -C "${DOTBOT_DIR}" submodule sync --quiet --recursive
+git submodule update --init --recursive "${DOTBOT_DIR}"
+
+"${BASEDIR}/${DOTBOT_DIR}/${DOTBOT_BIN}" -d "${BASEDIR}" -c "${CONFIG}" "${@}"
+
+
 # Set global $DOTFILES env var in .bashrc and .zshrc if not already set
 if [[ -z $DOTFILES ]]; then
   echo "export DOTFILES=$PWD" >> ~/.bashrc
@@ -26,13 +35,3 @@ if [[ -z $DOTFILES ]]; then
   source ~/.bashrc
   source ~/.zshrc
 fi
-
-
-
-BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-cd "${BASEDIR}"
-git -C "${DOTBOT_DIR}" submodule sync --quiet --recursive
-git submodule update --init --recursive "${DOTBOT_DIR}"
-
-"${BASEDIR}/${DOTBOT_DIR}/${DOTBOT_BIN}" -d "${BASEDIR}" -c "${CONFIG}" "${@}"

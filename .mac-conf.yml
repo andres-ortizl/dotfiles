@@ -1,6 +1,10 @@
 - defaults:
     link:
       relink: true
+      create: true
+      force: true
+      glob: true
+
 
 - clean: [ '~' ]
 
