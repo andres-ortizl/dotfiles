@@ -30,8 +30,5 @@ git submodule update --init --recursive "${DOTBOT_DIR}"
 if [[ -z $DOTFILES ]]; then
   echo "export DOTFILES=$PWD" >> ~/.bashrc
   echo "source $PWD/shell/main.sh" >> ~/.bashrc
-  echo "export DOTFILES=$PWD" >> ~/.zshrc
-  echo "source $PWD/shell/main.sh" >> ~/.zshrc
   source ~/.bashrc
-  source ~/.zshrc
 fi
