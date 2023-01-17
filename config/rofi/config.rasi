@@ -126,4 +126,4 @@ configuration {
 	me-accept-entry: "MouseDPrimary";
 	me-accept-custom: "Control+MouseDPrimary";
 }
-@theme "dracula2"
+@theme "colors/dracula2"
