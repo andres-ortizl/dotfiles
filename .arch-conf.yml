@@ -26,6 +26,7 @@
     ~/.config/wallpaper: config/wallpaper/**
     ~/.config/waybar: config/waybar/**
     ~/.config/alacritty: config/alacritty/**
+    ~/.config/spicetify: config/spicetify/**
 
 
 - shell:

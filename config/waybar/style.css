@@ -1,10 +1,11 @@
+@import "colors.css";
+
 * {
   /* `otf-font-awesome` is required to be installed for icons */
   font-family: JetBrainsMono Nerd Font;
   font-size: 17px;
   border-radius: 17px;
 }
-
 #clock,
 #custom-notification,
 #custom-launcher,
@@ -28,6 +29,8 @@
   margin-right: 2px;
   margin-left: 2px;
   transition: all 0.3s ease;
+
+
 }
 
 #window {
@@ -73,9 +76,9 @@ window * {
   background-color: rgba(30, 30, 46, 0.6);
   border-radius: 12px;
   margin-left: 10px;
-
   transition: all 0.3s ease;
 }
+
 
 #workspaces button.active {
   min-width: 50px;
@@ -85,13 +88,8 @@ window * {
   transition: all 0.3s ease;
   background: linear-gradient(
     58deg,
-    #cba6f7,
-    #f38ba8,
-    #eba0ac,
-    #fab387,
-    #f9e2af,
-    #a6e3a1,
-    #94e2d5
+    @cyan,
+    @purple
   );
   background-size: 300% 300%;
   animation: colored-gradient 10s ease infinite;
