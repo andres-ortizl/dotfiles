@@ -68,3 +68,11 @@ _evalcache direnv hook zsh
 export PATH="/usr/local/opt/kubernetes-cli@1.22/bin:$PATH"
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 export "MICRO_TRUECOLOR=1"
+
+
+export PATH=$HOME/.local/share/JetBrains/Toolbox/scripts:$PATH
+export DOTFILES=/home/andrew/.dotfiles
+source $DOTFILES/shell/main.sh
+export JAVA_HOME=/usr/lib/jvm/default
+export GTK_THEME=Catppuccin-Mocha-Standard-Mauve-Dark nautilus
+export PATH=$HOME/.cargo/env:$PATH
