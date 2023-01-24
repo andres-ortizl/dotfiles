@@ -1,4 +1,3 @@
-setopt HIST_IGNORE_ALL_DUPS
 bindkey -e
 
 WORDCHARS=${WORDCHARS//[\/]}
@@ -55,16 +54,22 @@ for key ('k') bindkey -M vicmd ${key} history-substring-search-up
 for key ('j') bindkey -M vicmd ${key} history-substring-search-down
 unset key
 # }}} End configuration added by Zim install
-
-
-[ -f /usr/share/fzf/key-bindings.zsh ] && source /usr/share/fzf/key-bindings.zsh
-[ -f /usr/share/fzf/completion.zsh ] && source /usr/share/fzf/completion.zsh
-export DOTFILES=/Users/andrew/.DOTFILES
-source $DOTFILES/shell/main.sh
+export MYPYDOTFILES=/Users/andresortiz/.mypydotfiles
+export MYPYDOTFILES=/Users/andresortiz/.mypydotfiles
+export MYPYDOTFILES=/Users/andresortiz/.mypydotfiles
+export MYPYDOTFILES=/Users/andresortiz/.mypydotfiles
+export MYPYDOTFILES=/Users/andresortiz/.mypydotfiles
+export MYPYDOTFILES=/Users/andresortiz/.mypydotfiles
+export MYPYDOTFILES=/Users/andresortiz/.mypydotfiles
+export MYPYDOTFILES=/Users/andresortiz/.mypydotfiles
 
 _evalcache direnv hook zsh
 
 #eval "$(direnv hook zsh)"
 export PATH="/usr/local/opt/kubernetes-cli@1.22/bin:$PATH"
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-export "MICRO_TRUECOLOR=1"
+source $MYPYDOTFILES/shell/main.sh
+export PATH="/opt/homebrew/sbin:$PATH"
+export PATH="/opt/homebrew/bin:$PATH"
+export PATH=$PATH:/Users/andresortiz/.spicetify
+export MICRO_TRUECOLOR=1
