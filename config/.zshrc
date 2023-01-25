@@ -62,9 +62,15 @@ unset key
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 
-export DOTFILES=/Users/andresortiz/.mypydotfiles
-source $DOTFILES/shell/main.sh
 
 
+# load dotfiles depending of the os
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+  export DOTFILES=/home/andrew/.dotfiles
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+  export DOTFILES=/Users/andresortiz/.mypydotfiles
+fi
+
+ source $DOTFILES/shell/main.sh
 _evalcache direnv hook zsh
 _evalcache starship init zsh
