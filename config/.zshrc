@@ -59,20 +59,16 @@ unset key
 
 [ -f /usr/share/fzf/key-bindings.zsh ] && source /usr/share/fzf/key-bindings.zsh
 [ -f /usr/share/fzf/completion.zsh ] && source /usr/share/fzf/completion.zsh
-export DOTFILES=/Users/andrew/.DOTFILES
-source $DOTFILES/shell/main.sh
-
-_evalcache direnv hook zsh
-
-#eval "$(direnv hook zsh)"
-export PATH="/usr/local/opt/kubernetes-cli@1.22/bin:$PATH"
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-export "MICRO_TRUECOLOR=1"
+_evalcache direnv hook zsh
+_evalcache oh-my-posh init zsh --config ~/.config/posh/config.json
 
 
-export PATH=$HOME/.local/share/JetBrains/Toolbox/scripts:$PATH
-export DOTFILES=/home/andrew/.dotfiles
+export DOTFILES=/Users/andresortiz/.mypydotfiles
 source $DOTFILES/shell/main.sh
-export JAVA_HOME=/usr/lib/jvm/default
-export GTK_THEME=Catppuccin-Mocha-Standard-Mauve-Dark nautilus
-export PATH=$HOME/.cargo/env:$PATH
+
+
+
+
+
+

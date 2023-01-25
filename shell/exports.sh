@@ -8,7 +8,7 @@ export FZF_DEFAULT_OPTS='
   --color=pointer:#ebdbb2,bg+:#3c3836,fg:#ebdbb2,fg+:#fbf1c7,hl:#8ec07c,info:#928374,header:#fb4934
   --reverse
 '
-
+export "MICRO_TRUECOLOR=1"
 export path=(
   "$HOME/bin"
   "$JAVA_HOME/bin"
@@ -22,6 +22,8 @@ export path=(
   "/bin"
   "/usr/bin"
   "/usr/sbin"
+  "/opt/homebrew/bin"
   "/sbin"
   "/home/andrew/.local/share/JetBrains/Toolbox/scripts"
+  "/usr/local/opt/kubernetes-cli@1.22/bin"
 )

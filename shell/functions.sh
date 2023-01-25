@@ -3,8 +3,8 @@ function test_dotfiles() {
 }
 
 function measure_performance_shell() {
-  # shellcheck disable=SC2034
-  for i in $(seq 1 10); do time zsh -i -c exit; done
+  hyperfine --warmup 5 "zsh -i -c exit"
+
 }
 
 function j() {
