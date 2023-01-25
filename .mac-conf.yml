@@ -18,6 +18,7 @@
     ~/config/iterm2: config/iterm2
     ~/.config/posh/config.json: config/posh/config.json
     ~/.config/micro: config/micro/**
+    ~/.config/starship/config.toml: config/starship/config.toml
 
 - shell:
     - [ git submodule update --init --recursive, Installing submodules ]
