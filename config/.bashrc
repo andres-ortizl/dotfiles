@@ -4,4 +4,3 @@ PATH=$(
 )
 export PATH
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
-

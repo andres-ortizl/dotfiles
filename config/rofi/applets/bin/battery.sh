@@ -130,5 +130,3 @@ case ${chosen} in
 		run_cmd --opt4
         ;;
 esac
-
-

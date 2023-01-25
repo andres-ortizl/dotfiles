@@ -1,8 +1,8 @@
 {
-    "version": "1.8.4",
-    "drawerStates": {
-        "settings": {
-            "customcss": true
-        }
+  "drawerStates": {
+    "settings": {
+      "customcss": true
     }
+  },
+  "version": "1.8.4"
 }

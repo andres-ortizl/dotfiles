@@ -13,6 +13,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     "/bin"
     "/usr/bin"
     "/usr/sbin"
+    "$HOME/.cargo/bin"
     "/sbin"
   )
 fi
@@ -26,10 +27,10 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     "$JAVA_HOME/bin"
     "$GEM_HOME/bin"
     "$GOPATH/bin"
-    "$HOME/.cargo/bin"
     "/usr/local/bin"
     "/usr/local/sbin"
     "/bin"
+    "$HOME/.cargo/bin"
     "/usr/bin"
     "/usr/sbin"
     "/sbin"

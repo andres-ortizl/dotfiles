@@ -6,8 +6,8 @@ GREY='\e[0;90m'
 
 # Get latest notification from dbus-monitor
 
-echo "timestamp: 1 
-icon: 
+echo "timestamp: 1
+icon:
 appname: waybar
 summary: Hello!
 body: " >~/.config/waybar/store/lastnotif
