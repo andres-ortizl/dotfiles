@@ -3,7 +3,7 @@ export GEM_HOME="$HOME/.gem"
 export GOPATH="$HOME/.go"
 export LC_ALL='en_US.UTF-8'
 export LANG='en_US.UTF-8'
-
+export STARSHIP_CONFIG="$HOME/.config/starship/config.toml"
 export FZF_DEFAULT_OPTS='
   --color=pointer:#ebdbb2,bg+:#3c3836,fg:#ebdbb2,fg+:#fbf1c7,hl:#8ec07c,info:#928374,header:#fb4934
   --reverse

@@ -60,15 +60,11 @@ unset key
 [ -f /usr/share/fzf/key-bindings.zsh ] && source /usr/share/fzf/key-bindings.zsh
 [ -f /usr/share/fzf/completion.zsh ] && source /usr/share/fzf/completion.zsh
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-_evalcache direnv hook zsh
-_evalcache oh-my-posh init zsh --config ~/.config/posh/config.json
 
 
 export DOTFILES=/Users/andresortiz/.mypydotfiles
 source $DOTFILES/shell/main.sh
 
 
-
-
-
-
+_evalcache direnv hook zsh
+_evalcache starship init zsh
