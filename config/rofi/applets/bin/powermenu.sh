@@ -78,13 +78,13 @@ confirm_exit() {
 }
 
 # Confirm and execute
-confirm_run () {	
+confirm_run () {
 	selected="$(confirm_exit)"
 	if [[ "$selected" == "$yes" ]]; then
         ${1} && ${2} && ${3}
     else
         exit
-    fi	
+    fi
 }
 
 # Execute Command
@@ -126,4 +126,3 @@ case ${chosen} in
 		run_cmd --opt6
         ;;
 esac
-

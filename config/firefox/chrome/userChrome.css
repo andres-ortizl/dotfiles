@@ -100,7 +100,7 @@ See the above repository for updates as well as full license text. */
  * This would break buttons placed in the toolbar,
  * but that is likely not happening if you are using multi-row setup
  */
- 
+
 /*
 #navigator-toolbox{ margin-bottom: var(--uc-navbar-height) !important; }
 #PersonalToolbar:not([customizing]){

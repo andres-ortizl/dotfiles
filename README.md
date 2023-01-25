@@ -132,8 +132,8 @@ You can find them in `os/archilinux/qtile/scripts.`
 ### Installation Hypr (Arch Based) :
 
 ```bash
-paru -S hyprland-git 
-waybar-hyprland-git cava kitty rofi xdg-desktop-portal-hyprland-git grim slurp jq dunst wl-clipboard swaylock-effects-git btop swww polkit-kde-agent 
+paru -S hyprland-git
+waybar-hyprland-git cava kitty rofi xdg-desktop-portal-hyprland-git grim slurp jq dunst wl-clipboard swaylock-effects-git btop swww polkit-kde-agent
 nerd-fonts-jetbrains-mono playerctl socat inotify-tools-git
 ```
 

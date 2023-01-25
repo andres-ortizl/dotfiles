@@ -1,15 +1,54 @@
 {
-  "black": ["#000000", "#000000"],
-  "dark": ["#212121", "#212121"],
-  "grey": ["#ABB2BF", "#ABB2BF"],
-  "light": ["#ffffff", "#ffffff"],
-  "text": ["#212121", "#212121"],
-  "focus": ["#81a1c1", "#81a1c1"],
-  "active": ["#f1ffff", "#f1ffff"],
-  "inactive": ["#4c566a", "#4c566a"],
-  "urgent": ["#b48ead", "#b48ead"],
-  "color1": ["#81a1c1", "#81a1c1"],
-  "color2": ["#88c0d0", "#88c0d0"],
-  "color3": ["#a3be8c", "#a3be8c"],
-  "color4": ["#ebcb8b", "#ebcb8b"]
+  "active": [
+    "#f1ffff",
+    "#f1ffff"
+  ],
+  "black": [
+    "#000000",
+    "#000000"
+  ],
+  "color1": [
+    "#81a1c1",
+    "#81a1c1"
+  ],
+  "color2": [
+    "#88c0d0",
+    "#88c0d0"
+  ],
+  "color3": [
+    "#a3be8c",
+    "#a3be8c"
+  ],
+  "color4": [
+    "#ebcb8b",
+    "#ebcb8b"
+  ],
+  "dark": [
+    "#212121",
+    "#212121"
+  ],
+  "focus": [
+    "#81a1c1",
+    "#81a1c1"
+  ],
+  "grey": [
+    "#ABB2BF",
+    "#ABB2BF"
+  ],
+  "inactive": [
+    "#4c566a",
+    "#4c566a"
+  ],
+  "light": [
+    "#ffffff",
+    "#ffffff"
+  ],
+  "text": [
+    "#212121",
+    "#212121"
+  ],
+  "urgent": [
+    "#b48ead",
+    "#b48ead"
+  ]
 }

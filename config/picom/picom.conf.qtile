@@ -11,7 +11,7 @@ animation-delta = 12;
 animation-dampening = 30.0;
 animation-stiffness = 500.0;
 animation-window-mass = 1;
-# animation-for-open-window = "zoom"; 
+# animation-for-open-window = "zoom";
 animation-for-unmap-window = "zoom"
 animation-for-transient-window = "none";
 animation-for-workspace-switch-in = "slide-up";
@@ -437,4 +437,3 @@ wintypes:
   popup_menu = { opacity = 0.8; }
   dropdown_menu = { opacity = 0.8; }
 };
-
