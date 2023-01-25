@@ -28,7 +28,7 @@ diverged = ""
 untracked = "[](green bg:147)"
 staged = ""
 modified = "[](yellow bg:147)"
-stashed = ""
+stashed = ""
 format = '([ \[$all_status$ahead_behind\] ]($style))'
 
 [python]
