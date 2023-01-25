@@ -13,7 +13,7 @@
           "foreground": "#fff",
           "background": "#44475a",
           "trailing_diamond": "\ue0c6",
-          "template": " {{.Context}}{{if .Namespace}} :: {{.Namespace}}{{end}} "
+          "template": "{{if .Env.KUBECONFIG}}{{.Context}} :: {{if .Namespace}}{{.Namespace}}{{else}}default{{end}}{{end}}"
         },
         {
           "type": "path",
@@ -28,45 +28,56 @@
           }
         },
         {
-          "type": "git",
-          "style": "diamond",
+          "background": "#B7BDF8",
           "foreground": "#fff",
-          "background": "#bd93f9",
+          "style": "diamond",
           "leading_diamond": "\ue0c7",
           "trailing_diamond": "\ue0c6",
-          "template": " git({{ .HEAD }}) ",
           "properties": {
-            "branch_icon": ""
-          }
+            "branch_icon": "\ue725 ",
+            "cherry_pick_icon": "\ue29b ",
+            "commit_icon": "\uf417 ",
+            "fetch_status": false,
+            "fetch_upstream_icon": false,
+            "merge_icon": "\ue727 ",
+            "no_commits_icon": "\uf594 ",
+            "rebase_icon": "\ue728 ",
+            "revert_icon": "\uf0e2 ",
+            "tag_icon": "\uf412 "
+          },
+          "powerline_symbol": "\ue0b4",
+          "template": " {{ .HEAD }} ",
+          "type": "git"
         },
         {
-          "style": "diamond",
           "type": "python",
-          "background": "#ffb86c",
+          "style": "diamond",
           "foreground": "#fff",
+          "background": "#ffb86c",
           "leading_diamond": "\ue0c7",
           "trailing_diamond": "\ue0c6",
           "template": " {{ if .Error }}{{ .Error }}{{ else }}{{ if .Venv }}{{ .Venv }} {{ end }}{{ .Full }}{{ end }} "
         },
         {
-          "style": "diamond",
           "type": "rust",
-          "background": "#ffb86c",
+          "style": "diamond",
           "foreground": "#fff",
-          "template": " {{ if .Error }}{{ .Error }}{{ else }}{{ .Full }}{{ end }} ",
+          "background": "#ffb86c",
           "leading_diamond": "\ue0c7",
-          "trailing_diamond": "\ue0c6"
+          "trailing_diamond": "\ue0c6",
+          "template": " {{ if .Error }}{{ .Error }}{{ else }}{{ .Full }}{{ end }} "
         },
         {
-          "type": "time",
+          "type": "executiontime",
           "style": "diamond",
           "foreground": "#fff",
           "background": "#ff79c6",
           "leading_diamond": "\ue0c7",
           "trailing_diamond": "\ue0c6",
-          "template": " {{ .CurrentDate | date .Format }} ",
+          "template": " <#fefefe>\ufbab</> {{ .FormattedMs }} ",
           "properties": {
-            "time_format": "15:04"
+            "threshold": 10,
+            "style": "austin"
           }
         }
       ]
@@ -94,7 +105,8 @@
           }
         }
       ],
-      "newline": true
+      "newline": true,
+      "final_space": true
     }
   ]
 }

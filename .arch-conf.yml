@@ -29,6 +29,7 @@
     ~/.config/micro: config/micro/**
     ~/.mozilla/firefox/gg1e8vcw.default-release/chrome/userChrome.css : config/firefox/chrome/userChrome.css
     ~/.config/posh/config.json: config/posh/config.json
+    ~/.config/starship/config.toml: config/starship/config.toml
 
 
 - shell:
