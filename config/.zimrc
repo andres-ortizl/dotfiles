@@ -1,14 +1,17 @@
 # Modules
 zmodule environment
 zmodule input
-zmodule termtitle
+
 zmodule utility
-zmodule duration-info
-zmodule git-info
+
 zmodule zsh-users/zsh-completions --fpath src
-zmodule completion
-zmodule https://github.com/andres-ortizl/ortiz-zsh-theme.git --name ortiz
-zmodule mroth/evalcache
 zmodule zsh-users/zsh-syntax-highlighting
 zmodule zsh-users/zsh-history-substring-search
 zmodule zsh-users/zsh-autosuggestions
+zmodule completion
+zmodule mroth/evalcache
+
+#zmodule https://github.com/andres-ortizl/ortiz-zsh-theme.git --name ortiz
+#zmodule duration-info
+#zmodule git-info
+#zmodule termtitle

@@ -28,6 +28,7 @@
     ~/.config/alacritty: config/alacritty/**
     ~/.config/micro: config/micro/**
     ~/.mozilla/firefox/gg1e8vcw.default-release/chrome/userChrome.css : config/firefox/chrome/userChrome.css
+    ~/.config/posh/config.json: config/posh/config.json
 
 
 - shell:
