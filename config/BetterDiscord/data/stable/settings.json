@@ -1,38 +1,38 @@
 {
-    "general": {
-        "publicServers": true,
-        "voiceDisconnect": false,
-        "showToasts": true,
-        "mediaKeys": false
-    },
-    "addons": {
-        "addonErrors": true,
-        "editAction": "detached"
-    },
-    "customcss": {
-        "customcss": true,
-        "liveUpdate": false,
-        "openAction": "settings"
-    },
-    "editor": {
-        "lineNumbers": true,
-        "minimap": true,
-        "hover": true,
-        "quickSuggestions": true,
-        "fontSize": 14,
-        "renderWhitespace": "selection"
-    },
-    "window": {
-        "transparency": false,
-        "removeMinimumSize": false,
-        "frame": false
-    },
-    "developer": {
-        "debugLogs": false,
-        "devTools": false,
-        "debuggerHotkey": false,
-        "reactDevTools": false,
-        "inspectElement": false,
-        "devToolsWarning": false
-    }
+  "addons": {
+    "addonErrors": true,
+    "editAction": "detached"
+  },
+  "customcss": {
+    "customcss": true,
+    "liveUpdate": false,
+    "openAction": "settings"
+  },
+  "developer": {
+    "debugLogs": false,
+    "debuggerHotkey": false,
+    "devTools": false,
+    "devToolsWarning": false,
+    "inspectElement": false,
+    "reactDevTools": false
+  },
+  "editor": {
+    "fontSize": 14,
+    "hover": true,
+    "lineNumbers": true,
+    "minimap": true,
+    "quickSuggestions": true,
+    "renderWhitespace": "selection"
+  },
+  "general": {
+    "mediaKeys": false,
+    "publicServers": true,
+    "showToasts": true,
+    "voiceDisconnect": false
+  },
+  "window": {
+    "frame": false,
+    "removeMinimumSize": false,
+    "transparency": false
+  }
 }

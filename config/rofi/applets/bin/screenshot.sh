@@ -161,5 +161,3 @@ case ${chosen} in
 		run_cmd --opt5
         ;;
 esac
-
-
