@@ -19,6 +19,8 @@
     ~/.config/posh/config.json: config/posh/config.json
     ~/.config/micro: config/micro/**
     ~/.config/starship/config.toml: config/starship/config.toml
+    ~/.config/bat/: config/bat/**
+    /Users/andresortiz/Library/Application Support/Firefox/Profiles/hyanscip.default-release/chrome/userChrome.css: config/firefox/chrome/userChrome.css
 
 - shell:
     - [ git submodule update --init --recursive, Installing submodules ]

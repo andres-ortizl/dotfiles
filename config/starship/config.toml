@@ -5,47 +5,47 @@ $character
 
 [kubernetes]
 style = "bg:#6272a4 bold fg:#cdd6f4"
-format = '[ $context :: $namespace ]($style)'
+format = '[   $context :: $namespace  ]($style)'
 disabled = false
 
 [directory]
 style = "bg:176 bold fg:black"
-format = '[ $path ]($style)'
+format = '[  $path  ]($style)'
 
 [git_branch]
 style = "bg:#cba6f7 bold fg:black"
-format = '[ $symbol$branch ]($style)'
+format = '[  $symbol$branch  ]($style)'
 
-
-
+# 
+# 
 
 [git_status]
 style = "bg:147 bold fg:black"
-conflicted = "[](red bg:147)"
+conflicted = "[ ](red bg:147)"
 ahead = ""
 behind = ""
 diverged = ""
-untracked = "[](green bg:147)"
+untracked = "[  ](green bg:147)"
 staged = ""
-modified = "[](yellow bg:147)"
+modified = "[  ](yellow bg:147)"
 stashed = ""
-format = '([ \[$all_status$ahead_behind\] ]($style))'
+format = '([ \[$all_status$ahead_behind\]  ]($style))'
 
 [python]
 symbol = '🐍'
 style = "bg:193 bold fg:black"
-format = '([  $symbol $virtualenv ]($style))'
+format = '([  $symbol $virtualenv  ]($style))'
 
 [rust]
 symbol = '🦀'
 style = "bg:#8be9fd bold fg:black"
-format = '([ $symbol $version ]($style))'
+format = '([  $symbol $version  ]($style))'
 
 [cmd_duration]
 style = "bg:#ff79c6 bold fg:black"
-format = "[ $duration ]($style)"
+format = "[  $duration  ]($style)"
 
 
 [character]
-error_symbol = "[╰─ﬀ](bold #ef5350)"
-success_symbol = "[╰─ﬀ](bold #50fa7b)"
+error_symbol = "[╰─](bold #ef5350)"
+success_symbol = "[╰─](bold #50fa7b)"
