@@ -14,6 +14,8 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     "/usr/bin"
     "/usr/sbin"
     "$HOME/.cargo/bin"
+    "/opt/homebrew/opt/make/libexec/gnubin"
+
     "/sbin"
   )
 fi
@@ -49,3 +51,4 @@ export FZF_DEFAULT_OPTS=" \
 
 export "MICRO_TRUECOLOR=1"
 export STARSHIP_CONFIG="$HOME/.config/starship/config.toml"
+export BAT_CONFIG_PATH="$HOME/.config/bat/bat.conf"
