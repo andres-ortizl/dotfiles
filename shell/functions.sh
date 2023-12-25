@@ -139,3 +139,27 @@ function s3csv() {
 function s3json() {
   aws --profile=mgmt s3 cp "$1" - | bat -l json
 }
+
+
+function shit() {
+        if [ -n "$1" ]; then
+        pro="$1"
+    else
+        last_command_executed=$(fc -nl -1)
+        pro="The following command has been wrongly executed, therefore I want you to fix it and give me the corrected command. Command: $last_command_executed"
+    fi
+
+    prompsito="$pro. Keep the response as short as possible, no more than 10 lines.  Respond in Markdown"
+    echo "🐑"
+
+    model_llama="llama2"
+    model_mistral="mistral:7b"
+    raw_data='{
+    "prompt": "'${prompsito}'",
+    "stream": false,
+    "model": "'${model_llama}'"
+}'
+    api_response=$(curl -s -X POST http://localhost:11434/api/generate -d "$raw_data")
+    parsed_response=$(printf "%s" "$api_response" | jq -r '.response')
+    bat --language Markdown <<< "$parsed_response"
+}
