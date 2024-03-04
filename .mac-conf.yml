@@ -23,6 +23,7 @@
     /Users/andresortiz/Library/Application Support/Firefox/Profiles/hyanscip.default-release/chrome/userChrome.css:
       path: config/firefox/chrome/userChrome.css
       create: true
+      ignore-missing: true
 
 - shell:
     - [ git submodule update --init --recursive, Installing submodules ]
