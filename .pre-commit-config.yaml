@@ -26,11 +26,6 @@ repos:
         args: [ --fix=lf ]
       - id: pretty-format-json
         args: [ --autofix ]
-        exclude: |
-          (?x)^(
-              ^.devcontainer/|
-              poetry.lock
-          )$
       - id: requirements-txt-fixer
       - id: sort-simple-yaml
       - id: trailing-whitespace
