@@ -19,5 +19,4 @@ jobs:
           git -c "http.extraheader=$auth_header" -c protocol.version=2 submodule update --init --force --recursive
       - name: Install dotfiles
         run: |
-          cat ~/.bashrc
           ./install
