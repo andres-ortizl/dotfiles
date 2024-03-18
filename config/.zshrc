@@ -77,3 +77,6 @@ _evalcache starship init zsh
 export PATH=$PATH:/Users/andresortiz/.spicetify
 PATH="/opt/homebrew/opt/make/libexec/gnubin:$PATH"
 export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
+
+# Created by `pipx` on 2024-03-08 19:43:05
+export PATH="$PATH:/Users/andresortiz/.local/bin"
