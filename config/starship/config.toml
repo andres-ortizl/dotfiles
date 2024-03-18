@@ -21,12 +21,12 @@ format = '[  $symbol$branch  ]($style)'
 
 [git_status]
 style = "bg:147 bold fg:black"
-conflicted = "[ ](red bg:147)"
-ahead = ""
-behind = ""
-diverged = ""
+conflicted = "[  ](red bg:147)"
+ahead = "  "
+behind = "  "
+diverged = "  "
 untracked = "[  ](green bg:147)"
-staged = ""
+staged = "  "
 modified = "[  ](yellow bg:147)"
 stashed = ""
 format = '([ \[$all_status$ahead_behind\]  ]($style))'
