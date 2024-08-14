@@ -46,7 +46,7 @@ function kubeconfig() {
     done
     # NOTE: Automatically generated config for docker kubernetes
     KUBECONFIG=${KUBECONFIG}:${KUBEHOME}/config
-
+    source <(helm completion zsh)
     source <(kubectl completion zsh)
 }
 
@@ -142,14 +142,14 @@ function s3json() {
 
 
 function shit() {
-  model_llama="llama2"
+  model_llama="llama3"
   model_mistral="mistral:7b"
-  model_phi="phi"
+  model_phi="phi3"
   if [ -n "$1" ]; then
     pro="$1"
   else
     last_command_executed=$(fc -nl -1)
-    pro="The following command has been wrongly executed, therefore I want you to fix it and give me the corrected command. Command: $last_command_executed"
+    pro="The following command was executed incorrectly. Please review and correct it. Command: $last_command_executed"
   fi
 
   prompsito="$pro. Keep the response as short as possible, no more than 10 lines. Respond in Markdown. Do not include transitive words"
@@ -165,7 +165,7 @@ function shit() {
   raw_data='{
     "prompt": "'${prompsito}'",
     "stream": false,
-    "model": "'${model_llama}'"
+    "model": "'${model_phi}'"
 }'
   api_response=$(curl -s -X POST http://localhost:11434/api/generate -d "$raw_data")
   parsed_response=$(printf "%s" "$api_response" | jq -r '.response')
@@ -173,3 +173,7 @@ function shit() {
 }
 
 
+function git_branch_clean() {
+  git branch -d $(git branch --merged=master | grep -v master)
+  git fetch --prune
+}

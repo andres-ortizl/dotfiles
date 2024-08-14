@@ -4,6 +4,7 @@
 if [[ "$OSTYPE" == "darwin"* ]]; then
   export JAVA_HOME='/Library/Java/JavaVirtualMachines/amazon-corretto-15.jdk/Contents/Home'
   export GEM_HOME="$HOME/.gem"
+  export PIPX_HOME=~/.local/pipx
   export path=(
     "/usr/local/opt/ruby/bin"
     "/usr/local/opt/python/libexec/bin"
@@ -15,7 +16,6 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     "/usr/sbin"
     "$HOME/.cargo/bin"
     "/opt/homebrew/opt/make/libexec/gnubin"
-
     "/sbin"
   )
 fi

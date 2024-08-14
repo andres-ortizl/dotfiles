@@ -1,0 +1,15 @@
+[
+  {
+    "bindings": {
+      "ctrl-cmd-fn-t": "terminal_panel::ToggleFocus"
+    },
+    "context": "Workspace"
+  },
+  {
+    "bindings": {
+      "cmd-n": "workspace::NewTerminal",
+      "ctrl-cmd-fn-t": "workspace::ToggleBottomDock"
+    },
+    "context": "Terminal"
+  }
+]

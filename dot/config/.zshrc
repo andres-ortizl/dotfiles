@@ -68,7 +68,7 @@ unset key
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
   export DOTFILES=/home/andrew/.dotfiles
 elif [[ "$OSTYPE" == "darwin"* ]]; then
-  export DOTFILES=/Users/andresortiz/code/dotfiles
+  export DOTFILES=/Users/andresortiz/code/dotfiles/dot
 fi
 
  source $DOTFILES/shell/main.sh
@@ -80,3 +80,9 @@ export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
 
 # Created by `pipx` on 2024-03-08 19:43:05
 export PATH="$PATH:/Users/andresortiz/.local/bin"
+eval "$(zoxide init zsh)"
+
+autoload -Uz compinit
+zstyle ':completion:*' menu select
+fpath+=~/.zfunc
+export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
