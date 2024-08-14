@@ -21,6 +21,7 @@
     ~/.config/starship/config.toml: config/starship/config.toml
     ~/.config/bat/: config/bat/**
     ~/Library/Application Support/Firefox/Profiles/hyanscip.default-release/chrome/userChrome.css: config/firefox/chrome/userChrome.css
+    ~/.config/zed: config/zed/**
 
 - shell:
     - [ git submodule update --init --recursive, Installing submodules ]

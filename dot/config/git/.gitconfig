@@ -1,6 +1,6 @@
 [user]
-        email = andres.ortiz.xyz@gmail.com
-        name = andres-ortizl
+	email = andres.ortiz@clarity.ai
+	name = Andres Ortiz
 [pull]
         rebase = true
 [rebase]
