@@ -61,20 +61,11 @@ unset key
 [ -f /usr/share/fzf/completion.zsh ] && source /usr/share/fzf/completion.zsh
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-
-
-
-# load dotfiles depending of the os
-if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-  export DOTFILES=/home/andrew/.dotfiles
-elif [[ "$OSTYPE" == "darwin"* ]]; then
-  export DOTFILES=/Users/andresortiz/code/dotfiles/dot
-fi
-
- source $DOTFILES/shell/main.sh
+export DOTFILES=/Users/andresortiz/code/dotfiles/dot
+source $DOTFILES/shell/main.sh
 _evalcache direnv hook zsh
 _evalcache starship init zsh
-export PATH=$PATH:/Users/andresortiz/.spicetify
+
 PATH="/opt/homebrew/opt/make/libexec/gnubin:$PATH"
 export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
 
