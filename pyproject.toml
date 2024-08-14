@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "monodot"
+version = "0.1.0"
+description = ""
+authors = ["Andres Ortiz <andres.ortiz@clarity.ai>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+dotbot = "^1.20"
+typer = "^0.12"
+result = "^0.17"
+python-dotenv = "^1.0.1"
+
+loguru = "^0.7.2"
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.poetry.scripts]
+monodot = "monodot.main:app"
+
+[tool.mypy]
+plugins = ["returns.contrib.mypy.returns_plugin"]
