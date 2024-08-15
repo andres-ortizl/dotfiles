@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "types": [
+      "astro/client"
+    ]
+  },
+  "display": "theme/minimal",
+  "extends": "astro/tsconfigs/strict"
+}

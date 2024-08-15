@@ -3,3 +3,26 @@
 **/__pycache__/
 config/spicetify/*
 .venv
+.env
+
+
+# Python-specific
+*.pyc
+*.pyo
+__pycache__/
+.pytest_cache/
+.ropeproject/
+.mypy_cache/
+.eggs/
+dist/
+build/
+venv/
+env/
+*.egg-info/
+
+# General
+.DS_Store
+*.swp
+.idea/
+.vscode/
+tmp
