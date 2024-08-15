@@ -19,6 +19,7 @@ build/
 venv/
 env/
 *.egg-info/
+node_modules/
 
 # General
 .DS_Store
