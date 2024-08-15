@@ -7,3 +7,12 @@
 - landing that shows random resources
 
 Add endpoint to quickly add a new resource to the knowledge base
+
+- Ollama as a base for LLM ?
+- Authentication for Fastapi
+- Save embeddings in elastic search ?
+- DNS for the server
+- use langchain maybe
+- digital ocean hosted opensearch / redis for retrieval
+- go to the website and pull the entire html to create a description
+- https://astro.build/integrations/ for frontend
