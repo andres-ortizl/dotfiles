@@ -39,4 +39,6 @@ def goodbye(name: str, formal: bool = False):
 
 
 if __name__ == "__main__":
+    typer_handler = TyperLoggerHandler()
+    logging.basicConfig(level=logging.DEBUG, handlers=(typer_handler,))
     app()
