@@ -1,0 +1,49 @@
+// Zed settings
+//
+// For information on how to configure Zed, see the Zed
+// documentation: https://zed.dev/docs/configuring-zed
+//
+// To see all of Zed's default settings without changing your
+// custom settings, run the `open default settings` command
+// from the command palette or from `Zed` application menu.
+{
+  "assistant": {
+    "default_model": {
+      "provider": "openai",
+      "model": "gpt-4o-mini"
+    },
+    "version": "2"
+  },
+  "languages": {
+    "Go": {
+      "show_copilot_suggestions": false
+    }
+  },
+  "theme": "Catppuccin Mocha",
+  "base_keymap": "JetBrains",
+  "buffer_font_size": 15,
+  "ui_font_size": 15,
+  "ui_font_family": "Hack Nerd Font Mono",
+  "buffer_font_family": "Hack Nerd Font Mono",
+  "ui_font_fallbacks": [
+    "Helvetica Neue"
+  ],
+  "scrollbar": {
+    "show": "never"
+  },
+  "enable_language_server": true,
+  "lsp": {
+    "rust-analyzer": {
+      "initialization_options": {
+        "check": {
+          "command": "clippy" // rust-analyzer.check.command (default: "check")
+        }
+      }
+    }
+  },
+  "formatter": "language_server",
+  "telemetry": {
+    "diagnostics": false,
+    "metrics": false
+  }
+}

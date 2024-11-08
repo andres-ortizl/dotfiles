@@ -7,12 +7,12 @@
 
 It's a collection of my dotfiles for Arch & Mac OS X.
 
-## Showcase for Arch ( Qtile ) :
+## Arch ( Qtile ) :
 
-![Qtile1](./screenshots/empty.png)
-![picom1](./screenshots/picom-terminal-not-focused.png)
-![picom2](./screenshots/picom-terminal-focused.png)
-![rofi](./screenshots/rofi.png)
+![Qtile1](data/screenshots/empty.png)
+![picom1](data/screenshots/picom-terminal-not-focused.png)
+![picom2](data/screenshots/picom-terminal-focused.png)
+![rofi](data/screenshots/rofi.png)
 
 - Compositor : [picom](https://github.com/yshui/picom)
 - Window Manager : [Qtile](http://www.qtile.org/)
@@ -21,11 +21,11 @@ It's a collection of my dotfiles for Arch & Mac OS X.
 - Terminal Font : [Caskaydia Cove](https://github.com/ryanoasis/nerd-fonts/releases/download/v2.2.2/CascadiaCode.zip)
 - Firefox : [Dracula](https://draculatheme.com/firefox)
 
-## Showcase for Arch ( Hyprland ) :
+## Arch ( Hyprland ) :
 
-![Hyprland1](./screenshots/hyprland-1.png)
-![Hyprland2](./screenshots/hyprland.png)
-![Hyprland3](./screenshots/hyprland-rofi.png)
+![Hyprland1](data/screenshots/hyprland-1.png)
+![Hyprland2](data/screenshots/hyprland.png)
+![Hyprland3](data/screenshots/hyprland-rofi.png)
 
 - Window Manager : [Hyprland](https://github.com/hyprwm/Hyprland)
 - Bar : [Waybar](https://github.com/Alexays/Waybar)
