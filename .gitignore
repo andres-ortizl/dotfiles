@@ -5,7 +5,7 @@ config/spicetify/*
 .venv
 .env
 
-
+.cache
 # Python-specific
 *.pyc
 *.pyo
