@@ -1,15 +1,26 @@
 [
   {
     "bindings": {
-      "ctrl-cmd-fn-t": "terminal_panel::ToggleFocus"
+      "cmd-e": "file_finder::Toggle"
+    }
+  },
+  {
+    "bindings": {
+      "ctrl-cmd-alt-t": "terminal_panel::ToggleFocus"
     },
     "context": "Workspace"
   },
   {
     "bindings": {
       "cmd-n": "workspace::NewTerminal",
-      "ctrl-cmd-fn-t": "workspace::ToggleBottomDock"
+      "ctrl-cmd-alt-t": "workspace::ToggleBottomDock"
     },
     "context": "Terminal"
+  },
+  {
+    "bindings": {
+      "ctrl-t": "editor::Rename"
+    },
+    "context": "Editor"
   }
 ]

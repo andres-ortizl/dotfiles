@@ -19,9 +19,12 @@
     ~/.config/posh/config.json: config/posh/config.json
     ~/.config/micro: config/micro/**
     ~/.config/starship/config.toml: config/starship/config.toml
-    ~/.config/bat/: config/bat/**
+    ~/.config/bat/bat.conf: config/bat/bat.conf
     ~/Library/Application Support/Firefox/Profiles/hyanscip.default-release/chrome/userChrome.css: config/firefox/chrome/userChrome.css
     ~/.config/zed: config/zed/**
+    ~/.config/atuin/config.toml: config/atuin/config.toml
+    ~/.gitkraken/config: config/gitkraken/config
+    ~/.gitkraken/themes/: config/gitkraken/themes/**
 
 - shell:
     - [ git submodule update --init --recursive, Installing submodules ]

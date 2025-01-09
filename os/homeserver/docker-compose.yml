@@ -1,0 +1,88 @@
+services:
+
+  portainer:
+    image: portainer/portainer-ce
+    container_name: portainer
+    restart: always
+    ports:
+      - "0.0.0.0:8000:8000"
+      - "0.0.0.0:9443:9443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+
+  # Pi-hole service
+  pihole:
+    image: pihole/pihole:latest
+    container_name: pihole
+    restart: always
+    environment:
+      - TZ=America/Chicago
+      - WEBPASSWORD=admin
+      - DNS1=1.1.1.1
+      - DNS2=8.8.8.8
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "9000:80"
+      - "443:443"
+    volumes:
+      - pihole_data:/etc/pihole
+      - pihole_dnsmasq:/etc/dnsmasq.d
+    cap_add:
+      - NET_ADMIN
+
+
+  heimdall:
+    image: linuxserver/heimdall
+    container_name: heimdall
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - heimdall_config:/config
+    environment:
+      - PUID=1000
+      - PGID=1000
+  couchdb:
+    image: couchdb:3.2
+    container_name: couchdb
+    restart: always
+    environment:
+      - COUCHDB_USER=admin
+      - COUCHDB_PASSWORD=adminpassword
+    ports:
+      - "5984:5984"
+    volumes:
+      - couchdb_data:/opt/couchdb/data
+      - couchdb_config:/opt/couchdb/etc
+    networks:
+      - couchdb_network
+  kavita:
+    image: jvmilazz0/kavita:latest
+    volumes:
+      - kavita_book:/kavita/book
+      - kavita_manga:/kavita/manga
+      - kavita_comic:/kavita/comic
+      - kavita_config:/kavita/config
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+
+volumes:
+  portainer_data:
+  pihole_data:
+  pihole_dnsmasq:
+  heimdall_config:
+  couchdb_data:
+  couchdb_config:
+  kavita_book:
+  kavita_manga:
+  kavita_comic:
+  kavita_config:
+
+
+
+networks:
+  couchdb_network:
+    driver: bridge
