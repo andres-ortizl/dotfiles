@@ -16,6 +16,9 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     "/usr/sbin"
     "$HOME/.cargo/bin"
     "/opt/homebrew/opt/make/libexec/gnubin"
+    "/opt/homebrew/opt/libpq/bin"
+    "/opt/homebrew/opt/openjdk/bin"
+    "/Users/andresortiz/.local/bin"
     "/sbin"
   )
 fi
