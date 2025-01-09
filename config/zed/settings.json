@@ -1,49 +1,165 @@
-// Zed settings
-//
-// For information on how to configure Zed, see the Zed
-// documentation: https://zed.dev/docs/configuring-zed
-//
-// To see all of Zed's default settings without changing your
-// custom settings, run the `open default settings` command
-// from the command palette or from `Zed` application menu.
 {
   "assistant": {
     "default_model": {
-      "provider": "openai",
-      "model": "gpt-4o-mini"
+      "model": "gpt-4o",
+      "provider": "openai"
     },
     "version": "2"
   },
-  "languages": {
-    "Go": {
-      "show_copilot_suggestions": false
+  "autosave": {
+    "after_delay": {
+      "milliseconds": 1000
     }
   },
-  "theme": "Catppuccin Mocha",
   "base_keymap": "JetBrains",
-  "buffer_font_size": 15,
-  "ui_font_size": 15,
-  "ui_font_family": "Hack Nerd Font Mono",
   "buffer_font_family": "Hack Nerd Font Mono",
-  "ui_font_fallbacks": [
-    "Helvetica Neue"
-  ],
-  "scrollbar": {
-    "show": "never"
+  "buffer_font_size": 15,
+  "centered_layout": {
+    "left_padding": 0.15,
+    "right_padding": 0.15
   },
   "enable_language_server": true,
+  "file_scan_exclusions": [
+    "**/node_modules",
+    "**/vendor",
+    "**/dist",
+    "**/build",
+    "**/target",
+    "**/.git",
+    "**/.svn",
+    "**/.hg",
+    "**/.bzr",
+    "**/.DS_Store",
+    "**/.vscode",
+    "**/.idea",
+    "**/.stack-work",
+    "**/.cabal-sandbox",
+    "**/.ccls-cache",
+    "**/.clangd",
+    "**/.cquery",
+    "**/.eunit",
+    "**/.gitlab",
+    "**/.hg",
+    "**/.idea",
+    "**/.lib",
+    "**/.mypy_cache",
+    "**/.pytest_cache",
+    "**/.stack-work",
+    "**/.svn",
+    "**/.tox",
+    "**/.vscode",
+    "**/__pycache__",
+    "**/build",
+    "**/dist",
+    "**/node_modules",
+    "**/target",
+    "**/vendor"
+  ],
+  "file_types": {
+    "Dockerfile": [
+      "Dockerfile",
+      "Dockerfile.*"
+    ],
+    "JSON": [
+      "json",
+      "jsonc"
+    ]
+  },
+  "formatter": "language_server",
+  "gutter": {
+    "code_actions": false
+  },
+  "indent_guides": {
+    "coloring": "indent_aware",
+    "enabled": true
+  },
+  "languages": {
+    "Python": {
+      "format_on_save": "on",
+      "formatter": [
+        {
+          "code_actions": {
+            "source.fixAll.ruff": true,
+            "source.organizeImports.ruff": true
+          }
+        },
+        {
+          "language_server": {
+            "name": "ruff"
+          }
+        }
+      ],
+      "language_servers": [
+        "pyright",
+        "ruff"
+      ]
+    },
+    "Rust": {
+      "show_inline_completions": false
+    }
+  },
+  "load_direnv": "shell_hook",
   "lsp": {
+    "pyright": {
+      "settings": {
+        "python.analysis": {
+          "diagnosticMode": "workspace",
+          "typeCheckingMode": "strict"
+        }
+      }
+    },
     "rust-analyzer": {
+      "binary": {
+        "args": [],
+        "path": "/Users/andresortiz/.cargo/bin/rust-analyzer"
+      },
       "initialization_options": {
-        "check": {
-          "command": "clippy" // rust-analyzer.check.command (default: "check")
+        "inlayHints": {
+          "closureReturnTypeHints": {
+            "enable": "always"
+          },
+          "lifetimeElisionHints": {
+            "enable": "skip_trivial",
+            "useParameterNames": true
+          },
+          "maxLength": null
         }
       }
     }
   },
-  "formatter": "language_server",
+  "outline_panel": {
+    "show": true
+  },
+  "scrollbar": {
+    "show": "never"
+  },
+  "tab_bar": {
+    "show": false
+  },
   "telemetry": {
     "diagnostics": false,
     "metrics": false
-  }
+  },
+  "terminal": {
+    "buffer_font_fallbacks": [
+      "Nerd Font"
+    ],
+    "button": false,
+    "font_family": "Hack Nerd Font Mono",
+    "font_size": 13,
+    "line_height": "comfortable",
+    "toolbar": {
+      "breadcrumbs": false
+    }
+  },
+  "theme": "Catppuccin Mocha - No Italics",
+  "toolbar": {
+    "breadcrumbs": false,
+    "quick_actions": false
+  },
+  "ui_font_fallbacks": [
+    "Hack Nerd Font Mono"
+  ],
+  "ui_font_family": "FiraCode Nerd Font Mono",
+  "ui_font_size": 15
 }

@@ -63,23 +63,25 @@ unset key
 
 export DOTFILES=/Users/andresortiz/code/dotfiles/
 source $DOTFILES/shell/main.sh
+. "$HOME/.atuin/bin/env"
+
+
 _evalcache direnv hook zsh
 _evalcache starship init zsh
-
-PATH="/opt/homebrew/opt/make/libexec/gnubin:$PATH"
-export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
-
-# Created by `pipx` on 2024-03-08 19:43:05
-export PATH="$PATH:/Users/andresortiz/.local/bin"
-eval "$(zoxide init zsh)"
+_evalcache zoxide init zsh
+_evalcache atuin init --disable-up-arrow zsh
 
 autoload -Uz compinit
 zstyle ':completion:*' menu select
 fpath+=~/.zfunc
-export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
 
-source /Users/andresortiz/.docker/init-zsh.sh || true # Added by Docker Desktop
-
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+#export NVM_DIR="$HOME/.nvm"
+#[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+#[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+# pnpm
+export PNPM_HOME="/Users/andresortiz/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end

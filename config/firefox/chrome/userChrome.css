@@ -13,6 +13,20 @@ See the above repository for updates as well as full license text. */
 }
 :root[uidensity="touch"] #navigator-toolbox{ --uc-bm-padding: 6px }
 
+:root[chromehidden~="directories"] #navigator-toolbox{
+  --uc-bm-height: 0px;
+}
+:root[chromehidden~="toolbar"] #navigator-toolbox{
+  --uc-navbar-height: 0px;
+}
+#navigator-toolbox,
+#sidebar-box,
+#sidebar-main,
+#sidebar-splitter,
+#tabbrowser-tabbox{
+  z-index: auto !important;
+}
+
 :root[sessionrestored] #nav-bar,
 :root[sessionrestored] #PersonalToolbar{
   background-image: linear-gradient(var(--toolbar-bgcolor),var(--toolbar-bgcolor)), var(--lwt-additional-images,var(--toolbar-bgimage))  !important;
@@ -24,7 +38,11 @@ See the above repository for updates as well as full license text. */
   transition: transform 135ms linear var(--uc-autohide-toolbar-delay) !important;
   z-index: 2;
 }
-
+#PlacesToolbarItems > .bookmark-item,
+#OtherBookmarks,
+#PersonalToolbar > #import-button{
+  padding-block: var(--uc-bm-padding) !important;
+}
 :root[sessionrestored] #PersonalToolbar{
   z-index: 1;
   background-position-y: calc(0px - var(--tab-min-height) - 2*var(--tab-block-margin,0px) + var( --uc-navbar-height));
@@ -40,6 +58,21 @@ See the above repository for updates as well as full license text. */
 #navigator-toolbox > #PersonalToolbar{
   transform-origin: 0px var(--uc-navbar-height);
   position: relative;
+}
+:root[sessionrestored] #urlbar[popover]{
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 135ms linear var(--uc-autohide-toolbar-delay), opacity 0ms calc(var(--uc-autohide-toolbar-delay) + 135ms);
+  transform-origin: 0px calc((var(--urlbar-container-height) - var(--urlbar-height)) / 2);
+  transform: rotateX(89.5deg);
+}
+#mainPopupSet:has(> [role="group"][panelopen]) ~ toolbox #urlbar[popover],
+#navigator-toolbox:is(:hover,:focus-within) #urlbar[popover],
+#urlbar-container > #urlbar[popover]:is([focused],[open]){
+  opacity: 1;
+  pointer-events: auto;
+  transition-delay: 100ms;
+  transform: rotateX(0deg);
 }
 
 :root[sessionrestored]:not([customizing]) #navigator-toolbox{
@@ -58,15 +91,19 @@ See the above repository for updates as well as full license text. */
   visibility: hidden !important;
 }
 
-/* The invisible toolbox will overlap sidebar so we'll work around that here */
-#navigator-toolbox{ pointer-events: none; border-bottom: none !important; }
-#PersonalToolbar{ border-bottom: 1px solid var(--chrome-content-separator-color) }
-#navigator-toolbox > *{ pointer-events: auto }
-
-#sidebar-box{ position: relative }
+/* If bookmarks toolbar is collapsed on startup, then no items are generated, and we need to set some height for it */
+#PlacesToolbarItems:empty{
+  height: var(--uc-bm-height);
+}
 
 /* Selected tab needs higher z-index now to "hide" the broder below it */
 .tabbrowser-tab[selected]{ z-index: 3 !important; }
+
+/* Show when cursor is over main menu popup - this requires :has selector support */
+#mainPopupSet:has(> [role="group"][panelopen]) ~ toolbox > .browser-toolbar{
+  transition-delay: 100ms !important;
+  transform: rotateX(0);
+}
 
 /* SELECT TOOLBAR BEHAVIOR */
 /* Comment out or delete one of these to disable that behavior */
@@ -83,38 +120,40 @@ See the above repository for updates as well as full license text. */
   transition-delay: 100ms !important;
   transform: rotateX(0);
 }
+
 /* This makes the tab notification box show immediately below tabs, otherwise it would break the layout */
 #navigator-toolbox > div{ display: contents }
-:where(#titlebar,#tab-notification-deck,.global-notificationbox){
-  -moz-box-ordinal-group: 0;
+:where(#titlebar,#navigator-toolbox > #TabsToolbar,#navigator-toolbox > #toolbar-menubar,#tab-notification-deck,.global-notificationbox){
+  order: -1;
 }
-/* Show when cursor is over popups/context-menus - cannot control which ones */
-/*
-#mainPopupSet:hover ~ box > toolbox > .browser-toolbar{
-  transition-delay: 100ms !important;
-  transform: rotateX(0);
+:root[BookmarksToolbarOverlapsBrowser] #navigator-toolbox{
+  margin-bottom: calc(-1px - var(--uc-bm-height) + var(--uc-navbar-height)) !important;
+  z-index: auto !important;
 }
-*/
+@media (-moz-bool-pref: "browser.fullscreen.autohide"){
+  :root[sizemode="fullscreen"] #navigator-toolbox[style*="margin-top"]{
+    margin-top: calc(1px - var(--tab-min-height) - 2 * var(--tab-block-margin)) !important;
+  }
+}
 
-/* Uncomment the next part to enable compatibility for multi-row_bookmarks.css
- * This would break buttons placed in the toolbar,
- * but that is likely not happening if you are using multi-row setup
- */
+/* Set the following pref to enable compatibility with multi-row_bookmarks.css */
+@media (-moz-bool-pref: "userchrome.autohide-bm-and-main-toolbars.multirow-bookmarks-compat.enabled"){
+  #navigator-toolbox{ margin-bottom: var(--uc-navbar-height) !important; }
+  #PersonalToolbar:not([customizing]){
+    min-height: 0 !important;
+    margin-bottom: 0;
+    height: 0;
+    overflow-y: visible !important;
+    z-index: 2;
+    padding-inline: 0 !important;
+  }
+  #personal-bookmarks{
+    background: inherit;
+    height: min-content;
+  }
+  #PlacesToolbarDropIndicatorHolder{
+    pointer-events: none !important;
+  }
+}
 
-/*
-#navigator-toolbox{ margin-bottom: var(--uc-navbar-height) !important; }
-#PersonalToolbar:not([customizing]){
-  min-height: 0 !important;
-  margin-bottom: 0;
-  height: 0;
-  overflow-y: visible !important;
-  z-index: 2;
-  padding-inline: 0 !important;
-}
-#personal-bookmarks{
-  background: inherit;
-  height: min-content;
-}
-#PlacesToolbarDropIndicatorHolder{
-  pointer-events: none !important;
-}
+/* END FIRST */
