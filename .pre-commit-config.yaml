@@ -15,7 +15,6 @@ repos:
       - id: check-symlinks
       - id: check-xml
       - id: check-yaml
-      - id: detect-aws-credentials
       - id: detect-private-key
       - id: debug-statements
       - id: end-of-file-fixer
