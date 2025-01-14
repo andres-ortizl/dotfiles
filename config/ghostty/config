@@ -1,0 +1,6 @@
+theme = catppuccin-mocha
+shell-integration-features = no-cursor
+background-opacity=0.99
+background-blur-radius = 20
+window-decoration=false
+font-size=18

@@ -1,0 +1,205 @@
+{
+  "lastUpgradeScriptRun": "v10.6.0",
+  "appId": "c6c6445fde569dbb7a311342144a28670f1bdbf0",
+  "appLocale": "en-ES",
+  "appDateFormat": null,
+  "appDateTimeFormat": null,
+  "appDateWordFormat": null,
+  "appDateVerboseFormat": null,
+  "userMilestones": {
+    "installId": "19cbf514-a833-46e2-99c1-af0ccf6bba62",
+    "firstAppOpen": true,
+    "firstProfileCreated": true,
+    "completedNewUserOnboarding": true,
+    "firstRepoOpened": true,
+    "introTutorialWelcomeStepCompleted": true,
+    "firstTimeCommitSelected": true,
+    "makeABranch": true,
+    "firstLoginRegister": true,
+    "connectIntegration": true,
+    "startATrial": true,
+    "createACommit": true,
+    "mergeABranch": true
+  },
+  "sslWhitelist": [],
+  "lastReleaseNotesDisplayed": "10.6.0",
+  "ui": {
+    "shouldShowStartupPromoModal": false
+  },
+  "aliases": {
+    "repo": {},
+    "tabs": {}
+  },
+  "windowSettings": {
+    "x": 0,
+    "y": 0,
+    "width": 960,
+    "height": 675,
+    "fullScreen": false,
+    "maximized": true
+  },
+  "registration": {
+    "EULA": {
+      "status": "agree_verified",
+      "version": "8.3.1"
+    },
+    "status": "activated",
+    "email": "andres.ortiz.xyz@gmail.com",
+    "name": "Andrés",
+    "loginType": "github",
+    "date": "2024-11-19T16:04:32.248Z"
+  },
+  "licensedFeatures": [
+    "pro",
+    "gitgui:pro",
+    "gitlens:pro",
+    "bundle:pro",
+    "gitkraken_v1:pro",
+    "suite:pro",
+    "student",
+    "gitgui:student",
+    "gitlens:student",
+    "bundle:student",
+    "gitkraken_v1:student",
+    "suite:student"
+  ],
+  "userFeatures": [
+    {
+      "name": "activityStatus"
+    },
+    {
+      "name": "changePriceEnabled"
+    },
+    {
+      "name": "cli"
+    },
+    {
+      "name": "experimentalAiCommmitMsg"
+    },
+    {
+      "name": "experimentalGitBinary"
+    },
+    {
+      "name": "experimentalGitBinaryDefaultOn960"
+    },
+    {
+      "name": "experimentalGitBinaryDefaultOn971"
+    },
+    {
+      "name": "experimentalGitBinarySpawnServer961"
+    },
+    {
+      "name": "gitBash"
+    },
+    {
+      "name": "gitkraken"
+    },
+    {
+      "name": "gkApi"
+    },
+    {
+      "name": "gkdOnboardingTutorial_10_5_0"
+    },
+    {
+      "name": "gkDotDevNewPurchaseFlow"
+    },
+    {
+      "name": "GKDotDevShowSsoSettings"
+    },
+    {
+      "name": "gkDotDevUserflow"
+    },
+    {
+      "name": "goldenTicketSpecial"
+    },
+    {
+      "name": "noGlobalFocusView"
+    },
+    {
+      "name": "onboardingGuide"
+    },
+    {
+      "name": "privateRepoModalTest_10_5_0"
+    },
+    {
+      "name": "registeredForGST"
+    },
+    {
+      "name": "terminalInsideRepoTab"
+    },
+    {
+      "name": "unregisteredTrials"
+    },
+    {
+      "name": "velocityInClient_9_0_0"
+    },
+    {
+      "name": "version_2"
+    },
+    {
+      "name": "workspacesPRComplexity"
+    }
+  ],
+  "onboarding": {},
+  "fuzzyFinderMetadata": {
+    "itemMetadata": {
+      "OPEN_REPO": {
+        "openRepo-/Users/andresortiz/.gitkraken/tutorial/Intro": {
+          "id": "openRepo-/Users/andresortiz/.gitkraken/tutorial/Intro",
+          "timestamps": [
+            1732032173855
+          ],
+          "total": 1
+        },
+        "openRepo-/Users/andresortiz/code/quantitative-nlp": {
+          "id": "openRepo-/Users/andresortiz/code/quantitative-nlp",
+          "timestamps": [
+            1732032427264,
+            1735179655125,
+            1735179720330,
+            1736873597383
+          ],
+          "total": 4
+        }
+      }
+    }
+  },
+  "tutorial": {
+    "isLifecycleAlreadyTriggeredByTutorialKey": {
+      "INTRO_TUTORIAL": {
+        "TUTORIAL_OPENED": true,
+        "TUTORIAL_STARTED": true,
+        "TUTORIAL_COMPLETED": true,
+        "TUTORIAL_CLOSED": true
+      }
+    }
+  },
+  "userId": "f426a6e1-922f-4167-85fb-4d9e5fbae613",
+  "orgSettingsByOrgId": {
+    "66b68da736f07fee5116e5b0": {
+      "aiSettings": {
+        "enabled": true,
+        "createdAt": "2024-08-09T21:44:07.477936Z",
+        "updatedAt": "2024-08-09T21:44:07.480675Z"
+      },
+      "draftsSettings": {
+        "enabled": true,
+        "createdAt": "2024-08-09T21:51:14.024136Z",
+        "updatedAt": "2024-08-09T21:51:14.024136Z"
+      },
+      "ssoSettings": {
+        "enabled": false,
+        "enforced": false,
+        "provision": false,
+        "createdAt": "2024-08-09T21:44:07.477936Z",
+        "updatedAt": "2024-08-09T21:44:07.480675Z"
+      },
+      "memberInvitesRequireApproval": true,
+      "createdAt": "2024-08-09T21:44:07.477936Z",
+      "updatedAt": "2024-08-09T21:44:07.480675Z"
+    }
+  },
+  "commits": {
+    "maxCommitsInGraph": 2000
+  }
+}

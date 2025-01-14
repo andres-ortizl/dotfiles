@@ -1,9 +1,10 @@
 {
   "assistant": {
     "default_model": {
-      "model": "gpt-4o",
-      "provider": "openai"
+      "model": "claude-3-5-sonnet",
+      "provider": "copilot_chat"
     },
+    "button": false,
     "version": "2"
   },
   "autosave": {
@@ -11,12 +12,19 @@
       "milliseconds": 1000
     }
   },
+  "git": {
+    "inline_blame": {
+      "enabled": false,
+      "delay_ms": 1000
+    },
+    "git_gutter": "tracked_files"
+  },
   "base_keymap": "JetBrains",
-  "buffer_font_family": "Hack Nerd Font Mono",
+  "buffer_font_family": "Fira Code",
   "buffer_font_size": 15,
   "centered_layout": {
-    "left_padding": 0.15,
-    "right_padding": 0.15
+    "left_padding": 0.2,
+    "right_padding": 0.2
   },
   "enable_language_server": true,
   "file_scan_exclusions": [
@@ -67,11 +75,19 @@
   },
   "formatter": "language_server",
   "gutter": {
-    "code_actions": false
+    "code_actions": true,
+    "line_numbers": true
   },
   "indent_guides": {
     "coloring": "indent_aware",
-    "enabled": true
+    "enabled": true,
+    "background_coloring": "disabled"
+  },
+  "inlay_hints": {
+    "enabled": false,
+    "show_type_hints": true,
+    "show_parameter_hints": true,
+    "show_other_hints": true
   },
   "languages": {
     "Python": {
@@ -90,21 +106,54 @@
         }
       ],
       "language_servers": [
-        "pyright",
-        "ruff"
+        //"!pyright"
+        "basedpyright",
+        "ruff",
+        "python-refactoring"
       ]
     },
     "Rust": {
       "show_inline_completions": false
     }
   },
-  "load_direnv": "shell_hook",
   "lsp": {
     "pyright": {
       "settings": {
         "python.analysis": {
-          "diagnosticMode": "workspace",
-          "typeCheckingMode": "strict"
+          "diagnosticMode": "openFilesOnly",
+          "typeCheckingMode": "basic"
+        },
+        "disableOrganizeImports": true
+      }
+    },
+    "basedpyright": {
+      "settings": {
+        "python": {
+          "reportMissingTypeStubs": false
+        },
+        "basedpyright.analysis": {
+          "diagnosticMode": "openFilesOnly",
+          "typeCheckingMode": "basic",
+          "reportMissingTypeStubs": false
+        },
+        "disableOrganizeImports": true
+      }
+    },
+    "ruff": {
+      "initialization_options": {
+        "settings": {
+          "lineLength": 88,
+          "showSyntaxErrors": true,
+          "lint": {
+            "select": [
+              "ALL"
+            ],
+            "ignore": [
+              "D",
+              "S101",
+              "ANN201"
+            ]
+          }
         }
       }
     },
@@ -140,13 +189,27 @@
     "diagnostics": false,
     "metrics": false
   },
+  "ui_font_features": {
+    "calt": true
+  },
+  "buffer_font_features": {
+    "calt": true,
+    "dlig": true
+  },
   "terminal": {
+    "detect_venv": "off",
+    "dock": "bottom",
+    "blinking": "terminal_controlled",
     "buffer_font_fallbacks": [
       "Nerd Font"
     ],
     "button": false,
-    "font_family": "Hack Nerd Font Mono",
-    "font_size": 13,
+    "font_family": "CaskaydiaCove Nerd Font",
+    "font_size": 15,
+    "font_features": {
+      "calt": true,
+      "cv01": 7
+    },
     "line_height": "comfortable",
     "toolbar": {
       "breadcrumbs": false
@@ -161,5 +224,41 @@
     "Hack Nerd Font Mono"
   ],
   "ui_font_family": "FiraCode Nerd Font Mono",
-  "ui_font_size": 15
+  //"show_call_status_icon": false,
+  "ui_font_size": 15,
+  "experimental.theme_overrides": {
+    "pane_group.border": "#464b5700",
+    "background.appearance": "opaque",
+    "background": "#09090bBB",
+    "panel.background": "#00000000",
+    "background.image_file": "/Users/andresortiz/downloads/background.jpg",
+    "editor.background": "#00000000",
+    //"editor.background": "#282a36",
+    "tab_bar.background": "#00000000",
+    "terminal.background": "#00000000",
+    "toolbar.background": "#00000000",
+    "tab.inactive_background": "#00000000",
+    "tab.active_background": "#3f3f4650",
+    "border": "#00000000",
+    //"status_bar.background": "#00000000",
+    //  "title_bar.background": "#00000000",
+    "border.variant": "#00000000",
+    "scrollbar.track.background": "#52525b20",
+    "scrollbar.track.border": "#00000000",
+    "scrollbar.thumb.background": "#52525b30",
+    "scrollbar.thumb.border": "#00000000",
+    // "elevated_surface.background": "#00000090",
+    "elevated_surface.background": "#5A4A8A",
+    "warning.background": "#5A4A8A",
+    "warning.border": "#FFB84D",
+    "error.background": "#5A4A8A",
+    "error.border": "#d072771a",
+    "surface.background": "#00000090",
+    "editor.active_line_number": "#ffffffcc",
+    "editor.gutter.background": "#00000000",
+    "editor.indent_guide": "#ffffff30",
+    "editor.indent_guide_active": "#ffffff80",
+    "editor.line_number": "#ffffff80",
+    "editor.active_line.background": "#3f3f4640"
+  }
 }
