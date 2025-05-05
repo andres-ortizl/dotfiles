@@ -1,5 +1,5 @@
 {
-  "lastUpgradeScriptRun": "v10.6.0",
+  "lastUpgradeScriptRun": "v11.0.0",
   "appId": "c6c6445fde569dbb7a311342144a28670f1bdbf0",
   "appLocale": "en-ES",
   "appDateFormat": null,
@@ -22,7 +22,7 @@
     "mergeABranch": true
   },
   "sslWhitelist": [],
-  "lastReleaseNotesDisplayed": "10.6.0",
+  "lastReleaseNotesDisplayed": "11.0.0",
   "ui": {
     "shouldShowStartupPromoModal": false
   },
@@ -31,10 +31,10 @@
     "tabs": {}
   },
   "windowSettings": {
-    "x": 0,
-    "y": 0,
-    "width": 960,
-    "height": 675,
+    "x": 1512,
+    "y": -476,
+    "width": 1080,
+    "height": 1440,
     "fullScreen": false,
     "maximized": true
   },
@@ -98,22 +98,34 @@
       "name": "gkApi"
     },
     {
+      "name": "gkdConflictPreventionFeedback_11_1_0"
+    },
+    {
+      "name": "gkDevConflictPreventionSetting"
+    },
+    {
+      "name": "gkdevEnableAllAutomationProviders"
+    },
+    {
+      "name": "gkDevReferralSystem"
+    },
+    {
       "name": "gkdOnboardingTutorial_10_5_0"
     },
     {
-      "name": "gkDotDevNewPurchaseFlow"
+      "name": "gkDotDevAutomations"
     },
     {
-      "name": "GKDotDevShowSsoSettings"
+      "name": "gkDotDevCycleTime"
     },
     {
-      "name": "gkDotDevUserflow"
+      "name": "gkdReferralProgram_11_0_0"
+    },
+    {
+      "name": "gkdTrialStartModalPromoMessage_11_1_0"
     },
     {
       "name": "goldenTicketSpecial"
-    },
-    {
-      "name": "noGlobalFocusView"
     },
     {
       "name": "onboardingGuide"
@@ -131,10 +143,10 @@
       "name": "unregisteredTrials"
     },
     {
-      "name": "velocityInClient_9_0_0"
+      "name": "useNewTrialStartModalTest_10_8_0"
     },
     {
-      "name": "version_2"
+      "name": "velocityInClient_9_0_0"
     },
     {
       "name": "workspacesPRComplexity"
@@ -157,9 +169,24 @@
             1732032427264,
             1735179655125,
             1735179720330,
-            1736873597383
+            1736873597383,
+            1745593458227
           ],
-          "total": 4
+          "total": 5
+        },
+        "openRepo-/Users/andresortiz/code/ds-innovation-services": {
+          "id": "openRepo-/Users/andresortiz/code/ds-innovation-services",
+          "timestamps": [
+            1740575894080
+          ],
+          "total": 1
+        },
+        "openRepo-/Users/andresortiz/code/clarity-ai-assistant": {
+          "id": "openRepo-/Users/andresortiz/code/clarity-ai-assistant",
+          "timestamps": [
+            1742212380846
+          ],
+          "total": 1
         }
       }
     }
@@ -195,11 +222,19 @@
         "updatedAt": "2024-08-09T21:44:07.480675Z"
       },
       "memberInvitesRequireApproval": true,
+      "conflictDetectionEnabled": true,
+      "aiEnabled": true,
+      "ssoEnabled": false,
+      "ssoEnforced": false,
+      "ssoProvision": false,
       "createdAt": "2024-08-09T21:44:07.477936Z",
       "updatedAt": "2024-08-09T21:44:07.480675Z"
     }
   },
   "commits": {
     "maxCommitsInGraph": 2000
+  },
+  "ai": {
+    "enabled": true
   }
 }

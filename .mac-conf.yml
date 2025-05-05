@@ -26,6 +26,9 @@
     ~/.gitkraken/config: config/gitkraken/config
     ~/.gitkraken/themes/: config/gitkraken/themes/**
     ~/Library/Application\ Support/com.mitchellh.ghostty/config: config/ghostty/config
+    ~/.amethyst.yml: config/amethyst/.amethyst.yml
+    ~/.aerospace.toml: config/aerospace/aerospace.toml
+
 
 - shell:
     - [ git submodule update --init --recursive, Installing submodules ]

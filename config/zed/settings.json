@@ -1,83 +1,72 @@
 {
-  "assistant": {
-    "default_model": {
-      "model": "claude-3-5-sonnet",
-      "provider": "copilot_chat"
-    },
-    "button": false,
-    "version": "2"
+  // Theme and Appearance
+  "theme": "Catppuccin Macchiato",
+  "icon_theme": "Catppuccin Macchiato",
+  "experimental.theme_overrides": {
+    // "#00000000" black
+    // #1E1E2E catppuchino mocha
+    "pane_group.border": "#464b5700",
+    "background.appearance": "blurred",
+    "background": "#09090bBB",
+    "panel.background": "#1E1E2E",
+    "background.image_file": "/Users/andresortiz/downloads/background.jpg",
+    "editor.background": "#1E1E2E",
+    "tab_bar.background": "#1E1E2E",
+    "terminal.background": "#1E1E2E",
+    "toolbar.background": "#1E1E2E",
+    "tab.inactive_background": "#1E1E2E",
+    "tab.active_background": "#3f3f4650",
+    "border": "#1E1E2E",
+    //"status_bar.background": "#1E1E2E",
+    //"title_bar.background": "#1E1E2E",
+    "border.variant": "#1E1E2E",
+    "scrollbar.track.background": "#52525b20",
+    "scrollbar.track.border": "#1E1E2E",
+    "scrollbar.thumb.background": "#52525b30",
+    "scrollbar.thumb.border": "#1E1E2E",
+    // "elevated_surface.background": "#00000090",
+    "elevated_surface.background": "#5A4A8A",
+    "warning.background": "#5A4A8A",
+    "warning.border": "#FFB84D",
+    "error.background": "#5A4A8A",
+    "error.border": "#d072771a",
+    "surface.background": "#00000090",
+    "editor.active_line_number": "#ffffffcc",
+    "editor.gutter.background": "#1E1E2E",
+    "editor.indent_guide": "#ffffff30",
+    "editor.indent_guide_active": "#ffffff80",
+    "editor.line_number": "#ffffff80",
+    "editor.active_line.background": "#3f3f4640"
+  },
+  // Font Settings
+  "buffer_font_family": "FiraCode Nerd Font Mono",
+  "buffer_font_size": 17,
+  "buffer_font_features": {
+    "calt": true,
+    "dlig": true
+  },
+  "ui_font_family": "FiraCode Nerd Font Mono",
+  "ui_font_size": 19,
+  "ui_font_weight": 600,
+  "ui_font_features": {
+    "calt": true
+  },
+  "ui_font_fallbacks": [
+    "FiraCode Nerd Font Mono"
+  ],
+  // Editor Features and Behavior
+  "base_keymap": "JetBrains",
+  "centered_layout": {
+    "left_padding": 0.2,
+    "right_padding": 0
   },
   "autosave": {
     "after_delay": {
       "milliseconds": 1000
     }
   },
-  "git": {
-    "inline_blame": {
-      "enabled": false,
-      "delay_ms": 1000
-    },
-    "git_gutter": "tracked_files"
-  },
-  "base_keymap": "JetBrains",
-  "buffer_font_family": "Fira Code",
-  "buffer_font_size": 15,
-  "centered_layout": {
-    "left_padding": 0.2,
-    "right_padding": 0.2
-  },
-  "enable_language_server": true,
-  "file_scan_exclusions": [
-    "**/node_modules",
-    "**/vendor",
-    "**/dist",
-    "**/build",
-    "**/target",
-    "**/.git",
-    "**/.svn",
-    "**/.hg",
-    "**/.bzr",
-    "**/.DS_Store",
-    "**/.vscode",
-    "**/.idea",
-    "**/.stack-work",
-    "**/.cabal-sandbox",
-    "**/.ccls-cache",
-    "**/.clangd",
-    "**/.cquery",
-    "**/.eunit",
-    "**/.gitlab",
-    "**/.hg",
-    "**/.idea",
-    "**/.lib",
-    "**/.mypy_cache",
-    "**/.pytest_cache",
-    "**/.stack-work",
-    "**/.svn",
-    "**/.tox",
-    "**/.vscode",
-    "**/__pycache__",
-    "**/build",
-    "**/dist",
-    "**/node_modules",
-    "**/target",
-    "**/vendor"
-  ],
-  "file_types": {
-    "Dockerfile": [
-      "Dockerfile",
-      "Dockerfile.*"
-    ],
-    "JSON": [
-      "json",
-      "jsonc"
-    ]
-  },
   "formatter": "language_server",
-  "gutter": {
-    "code_actions": true,
-    "line_numbers": true
-  },
+  "enable_language_server": true,
   "indent_guides": {
     "coloring": "indent_aware",
     "enabled": true,
@@ -89,8 +78,119 @@
     "show_parameter_hints": true,
     "show_other_hints": true
   },
+  "edit_predictions": {
+    "mode": "subtle"
+  },
+  "features": {
+    "edit_prediction_provider": "zed"
+  },
+  // Gutter and UI Elements
+  "gutter": {
+    "code_actions": false,
+    "line_numbers": true
+  },
+  "outline_panel": {
+    "show": true
+  },
+  "scrollbar": {
+    "show": "never"
+  },
+  "tab_bar": {
+    "show": false
+  },
+  "toolbar": {
+    "breadcrumbs": false,
+    "quick_actions": false
+  },
+  //"show_call_status_icon": false,
+  // Git Integration
+  "git": {
+    "inline_blame": {
+      "enabled": false,
+      "delay_ms": 1000
+    },
+    "git_gutter": "tracked_files"
+  },
+  // File Handling
+  "file_scan_exclusions": [
+    "**/node_modules",
+    "**/vendor",
+    "**/dist",
+    "**/build",
+    "**/target",
+    "**/.git",
+    "**/__pycache__",
+    "**/.pytest_cache",
+    "**/.mypy_cache",
+    "**/.ruff_cache",
+    "**/venv",
+    //"**/.venv",
+    "**/env",
+    //"**/.env",
+    "**/virtualenv",
+    "**/.virtualenv",
+    "**/*.pyc",
+    "**/*.pyo",
+    "**/*.pyd",
+    "**/.ipynb_checkpoints",
+    "**/.coverage",
+    "**/.tox",
+    "**/htmlcov",
+    "**/site-packages",
+    "**/.DS_Store",
+    "**/.vscode",
+    "**/.idea"
+  ],
+  "file_types": {
+    "Dockerfile": [
+      "Dockerfile",
+      "Dockerfile.*"
+    ],
+    "JSON": [
+      "json",
+      "jsonc"
+    ]
+  },
+  // Terminal Settings
+  "terminal": {
+    "copy_on_select": true,
+    "cursor_shape": "underline",
+    "dock": "bottom",
+    //"blinking": "terminal_controlled",
+    "button": false,
+    "font_family": "FiraCode Nerd Font",
+    "font_size": 16,
+    "line_height": "standard",
+    "toolbar": {
+      "breadcrumbs": false
+    }
+  },
+  // AI Assistant Settings
+  "assistant": {
+    "default_profile": "ask",
+    "inline_assistant_model": {
+      "provider": "openai",
+      "model": "gpt-4o-mini"
+    },
+    "default_model": {
+      "model": "gpt-4o",
+      "provider": "copilot_chat"
+    },
+    "editor_model": {
+      "provider": "openai",
+      "model": "gpt-4o"
+    },
+    "button": false,
+    "version": "2"
+  },
+  // Language-Specific Settings
   "languages": {
     "Python": {
+      "completions": {
+        "lsp": true,
+        "words": "fallback",
+        "timeout_ms": 2
+      },
       "format_on_save": "on",
       "formatter": [
         {
@@ -106,16 +206,18 @@
         }
       ],
       "language_servers": [
-        //"!pyright"
+        //"pyright",
         "basedpyright",
-        "ruff",
-        "python-refactoring"
+        //"pylsp",
+        //"python-refactoring",
+        "ruff"
       ]
     },
     "Rust": {
-      "show_inline_completions": false
+      "show_edit_predictions": false
     }
   },
+  // LSP (Language Server Protocol) Settings
   "lsp": {
     "pyright": {
       "settings": {
@@ -137,6 +239,62 @@
           "reportMissingTypeStubs": false
         },
         "disableOrganizeImports": true
+      }
+    },
+    "pylsp": {
+      "settings": {
+        "plugins": {
+          "autopep8": {
+            "enabled": false
+          },
+          "black": {
+            "enabled": false
+          },
+          "flake8": {
+            "enabled": false
+          },
+          "isort": {
+            "enabled": false
+          },
+          "mccabe": {
+            "enabled": false
+          },
+          "pycodestyle": {
+            "enabled": false
+          },
+          "pydocstyle": {
+            "enabled": false
+          },
+          "pyflakes": {
+            "enabled": false
+          },
+          "pylint": {
+            "enabled": false
+          },
+          "yapf": {
+            "enabled": false
+          },
+          // keep the others
+          "pylsp_mypy": {
+            "enabled": true
+          },
+          "jedi": {
+            "enabled": true
+          },
+          "rope": {
+            "enabled": true
+          },
+          "rope_autoimport": {
+            "enabled": true
+          },
+          "rope_completion": {
+            "enabled": true
+          },
+          // disable pylsp ruff in favor of `ruff server`
+          "ruff": {
+            "enabled": false
+          }
+        }
       }
     },
     "ruff": {
@@ -176,89 +334,15 @@
       }
     }
   },
-  "outline_panel": {
-    "show": true
+  // Jupyter Settings
+  "jupyter": {
+    "kernel_selections": {
+      "python": "/Users/andresortiz/.local/pipx/venvs/ipykernel/share/jupyter/kernels/python3"
+    }
   },
-  "scrollbar": {
-    "show": "never"
-  },
-  "tab_bar": {
-    "show": false
-  },
+  // Telemetry Settings
   "telemetry": {
     "diagnostics": false,
     "metrics": false
-  },
-  "ui_font_features": {
-    "calt": true
-  },
-  "buffer_font_features": {
-    "calt": true,
-    "dlig": true
-  },
-  "terminal": {
-    "detect_venv": "off",
-    "dock": "bottom",
-    "blinking": "terminal_controlled",
-    "buffer_font_fallbacks": [
-      "Nerd Font"
-    ],
-    "button": false,
-    "font_family": "CaskaydiaCove Nerd Font",
-    "font_size": 15,
-    "font_features": {
-      "calt": true,
-      "cv01": 7
-    },
-    "line_height": "comfortable",
-    "toolbar": {
-      "breadcrumbs": false
-    }
-  },
-  "theme": "Catppuccin Mocha - No Italics",
-  "toolbar": {
-    "breadcrumbs": false,
-    "quick_actions": false
-  },
-  "ui_font_fallbacks": [
-    "Hack Nerd Font Mono"
-  ],
-  "ui_font_family": "FiraCode Nerd Font Mono",
-  //"show_call_status_icon": false,
-  "ui_font_size": 15,
-  "experimental.theme_overrides": {
-    "pane_group.border": "#464b5700",
-    "background.appearance": "opaque",
-    "background": "#09090bBB",
-    "panel.background": "#00000000",
-    "background.image_file": "/Users/andresortiz/downloads/background.jpg",
-    "editor.background": "#00000000",
-    //"editor.background": "#282a36",
-    "tab_bar.background": "#00000000",
-    "terminal.background": "#00000000",
-    "toolbar.background": "#00000000",
-    "tab.inactive_background": "#00000000",
-    "tab.active_background": "#3f3f4650",
-    "border": "#00000000",
-    //"status_bar.background": "#00000000",
-    //  "title_bar.background": "#00000000",
-    "border.variant": "#00000000",
-    "scrollbar.track.background": "#52525b20",
-    "scrollbar.track.border": "#00000000",
-    "scrollbar.thumb.background": "#52525b30",
-    "scrollbar.thumb.border": "#00000000",
-    // "elevated_surface.background": "#00000090",
-    "elevated_surface.background": "#5A4A8A",
-    "warning.background": "#5A4A8A",
-    "warning.border": "#FFB84D",
-    "error.background": "#5A4A8A",
-    "error.border": "#d072771a",
-    "surface.background": "#00000090",
-    "editor.active_line_number": "#ffffffcc",
-    "editor.gutter.background": "#00000000",
-    "editor.indent_guide": "#ffffff30",
-    "editor.indent_guide_active": "#ffffff80",
-    "editor.line_number": "#ffffff80",
-    "editor.active_line.background": "#3f3f4640"
   }
 }

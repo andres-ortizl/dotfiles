@@ -1,3 +1,4 @@
+zmodload zsh/zprof
 setopt HIST_IGNORE_ALL_DUPS
 bindkey -e
 
@@ -47,41 +48,38 @@ source ${ZIM_HOME}/init.zsh
 # zsh-history-substring-search
 #
 
-zmodload -F zsh/terminfo +p:terminfo
+#zmodload -F zsh/terminfo +p:terminfo
 # Bind ^[[A/^[[B manually so up/down works both before and after zle-line-init
-for key ('^[[A' '^P' ${terminfo[kcuu1]}) bindkey ${key} history-substring-search-up
-for key ('^[[B' '^N' ${terminfo[kcud1]}) bindkey ${key} history-substring-search-down
-for key ('k') bindkey -M vicmd ${key} history-substring-search-up
-for key ('j') bindkey -M vicmd ${key} history-substring-search-down
-unset key
+#for key ('^[[A' '^P' ${terminfo[kcuu1]}) bindkey ${key} history-substring-search-up
+#for key ('^[[B' '^N' ${terminfo[kcud1]}) bindkey ${key} history-substring-search-down
+#for key ('k') bindkey -M vicmd ${key} history-substring-search-up
+#for key ('j') bindkey -M vicmd ${key} history-substring-search-down
+#unset key
 # }}} End configuration added by Zim install
 
 
-[ -f /usr/share/fzf/key-bindings.zsh ] && source /usr/share/fzf/key-bindings.zsh
-[ -f /usr/share/fzf/completion.zsh ] && source /usr/share/fzf/completion.zsh
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+#[ -f /usr/share/fzf/key-bindings.zsh ] && source /usr/share/fzf/key-bindings.zsh
+#[ -f /usr/share/fzf/completion.zsh ] && source /usr/share/fzf/completion.zsh
+#[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 export DOTFILES=/Users/andresortiz/code/dotfiles/
 source $DOTFILES/shell/main.sh
+
+
 . "$HOME/.atuin/bin/env"
 
+source ${ZIM_HOME}/modules/zsh-defer/zsh-defer.plugin.zsh
 
-_evalcache direnv hook zsh
+zsh-defer _evalcache direnv hook zsh
 _evalcache starship init zsh
-_evalcache zoxide init zsh
-_evalcache atuin init --disable-up-arrow zsh
+zsh-defer _evalcache zoxide init zsh
+zsh-defer _evalcache atuin init --disable-up-arrow zsh
 
-autoload -Uz compinit
-zstyle ':completion:*' menu select
-fpath+=~/.zfunc
 
-#export NVM_DIR="$HOME/.nvm"
-#[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-#[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-# pnpm
-export PNPM_HOME="/Users/andresortiz/Library/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
-# pnpm end
+
+#autoload -Uz compinit
+#zstyle ':completion:*' menu select
+#fpath+=~/.zfunc
+
+
+#fpath+=~/.zfunc; autoload -Uz compinit; compinit

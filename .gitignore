@@ -4,7 +4,8 @@
 config/spicetify/*
 .venv
 .env
-
+.envrc
+pyrightconfig.json
 .cache
 # Python-specific
 *.pyc
