@@ -1,30 +1,29 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+
+
 format = """
 $kubernetes$directory$git_branch$git_status$python$cmd_duration
 $character
 """
 
 [kubernetes]
-style = "bg:#8AADF4 fg:black bold"
-format = '[[](#8AADF4) $context :: $namespace [](#8AADF4)]($style)'
+style = "bg:#ad8ee6 fg:black bold"
+format = '[[](#ad8ee6) $context :: $namespace [](#ad8ee6)]($style)'
 disabled = false
 
 [directory]
-style = "bg:#DDB6F2 fg:black bold"
-format = "[[](#DDB6F2) $path [](#DDB6F2)]($style)"
+style = "bg:#ff7edb fg:black bold"
+format = "[[](#ff7edb) $path [](#ff7edb)]($style)"
 
 [python]
 symbol = "🐍"
 style = "bg:#B4BEFE fg:black bold"
 format = '[([](#B4BEFE) $symbol$virtualenv [](#B4BEFE))]($style)'
 
-[rust]
-symbol = "🦀"
-style = "bg:#F28FAD fg:black bold"
-format = '[([](#F28FAD) $symbol$version [](#F28FAD))]($style)'
-
 
 [git_branch]
 symbol = ""
+truncation_length = 15
 style = "bg:#FDB6F5 fg:black bold"
 format = '[[](#FDB6F5) $symbol $branch]($style)'
 
@@ -34,9 +33,9 @@ conflicted = "[  ](red bg:#FDB6F5)"
 ahead = "  "
 behind = "  "
 diverged = "  "
-untracked = "[  ](green bg:#FDB6F5)"
+untracked = "[  ](#008000 bg:#FDB6F5)"
 staged = "  "
-modified = "[  ](yellow bg:#FDB6F5)"
+modified = "[  ](#FFA500 bg:#FDB6F5)"
 stashed = "  "
 format = '[(#FDB6F5) $all_status$ahead_behind [](#FDB6F5)]($style)'
 
@@ -45,5 +44,5 @@ style = "fg:black bg:#8AADF4 bold"
 format = "[[](#8AADF4) $duration [](#8AADF4)]($style)"
 
 [character]
-error_symbol = "[╰─](bold #F28FAD)"
-success_symbol = "[╰─](bold #A6E3A1)"
+error_symbol = "[╰─](bold #ff9e64)"
+success_symbol = "[╰─](bold #4fd6be)"

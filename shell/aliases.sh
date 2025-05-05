@@ -33,5 +33,3 @@ alias s3ls="aws --profile=mgmt s3 ls"
 alias s3cp="aws --profile=mgmt s3 cp"
 alias top="htop -s PERCENT_MEM"
 alias stree="du --max-depth=n -h | sort --human-numeric-sort"
-
-alias axpipenv="arch -x86_64 /opt/homebrew/bin/pipenv"

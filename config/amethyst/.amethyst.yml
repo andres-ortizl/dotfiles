@@ -1,0 +1,48 @@
+layouts:
+  - tall
+  - fullscreen
+  # - tall-right
+  # - wide
+  # - two-pane
+  # - middle-wide
+  # - 3column-left
+  # - middle-wide # The legacy name of "3column-middle"
+  # - 3column-right
+  # - 4column-left
+  # - 4column-right
+  - column
+  - row
+  # - floating
+  # - widescreen-tall
+  # - widescreen-tall-right
+  # - bsp
+
+mod1:
+  - option
+  - shift
+  - control
+  - command
+
+cycle-layout:
+  mod: mod1
+  key: space
+
+focus-ccw:
+  mod: mod1
+  key: down
+
+swap-screen-ccw:
+  mod: mod1
+  key: up
+
+focus-screen-1:
+  mod: mod1
+  key: left
+
+focus-screen-2:
+  mod: mod1
+  key: right
+
+window-margins: true
+
+smart-window-margins: true

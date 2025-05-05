@@ -1,15 +1,17 @@
 # Modules
 zmodule environment
-zmodule input
+#zmodule input
 
-zmodule utility
+#zmodule utility
 
 zmodule zsh-users/zsh-completions --fpath src
 zmodule zsh-users/zsh-syntax-highlighting
-zmodule zsh-users/zsh-history-substring-search
+#zmodule zsh-users/zsh-history-substring-search
 zmodule zsh-users/zsh-autosuggestions
 zmodule completion
 zmodule mroth/evalcache
+zmodule romkatv/zsh-defer -d
+zmodload zsh/zprof
 
 #zmodule https://github.com/andres-ortizl/ortiz-zsh-theme.git --name ortiz
 #zmodule duration-info

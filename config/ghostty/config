@@ -1,6 +1,16 @@
 theme = catppuccin-mocha
 shell-integration-features = no-cursor
-background-opacity=0.99
+background-opacity=0.75
 background-blur-radius = 20
 window-decoration=false
 font-size=18
+
+
+keybind = shift+up=adjust_selection:up
+keybind = shift+left=adjust_selection:left
+keybind = shift+page_up=adjust_selection:page_up
+keybind = shift+end=adjust_selection:end
+keybind = shift+right=adjust_selection:right
+keybind = shift+page_down=adjust_selection:page_down
+keybind = shift+down=adjust_selection:down
+keybind = shift+home=adjust_selection:home

@@ -7,13 +7,7 @@ function measure_performance_shell() {
 
 }
 
-function j() {
-  fname=$(declare -f -F _z)
 
-  [ -n "$fname" ] || source "$DOTFILES/modules/z/z.sh"
-
-  _z "$1"
-}
 
 function reverse-search() {
   local selected num
@@ -49,21 +43,12 @@ function kubeconfig() {
     source <(helm completion zsh)
     source <(kubectl completion zsh)
 }
-
-function vpn-login() {
-  OP_USER_NAME="andres.ortiz"
-  OP_CRED_NAME="Clarity VPN login"
-  OP_HOST="clarity.1password.com"
-  CRED_FILE="${HOME}/.vpn/credentials.txt"
-
-  rm "${CRED_FILE}"
-  read -rs OP_PW
-  eval "$(echo "${OP_PW}" | op signin ${OP_HOST})"
-  PW=$(op get item "${OP_CRED_NAME}" | jq -r '.details.fields[1].value')$(op get totp "${OP_CRED_NAME}")
-  echo -e "${OP_USER_NAME}\n${PW}" > "${CRED_FILE}"
-	sudo openvpn "${HOME}/.vpn/${OP_USER_NAME}.ovpn"
-	rm "${CRED_FILE}"
+function kubedown() {
+    unset KUBECONFIG
+    unset KUBEHOME
 }
+
+
 
 function dc(){
   if docker ps >/dev/null 2>&1; then
