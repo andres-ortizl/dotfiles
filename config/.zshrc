@@ -62,11 +62,10 @@ source ${ZIM_HOME}/init.zsh
 #[ -f /usr/share/fzf/completion.zsh ] && source /usr/share/fzf/completion.zsh
 #[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-export DOTFILES=/Users/andresortiz/code/dotfiles/
+export DOTFILES=/home/andres/code/dotfiles/
 source $DOTFILES/shell/main.sh
 
 
-. "$HOME/.atuin/bin/env"
 
 source ${ZIM_HOME}/modules/zsh-defer/zsh-defer.plugin.zsh
 

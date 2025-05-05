@@ -13,3 +13,5 @@ source /Users/andresortiz/.docker/init-bash.sh || true # Added by Docker Desktop
 
 [[ -f ~/.bash-preexec.sh ]] && source ~/.bash-preexec.sh
 eval "$(atuin init bash)"
+export DOTFILES=/home/andres/code/dotfiles
+source /home/andres/code/dotfiles/shell/main.sh
