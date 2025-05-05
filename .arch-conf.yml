@@ -8,7 +8,7 @@
 - clean: [ '~' ]
 
 - link:
-    ~/.zshrc: config/.zshrc
+    ~/.zshrc: config/.zshrc_arch
     ~/.bashrc: config/.bashrc
     ~/.zlogin: config/.zlogin
     ~/key-bindings.zsh: config/key-bindings.zsh
@@ -27,6 +27,7 @@
     ~/.config/ghostty/config: config/ghostty/config
     ~/.config/discord/settings.json: config/discord/settings.json
     ~/.config/bat/bat.conf: config/bat/bat.conf
+    ~/.config/zed: config/zed/**
   
 
 
