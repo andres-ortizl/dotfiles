@@ -1,0 +1,37 @@
+zmodload zsh/zprof
+setopt HIST_IGNORE_ALL_DUPS
+bindkey -e
+
+
+export DOTFILES=/Users/andresortiz/code/doftiles
+WORDCHARS=${WORDCHARS//[\/]}
+ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets)
+
+
+ZIM_HOME=${ZDOTDIR:-${HOME}}/.zim
+
+if [[ ! -e ${ZIM_HOME}/zimfw.zsh ]]; then
+  if (( ${+commands[curl]} )); then
+    curl -fsSL --create-dirs -o ${ZIM_HOME}/zimfw.zsh \
+        https://github.com/zimfw/zimfw/releases/latest/download/zimfw.zsh
+  else
+    mkdir -p ${ZIM_HOME} && wget -nv -O ${ZIM_HOME}/zimfw.zsh \
+        https://github.com/zimfw/zimfw/releases/latest/download/zimfw.zsh
+  fi
+fi
+
+if [[ ! ${ZIM_HOME}/init.zsh -nt ${ZDOTDIR:-${HOME}}/.zimrc ]]; then
+  source ${ZIM_HOME}/zimfw.zsh init -q
+fi
+
+. "$HOME/.atuin/bin/env"
+
+source ${ZIM_HOME}/init.zsh
+source $DOTFILES/shell/main.sh
+source ${ZIM_HOME}/modules/zsh-defer/zsh-defer.plugin.zsh
+
+zsh-defer _evalcache direnv hook zsh
+_evalcache starship init zsh
+zsh-defer _evalcache zoxide init zsh
+zsh-defer _evalcache atuin init --disable-up-arrow zsh
+
