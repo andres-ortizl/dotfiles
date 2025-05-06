@@ -3,7 +3,7 @@ setopt HIST_IGNORE_ALL_DUPS
 bindkey -e
 
 
-export DOTFILES=/Users/andresortiz/code/doftiles
+export DOTFILES=/Users/andresortiz/code/dotfiles
 WORDCHARS=${WORDCHARS//[\/]}
 ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets)
 
@@ -34,4 +34,3 @@ zsh-defer _evalcache direnv hook zsh
 _evalcache starship init zsh
 zsh-defer _evalcache zoxide init zsh
 zsh-defer _evalcache atuin init --disable-up-arrow zsh
-
