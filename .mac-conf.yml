@@ -9,7 +9,7 @@
 - clean: [ '~' ]
 
 - link:
-    ~/.zshrc: config/.zshrc
+    ~/.zshrc: config/.zshrc_mac
     ~/.bashrc: config/.bashrc
     ~/key-bindings.zsh: config/key-bindings.zsh
     ~/.zimrc: config/.zimrc
