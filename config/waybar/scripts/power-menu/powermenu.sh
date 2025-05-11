@@ -11,7 +11,7 @@
 
 # Current Theme
 dir="~/.config/waybar/scripts/power-menu/"
-theme='style-1'
+theme='style-5'
 
 # CMDs
 uptime="$(uptime -p | sed -e 's/up //g')"
@@ -90,13 +90,7 @@ $reboot)
 	run_cmd --reboot
 	;;
 $lock)
-	if [[ -x '/usr/bin/betterlockscreen' ]]; then
-		betterlockscreen -l
-	elif [[ -x '/usr/bin/i3lock' ]]; then
-		i3lock
-	elif [[ -x '/usr/bin/Hyprland' ]]; then
-		swaylock
-	fi
+    hyprlock
 	;;
 $suspend)
 	run_cmd --suspend

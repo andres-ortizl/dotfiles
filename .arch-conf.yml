@@ -20,7 +20,6 @@
     ~/.config/hypr: config/hypr/**
     ~/.config/picom: config/picom/**
     ~/.config/rofi: config/rofi/**
-    ~/.config/swaylock/config: config/swaylock/config
     ~/.config/wallpaper: config/wallpaper/**
     ~/.config/waybar: config/waybar/**
     ~/.config/starship/config.toml: config/starship/config.toml
@@ -28,6 +27,7 @@
     ~/.config/discord/settings.json: config/discord/settings.json
     ~/.config/bat/bat.conf: config/bat/bat.conf
     ~/.config/zed: config/zed/**
+    ~/.config/gammastep/config.ini: config/gammastep/config.ini
   
 
 

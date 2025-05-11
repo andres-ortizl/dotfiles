@@ -1,7 +1,7 @@
 {
   // Theme and Appearance
   "theme": "Catppuccin Macchiato",
-  "icon_theme": "Catppuccin Macchiato",
+  "icon_theme": "Catppuccin Mocha",
   "experimental.theme_overrides": {
     // "#00000000" black
     // #1E1E2E catppuchino mocha
@@ -82,7 +82,7 @@
     "mode": "subtle"
   },
   "features": {
-    "edit_prediction_provider": "zed"
+    "edit_prediction_provider": "copilot"
   },
   // Gutter and UI Elements
   "gutter": {
@@ -173,7 +173,7 @@
       "model": "gpt-4o-mini"
     },
     "default_model": {
-      "model": "gpt-4o",
+      "model": "gpt-4.1",
       "provider": "copilot_chat"
     },
     "editor_model": {
