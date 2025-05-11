@@ -14,16 +14,16 @@ NC='\033[0m'
 
 # if swww is not started, start it
 if ! pgrep -x "swww" >/dev/null; then
-    swww init
+    swww-daemon
     sleep 2
 fi
 
 var=$(cat ~/.config/hypr/store/wallpaper)
-wallpapernum=$(ls ~/.config/wallpapers | wc -l)
+wallpapernum=$(ls ~/.config/wallpaper | wc -l)
 new=$(($var + 1))
 
 # get the names of the wallpapers in .config/wallpapers
-wallpapers=($(ls ~/.config/wallpapers))
+wallpapers=($(ls ~/.config/wallpaper))
 
 # Test startup arg
 if [[ $1 != "startup" ]]; then
@@ -41,7 +41,7 @@ else
 fi
 
 # Test mode
-if [[ $1 =~ ^[0-9]+$ ]] && [[ $(ls $HOME/.config/wallpapers | grep $1) ]]; then
+if [[ $1 =~ ^[0-9]+$ ]] && [[ $(ls $HOME/.config/wallpaper | grep $1) ]]; then
     var=$1
     printf "$GREEN[MODE]$NC Direct\n"
 else
@@ -55,6 +55,4 @@ fi
 # Set wallpaper
 
 printf "$GREEN[INFO]$NC Setting wallpaper to $var (${wallpapers[$(($var - 1))]})\n"
-
-swww img $HOME/.config/wallpapers/${wallpapers[$(($var - 1))]} -o HDMI-A-1
-swww img $HOME/.config/wallpapers/${wallpapers[$(($var))]} -o DP-3
+swww img $HOME/.config/wallpaper/${wallpapers[$(($var))]} -o DP-3

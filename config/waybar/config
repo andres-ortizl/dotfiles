@@ -1,31 +1,28 @@
 [
   {
   "output": "DP-3",
-  "layer": "top", // Waybar at top layer
-  // "position": "bottom", // Waybar position (top|bottom|left|right)
-  "height": 32, // Waybar height (to be removed for auto height)
-  // "width": 1280, // Waybar width
-  "spacing": 8, // Gaps between modules (4px)
-  "margin": "10 10 0 10", // Waybar margin (top right bottom left)
-  "fixed-center": false, // Center modules
-  // Choose the order of the modules
-  "modules-left": ["wlr/workspaces", "custom/spotify"],
-  "modules-center": ["hyprland/window"],
+  "layer": "top",
+  "height": 60,
+  "spacing": 1,
+  "margin": "10 10 0 10",
+  "reload_style_on_change": true,
+  "modules-left": ["hyprland/workspaces", "custom/spotify"],
+   "modules-center": ["hyprland/window"],
   "modules-right": [
-    "custom/notification",
-    "custom/cava",
-    "temperature#cpu",
-    "temperature#gpu",
     "cpu",
+    "temperature",
+    "custom/gpu",
     "memory",
-    "pulseaudio",
     "network",
-    "clock",
+    "pulseaudio",
+    "bluetooth",
     "tray",
-    "custom/power-menu"
+    "clock",
+    "custom/power-menu",
+    "custom/notification"
   ],
-  //  Modules configuration
-  "wlr/workspaces": {
+
+  "hyprland/workspaces": {
     "on-click": "activate",
     "on-scroll-up": "hyprctl dispatch workspace e-1",
     "on-scroll-down": "hyprctl dispatch workspace e+1",
@@ -34,7 +31,13 @@
       "1": "",
       "2": "",
       "3": "",
-      "4": "",
+      "4": ""
+    },
+    "persistent-workspaces": {
+      "1": [],
+      "2": [],
+      "3": [],
+      "4": []
     }
   },
   "hyprland/window": {
@@ -44,9 +47,39 @@
     "icon-size": 21,
     "spacing": 5
   },
-  "cpu": {"interval": 10, "format":" {}% ", "max-length": 10},
-  "temperature#cpu": {"format": " {temperatureC}°C", "hwmon-path":"/sys/class/hwmon/hwmon2/temp1_input"},
-  "temperature#gpu": {"format": " {temperatureC}°C", "hwmon-path":"/sys/class/hwmon/hwmon3/temp1_input"},
+  "cpu": {
+    "interval": 3,
+    "format": " {usage:>2}%",
+    "on-click": "hyprctl dispatcher togglespecialworkspace monitor"
+  },
+"custom/gpu": {
+    "exec": "~/.config/waybar/scripts/nvidia_temp.sh",
+    "format": "{text}",
+    "format-icons": ["󰝦", "󰪞", "󰪟", "󰪣", "󰪤", "󰪥", "󰪦", "󰪧", "󰪨"],
+    "interval": 4,
+    "on-click": "kitty nvtop",
+    "return-type": "json"
+},
+  "temperature": {
+    "hwmon-path": "/sys/class/hwmon/hwmon2/temp1_input",
+    "critical-threshold": 80,
+    "interval": 2,
+    "format": " {temperatureC:>2}°C",
+    "format-icons": ["", "", ""],
+    "on-click": "hyprctl dispatcher togglespecialworkspace monitor"
+  },
+  "bluetooth": {
+	"format": "{icon}",
+    "format-icons": {
+      "connected": "bluetooth",
+     "disconnected": "bluetooth-off"
+   },
+    "on-click": "blueman-manager",  // Abre Blueman Manager con clic izquierdo
+    "on-right-click": "bluetoothctl power off",  // Apaga Bluetooth con clic derecho
+   "exec": "bluetoothctl show | grep 'Powered' | awk '{print $2}'",  // Verifica el estado de Bluetooth
+    "interval": 5
+  
+},
   "clock": {
     "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
     "format-alt": " {:%a %b %d}",
@@ -66,26 +99,26 @@
     "tooltip": false
   },
   "network": {
-    // "interface": "wlp2*", // (Optional) To force the use of this interface
-    "format-wifi": "直 {signalStrength}%",
-    "format-ethernet": " {cidr}",
-    "tooltip-format": "{ifname} via {gwaddr}",
-    "format-linked": "{ifname} (No IP)",
-    "format-disconnected": "睊",
-    "on-click": "kitty -e nmtui"
+    "interval": 1,
+    "format-wifi": "  {bandwidthTotalBytes:>2}",
+    "format-ethernet": " {bandwidthTotalBytes:>2}",
+    "tooltip-format-ethernet": "󰈀 {ipaddr}",
+    "tooltip-format-wifi": "  {essid} ({signalStrength}%)",
+    "tooltip-format": "󰤯 {ifname} via {gwaddr}",
+    "format-linked": "󰀦 {ifname} (No IP)",
+    "format-disconnected": "󰀦 Disconnected",
+    "format-alt": "{ifname}: {ipaddr}/{cidr}"
   },
   "pulseaudio": {
-    // "scroll-step": 1, // %, can be a float
+
     "format": "{icon} {volume}%",
-    "format-bluetooth": "{volume}%  {format_source}",
-    "format-bluetooth-muted": "婢 ",
-    "format-muted": "婢",
-    // "format-source": "{volume}% ",
-    // "format-source-muted": "",
+    "format-bluetooth": "{icon} {volume}% 󰂯",
+    "format-bluetooth-muted": "󰖁 {icon} 󰂯",
+    "format-muted": "󰖁 {volume}%",
     "format-icons": {
-      "headphone": "",
-      "hands-free": "",
-      "headset": "",
+      "headphone": "󰋋",
+      "hands-free": "󱡒",
+      "headset": "󰋎",
       "phone": "",
       "portable": "",
       "car": "",
@@ -101,6 +134,10 @@
     "on-scroll-down": "playerctl --player=spotify next",
     "on-scroll-up": "playerctl --player=spotify previous",
     "tooltip": false
+  },
+  "disk": {
+    "interval": 15,
+    "format": "󰋊 {percentage_used:>2}%"
   },
   "custom/power-menu": {
     "format": "⏻",
