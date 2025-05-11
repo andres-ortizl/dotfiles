@@ -5,7 +5,7 @@
       force: true
       glob: true
 
-- clean: [ '~' ]
+- clean: ["~"]
 
 - link:
     ~/.zshrc: config/.zshrc_arch
@@ -27,9 +27,7 @@
     ~/.config/discord/settings.json: config/discord/settings.json
     ~/.config/bat/bat.conf: config/bat/bat.conf
     ~/.config/zed: config/zed/**
-    ~/.config/gammastep/config.ini: config/gammastep/config.ini
-  
-
+    ~/.config/wlogout/: config/wlogout/**
 
 - shell:
-    - [ git submodule update --init --recursive, Installing submodules ]
+    - [git submodule update --init --recursive, Installing submodules]
