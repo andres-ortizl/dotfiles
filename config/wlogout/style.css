@@ -1,0 +1,95 @@
+@import url("theme.css");
+
+/* Remove background from all elements */
+* {
+    background-image: none;
+    font-size: 15px;
+}
+
+/* Only the window gets the blurred image */
+window {
+    background-image: url("/tmp/shot_blurred.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: transparent;
+}
+
+/* Buttons get their own background or just use background-color */
+button {
+    color: #ffffff;
+    background-color: @main-bg;
+    /* or any opaque color like rgba(0,0,0,0.5) */
+    background-image: none;
+    border: none;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 20%;
+    border-radius: 0px;
+    box-shadow: none;
+    text-shadow: none;
+    animation: gradient_f 20s ease-in infinite;
+}
+
+
+button:focus {
+    background-color: @wb-act-bg;
+    background-size: 30%;
+}
+
+button:hover {
+    background-color: @wb-hvr-bg;
+    background-size: 20%;
+    border-radius: 20px;
+    animation: gradient_f 20s ease-in infinite;
+    transition: all 0.3s cubic-bezier(.55, 0.0, .28, 1.682);
+}
+
+button:hover#lock,
+button:hover#logout,
+button:hover#suspend,
+button:hover#shutdown,
+button:hover#hibernate {
+    border-radius: 20px;
+    margin: 15px 0px 15px 20px;
+}
+
+button:hover#reboot {
+    border-radius: 20px;
+    margin: 15px 20px 15px 0px;
+}
+
+#lock {
+    background-image: image(url("/home/andres/.config/wlogout/icons/lock_white.png"),
+            url("/usr/share/wlogout/icons/lock.png"),
+            url("/usr/local/share/wlogout/icons/lock.png"));
+    border-radius: 20px 0px 0px 20px;
+    margin: 20px 0px 20px 20px;
+}
+
+#logout {
+    background-image: image(url("/home/andres/.config/wlogout/icons/logout_white.png"),
+            url("/usr/share/wlogout/icons/logout.png"),
+            url("/usr/local/share/wlogout/icons/logout.png"));
+    border-radius: 0px;
+    margin: 20px 0px 20px 0px;
+}
+
+
+
+#shutdown {
+    background-image: image(url("/home/andres/.config/wlogout/icons/shutdown_white.png"),
+            url("/usr/share/wlogout/icons/shutdown.png"),
+            url("/usr/local/share/wlogout/icons/shutdown.png"));
+    border-radius: 0px;
+    margin: 20px 0px 20px 0px;
+}
+
+
+#reboot {
+    background-image: image(url("/home/andres/.config/wlogout/icons/reboot_white.png"),
+            url("/usr/share/wlogout/icons/reboot.png"),
+            url("/usr/local/share/wlogout/icons/reboot.png"));
+    border-radius: 0px 20px 20px 0px;
+    margin: 20px 20px 20px 0px;
+}
