@@ -54,7 +54,7 @@
     "cpu": {
       "interval": 3,
       "format": " {usage:>2}%",
-      "on-click": "hyprctl dispatcher togglespecialworkspace monitor"
+      "on-click": "ghostty -e btop"
     },
     "custom/gpu": {
       "exec": "~/.config/waybar/scripts/nvidia_temp.sh",
