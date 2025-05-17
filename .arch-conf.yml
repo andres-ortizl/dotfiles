@@ -28,6 +28,7 @@
     ~/.config/bat/bat.conf: config/bat/bat.conf
     ~/.config/zed: config/zed/**
     ~/.config/wlogout/: config/wlogout/**
+    ~/.config/btop/**: config/btop/**
 
 - shell:
     - [git submodule update --init --recursive, Installing submodules]
