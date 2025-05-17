@@ -71,7 +71,7 @@
         "󰪨"
       ],
       "interval": 4,
-      "on-click": "kitty nvtop",
+      "on-click": "ghostty -e nvidia-smi",
       "return-type": "json"
     },
     "temperature": {
@@ -150,15 +150,6 @@
         ]
       },
       "on-click": "pavucontrol"
-    },
-    "custom/spotify": {
-      "exec": "python ~/.config/waybar/scripts/mediaplayer.py --player spotify",
-      "format": " {}",
-      "return-type": "json",
-      "on-click": "playerctl --player=spotify play-pause",
-      "on-scroll-down": "playerctl --player=spotify next",
-      "on-scroll-up": "playerctl --player=spotify previous",
-      "tooltip": false
     },
     "disk": {
       "interval": 15,
