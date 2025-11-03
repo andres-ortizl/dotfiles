@@ -26,7 +26,8 @@
     ~/.config/ghostty/config: config/ghostty/config
     ~/.config/discord/settings.json: config/discord/settings.json
     ~/.config/bat/bat.conf: config/bat/bat.conf
-    ~/.config/zed: config/zed/**
+    ~/.config/zed/keymap.json: config/zed/keymap_linux.json
+    ~/.config/zed/settings.json: config/zed/settings_linux.json
     ~/.config/wlogout/: config/wlogout/**
     ~/.config/btop/**: config/btop/**
 

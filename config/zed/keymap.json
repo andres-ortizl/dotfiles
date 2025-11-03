@@ -6,25 +6,10 @@
   },
   {
     "bindings": {
+      "alt-o": "outline_panel::ToggleFocus",
+      "alt-e": "project_panel::ToggleFocus",
+      "alt-g": "git_panel::ToggleFocus",
       "alt-t": "terminal_panel::ToggleFocus"
-    },
-    "context": "Workspace"
-  },
-  {
-    "bindings": {
-      "alt-g": "git_panel::ToggleFocus"
-    },
-    "context": "Workspace"
-  },
-  {
-    "bindings": {
-      "alt-e": "project_panel::ToggleFocus"
-    },
-    "context": "Workspace"
-  },
-  {
-    "bindings": {
-      "alt-o": "outline_panel::ToggleFocus"
     },
     "context": "Workspace"
   },
