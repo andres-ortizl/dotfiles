@@ -1,0 +1,14 @@
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Package
+Target = linux
+Target = linux-lts
+Target = linux-zen
+Target = linux-hardened
+
+[Action]
+Description = Signing kernel with Secure Boot key...
+When = PostTransaction
+Exec = /usr/bin/sbctl sign-all
+Depends = sbctl

@@ -1,11 +1,17 @@
 # Exports based on architecture
 
+# Common exports (needed before PATH setup)
+export GOPATH="$HOME/.go"
+export GEM_HOME="$HOME/.gem"
+export LC_ALL='en_US.UTF-8'
+export LANG='en_US.UTF-8'
+
 # macOS
 if [[ "$OSTYPE" == "darwin"* ]]; then
   export JAVA_HOME='/Library/Java/JavaVirtualMachines/amazon-corretto-15.jdk/Contents/Home'
-  export GEM_HOME="$HOME/.gem"
   export PIPX_HOME=~/.local/pipx
   export path=(
+    "$HOME/.npm-global/bin"
     "/usr/local/opt/ruby/bin"
     "/usr/local/opt/python/libexec/bin"
     "/opt/homebrew/bin"
@@ -29,6 +35,7 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
   export GTK_THEME=Catppuccin-Mocha-Standard-Mauve-Dark nautilus
   export path=(
     "$HOME/bin"
+    "$HOME/.npm-global/bin"
     "$JAVA_HOME/bin"
     "$GEM_HOME/bin"
     "$GOPATH/bin"
@@ -43,10 +50,7 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
   )
 fi
 
-# Common
-export GOPATH="$HOME/.go"
-export LC_ALL='en_US.UTF-8'
-export LANG='en_US.UTF-8'
+# Additional common exports
 export FZF_DEFAULT_OPTS=" \
 --color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8 \
 --color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc \

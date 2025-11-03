@@ -1,0 +1,49 @@
+[
+  {
+    "bindings": {
+      "alt-1": null,
+      "alt-r": null
+    },
+    "context": "Editor",
+  },
+  {
+    "bindings": {
+      "alt-o": "outline_panel::ToggleFocus",
+      "alt-e": "project_panel::ToggleFocus",
+      "alt-g": "git_panel::ToggleFocus",
+      "alt-t": "terminal_panel::ToggleFocus",
+      "alt-1": "workspace::ToggleLeftDock",
+      "alt-r": "workspace::ToggleRightDock",
+      "alt-2": "agent::ToggleFocus",
+      "alt-3": "debug_panel::ToggleFocus",
+      "ctrl-t": "editor::Rename",
+      "alt-b": "editor::GoToDefinition",
+      "ctrl-g": "editor::SelectNext",
+      "ctrl-u": "editor::FindAllReferences"
+      // remove like ctrl-k
+    },
+    "context": "Editor"
+  },
+  {
+    "bindings": {
+      "alt-t": "workspace::ToggleBottomDock",
+    },
+    "context": "Terminal"
+  },
+  // toggle left panel alt-1
+  //
+  // toggle right panel alt-r
+  //
+  // go back alt-super-left
+  // go forward alt-super-right
+  // go to defitiniion alt-b
+  // go to references alt-shift-b
+  // select next occurrence ctlr-g
+  // search alt-f in file
+  // refactor ctrl-t
+  // context selection super-up
+  // format alt-super-l
+  //
+  // editor: next edit prediction (alt-]): To cycle to the next edit prediction
+  // editor: previous edit prediction (alt-[): To cycle to the previous edit prediction
+]

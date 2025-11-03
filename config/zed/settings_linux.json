@@ -78,12 +78,6 @@
     "show_parameter_hints": true,
     "show_other_hints": true
   },
-  "edit_predictions": {
-    "mode": "subtle"
-  },
-  "features": {
-    "edit_prediction_provider": "copilot"
-  },
   // Gutter and UI Elements
   "gutter": {
     "code_actions": false,
@@ -166,26 +160,30 @@
     }
   },
   // AI Assistant Settings
-  "assistant": {
-    "default_profile": "ask",
-    "inline_assistant_model": {
-      "provider": "openai",
-      "model": "gpt-4o-mini"
-    },
+  "agent": {
     "default_model": {
-      "model": "gpt-4.1",
-      "provider": "copilot_chat"
+      "provider": "copilot_chat",
+      "model": "claude-sonnet-4.5"
     },
-    "editor_model": {
-      "provider": "openai",
-      "model": "gpt-4o"
-    },
-    "button": false,
-    "version": "2"
+    "always_allow_tool_actions": true,
+    "model_parameters": []
   },
+  "show_completions_on_input": true,
+  "edit_predictions": {
+    "mode": "subtle"
+  },
+  "features": {
+    "edit_prediction_provider": "copilot"
+  },
+  "debugger": {
+    "dock": "right"
+  },
+  "show_edit_predictions": true,
+  "agent_ui_font_size": 18,
   // Language-Specific Settings
   "languages": {
     "Python": {
+      "show_edit_predictions": false,
       "completions": {
         "lsp": true,
         "words": "fallback",
@@ -194,10 +192,10 @@
       "format_on_save": "on",
       "formatter": [
         {
-          "code_actions": {
-            "source.fixAll.ruff": true,
-            "source.organizeImports.ruff": true
-          }
+          "code_action": "source.fixAll.ruff"
+        },
+        {
+          "code_action": "source.organizeImports.ruff"
         },
         {
           "language_server": {
@@ -207,7 +205,8 @@
       ],
       "language_servers": [
         //"pyright",
-        "basedpyright",
+        //"basedpyright",
+        "ty",
         //"pylsp",
         //"python-refactoring",
         "ruff"
@@ -219,6 +218,14 @@
   },
   // LSP (Language Server Protocol) Settings
   "lsp": {
+    "ty": {
+      "binary": {
+        "path": "/home/andres/.local/bin/ty",
+        "arguments": [
+          "server"
+        ]
+      }
+    },
     "pyright": {
       "settings": {
         "python.analysis": {
