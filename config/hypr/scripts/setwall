@@ -55,4 +55,4 @@ fi
 # Set wallpaper
 
 printf "$GREEN[INFO]$NC Setting wallpaper to $var (${wallpapers[$(($var - 1))]})\n"
-swww img $HOME/.config/wallpaper/${wallpapers[$(($var))]} -o DP-3
+swww img $HOME/.config/wallpaper/${wallpapers[$(($var - 1))]} -o DP-3

@@ -1,4 +1,4 @@
-theme = catppuccin-mocha
+theme = Catppuccin Mocha
 shell-integration-features = no-cursor
 background-opacity=0.75
 background-blur-radius = 20
