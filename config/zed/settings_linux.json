@@ -2,6 +2,15 @@
   // Theme and Appearance
   "theme": "Catppuccin Macchiato",
   "icon_theme": "Catppuccin Mocha",
+  "title_bar": {
+    "show_branch_icon": false,
+    "show_branch_name": true,
+    "show_project_items": true,
+    "show_onboarding_banner": false,
+    "show_user_picture": false,
+    "show_sign_in": false,
+    "show_menus": false
+  },
   "experimental.theme_overrides": {
     // "#00000000" black
     // #1E1E2E catppuchino mocha
@@ -9,7 +18,7 @@
     "background.appearance": "blurred",
     "background": "#09090bBB",
     "panel.background": "#1E1E2E",
-    "background.image_file": "/Users/andresortiz/downloads/background.jpg",
+    // "background.image_file": "/Users/andresortiz/downloads/background.jpg",
     "editor.background": "#1E1E2E",
     "tab_bar.background": "#1E1E2E",
     "terminal.background": "#1E1E2E",
@@ -38,7 +47,31 @@
     "editor.line_number": "#ffffff80",
     "editor.active_line.background": "#3f3f4640"
   },
+  // Cursor and Line Highlighting
+  "cursor_blink": false,
+  "cursor_shape": "block",
+  "current_line_highlight": "gutter",
+  "selection_highlight": true,
+  // Workspace & Pane Settings
+  "active_pane_modifiers": {
+    "border_size": 2.0,
+    "inactive_opacity": 0.85
+  },
+  "scroll_beyond_last_line": "one_page",
+  "vertical_scroll_margin": 3,
+  "horizontal_scroll_margin": 5,
+  // Soft Wrap & Wrap Guides
+  "soft_wrap": "none",
+  "preferred_line_length": 100,
+  "show_wrap_guides": false,
+  "wrap_guides": [],
+  "unnecessary_code_fade": 0.5,
+  // Editor Actions & Diagnostics
+  "inline_code_actions": false,
+  "auto_signature_help": false,
+  "show_signature_help_after_edits": false,
   // Font Settings
+  "buffer_line_height": "comfortable",
   "buffer_font_family": "FiraCode Nerd Font Mono",
   "buffer_font_size": 17,
   "buffer_font_features": {
@@ -58,7 +91,7 @@
   "base_keymap": "JetBrains",
   "centered_layout": {
     "left_padding": 0.2,
-    "right_padding": 0
+    "right_padding": 0.2
   },
   "autosave": {
     "after_delay": {
@@ -68,8 +101,10 @@
   "formatter": "language_server",
   "enable_language_server": true,
   "indent_guides": {
-    "coloring": "indent_aware",
     "enabled": true,
+    "line_width": 1,
+    "active_line_width": 2,
+    "coloring": "indent_aware",
     "background_coloring": "disabled"
   },
   "inlay_hints": {
@@ -80,23 +115,67 @@
   },
   // Gutter and UI Elements
   "gutter": {
-    "code_actions": false,
     "line_numbers": true
   },
-  "outline_panel": {
-    "show": true
-  },
   "scrollbar": {
+    "show": "never",
+    "git_diff": true,
+    "search_results": true,
+    "diagnostics": "error"
+  },
+  "minimap": {
     "show": "never"
   },
   "tab_bar": {
     "show": false
   },
   "toolbar": {
-    "breadcrumbs": false,
+    "breadcrumbs": true,
     "quick_actions": false
   },
-  //"show_call_status_icon": false,
+  // Panel Settings
+  "project_panel": {
+    "button": true,
+    "default_width": 280,
+    "dock": "left",
+    "file_icons": true,
+    "folder_icons": true,
+    "git_status": true,
+    "indent_size": 20,
+    "scrollbar": {
+      "show": "never"
+    }
+  },
+  "outline_panel": {
+    "button": true,
+    "dock": "left",
+    "default_width": 300,
+    "scrollbar": {
+      "show": "never"
+    }
+  },
+  "git_panel": {
+    "button": true,
+    "dock": "left",
+    "scrollbar": {
+      "show": "never"
+    }
+  },
+  "collaboration_panel": {
+    "button": true
+  },
+  "notification_panel": {
+    "button": true,
+    "dock": "left"
+  },
+  // File Finder Settings
+  "file_finder": {
+    "file_icons": true,
+    "modal_max_width": "medium",
+    "git_status": true
+  },
+  "show_call_status_icon": false,
+  "bottom_dock_layout": "full",
   // Git Integration
   "git": {
     "inline_blame": {
@@ -149,18 +228,27 @@
   "terminal": {
     "copy_on_select": true,
     "cursor_shape": "underline",
+    "blinking": "off",
     "dock": "bottom",
-    //"blinking": "terminal_controlled",
     "button": false,
+    "default_height": 500,
     "font_family": "FiraCode Nerd Font",
-    "font_size": 16,
+    "font_size": 17,
+    "font_weight": 400,
     "line_height": "standard",
+    "max_scroll_history_lines": 10000,
+    "scrollbar": {
+      "show": "auto"
+    },
     "toolbar": {
       "breadcrumbs": false
     }
   },
   // AI Assistant Settings
   "agent": {
+    "dock": "right",
+    "button": true,
+    "default_width": 640,
     "default_model": {
       "provider": "copilot_chat",
       "model": "claude-sonnet-4.5"
@@ -169,6 +257,9 @@
     "model_parameters": []
   },
   "show_completions_on_input": true,
+  "show_completion_documentation": true,
+  "completion_menu_scrollbar": "never",
+  "snippet_sort_order": "inline",
   "edit_predictions": {
     "mode": "subtle"
   },
@@ -176,7 +267,8 @@
     "edit_prediction_provider": "copilot"
   },
   "debugger": {
-    "dock": "right"
+    "dock": "left",
+    "button": true
   },
   "show_edit_predictions": true,
   "agent_ui_font_size": 18,
@@ -186,8 +278,7 @@
       "show_edit_predictions": false,
       "completions": {
         "lsp": true,
-        "words": "fallback",
-        "timeout_ms": 2
+        "words": "fallback"
       },
       "format_on_save": "on",
       "formatter": [
@@ -204,11 +295,8 @@
         }
       ],
       "language_servers": [
-        //"pyright",
-        //"basedpyright",
+        "basedpyright",
         "ty",
-        //"pylsp",
-        //"python-refactoring",
         "ruff"
       ]
     },
@@ -248,62 +336,6 @@
         "disableOrganizeImports": true
       }
     },
-    "pylsp": {
-      "settings": {
-        "plugins": {
-          "autopep8": {
-            "enabled": false
-          },
-          "black": {
-            "enabled": false
-          },
-          "flake8": {
-            "enabled": false
-          },
-          "isort": {
-            "enabled": false
-          },
-          "mccabe": {
-            "enabled": false
-          },
-          "pycodestyle": {
-            "enabled": false
-          },
-          "pydocstyle": {
-            "enabled": false
-          },
-          "pyflakes": {
-            "enabled": false
-          },
-          "pylint": {
-            "enabled": false
-          },
-          "yapf": {
-            "enabled": false
-          },
-          // keep the others
-          "pylsp_mypy": {
-            "enabled": true
-          },
-          "jedi": {
-            "enabled": true
-          },
-          "rope": {
-            "enabled": true
-          },
-          "rope_autoimport": {
-            "enabled": true
-          },
-          "rope_completion": {
-            "enabled": true
-          },
-          // disable pylsp ruff in favor of `ruff server`
-          "ruff": {
-            "enabled": false
-          }
-        }
-      }
-    },
     "ruff": {
       "initialization_options": {
         "settings": {
@@ -324,7 +356,6 @@
     },
     "rust-analyzer": {
       "binary": {
-        "args": [],
         "path": "/Users/andresortiz/.cargo/bin/rust-analyzer"
       },
       "initialization_options": {
