@@ -1,0 +1,100 @@
+# Pi-hole Whitelist
+# This file contains domains that should never be blocked by Pi-hole
+# Add one domain per line (without http:// or https://)
+
+# Essential Microsoft Services
+login.microsoftonline.com
+graph.microsoft.com
+outlook.office365.com
+smtp.office365.com
+outlook.live.com
+login.live.com
+account.microsoft.com
+xbox.com
+xboxlive.com
+
+# Essential Google Services
+google.com
+googleapis.com
+googleusercontent.com
+gstatic.com
+googlevideo.com
+youtube.com
+ytimg.com
+googletagmanager.com
+googleanalytics.com
+google-analytics.com
+accounts.google.com
+play.google.com
+
+# Essential Apple Services
+apple.com
+icloud.com
+itunes.apple.com
+mzstatic.com
+apple-dns.net
+push.apple.com
+apps.apple.com
+appstore.com
+
+# Essential Amazon/AWS Services
+amazon.com
+amazonaws.com
+amazonvideo.com
+primevideo.com
+cloudfront.net
+awsstatic.com
+
+# Essential CDN and Infrastructure
+cloudflare.com
+fastly.com
+akamai.net
+edgekey.net
+jsdelivr.net
+unpkg.com
+cdnjs.cloudflare.com
+
+# Banking and Financial Services (add your banks)
+# paypal.com
+# stripe.com
+# visa.com
+# mastercard.com
+
+# Streaming Services
+netflix.com
+nflxvideo.net
+nflxext.com
+nflximg.net
+hulu.com
+disney.com
+disneyplus.com
+hbo.com
+hbomax.com
+primevideo.com
+twitch.tv
+ttvnw.net
+
+# Gaming Services
+steam.com
+steampowered.com
+steamcommunity.com
+epicgames.com
+battle.net
+blizzard.com
+ea.com
+origin.com
+ubisoft.com
+nvidia.com
+geforce.com
+
+# Social Media (uncomment if needed)
+# facebook.com
+# instagram.com
+# twitter.com
+# linkedin.com
+# reddit.com
+# whatsapp.com
+
+# Weather Services
+weather.com
+accuwe

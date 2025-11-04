@@ -1,0 +1,95 @@
+# Pi-hole Regex Blocklist
+# This file contains regular expressions for advanced domain blocking
+# Each line should contain one regex pattern
+# Use ^ at the beginning and $ at the end to match the entire domain
+
+# Block all subdomains of major ad networks
+^(.+\.)?doubleclick\.net$
+^(.+\.)?googleadservices\.com$
+^(.+\.)?googlesyndication\.com$
+^(.+\.)?googletagservices\.com$
+^(.+\.)?facebook\.com$
+^(.+\.)?fbcdn\.net$
+^(.+\.)?amazon-adsystem\.com$
+
+# Block telemetry and tracking domains
+^(.+\.)?scorecardresearch\.com$
+^(.+\.)?quantserve\.com$
+^(.+\.)?comscore\.com$
+^(.+\.)?chartbeat\.com$
+^(.+\.)?hotjar\.com$
+^(.+\.)?crazyegg\.com$
+
+# Block analytics platforms
+^(.+\.)?adobe\.com$
+^(.+\.)?omniture\.com$
+^(.+\.)?2o7\.net$
+^(.+\.)?omtrdc\.net$
+^(.+\.)?demdex\.net$
+
+# Block cryptocurrency mining
+^(.+\.)?coinhive\.com$
+^(.+\.)?jsecoin\.com$
+^(.+\.)?coinerra\.com$
+^(.+\.)?mineralt\.io$
+^(.+\.)?crypto-loot\.com$
+
+# Block malware and phishing patterns
+^(.+\.)?bit\.ly$
+^(.+\.)?tinyurl\.com$
+^(.+\.)?t\.co$
+^(.+\.)?goo\.gl$
+^(.+\.)?ow\.ly$
+
+# Block adult content (uncomment if needed)
+# ^(.+\.)?pornhub\.com$
+# ^(.+\.)?xvideos\.com$
+# ^(.+\.)?xhamster\.com$
+# ^(.+\.)?youporn\.com$
+
+# Block gambling sites (uncomment if needed)
+# ^(.+\.)?bet365\.com$
+# ^(.+\.)?pokerstars\.com$
+# ^(.+\.)?williamhill\.com$
+
+# Block social media tracking pixels
+^(.+\.)?facebook\.com\/tr$
+^(.+\.)?twitter\.com\/i\/adsct$
+^(.+\.)?linkedin\.com\/px$
+
+# Block mobile app ads
+^(.+\.)?applovin\.com$
+^(.+\.)?unity3d\.com$
+^(.+\.)?unityads\.unity3d\.com$
+^(.+\.)?chartboost\.com$
+^(.+\.)?vungle\.com$
+
+# Block Windows telemetry
+^(.+\.)?msftncsi\.com$
+^(.+\.)?microsoft\.com\/pkiops$
+^(.+\.)?windows\.com\/devicemetadata$
+
+# Block streaming ads
+^(.+\.)?spotifyads\.com$
+^(.+\.)?ads\.spotify\.com$
+^(.+\.)?googleads\.g\.doubleclick\.net$
+
+# Block smart TV telemetry
+^(.+\.)?samsung\.com$
+^(.+\.)?lgappstv\.com$
+^(.+\.)?roku\.com$
+^(.+\.)?netflix\.com\/api\/shakti$
+
+# Block IoT device telemetry (uncomment if needed)
+# ^(.+\.)?amazon\.com\/api\/
+# ^(.+\.)?alexa\.amazon\.com$
+# ^(.+\.)?googleapis\.com\/auth$
+
+# Block email tracking pixels
+^(.+\.)?mailchimp\.com\/release$
+^(.+\.)?constantcontact\.com\/images$
+^(.+\.)?aweber\.com\/images$
+
+# Custom regex patterns (add your own below)
+# ^malicious-pattern\..*$
+# ^(.+\.)?suspicious-domain\.com$
