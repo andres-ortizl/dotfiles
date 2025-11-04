@@ -2,27 +2,51 @@
   {
     "bindings": {
       "alt-1": null,
-      "alt-r": null
+      "alt-2": null
     },
     "context": "Editor",
   },
   {
     "bindings": {
-      "alt-o": "outline_panel::ToggleFocus",
       "alt-e": "project_panel::ToggleFocus",
+      "alt-o": "outline_panel::ToggleFocus",
       "alt-g": "git_panel::ToggleFocus",
       "alt-t": "terminal_panel::ToggleFocus",
+      "alt-d": "debug_panel::ToggleFocus",
+      "alt-n": "notification_panel::ToggleFocus",
+      "alt-a": "agent::ToggleFocus",
       "alt-1": "workspace::ToggleLeftDock",
-      "alt-r": "workspace::ToggleRightDock",
-      "alt-2": "agent::ToggleFocus",
-      "alt-3": "debug_panel::ToggleFocus",
+      "alt-2": "workspace::ToggleRightDock",
+      "ctrl-p": "file_finder::Toggle",
+      "ctrl-o": "tab_switcher::Toggle",
+      "ctrl-w": "pane::CloseActiveItem",
+      "ctrl-shift-w": "pane::CloseAllItems",
+      "ctrl-up": "editor::SelectLargerSyntaxNode",
+      "ctrl-down": "editor::SelectSmallerSyntaxNode",
+      "alt-shift-b": "editor::ToggleGitBlameInline",
+      "alt-shift-i": "editor::ToggleInlayHints",
+      "alt-left": "workspace::ActivatePaneLeft",
+      "alt-right": "workspace::ActivatePaneRight",
+      "alt-up": "workspace::ActivatePaneUp",
+      "alt-down": "workspace::ActivatePaneDown",
       "ctrl-t": "editor::Rename",
       "alt-b": "editor::GoToDefinition",
       "ctrl-g": "editor::SelectNext",
       "ctrl-u": "editor::FindAllReferences"
-      // remove like ctrl-k
     },
     "context": "Editor"
+  },
+  {
+    "bindings": {
+      "escape": "workspace::ActivatePreviousPane"
+    },
+    "context": "ProjectPanel || OutlinePanel || GitPanel || Terminal || NotificationPanel || DebugPanel"
+  },
+  {
+    "bindings": {
+      "ctrl-w": "tab_switcher::CloseSelectedItem"
+    },
+    "context": "TabSwitcher"
   },
   {
     "bindings": {
@@ -32,7 +56,7 @@
   },
   // toggle left panel alt-1
   //
-  // toggle right panel alt-r
+  // toggle right panel alt-2
   //
   // go back alt-super-left
   // go forward alt-super-right
