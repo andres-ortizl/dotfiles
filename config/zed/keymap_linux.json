@@ -29,6 +29,7 @@
       "alt-right": "workspace::ActivatePaneRight",
       "alt-up": "workspace::ActivatePaneUp",
       "alt-down": "workspace::ActivatePaneDown",
+      "ctrl-k": "editor::DeleteLine",
       "ctrl-t": "editor::Rename",
       "alt-b": "editor::GoToDefinition",
       "ctrl-g": "editor::SelectNext",
