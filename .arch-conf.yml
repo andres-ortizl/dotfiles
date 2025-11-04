@@ -28,6 +28,8 @@
     ~/.config/bat/bat.conf: config/bat/bat.conf
     ~/.config/zed/keymap.json: config/zed/keymap_linux.json
     ~/.config/zed/settings.json: config/zed/settings_linux.json
+    ~/.config/zed/debug.json: config/zed/debug_python_example.json
+
     ~/.config/wlogout/: config/wlogout/**
     ~/.config/btop/**: config/btop/**
 
