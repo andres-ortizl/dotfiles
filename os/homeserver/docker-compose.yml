@@ -1,88 +1,479 @@
-services:
+name: nasito
 
-  portainer:
-    image: portainer/portainer-ce
-    container_name: portainer
-    restart: always
+networks:
+  traefik:
+    driver: bridge
+  media:
+    driver: bridge
+  pihole_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.31.0.0/16
+
+volumes:
+  model-cache:
+
+services:
+  # Traefik Reverse Proxy
+  traefik:
+    image: traefik:v3.0
+    container_name: traefik
+    restart: unless-stopped
     ports:
-      - "0.0.0.0:8000:8000"
-      - "0.0.0.0:9443:9443"
+      - "8081:80" # HTTP on port 8081 (avoiding NAS conflict)
+      - "8444:443" # HTTPS on port 8444 (avoiding NAS conflict)
+      - "9090:8080" # Traefik dashboard on port 9090
+    command:
+      - --api.dashboard=true
+      - --api.insecure=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.dashboard.entrypoints=web"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard-secure.rule=Host(`traefik.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.dashboard-secure.entrypoints=websecure"
+      - "traefik.http.routers.dashboard-secure.tls=true"
+      - "traefik.http.routers.dashboard-secure.service=api@internal"
+
+  # Portainer Configuration Management
+  portainer:
+    image: portainer/portainer-ce:2.21.1
+    container_name: portainer
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ:-Europe/Madrid}
+    volumes:
+      - ./portainer:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.portainer.rule=Host(`portainer.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.portainer.entrypoints=web"
+      - "traefik.http.routers.portainer-secure.rule=Host(`portainer.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.portainer-secure.entrypoints=websecure"
+      - "traefik.http.routers.portainer-secure.tls=true"
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+
+  # Homepage Dashboard
+  homepage:
+    image: ghcr.io/gethomepage/homepage:v1.5.0
+    container_name: homepage
+    restart: unless-stopped
+    user: "0:0"
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Europe/Madrid}
+      - HOMEPAGE_ALLOWED_HOSTS=home.${DOMAIN:-localhost}:8081,${DOMAIN:-localhost}:8081,home.${DOMAIN:-localhost},${DOMAIN:-localhost},*
+      - HOMEPAGE_VAR_DOMAIN=${DOMAIN:-localhost}
+    volumes:
+      - ./homepage:/app/config
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.homepage.rule=Host(`home.${DOMAIN:-localhost}`) || Host(`${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.homepage.entrypoints=web"
+      - "traefik.http.routers.homepage-secure.rule=Host(`home.${DOMAIN:-localhost}`) || Host(`${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.homepage-secure.entrypoints=websecure"
+      - "traefik.http.routers.homepage-secure.tls=true"
+      - "traefik.http.services.homepage.loadbalancer.server.port=3000"
+
+  # Watchtower Auto-updater
+  watchtower:
+    image: containrrr/watchtower:1.7.1
+    container_name: watchtower
+    restart: unless-stopped
+    environment:
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_REMOVE_VOLUMES=false
+      - WATCHTOWER_INCLUDE_STOPPED=true
+      - WATCHTOWER_SCHEDULE=0 0 4 * * *
+      - TZ=${TZ:-Europe/Madrid}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - portainer_data:/data
+    networks:
+      - traefik
 
-  # Pi-hole service
-  pihole:
-    image: pihole/pihole:latest
-    container_name: pihole
-    restart: always
+  # Jellyfin Media Server
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin:10.10.1
+    container_name: jellyfin
+    restart: unless-stopped
     environment:
-      - TZ=America/Chicago
-      - WEBPASSWORD=admin
-      - DNS1=1.1.1.1
-      - DNS2=8.8.8.8
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Europe/Madrid}
+      - JELLYFIN_PublishedServerUrl=http://jellyfin.${DOMAIN:-localhost}:8081
+    volumes:
+      - ./jellyfin/config:/config
+      - ${MEDIA_ROOT:-./media}:/media
+      - ${CACHE_ROOT:-./cache}:/cache
+    ports:
+      - "7359:7359/udp"
+      - "1900:1900/udp"
+    networks:
+      - traefik
+      - media
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.jellyfin.rule=Host(`jellyfin.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.jellyfin.entrypoints=web"
+      - "traefik.http.routers.jellyfin-secure.rule=Host(`jellyfin.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.jellyfin-secure.entrypoints=websecure"
+      - "traefik.http.routers.jellyfin-secure.tls=true"
+      - "traefik.http.services.jellyfin.loadbalancer.server.port=8096"
+
+  # Prowlarr Indexer Management
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:1.28.2
+    container_name: prowlarr
+    restart: unless-stopped
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Europe/Madrid}
+    volumes:
+      - ./jellyfin/config/prowlarr:/config
+    networks:
+      - traefik
+      - media
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prowlarr.rule=Host(`prowlarr.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.prowlarr.entrypoints=web"
+      - "traefik.http.routers.prowlarr-secure.rule=Host(`prowlarr.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.prowlarr-secure.entrypoints=websecure"
+      - "traefik.http.routers.prowlarr-secure.tls=true"
+      - "traefik.http.services.prowlarr.loadbalancer.server.port=9696"
+
+  # Sonarr TV Management
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:4.0.10
+    container_name: sonarr
+    restart: unless-stopped
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Europe/Madrid}
+    volumes:
+      - ./jellyfin/config/sonarr:/config
+      - ${DOWNLOADS_ROOT:-./downloads}:/downloads
+      - ${MEDIA_ROOT:-./media}/series:/tv
+    networks:
+      - traefik
+      - media
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.sonarr.rule=Host(`sonarr.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.sonarr.entrypoints=web"
+      - "traefik.http.routers.sonarr-secure.rule=Host(`sonarr.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.sonarr-secure.entrypoints=websecure"
+      - "traefik.http.routers.sonarr-secure.tls=true"
+      - "traefik.http.services.sonarr.loadbalancer.server.port=8989"
+
+  # Radarr Movie Management
+  radarr:
+    image: lscr.io/linuxserver/radarr:5.12.2
+    container_name: radarr
+    restart: unless-stopped
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Europe/Madrid}
+    volumes:
+      - ./jellyfin/config/radarr:/config
+      - ${DOWNLOADS_ROOT:-./downloads}:/downloads
+      - ${MEDIA_ROOT:-./media}/movies:/movies
+    networks:
+      - traefik
+      - media
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.radarr.rule=Host(`radarr.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.radarr.entrypoints=web"
+      - "traefik.http.routers.radarr-secure.rule=Host(`radarr.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.radarr-secure.entrypoints=websecure"
+      - "traefik.http.routers.radarr-secure.tls=true"
+      - "traefik.http.services.radarr.loadbalancer.server.port=7878"
+
+  # Bazarr Subtitle Management
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:1.4.5
+    container_name: bazarr
+    restart: unless-stopped
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Europe/Madrid}
+    volumes:
+      - ./jellyfin/config/bazarr:/config
+      - ${MEDIA_ROOT:-./media}/series:/tv
+      - ${MEDIA_ROOT:-./media}/movies:/movies
+    networks:
+      - traefik
+      - media
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.bazarr.rule=Host(`bazarr.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.bazarr.entrypoints=web"
+      - "traefik.http.routers.bazarr-secure.rule=Host(`bazarr.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.bazarr-secure.entrypoints=websecure"
+      - "traefik.http.routers.bazarr-secure.tls=true"
+      - "traefik.http.services.bazarr.loadbalancer.server.port=6767"
+
+  # Unpackerr Archive Extractor
+  unpackerr:
+    image: golift/unpackerr:0.14.5
+    container_name: unpackerr
+    restart: unless-stopped
+    environment:
+      - UN_SONARR_0_URL=http://sonarr:8989
+      - UN_RADARR_0_URL=http://radarr:7878
+      - UN_QBITTORRENT_0_URL=http://qbittorrent:8080
+      - UN_QBITTORRENT_0_USER=${QBITTORRENT_USERNAME:-admin}
+      - UN_QBITTORRENT_0_PASS=${QBITTORRENT_PASSWORD:-adminpass}
+      - UN_SONARR_0_API_KEY=${SONARR_API_KEY:-}
+      - UN_RADARR_0_API_KEY=${RADARR_API_KEY:-}
+      - TZ=${TZ:-Europe/Madrid}
+    volumes:
+      - ${DOWNLOADS_ROOT:-./downloads}:/downloads
+    networks:
+      - media
+
+  # Pi-hole DNS Server
+  pihole:
+    image: pihole/pihole:2025.10.3
+    container_name: pihole
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ:-Europe/Madrid}
+      - WEBPASSWORD=${PIHOLE_PASSWORD:-admin}
+      - PIHOLE_DNS_=${PIHOLE_DNS:-1.1.1.1;1.0.0.1}
+      - DNSSEC=true
+      - DNSMASQ_LISTENING=all
+      - WEBTHEME=default-dark
+      - VIRTUAL_HOST=pihole.${DOMAIN:-localhost}
+      - PIHOLE_DOMAIN=${DOMAIN:-localhost}
+    volumes:
+      - ./pihole/etc-pihole:/etc/pihole
+      - ./pihole/etc-dnsmasq.d:/etc/dnsmasq.d
     ports:
       - "53:53/tcp"
       - "53:53/udp"
-      - "9000:80"
-      - "443:443"
-    volumes:
-      - pihole_data:/etc/pihole
-      - pihole_dnsmasq:/etc/dnsmasq.d
+      - "3333:80"
+    dns:
+      - 127.0.0.1
+      - 1.1.1.1
+    cap_add:
+      - NET_ADMIN
+    networks:
+      traefik: {}
+      pihole_network:
+        ipv4_address: "172.31.0.100"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pihole.rule=Host(`pihole.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.pihole.entrypoints=web"
+      - "traefik.http.routers.pihole-secure.rule=Host(`pihole.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.pihole-secure.entrypoints=websecure"
+      - "traefik.http.routers.pihole-secure.tls=true"
+      - "traefik.http.services.pihole.loadbalancer.server.port=80"
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "homepage.group=Network"
+      - "homepage.name=Pi-hole"
+      - "homepage.icon=pihole.png"
+      - "homepage.href=http://pihole.${DOMAIN:-localhost}:8081/admin"
+      - "homepage.description=Network-wide ad blocking and DNS"
+      - "homepage.weight=1"
+      - "homepage.widget.type=pihole"
+      - "homepage.widget.url=http://pihole"
+      - "homepage.widget.key=${PIHOLE_API_KEY:-}"
+
+  # DHCP Helper for Pi-hole
+  dhcphelper:
+    image: noamokman/dhcp-helper
+    container_name: dhcp-helper
+    restart: unless-stopped
+    network_mode: "host"
+    command: -s 172.31.0.100
     cap_add:
       - NET_ADMIN
 
-
-  heimdall:
-    image: linuxserver/heimdall
-    container_name: heimdall
-    restart: always
-    ports:
-      - "80:80"
-    volumes:
-      - heimdall_config:/config
-    environment:
-      - PUID=1000
-      - PGID=1000
-  couchdb:
-    image: couchdb:3.2
-    container_name: couchdb
-    restart: always
-    environment:
-      - COUCHDB_USER=admin
-      - COUCHDB_PASSWORD=adminpassword
-    ports:
-      - "5984:5984"
-    volumes:
-      - couchdb_data:/opt/couchdb/data
-      - couchdb_config:/opt/couchdb/etc
-    networks:
-      - couchdb_network
-  kavita:
-    image: jvmilazz0/kavita:latest
-    volumes:
-      - kavita_book:/kavita/book
-      - kavita_manga:/kavita/manga
-      - kavita_comic:/kavita/comic
-      - kavita_config:/kavita/config
-    ports:
-      - "5000:5000"
+  # qBittorrent Download Client
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:5.0.2
+    container_name: qbittorrent
     restart: unless-stopped
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Europe/Madrid}
+      - WEBUI_PORT=8080
+    volumes:
+      - ./qbittorrent/config:/config
+      - ${DOWNLOADS_ROOT:-./downloads}:/downloads
+    ports:
+      - "6881:6881"
+      - "6881:6881/udp"
+    networks:
+      - traefik
+      - media
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.qbittorrent.rule=Host(`qbittorrent.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.qbittorrent.entrypoints=web"
+      - "traefik.http.routers.qbittorrent.service=qbittorrent"
+      - "traefik.http.routers.qbittorrent-secure.rule=Host(`qbittorrent.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.qbittorrent-secure.entrypoints=websecure"
+      - "traefik.http.routers.qbittorrent-secure.tls=true"
+      - "traefik.http.routers.qbittorrent-secure.service=qbittorrent"
+      - "traefik.http.services.qbittorrent.loadbalancer.server.port=8080"
 
-volumes:
-  portainer_data:
-  pihole_data:
-  pihole_dnsmasq:
-  heimdall_config:
-  couchdb_data:
-  couchdb_config:
-  kavita_book:
-  kavita_manga:
-  kavita_comic:
-  kavita_config:
+  # Immich Photo Management
+  immich-server:
+    image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
+    container_name: immich_server
+    restart: unless-stopped
+    volumes:
+      - ${UPLOAD_LOCATION:-./immich/upload}:/data
+      - /etc/localtime:/etc/localtime:ro
+      - /home/andrew/immich:/mnt/old-immich:ro
+      - /home/andrew/immich-test:/mnt/immich-test:ro
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - database
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.immich.rule=Host(`immich.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.immich.entrypoints=web"
+      - "traefik.http.routers.immich-secure.rule=Host(`immich.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.immich-secure.entrypoints=websecure"
+      - "traefik.http.routers.immich-secure.tls=true"
+      - "traefik.http.services.immich.loadbalancer.server.port=2283"
+    healthcheck:
+      disable: false
 
+  # Immich Machine Learning
+  immich-machine-learning:
+    image: ghcr.io/immich-app/immich-machine-learning:${IMMICH_VERSION:-release}
+    container_name: immich_machine_learning
+    restart: unless-stopped
+    volumes:
+      - model-cache:/cache
+    env_file:
+      - .env
+    networks:
+      - traefik
+    healthcheck:
+      disable: false
 
+  # Immich Redis Cache
+  redis:
+    image: docker.io/valkey/valkey:8-bookworm@sha256:fea8b3e67b15729d4bb70589eb03367bab9ad1ee89c876f54327fc7c6e618571
+    container_name: immich_redis
+    restart: unless-stopped
+    networks:
+      - traefik
+    healthcheck:
+      test: redis-cli ping || exit 1
 
-networks:
-  couchdb_network:
-    driver: bridge
+  # Immich PostgreSQL Database
+  database:
+    image: ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0@sha256:bcf63357191b76a916ae5eb93464d65c07511da41e3bf7a8416db519b40b1c23
+    container_name: immich_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_DB: ${DB_DATABASE_NAME:-immich}
+      POSTGRES_INITDB_ARGS: "--data-checksums"
+    volumes:
+      - ${DB_DATA_LOCATION:-./immich/postgres}:/var/lib/postgresql/data
+    shm_size: 128mb
+    networks:
+      - traefik
+
+  # SiYuan Note-taking
+  siyuan:
+    image: b3log/siyuan:v3.1.17
+    container_name: siyuan
+    restart: unless-stopped
+    command:
+      [
+        "--workspace=/siyuan/workspace/",
+        "--accessAuthCode=${SIYUAN_ACCESS_AUTH_CODE:-123456}",
+      ]
+    environment:
+      - TZ=${TZ:-Europe/Madrid}
+      - SIYUAN_ACCESS_AUTH_CODE=${SIYUAN_ACCESS_AUTH_CODE:-123456}
+    volumes:
+      - ./siyuan/workspace:/siyuan/workspace
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.siyuan.rule=Host(`siyuan.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.siyuan.entrypoints=web"
+      - "traefik.http.routers.siyuan-secure.rule=Host(`siyuan.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.siyuan-secure.entrypoints=websecure"
+      - "traefik.http.routers.siyuan-secure.tls=true"
+      - "traefik.http.services.siyuan.loadbalancer.server.port=6806"
+
+  # Open WebUI for AI
+  openwebui:
+    image: ghcr.io/open-webui/open-webui:v0.3.35
+    container_name: openwebui
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ:-Europe/Madrid}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+    volumes:
+      - ./openwebui/data:/app/backend/data
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.openwebui.rule=Host(`openwebui.${DOMAIN:-localhost}`) || Host(`ai.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.openwebui.entrypoints=web"
+      - "traefik.http.routers.openwebui-secure.rule=Host(`openwebui.${DOMAIN:-localhost}`) || Host(`ai.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.openwebui-secure.entrypoints=websecure"
+      - "traefik.http.routers.openwebui-secure.tls=true"
+      - "traefik.http.services.openwebui.loadbalancer.server.port=8080"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # Excalidraw - Collaborative Whiteboard
+  excalidraw:
+    image: excalidraw/excalidraw:latest
+    container_name: excalidraw
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ:-Europe/Madrid}
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.excalidraw.rule=Host(`excalidraw.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.excalidraw.entrypoints=web"
+      - "traefik.http.routers.excalidraw-secure.rule=Host(`excalidraw.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.excalidraw-secure.entrypoints=websecure"
+      - "traefik.http.routers.excalidraw-secure.tls=true"
+      - "traefik.http.services.excalidraw.loadbalancer.server.port=80"

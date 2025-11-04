@@ -6,6 +6,11 @@ export GEM_HOME="$HOME/.gem"
 export LC_ALL='en_US.UTF-8'
 export LANG='en_US.UTF-8'
 
+# Fix for Ghostty terminal
+if [[ "$TERM" == "xterm-ghostty" ]]; then
+  export TERM=xterm-256color
+fi
+
 # macOS
 if [[ "$OSTYPE" == "darwin"* ]]; then
   export JAVA_HOME='/Library/Java/JavaVirtualMachines/amazon-corretto-15.jdk/Contents/Home'

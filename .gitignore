@@ -28,3 +28,51 @@ node_modules/
 .idea/
 .vscode/
 tmp
+
+# Homeserver Services
+# Environment files with sensitive data
+os/homeserver/.env
+
+# Service data directories (runtime data, databases, logs)
+os/homeserver/cache/*
+!os/homeserver/cache/.gitkeep
+os/homeserver/downloads/*
+!os/homeserver/downloads/.gitkeep
+
+# Homepage (keep kubernetes.yaml, ignore settings with API keys and logs)
+os/homeserver/homepage/logs/
+os/homeserver/homepage/settings.yaml
+
+# Immich (photo management)
+os/homeserver/immich/upload/
+os/homeserver/immich/postgres/
+
+# Jellyfin (media server)
+os/homeserver/jellyfin/config/*
+!os/homeserver/jellyfin/config/.gitkeep
+
+# Media files
+os/homeserver/media/movies/*
+os/homeserver/media/series/*
+!os/homeserver/media/*/.gitkeep
+
+# OpenWebUI (AI chat interface)
+os/homeserver/openwebui/data/*
+!os/homeserver/openwebui/data/.gitkeep
+
+# Pi-hole DNS server (keep config lists, ignore runtime data)
+os/homeserver/pihole/etc-pihole/*
+!os/homeserver/pihole/etc-pihole/.gitkeep
+os/homeserver/pihole/etc-dnsmasq.d/*
+!os/homeserver/pihole/etc-dnsmasq.d/.gitkeep
+
+# Portainer (container management)
+os/homeserver/portainer/*
+!os/homeserver/portainer/.gitkeep
+
+# qBittorrent
+os/homeserver/qbittorrent/config/*
+!os/homeserver/qbittorrent/config/.gitkeep
+
+# Siyuan (note-taking)
+os/homeserver/siyuan/workspace/
