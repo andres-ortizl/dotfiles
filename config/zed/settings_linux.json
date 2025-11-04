@@ -275,7 +275,6 @@
   // Language-Specific Settings
   "languages": {
     "Python": {
-      "show_edit_predictions": false,
       "completions": {
         "lsp": true,
         "words": "fallback"
