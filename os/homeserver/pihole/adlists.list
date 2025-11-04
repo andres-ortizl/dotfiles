@@ -1,0 +1,5 @@
+# Pi-hole Additional Blocklists
+# Minimal configuration with only the most essential blocklist
+
+# StevenBlack's Unified Hosts List (comprehensive, includes ads, malware, and trackers)
+https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
