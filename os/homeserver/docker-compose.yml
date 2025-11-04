@@ -17,7 +17,7 @@ volumes:
 services:
   # Traefik Reverse Proxy
   traefik:
-    image: traefik:v3.0
+    image: traefik:v3.5.4
     container_name: traefik
     restart: unless-stopped
     ports:
@@ -47,7 +47,7 @@ services:
 
   # Portainer Configuration Management
   portainer:
-    image: portainer/portainer-ce:2.21.1
+    image: portainer/portainer-ce:2.33.3
     container_name: portainer
     restart: unless-stopped
     environment:
@@ -92,7 +92,7 @@ services:
       - "traefik.http.routers.homepage-secure.tls=true"
       - "traefik.http.services.homepage.loadbalancer.server.port=3000"
 
-  # Watchtower Auto-updater
+  # Watchtower Auto-updater (only updates containers with watchtower.enable=true label)
   watchtower:
     image: containrrr/watchtower:1.7.1
     container_name: watchtower
@@ -101,6 +101,7 @@ services:
       - WATCHTOWER_CLEANUP=true
       - WATCHTOWER_REMOVE_VOLUMES=false
       - WATCHTOWER_INCLUDE_STOPPED=true
+      - WATCHTOWER_LABEL_ENABLE=true
       - WATCHTOWER_SCHEDULE=0 0 4 * * *
       - TZ=${TZ:-Europe/Madrid}
     volumes:
@@ -411,35 +412,9 @@ services:
     networks:
       - traefik
 
-  # SiYuan Note-taking
-  siyuan:
-    image: b3log/siyuan:v3.1.17
-    container_name: siyuan
-    restart: unless-stopped
-    command:
-      [
-        "--workspace=/siyuan/workspace/",
-        "--accessAuthCode=${SIYUAN_ACCESS_AUTH_CODE:-123456}",
-      ]
-    environment:
-      - TZ=${TZ:-Europe/Madrid}
-      - SIYUAN_ACCESS_AUTH_CODE=${SIYUAN_ACCESS_AUTH_CODE:-123456}
-    volumes:
-      - ./siyuan/workspace:/siyuan/workspace
-    networks:
-      - traefik
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.siyuan.rule=Host(`siyuan.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.siyuan.entrypoints=web"
-      - "traefik.http.routers.siyuan-secure.rule=Host(`siyuan.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.siyuan-secure.entrypoints=websecure"
-      - "traefik.http.routers.siyuan-secure.tls=true"
-      - "traefik.http.services.siyuan.loadbalancer.server.port=6806"
-
   # Open WebUI for AI
   openwebui:
-    image: ghcr.io/open-webui/open-webui:v0.3.35
+    image: ghcr.io/open-webui/open-webui:v0.6.34
     container_name: openwebui
     restart: unless-stopped
     environment:
@@ -460,7 +435,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-  # Excalidraw - Collaborative Whiteboard
+  # Excalidraw Collaborative Whiteboard
   excalidraw:
     image: excalidraw/excalidraw:latest
     container_name: excalidraw
@@ -471,6 +446,7 @@ services:
       - traefik
     labels:
       - "traefik.enable=true"
+      - "com.centurylinklabs.watchtower.enable=true"
       - "traefik.http.routers.excalidraw.rule=Host(`excalidraw.${DOMAIN:-localhost}`)"
       - "traefik.http.routers.excalidraw.entrypoints=web"
       - "traefik.http.routers.excalidraw-secure.rule=Host(`excalidraw.${DOMAIN:-localhost}`)"
