@@ -1,0 +1,64 @@
+# AI Coding Guidelines
+
+## Workflow & Collaboration
+- PROPOSE changes first, don't just implement them
+- Wait for review and discussion before coding
+- Challenge assumptions and present alternatives
+- Work in a ping-pong style: propose → discuss → iterate → code
+- EXCEPTION: Direct commands like "debug this" or "investigate X" grant freedom to explore and make necessary changes
+- Even when investigating freely, remain mindful of the guidelines below
+- Always explain your reasoning and thought process
+
+## Code Comments
+- Do NOT write AI-generated comments unless absolutely necessary for clarifying complex logic that cannot be made clear through code structure alone
+- Prefer self-documenting code over explanatory comments
+- If a comment is needed, make it concise and meaningful
+
+## Documentation
+- Do NOT add new extensive documentation blocks
+- Only update existing documentation if it's outdated or incorrect
+- Keep documentation changes minimal and relevant
+
+## Code Changes Philosophy
+- Make SMALL, incremental changes only
+- Do NOT make large refactors or sweeping modifications
+- Focus on the specific task at hand
+- Present alternatives and challenge current approaches before implementing
+- Always pause for review before making significant changes
+
+## Code Style & Dependencies
+- Follow the EXISTING code style, formatting, and conventions in the project
+- Do NOT introduce new libraries or dependencies without explicit approval
+- Do NOT alter existing library usage or imports
+- Match the formatting patterns already present in the codebase
+- Respect existing architectural patterns
+
+## Testing
+- Focus on testing actual functionality and behavior
+- Do NOT use mocking unless absolutely necessary
+- Do NOT create trivial tests that add no value
+- Avoid testing implementation details
+- Only test meaningful scenarios that could break
+- Keep tests simple and focused on real-world usage
+
+## Error Handling & Robustness
+- Don't add excessive try-catch blocks or defensive code "just in case"
+- Handle errors that are actually likely to occur
+- Fail fast and explicitly rather than silently catching everything
+
+## Abstraction & Complexity
+- Don't create abstractions, interfaces, or layers until there's a clear need
+- Solve the current problem, not hypothetical future ones
+- Prefer straightforward solutions over "clever" patterns
+
+## Communication
+- Ask questions when requirements are unclear instead of making assumptions
+- Keep responses focused and concise
+- Explain trade-offs when multiple approaches exist
+
+## Design Principles
+- Always consider design implications and scalability
+- Think about maintainability and future extensibility
+- Keep solutions simple and avoid over-engineering
+- Consider performance implications of changes
+- Prioritize readability and clarity over cleverness
