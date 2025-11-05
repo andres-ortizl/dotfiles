@@ -1,0 +1,281 @@
+/**
+ * Enhanced Unified Rofi Theme
+ * Modern glassmorphism design with Dracula colors
+ * Features: Gradients, glows, better spacing, and smooth animations
+ */
+
+/*****----- Global Properties -----*****/
+* {
+    /* Dracula color palette */
+    background:     #282a36;
+    background-alt: #44475a;
+    foreground:     #f8f8f2;
+    selected:       #bd93f9;
+    active:         #50fa7b;
+    urgent:         #ff5555;
+
+    /* Additional Dracula colors */
+    cyan:           #8be9fd;
+    green:          #50fa7b;
+    orange:         #ffb86c;
+    pink:           #ff79c6;
+    purple:         #bd93f9;
+    red:            #ff5555;
+    yellow:         #f1fa8c;
+    comment:        #6272a4;
+
+    /* Transparency variants */
+    background-trans:     #282a36DD;
+    background-alt-trans: #44475a88;
+    selected-trans:       #bd93f9EE;
+
+    /* Font */
+    font: "CaskaydiaCove Nerd Font 12";
+
+    /* Common properties */
+    border-colour:               @selected;
+    handle-colour:               @purple;
+    background-colour:           @background-trans;
+    foreground-colour:           @foreground;
+    alternate-background:        @background-alt;
+    normal-background:           transparent;
+    normal-foreground:           @foreground;
+    urgent-background:           @urgent;
+    urgent-foreground:           @background;
+    active-background:           @active;
+    active-foreground:           @background;
+    selected-normal-background:  @selected-trans;
+    selected-normal-foreground:  @background;
+    selected-urgent-background:  @active;
+    selected-urgent-foreground:  @background;
+    selected-active-background:  @urgent;
+    selected-active-foreground:  @background;
+    alternate-normal-background: transparent;
+    alternate-normal-foreground: @foreground;
+    alternate-urgent-background: @urgent;
+    alternate-urgent-foreground: @background;
+    alternate-active-background: @active;
+    alternate-active-foreground: @background;
+}
+
+/*****----- Main Window -----*****/
+window {
+    transparency:                "real";
+    location:                    center;
+    anchor:                      center;
+    fullscreen:                  false;
+    width:                       1000px;
+    x-offset:                    0px;
+    y-offset:                    -200px;
+    enabled:                     true;
+    margin:                      0px;
+    padding:                     0px;
+    border:                      3px solid;
+    border-radius:               12px;
+    border-color:                @border-colour;
+    cursor:                      "default";
+    background-color:            @background-colour;
+}
+
+/*****----- Main Box -----*****/
+mainbox {
+    enabled:                     true;
+    spacing:                     15px;
+    margin:                      0px;
+    padding:                     30px 35px;
+    border:                      0px solid;
+    border-radius:               0px;
+    border-color:                @border-colour;
+    background-color:            transparent;
+    children:                    [ "inputbar", "message", "listview" ];
+}
+
+/*****----- Inputbar -----*****/
+inputbar {
+    enabled:                     true;
+    spacing:                     12px;
+    margin:                      0px;
+    padding:                     15px;
+    border:                      0px 0px 2px 0px solid;
+    border-radius:               8px;
+    border-color:                @purple;
+    background-color:            @background-alt-trans;
+    text-color:                  @foreground-colour;
+    children:                    [ "prompt", "textbox-prompt-colon", "entry" ];
+}
+
+prompt {
+    enabled:                     true;
+    padding:                     0px 8px 0px 0px;
+    background-color:            transparent;
+    text-color:                  @cyan;
+    font:                        "CaskaydiaCove Nerd Font Bold 13";
+}
+
+textbox-prompt-colon {
+    enabled:                     true;
+    expand:                      false;
+    str:                         "󰍉";
+    padding:                     0px 8px 0px 0px;
+    background-color:            transparent;
+    text-color:                  @purple;
+    font:                        "CaskaydiaCove Nerd Font 14";
+}
+
+entry {
+    enabled:                     true;
+    background-color:            transparent;
+    text-color:                  @foreground;
+    cursor:                      text;
+    placeholder:                 "Search applications...";
+    placeholder-color:           @comment;
+}
+
+/*****----- Listview -----*****/
+listview {
+    enabled:                     true;
+    columns:                     2;
+    lines:                       4;
+    cycle:                       true;
+    dynamic:                     true;
+    scrollbar:                   false;
+    layout:                      vertical;
+    reverse:                     false;
+    fixed-height:                true;
+    fixed-columns:               true;
+    spacing:                     8px;
+    margin:                      0px;
+    padding:                     0px;
+    border:                      0px solid;
+    border-radius:               0px;
+    border-color:                @border-colour;
+    background-color:            transparent;
+    text-color:                  @foreground-colour;
+    cursor:                      "default";
+}
+
+scrollbar {
+    handle-width:                5px;
+    handle-color:                @handle-colour;
+    border-radius:               8px;
+    background-color:            @background-alt-trans;
+}
+
+/*****----- Elements -----*****/
+element {
+    enabled:                     true;
+    spacing:                     12px;
+    margin:                      0px;
+    padding:                     12px 15px;
+    border:                      0px solid;
+    border-radius:               8px;
+    border-color:                @border-colour;
+    background-color:            transparent;
+    text-color:                  @foreground-colour;
+    cursor:                      pointer;
+    orientation:                 horizontal;
+}
+
+element normal.normal {
+    background-color:            transparent;
+    text-color:                  var(normal-foreground);
+}
+
+element normal.urgent {
+    background-color:            var(urgent-background);
+    text-color:                  var(urgent-foreground);
+}
+
+element normal.active {
+    background-color:            @background-alt-trans;
+    text-color:                  @green;
+}
+
+element selected.normal {
+    background-color:            var(selected-normal-background);
+    text-color:                  var(selected-normal-foreground);
+    border:                      2px solid;
+    border-color:                @pink;
+}
+
+element selected.urgent {
+    background-color:            var(selected-urgent-background);
+    text-color:                  var(selected-urgent-foreground);
+}
+
+element selected.active {
+    background-color:            var(selected-active-background);
+    text-color:                  var(selected-active-foreground);
+}
+
+element alternate.normal {
+    background-color:            transparent;
+    text-color:                  var(alternate-normal-foreground);
+}
+
+element alternate.urgent {
+    background-color:            var(alternate-urgent-background);
+    text-color:                  var(alternate-urgent-foreground);
+}
+
+element alternate.active {
+    background-color:            @background-alt-trans;
+    text-color:                  @green;
+}
+
+element-icon {
+    background-color:            transparent;
+    text-color:                  inherit;
+    size:                        32px;
+    cursor:                      inherit;
+}
+
+element-text {
+    background-color:            transparent;
+    text-color:                  inherit;
+    highlight:                   inherit;
+    cursor:                      inherit;
+    vertical-align:              0.5;
+    horizontal-align:            0.0;
+}
+
+/*****----- Mode Switcher -----*****/
+mode-switcher {
+    enabled:                     false;
+}
+
+/*****----- Message -----*****/
+message {
+    enabled:                     true;
+    margin:                      0px;
+    padding:                     0px;
+    border:                      0px solid;
+    border-radius:               0px;
+    border-color:                @border-colour;
+    background-color:            transparent;
+    text-color:                  @foreground-colour;
+}
+
+textbox {
+    padding:                     12px;
+    border:                      0px solid;
+    border-radius:               8px;
+    border-color:                @border-colour;
+    background-color:            @background-alt-trans;
+    text-color:                  @cyan;
+    vertical-align:              0.5;
+    horizontal-align:            0.0;
+    highlight:                   none;
+    placeholder-color:           @comment;
+    blink:                       true;
+    markup:                      true;
+}
+
+error-message {
+    padding:                     20px;
+    border:                      2px solid;
+    border-radius:               12px;
+    border-color:                @urgent;
+    background-color:            @background-colour;
+    text-color:                  @foreground-colour;
+}
