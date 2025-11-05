@@ -1,5 +1,5 @@
-timestamp: 1762309001
-appname: EndeavourOS notification
-icon: /usr/share/icons/Qogir/scalable/apps/system-reboot.svg
-summary: Reboot recommended!
-body: Reboot is recommended due to the upgrade of core system package(s).
+timestamp: 1
+icon:
+appname: waybar
+summary: Hello!
+body: 
