@@ -9,9 +9,7 @@
 
 #clock,
 #custom-notification,
-#custom-launcher,
 #custom-power-menu,
-#custom-window,
 #custom-gpu,
 #memory,
 #temperature,
@@ -98,35 +96,7 @@ window * {
     padding-top: 3px;
 }
 
-#custom-spotify {
-    margin-left: 2px;
-    padding-left: 15px;
-    padding-right: 15px;
-    padding-top: 3px;
-    color: rgba(180, 190, 254, 0.329);
-    background-color: rgba(30, 30, 46, 0.6);
-    box-shadow: rgba(17, 17, 27, 0.2) 0 0 3px 2px;
-    transition: all 0.3s ease;
-}
 
-#custom-spotify.playing {
-    color: rgb(180, 190, 254);
-    background: rgba(30, 30, 46, 0.6);
-    background: linear-gradient(90deg, @greyLight, @purple, @greyLight, @greyLight, @greyLight, @greyLight);
-    background-size: 400% 100%;
-    animation: grey-gradient 3s linear infinite;
-    transition: all 0.3s ease;
-}
-
-@keyframes grey-gradient {
-    0% {
-        background-position: 100% 50%;
-    }
-
-    100% {
-        background-position: -33% 50%;
-    }
-}
 
 #tray menu {
     background-color: rgba(30, 30, 46, 0.6);

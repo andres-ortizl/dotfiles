@@ -7,8 +7,7 @@
     "margin": "10 10 0 10",
     "reload_style_on_change": true,
     "modules-left": [
-      "hyprland/workspaces",
-      "custom/spotify"
+      "hyprland/workspaces"
     ],
     "modules-center": [
       "hyprland/window"
@@ -42,7 +41,10 @@
         "2": [],
         "3": [],
         "4": []
-      }
+      },
+      "all-outputs": false,
+      "active-only": false,
+      "show-special": false
     },
     "hyprland/window": {
       "format": "{}"
@@ -52,8 +54,8 @@
       "spacing": 5
     },
     "cpu": {
-      "interval": 3,
-      "format": " {usage:>2}%",
+      "interval": 5,
+      "format": " {usage:>2}%",
       "on-click": "ghostty -e btop"
     },
     "custom/gpu": {
@@ -70,21 +72,21 @@
         "󰪧",
         "󰪨"
       ],
-      "interval": 4,
-      "on-click": "ghostty -e nvidia-smi",
+      "interval": 5,
+      "on-click": "ghostty -e watch -n 1 nvidia-smi",
       "return-type": "json"
     },
     "temperature": {
       "hwmon-path": "/sys/class/hwmon/hwmon2/temp1_input",
       "critical-threshold": 80,
-      "interval": 2,
-      "format": " {temperatureC:>2}°C",
+      "interval": 5,
+      "format": " {temperatureC:>2}°C",
       "format-icons": [
         "", // cold
         "", // normal
         "" // hot
       ],
-      "on-click": "hyprctl dispatcher togglespecialworkspace monitor"
+      "on-click": "ghostty -e btop"
     },
     "bluetooth": {
       "format": "{icon}",
@@ -100,7 +102,7 @@
       "format-on": "󰂯",
       "format-connected": "",
       "format-no-controller": "󰂲",
-      "interval": 5
+      "interval": 30
     },
     "clock": {
       "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
@@ -121,8 +123,8 @@
       "tooltip": false
     },
     "network": {
-      "interval": 1,
-      "format-wifi": "  {bandwidthTotalBytes:>2}",
+      "interval": 2,
+      "format-wifi": "  {bandwidthTotalBytes:>2}",
       "format-ethernet": " {bandwidthTotalBytes:>2}",
       "tooltip-format-ethernet": "󰈀 {ipaddr}",
       "tooltip-format-wifi": "  {essid} ({signalStrength}%)",
@@ -166,6 +168,6 @@
       "return-type": "json",
       "max-length": 50,
        "format": "{}"
-    }
+    },
   }
 ]
