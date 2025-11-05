@@ -1,33 +1,30 @@
 #!/bin/bash
 
 timeout=3
+lockdir="$HOME/.config/waybar/store/getnotification.lock"
 
-# if dbus-monitor is not running, start it
-if ! pgrep -x "dbus-monitor" >/dev/null; then
+# if getnotification.sh is not running, start it
+# Use both pgrep and lockdir check for reliability
+if ! pgrep -f "getnotification.sh$" > /dev/null && [ ! -d "$lockdir" ]; then
     $HOME/.config/waybar/scripts/getnotification.sh &
+    # Give it time to start and acquire the lock
+    sleep 0.5
 fi
+
 
 while true; do
     dunststatus=$(dunstctl is-paused)
     realtime=$(date +%s)
-    lines=$(cat ~/.config/waybar/store/lastnotif)
-    while read line; do
-        if [[ $line == *"timestamp"* ]]; then
-            timestamp=$(echo $line | sed 's/timestamp: //g')
-        fi
-        if [[ $line == *"appname"* ]]; then
-            appname=$(echo $line | sed 's/appname: //g')
-        fi
-        if [[ $line == *"summary"* ]]; then
-            summary=$(echo $line | sed 's/summary: //g')
-        fi
-        if [[ $line == *"body"* ]]; then
-            body=$(echo $line | sed 's/body: //g')
-        fi
-        if [[ $line == *"icon"* ]]; then
-            icon=$(echo $line | sed 's/icon: //g')
-        fi
-    done <<<"$lines"
+
+    while IFS=': ' read -r key value; do
+        case $key in
+            timestamp) timestamp=$value ;;
+            appname) appname=$value ;;
+            summary) summary=$value ;;
+            body) body=$value ;;
+            icon) icon=$value ;;
+        esac
+    done < ~/.config/waybar/store/lastnotif
 
     # Calculate the difference between the current time and the timestamp
     timediff=$(($realtime - $timestamp))
