@@ -22,7 +22,9 @@ SUBSYSTEMS=="usb", ATTRS{idVendor}=="1e71", ATTRS{idProduct}=="300e", TAG+="uacc
 
 from __future__ import annotations
 
+import signal
 import subprocess
+import sys
 import time
 
 import psutil
@@ -95,6 +97,12 @@ def set_fan_and_pump_speed(cpu_temp: float) -> tuple[int, int]:
     return fan_speed, pump_speed
 
 
+def signal_handler(sig, frame):
+    """Handle shutdown signals gracefully"""
+    print("\nShutting down fan curve control...")
+    sys.exit(0)
+
+
 def main():
     temp = get_cpu_temp()
     if temp is None:
@@ -105,7 +113,11 @@ def main():
 
 
 if __name__ == "__main__":
+    # Register signal handlers for graceful shutdown
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+
     while True:
         main()
-        # Sleep for 5 seconds before checking again
-        time.sleep(5)
+        # Sleep for 10 seconds before checking again (temperature changes slowly)
+        time.sleep(10)

@@ -29,6 +29,8 @@
     ~/.config/zed/keymap.json: config/zed/keymap_linux.json
     ~/.config/zed/settings.json: config/zed/settings_linux.json
     ~/.config/zed/debug.json: config/zed/debug_python_example.json
+    ~/.config/gitui: config/gitui/**
+    ~/.config/keybindings-helper: config/keybindings-helper/**
 
     ~/.config/wlogout/: config/wlogout/**
     ~/.config/btop/**: config/btop/**
