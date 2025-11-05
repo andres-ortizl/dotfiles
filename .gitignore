@@ -21,7 +21,8 @@ venv/
 env/
 *.egg-info/
 node_modules/
-
+config/micro/buffers/
+config/waybar/store/lastnotif
 # General
 .DS_Store
 *.swp

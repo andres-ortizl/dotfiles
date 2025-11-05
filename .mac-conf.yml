@@ -16,18 +16,15 @@
     ~/.gitconfig: config/git/.gitconfig
     ~/.config/karabiner/karabiner.json: config/karabiner/karabiner.json
     ~/config/iterm2: config/iterm2
-    ~/.config/posh/config.json: config/posh/config.json
     ~/.config/micro: config/micro/**
     ~/.config/starship/config.toml: config/starship/config.toml
     ~/.config/bat/bat.conf: config/bat/bat.conf
-    ~/Library/Application Support/Firefox/Profiles/hyanscip.default-release/chrome/userChrome.css: config/firefox/chrome/userChrome.css
     ~/.config/zed: config/zed/**
     ~/.config/atuin/config.toml: config/atuin/config.toml
     ~/.gitkraken/config: config/gitkraken/config
     ~/.gitkraken/themes/: config/gitkraken/themes/**
     ~/Library/Application\ Support/com.mitchellh.ghostty/config: config/ghostty/config
     ~/.amethyst.yml: config/amethyst/.amethyst.yml
-    ~/.aerospace.toml: config/aerospace/aerospace.toml
 
 
 - shell:
