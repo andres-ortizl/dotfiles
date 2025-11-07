@@ -23,9 +23,9 @@
 #tray {
     padding: 5px 15px;
     border-radius: 12px;
-    background: rgba(30, 30, 46, 0.6);
-    color: rgb(180, 190, 254);
-    box-shadow: rgba(17, 17, 27, 0.2) 0 0 3px 2px;
+    background: @black-900;
+    color: @purpleSecondary;
+    box-shadow: @black-200 0 0 3px 2px;
     margin: 8px 2px;
     transition: all 0.3s ease;
 }
@@ -35,8 +35,23 @@
     box-shadow: none;
 }
 
+#cpu:hover,
+#memory:hover,
+#temperature:hover,
+#custom-gpu:hover,
+#network:hover,
+#pulseaudio:hover,
+#bluetooth:hover,
+#clock:hover,
+#custom-power-menu:hover,
+#custom-notification:hover {
+    background: linear-gradient(135deg, @black-900, @purple-800);
+    box-shadow: @purple-500 0 0 10px 2px;
+    color: @white;
+}
+
 window#waybar {
-    background-color: rgba(0, 0, 0, 0.096);
+    background-color: @black-600;
     border-radius: 17px;
 }
 
@@ -55,24 +70,26 @@ window * {
 }
 
 #workspaces button {
-    box-shadow: rgba(17, 17, 27, 0.2) 0 0 3px 2px;
-    background-color: rgba(30, 30, 46, 0.6);
+    box-shadow: @black-200 0 0 3px 2px;
+    background-color: @black-900;
     border-radius: 12px;
     margin-left: 10px;
     min-width: 50px;
     transition: all 0.3s ease;
 }
 
+#workspaces button:hover {
+    background: linear-gradient(135deg, @purple-700, @purple-500);
+    box-shadow: @purple-400 0 0 8px 2px;
+}
+
 
 #workspaces button.active {
     min-width: 50px;
-    box-shadow: rgba(0, 0, 0, 0.288) 2px 2px 5px 2px;
+    box-shadow: @black-300 2px 2px 5px 2px;
     background: @purple-600;
     background-size: 400% 400%;
     transition: all 0.3s ease;
-    /*background: linear-gradient(90deg, @blackLight, @purple, @purple-transparent); */
-    /*animation: grey-gradient 7s linear infinite; */
-
 }
 
 @keyframes colored-gradient {
@@ -99,12 +116,12 @@ window * {
 
 
 #tray menu {
-    background-color: rgba(30, 30, 46, 0.6);
-    opacity: 0.8;
+    background-color: @black-900;
+    opacity: 0.95;
 }
 
 #pulseaudio.muted {
-    color: rgb(243, 139, 168);
+    color: @pink;
     padding-right: 16px;
 }
 
@@ -117,12 +134,12 @@ window * {
 #custom-notification.waiting_start,
 #custom-notification.expanded {
     background: transparent linear-gradient(90deg,
-            rgb(49, 50, 68),
-            rgba(30, 30, 46, 0.6),
-            rgba(30, 30, 46, 0.6),
-            rgba(30, 30, 46, 0.6),
-            rgba(30, 30, 46, 0.6),
-            rgb(49, 50, 68));
+            @blackSecondary,
+            @black-900,
+            @black-900,
+            @black-900,
+            @black-900,
+            @blackSecondary);
     background-size: 400% 100%;
     animation: grey-gradient 3s linear infinite;
     min-width: 500px;
@@ -130,7 +147,7 @@ window * {
 
 #custom-notification.collapsed_muted {
     min-width: 12px;
-    color: rgb(243, 139, 168);
+    color: @pink;
     padding-right: 17px;
 }
 

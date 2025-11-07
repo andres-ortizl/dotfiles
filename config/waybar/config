@@ -55,23 +55,12 @@
     },
     "cpu": {
       "interval": 5,
-      "format": " {usage:>2}%",
+      "format": "󰻠{usage:>2}%",
       "on-click": "ghostty -e btop"
     },
     "custom/gpu": {
       "exec": "~/.config/waybar/scripts/nvidia_temp.sh",
       "format": "{text}",
-      "format-icons": [
-        "󰝦",
-        "󰪞",
-        "󰪟",
-        "󰪣",
-        "󰪤",
-        "󰪥",
-        "󰪦",
-        "󰪧",
-        "󰪨"
-      ],
       "interval": 5,
       "on-click": "ghostty -e watch -n 1 nvidia-smi",
       "return-type": "json"
@@ -80,12 +69,8 @@
       "hwmon-path": "/sys/class/hwmon/hwmon2/temp1_input",
       "critical-threshold": 80,
       "interval": 5,
-      "format": " {temperatureC:>2}°C",
-      "format-icons": [
-        "", // cold
-        "", // normal
-        "" // hot
-      ],
+      "format": "{icon} {temperatureC:>2}°C",
+      "format-icons": ["", "", ""],
       "on-click": "ghostty -e btop"
     },
     "bluetooth": {
@@ -124,8 +109,8 @@
     },
     "network": {
       "interval": 2,
-      "format-wifi": "  {bandwidthTotalBytes:>2}",
-      "format-ethernet": " {bandwidthTotalBytes:>2}",
+      "format-wifi": "  {bandwidthTotalBytes:>10}",
+      "format-ethernet": " {bandwidthTotalBytes:>10}",
       "tooltip-format-ethernet": "󰈀 {ipaddr}",
       "tooltip-format-wifi": "  {essid} ({signalStrength}%)",
       "tooltip-format": "󰤯 {ifname} via {gwaddr}",
@@ -151,7 +136,11 @@
           ""
         ]
       },
-      "on-click": "pavucontrol"
+      "on-click": "pavucontrol",
+      "on-scroll-up": "pactl set-sink-volume @DEFAULT_SINK@ +5%",
+      "on-scroll-down": "pactl set-sink-volume @DEFAULT_SINK@ -5%",
+      "scroll-step": 5,
+      "smooth-scrolling-threshold": 1
     },
     "disk": {
       "interval": 15,
@@ -168,6 +157,6 @@
       "return-type": "json",
       "max-length": 50,
        "format": "{}"
-    },
+    }
   }
 ]

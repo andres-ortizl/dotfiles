@@ -31,6 +31,7 @@
     ~/.config/zed/debug.json: config/zed/debug_python_example.json
     ~/.config/gitui: config/gitui/**
     ~/.config/keybindings-helper: config/keybindings-helper/**
+    ~/.config/delta: config/delta/**
 
     ~/.config/wlogout/: config/wlogout/**
     ~/.config/btop/**: config/btop/**
