@@ -5,8 +5,7 @@
       force: true
       glob: true
 
-
-- clean: [ '~' ]
+- clean: ["~"]
 
 - link:
     ~/.zshrc: config/.zshrc_mac
@@ -21,11 +20,11 @@
     ~/.config/bat/bat.conf: config/bat/bat.conf
     ~/.config/zed: config/zed/**
     ~/.config/atuin/config.toml: config/atuin/config.toml
+    ~/.config/yazi: config/yazi/**
     ~/.gitkraken/config: config/gitkraken/config
     ~/.gitkraken/themes/: config/gitkraken/themes/**
     ~/Library/Application\ Support/com.mitchellh.ghostty/config: config/ghostty/config
     ~/.amethyst.yml: config/amethyst/.amethyst.yml
 
-
 - shell:
-    - [ git submodule update --init --recursive, Installing submodules ]
+    - [git submodule update --init --recursive, Installing submodules]

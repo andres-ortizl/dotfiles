@@ -32,6 +32,7 @@
     ~/.config/gitui: config/gitui/**
     ~/.config/keybindings-helper: config/keybindings-helper/**
     ~/.config/delta: config/delta/**
+    ~/.config/yazi: config/yazi/**
 
     ~/.config/wlogout/: config/wlogout/**
     ~/.config/btop/**: config/btop/**
