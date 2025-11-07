@@ -1,11 +1,9 @@
 #!/bin/bash
 
-# Kill existing portal processes
 killall xdg-desktop-portal-hyprland 2>/dev/null
 killall xdg-desktop-portal-wlr 2>/dev/null
 killall xdg-desktop-portal 2>/dev/null
 
-# Wait for processes to fully terminate
 for i in {1..10}; do
     if ! pgrep -x "xdg-desktop-portal" > /dev/null; then
         break
@@ -13,10 +11,8 @@ for i in {1..10}; do
     sleep 0.1
 done
 
-# Start Hyprland portal
 /usr/libexec/xdg-desktop-portal-hyprland &
 
-# Wait for Hyprland portal to start
 for i in {1..20}; do
     if pgrep -x "xdg-desktop-por" > /dev/null; then
         break
@@ -24,5 +20,4 @@ for i in {1..20}; do
     sleep 0.1
 done
 
-# Start main portal
 /usr/lib/xdg-desktop-portal &
