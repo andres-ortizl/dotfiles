@@ -380,6 +380,4 @@ MIT License - See [LICENSE](LICENSE) file for details.
 
 For questions or suggestions: andres.ortiz.xyz@gmail.com
 
----
 
-⭐ If these dotfiles helped you, consider starring the repository!
