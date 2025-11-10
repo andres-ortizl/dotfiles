@@ -7,42 +7,42 @@ $character
 """
 
 [kubernetes]
-style = "bg:#ad8ee6 fg:black bold"
-format = '[[](#ad8ee6) $context :: $namespace [](#ad8ee6)]($style)'
+style = "bg:#b4befe fg:#1e1e2e bold"
+format = '[[](#b4befe) $context :: $namespace [](#b4befe)]($style)'
 disabled = false
 
 [directory]
-style = "bg:#ff7edb fg:black bold"
-format = "[[](#ff7edb) $path [](#ff7edb)]($style)"
+style = "bg:#89b4fa fg:#1e1e2e bold"
+format = "[[](#89b4fa) $path [](#89b4fa)]($style)"
 
 [python]
+style = "bg:#fab387 fg:#1e1e2e bold"
 symbol = "🐍"
-style = "bg:#B4BEFE fg:black bold"
-format = '[([](#B4BEFE) $symbol$virtualenv [](#B4BEFE))]($style)'
+format = '[[](#fab387)$symbol$virtualenv [](#fab387)]($style)'
 
 
 [git_branch]
 symbol = ""
 truncation_length = 15
-style = "bg:#FDB6F5 fg:black bold"
-format = '[[](#FDB6F5) $symbol $branch]($style)'
+style = "bg:#a6e3a1 fg:#1e1e2e bold"
+format = '[[](#a6e3a1) $symbol $branch]($style)'
 
 [git_status]
-style = "bg:#FDB6F5 fg:black bold"
-conflicted = "[  ](red bg:#FDB6F5)"
+style = "bg:#a6e3a1 fg:#1e1e2e bold"
+conflicted = "[  ](red bg:#a6e3a1)"
 ahead = "  "
 behind = "  "
 diverged = "  "
-untracked = "[  ](#008000 bg:#FDB6F5)"
+untracked = "[  ](#008000 bg:#a6e3a1)"
 staged = "  "
-modified = "[  ](#FFA500 bg:#FDB6F5)"
+modified = "[  ](#FFA500 bg:#a6e3a1)"
 stashed = "  "
-format = '[(#FDB6F5) $all_status$ahead_behind [](#FDB6F5)]($style)'
+format = '[[](#a6e3a1) $all_status$ahead_behind [](#a6e3a1)]($style)'
 
 [cmd_duration]
-style = "fg:black bg:#8AADF4 bold"
-format = "[[](#8AADF4) $duration [](#8AADF4)]($style)"
+style = "fg:#1e1e2e bg:#cba6f7 bold"
+format = "[[](#cba6f7) $duration [](#cba6f7)]($style)"
 
 [character]
-error_symbol = "[╰─](bold #ff9e64)"
-success_symbol = "[╰─](bold #4fd6be)"
+error_symbol = "[❯](bold #f38ba8)"
+success_symbol = "[❯](bold #a6e3a1)"
