@@ -247,12 +247,13 @@
   },
   // AI Assistant Settings
   "agent": {
+    "play_sound_when_agent_done": true,
     "dock": "right",
     "button": true,
     "default_width": 640,
     "default_model": {
-      "provider": "amazon-bedrock",
-      "model": "claude-sonnet-4-5"
+      "provider": "copilot_chat",
+      "model": "gemini-2.5-pro"
     },
     "always_allow_tool_actions": true,
     "model_parameters": []

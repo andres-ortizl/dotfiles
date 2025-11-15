@@ -34,6 +34,8 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   )
 fi
 
+
+
 # Linux
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
   export JAVA_HOME=/usr/lib/jvm/default
@@ -52,6 +54,7 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     "/usr/sbin"
     "/sbin"
     "/home/andrew/.local/share/JetBrains/Toolbox/scripts"
+    "$HOME/.bun/bin"
   )
 fi
 
