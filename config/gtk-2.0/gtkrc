@@ -1,0 +1,67 @@
+# GTK 2.0 Configuration - Catppuccin Mocha Mauve
+# Theme configuration for GTK 2 applications
+
+# Set the theme to Catppuccin Mocha Mauve
+gtk-theme-name="catppuccin-mocha-mauve-standard+default"
+
+# Icon theme (using Papirus Dark as it complements Catppuccin well)
+gtk-icon-theme-name="Papirus-Dark"
+
+# Font configuration
+gtk-font-name="Sans 10"
+
+# Cursor theme (Catppuccin Mocha Mauve cursor)
+gtk-cursor-theme-name="Catppuccin-Mocha-Mauve-Cursors"
+gtk-cursor-theme-size=16
+
+# Toolbar settings
+gtk-toolbar-style=GTK_TOOLBAR_BOTH_HORIZ
+gtk-toolbar-icon-size=GTK_ICON_SIZE_LARGE_TOOLBAR
+
+# Enable button images
+gtk-button-images=1
+
+# Enable menu images
+gtk-menu-images=1
+
+# Enable event sounds
+gtk-enable-event-sounds=1
+
+# Enable input feedback sounds
+gtk-enable-input-feedback-sounds=0
+
+# XFT settings for better font rendering
+gtk-xft-antialias=1
+gtk-xft-hinting=1
+gtk-xft-hintstyle="hintslight"
+gtk-xft-rgba="rgb"
+
+# Color scheme - Catppuccin Mocha palette
+style "catppuccin-mocha" {
+    # Base colors
+    bg[NORMAL]      = "#1e1e2e"  # base
+    bg[PRELIGHT]    = "#313244"  # surface0
+    bg[ACTIVE]      = "#45475a"  # surface1
+    bg[SELECTED]    = "#cba6f7"  # mauve (accent)
+    bg[INSENSITIVE] = "#181825"  # mantle
+
+    fg[NORMAL]      = "#cdd6f4"  # text
+    fg[PRELIGHT]    = "#cdd6f4"  # text
+    fg[ACTIVE]      = "#cdd6f4"  # text
+    fg[SELECTED]    = "#1e1e2e"  # base (for contrast on mauve)
+    fg[INSENSITIVE] = "#6c7086"  # overlay0
+
+    text[NORMAL]      = "#cdd6f4"  # text
+    text[PRELIGHT]    = "#cdd6f4"  # text
+    text[ACTIVE]      = "#1e1e2e"  # base
+    text[SELECTED]    = "#1e1e2e"  # base
+    text[INSENSITIVE] = "#6c7086"  # overlay0
+
+    base[NORMAL]      = "#1e1e2e"  # base
+    base[PRELIGHT]    = "#313244"  # surface0
+    base[ACTIVE]      = "#cba6f7"  # mauve
+    base[SELECTED]    = "#cba6f7"  # mauve
+    base[INSENSITIVE] = "#181825"  # mantle
+}
+
+class "GtkWidget" style "catppuccin-mocha"
