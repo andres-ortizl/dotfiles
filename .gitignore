@@ -1,5 +1,6 @@
 .idea
 .DS_Store
+config/raycast/com.raycast.macos.plist
 **/__pycache__/
 config/spicetify/*
 .venv
