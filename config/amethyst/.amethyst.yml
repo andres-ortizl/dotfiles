@@ -1,48 +1,130 @@
+# ============================================================================
+# AMETHYST CONFIGURATION
+# ============================================================================
+
+# Active Layouts
 layouts:
   - tall
   - fullscreen
-  # - tall-right
-  # - wide
-  # - two-pane
-  # - middle-wide
-  # - 3column-left
-  # - middle-wide # The legacy name of "3column-middle"
-  # - 3column-right
-  # - 4column-left
-  # - 4column-right
   - column
   - row
-  # - floating
-  # - widescreen-tall
-  # - widescreen-tall-right
-  # - bsp
 
+# Modifier Key
 mod1:
   - option
   - shift
   - control
   - command
 
+# Window resize step percentage
+window-resize-step: 5
+
+# Window appearance
+window-margins: true
+smart-window-margins: true
+
+# Floating applications
+floating:
+  - com.apple.finder
+  - com.nordpass.macos
+  - com.bitwarden.desktop
+  - com.apple.systempreferences
+  - com.raycast.macos
+
+floating-is-blacklist: true
+
+# ============================================================================
+# ACTIVE COMMANDS
+# ============================================================================
+
+# Cycle through layouts
 cycle-layout:
   mod: mod1
   key: space
 
+# Resize main pane
+shrink-main:
+  mod: mod1
+  key: "]"
+
+expand-main:
+  mod: mod1
+  key: "["
+
+# Move focus to another screen
+focus-screen-cw:
+  mod: mod1
+  key: "1"
+
+# Move focus between windows on current screen (clockwise/counter-clockwise)
 focus-ccw:
   mod: mod1
-  key: down
+  key: "2"
 
-swap-screen-ccw:
+# Move active window to another screen
+swap-screen-cw:
   mod: mod1
-  key: up
+  key: "3"
 
+# ============================================================================
+# DISABLED DEFAULT COMMANDS (to avoid conflicts)
+# ============================================================================
+
+# Layout selection
+cycle-layout-backward:
+select-tall-layout:
+select-wide-layout:
+select-fullscreen-layout:
+select-column-layout:
+
+# Focus screens by number
+focus-screen-ccw:
 focus-screen-1:
-  mod: mod1
-  key: left
-
 focus-screen-2:
-  mod: mod1
-  key: right
+focus-screen-3:
+focus-screen-4:
+focus-screen-5:
 
-window-margins: true
+# Throw to specific screens
+throw-screen-1:
+throw-screen-2:
+throw-screen-3:
+throw-screen-4:
+throw-screen-5:
 
-smart-window-margins: true
+# Main pane adjustments
+increase-main:
+decrease-main:
+
+# Focus windows
+focus-main:
+
+# Swap windows/screens
+swap-screen-ccw:
+swap-ccw:
+swap-cw:
+swap-main:
+
+# Throw to spaces
+throw-space-1:
+throw-space-2:
+throw-space-3:
+throw-space-4:
+throw-space-5:
+throw-space-6:
+throw-space-7:
+throw-space-8:
+throw-space-9:
+throw-space-10:
+throw-space-left:
+throw-space-right:
+
+# Toggle commands
+toggle-float:
+toggle-tiling:
+toggle-focus-follows-mouse:
+
+# Display and system
+display-current-layout:
+reevaluate-windows:
+relaunch-amethyst:
