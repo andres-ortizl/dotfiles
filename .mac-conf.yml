@@ -19,7 +19,10 @@
     ~/.config/starship/config.toml: config/starship/config.toml
     ~/.config/bat/bat.conf: config/bat/bat.conf
     ~/.config/zed: config/zed/**
-    ~/.config/atuin/config.toml: config/atuin/config.toml
+    ~/.config/zed/keymap.json: config/zed/keymap_mac.json
+    ~/.config/zed/settings.json: config/zed/settings_mac.json
+    ~/.config/atuin: config/atuin/**
+    ~/.config/ghostty: config/ghostty/**
     ~/.config/yazi: config/yazi/**
     ~/.gitkraken/config: config/gitkraken/config
     ~/.gitkraken/themes/: config/gitkraken/themes/**
