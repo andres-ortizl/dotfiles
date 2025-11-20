@@ -18,54 +18,6 @@
         },
         "rules": [
           {
-            "description": "caps_lock + intro launches a new Ghostty window with the default profile",
-            "manipulators": [
-              {
-                "from": {
-                  "key_code": "return_or_enter",
-                  "modifiers": {
-                    "mandatory": [
-                      "left_shift",
-                      "left_command",
-                      "left_control",
-                      "left_option"
-                    ]
-                  }
-                },
-                "to": [
-                  {
-                    "shell_command": "open -a Ghostty $HOME"
-                  }
-                ],
-                "type": "basic"
-              }
-            ]
-          },
-          {
-            "description": "caps lock + cmd + w - launches a new Google Chrome window",
-            "manipulators": [
-              {
-                "from": {
-                  "key_code": "w",
-                  "modifiers": {
-                    "mandatory": [
-                      "left_shift",
-                      "left_command",
-                      "left_control",
-                      "left_option"
-                    ]
-                  }
-                },
-                "to": [
-                  {
-                    "shell_command": "osascript -e 'tell app \"Google Chrome\"' -e 'make new window' -e activate -e end"
-                  }
-                ],
-                "type": "basic"
-              }
-            ]
-          },
-          {
             "description": "CAPS_LOCK : (HYPER) SHIFT+COMMAND+OPTION+CONTROL or ESCAPE (If Alone)",
             "manipulators": [
               {
