@@ -1,0 +1,177 @@
+[
+  // ============================================================================
+  // EDITOR CONTEXT - Disable default keybindings
+  // ============================================================================
+  {
+    "context": "Editor",
+    "bindings": {
+      // Disable conflicting workspace shortcuts
+      "cmd-1": null,
+      "cmd-2": null,
+      "cmd-o": null,
+      "alt-e": null,
+      // Free up ctrl-arrows for workspace pane navigation
+      "ctrl-left": null,
+      "ctrl-right": null,
+      "ctrl-up": null,
+      "ctrl-down": null
+    }
+  },
+  // ============================================================================
+  // EDITOR CONTEXT - Active keybindings
+  // ============================================================================
+  {
+    "context": "Editor",
+    "bindings": {
+      // Panel toggles
+      "alt-e": "project_panel::ToggleFocus",
+      "alt-o": "outline_panel::ToggleFocus",
+      "alt-g": "git_panel::ToggleFocus",
+      "alt-t": "terminal_panel::ToggleFocus",
+      "alt-d": "debug_panel::ToggleFocus",
+      "alt-a": "agent::ToggleFocus",
+      // Dock toggles
+      "cmd-1": "workspace::ToggleLeftDock",
+      "cmd-2": "workspace::ToggleRightDock",
+      // File navigation
+      "ctrl-e": "file_finder::Toggle",
+      "ctrl-o": "tab_switcher::Toggle",
+      // Tab management
+      "ctrl-w": "pane::CloseActiveItem",
+      "ctrl-shift-w": "pane::CloseAllItems",
+      // Selection expansion
+      "fn-up": "editor::SelectLargerSyntaxNode",
+      "fn-down": "editor::SelectSmallerSyntaxNode",
+      // Git integration
+      "alt-b": "editor::ToggleGitBlameInline",
+      // Editor features
+      "alt-i": "editor::ToggleInlayHints",
+      // Line operations
+      "ctrl-k": "editor::DeleteLine",
+      // Code navigation
+      "ctrl-t": "editor::Rename",
+      "cmd-b": "editor::GoToDefinition",
+      "cmd-u": "editor::FindAllReferences",
+      // Multi-cursor
+      "ctrl-g": "editor::SelectNext",
+      // Paragraph navigation
+      "cmd-up": "editor::MoveToStartOfParagraph",
+      "cmd-down": "editor::MoveToEndOfParagraph",
+      "cmd-shift-up": "editor::SelectToStartOfParagraph",
+      "cmd-shift-down": "editor::SelectToEndOfParagraph"
+    }
+  },
+  // ============================================================================
+  // PANELS CONTEXT - Navigation back to editor
+  // ============================================================================
+  {
+    "context": "ProjectPanel || OutlinePanel || GitPanel || Terminal || NotificationPanel || DebugPanel",
+    "bindings": {
+      // Return to previous pane
+      "escape": "workspace::ActivatePreviousPane",
+      // Dock toggles
+      "cmd-1": "workspace::ToggleLeftDock",
+      "cmd-2": "workspace::ToggleRightDock"
+    }
+  },
+  // ============================================================================
+  // TAB SWITCHER CONTEXT
+  // ============================================================================
+  {
+    "context": "TabSwitcher",
+    "bindings": {
+      // Close tabs from switcher
+      "ctrl-w": "tab_switcher::CloseSelectedItem",
+      "super-w": "tab_switcher::CloseSelectedItem"
+    }
+  },
+  // ============================================================================
+  // TERMINAL CONTEXT
+  // ============================================================================
+  {
+    "context": "Terminal",
+    "bindings": {
+      // Toggle terminal panel
+      "alt-t": "workspace::ToggleBottomDock"
+    }
+  },
+  // ============================================================================
+  // WORKSPACE CONTEXT - Pane navigation
+  // ============================================================================
+  {
+    "context": "Workspace",
+    "bindings": {
+      // Navigate between split panes
+      "ctrl-left": "workspace::ActivatePaneLeft",
+      "ctrl-right": "workspace::ActivatePaneRight",
+      "ctrl-up": "workspace::ActivatePaneUp",
+      "ctrl-down": "workspace::ActivatePaneDown"
+    }
+  },
+  // ============================================================================
+  // PROJECT PANEL CONTEXT - File operations
+  // ============================================================================
+  {
+    "context": "ProjectPanel",
+    "bindings": {
+      // Folder navigation
+      "left": "project_panel::CollapseSelectedEntry",
+      "right": "project_panel::ExpandSelectedEntry",
+      // File creation
+      "cmd-n": "project_panel::NewFile",
+      "alt-cmd-n": "project_panel::NewDirectory",
+      // File operations
+      "cmd-d": "project_panel::Duplicate",
+      "cmd-x": "project_panel::Cut",
+      "cmd-c": "project_panel::Copy",
+      "cmd-v": "project_panel::Paste",
+      // Rename file
+      "cmd-enter": "project_panel::Rename",
+      "enter": "project_panel::Rename",
+      "f2": "project_panel::Rename",
+      // Delete operations
+      "backspace": [
+        "project_panel::Trash",
+        {
+          "skip_prompt": false
+        }
+      ],
+      "delete": [
+        "project_panel::Trash",
+        {
+          "skip_prompt": false
+        }
+      ],
+      "cmd-backspace": [
+        "project_panel::Trash",
+        {
+          "skip_prompt": true
+        }
+      ],
+      "cmd-delete": [
+        "project_panel::Delete",
+        {
+          "skip_prompt": false
+        }
+      ],
+      // Path operations
+      "cmd-alt-c": "workspace::CopyPath",
+      "alt-cmd-shift-c": "workspace::CopyRelativePath",
+      // System operations
+      "alt-cmd-r": "project_panel::RevealInFileManager",
+      "ctrl-shift-enter": "workspace::OpenWithSystem",
+      // Cancel operation
+      "escape": "menu::Cancel"
+    }
+  },
+  // ============================================================================
+  // PROJECT PANEL CONTEXT - Open file (when not editing)
+  // ============================================================================
+  {
+    "context": "ProjectPanel && not_editing",
+    "bindings": {
+      // Open selected file
+      "space": "project_panel::Open"
+    }
+  }
+]

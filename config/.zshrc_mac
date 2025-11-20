@@ -3,7 +3,7 @@ setopt HIST_IGNORE_ALL_DUPS
 bindkey -e
 
 
-export DOTFILES=/Users/andresortiz/code/dotfiles
+export DOTFILES=/Users/andrew/code/dotfiles
 WORDCHARS=${WORDCHARS//[\/]}
 ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets)
 
@@ -24,7 +24,6 @@ if [[ ! ${ZIM_HOME}/init.zsh -nt ${ZDOTDIR:-${HOME}}/.zimrc ]]; then
   source ${ZIM_HOME}/zimfw.zsh init -q
 fi
 
-. "$HOME/.atuin/bin/env"
 
 source ${ZIM_HOME}/init.zsh
 source $DOTFILES/shell/main.sh
@@ -34,3 +33,9 @@ zsh-defer _evalcache direnv hook zsh
 _evalcache starship init zsh
 zsh-defer _evalcache zoxide init zsh
 zsh-defer _evalcache atuin init --disable-up-arrow zsh
+
+
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
