@@ -16,8 +16,10 @@
     ~/.config/karabiner/karabiner.json: config/karabiner/karabiner.json
     ~/config/iterm2: config/iterm2
     ~/.config/micro: config/micro/**
+    ~/.config/btop: config/btop/**
     ~/.config/starship/config.toml: config/starship/config.toml
     ~/.config/bat/bat.conf: config/bat/bat.conf
+    ~/.config/procs/config.toml: config/procs/config.toml
     ~/.config/zed: config/zed/**
     ~/.config/zed/keymap.json: config/zed/keymap_mac.json
     ~/.config/zed/settings.json: config/zed/settings_mac.json
@@ -26,8 +28,12 @@
     ~/.config/yazi: config/yazi/**
     ~/.gitkraken/config: config/gitkraken/config
     ~/.gitkraken/themes/: config/gitkraken/themes/**
-    ~/Library/Application\ Support/com.mitchellh.ghostty/config: config/ghostty/config
+    "~/Library/Application Support/com.mitchellh.ghostty/config": config/ghostty/config
     ~/.amethyst.yml: config/amethyst/.amethyst.yml
+    ~/.config/delta: config/delta/**
+    "~/Library/Application Support/lazygit/config.yml": config/lazygit/config.yml
+    # ~/Library/Preferences/com.raycast.macos.plist: config/raycast/com.raycast.macos.plist
+    ~/Library/Application Support/aichat: config/aichat/**
 
 - shell:
     - [git submodule update --init --recursive, Installing submodules]

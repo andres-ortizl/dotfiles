@@ -29,6 +29,7 @@ source ${ZIM_HOME}/init.zsh
 source $DOTFILES/shell/main.sh
 source ${ZIM_HOME}/modules/zsh-defer/zsh-defer.plugin.zsh
 
+zsh-defer source ${ZIM_HOME}/modules/completion/init.zsh
 zsh-defer _evalcache direnv hook zsh
 _evalcache starship init zsh
 zsh-defer _evalcache zoxide init zsh
@@ -36,6 +37,4 @@ zsh-defer _evalcache atuin init --disable-up-arrow zsh
 
 
 
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+eval "$(fnm env --use-on-cd)"

@@ -6,6 +6,11 @@ window-decoration=false
 font-size=18
 
 
+keybind = alt+left=text:\x1bb
+keybind = alt+right=text:\x1bf
+keybind = alt+backspace=text:\x17
+keybind = alt+delete=text:\x1bd
+
 keybind = shift+up=adjust_selection:up
 keybind = shift+left=adjust_selection:left
 keybind = shift+page_up=adjust_selection:page_up
