@@ -1,5 +1,7 @@
+tap "FelixKratz/formulae"
 tap "koekeishiya/formulae"
 tap "nikitabobko/tap"
+brew "borders"
 brew "aichat"
 brew "atuin"
 brew "awscli"

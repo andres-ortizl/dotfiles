@@ -6,15 +6,20 @@ start-at-login = true
 
 # Normalizations. See: https://nikitabobko.github.io/AeroSpace/guide#normalization
 enable-normalization-flatten-containers = true
-enable-normalization-opposite-orientation-for-nested-containers = true
+enable-normalization-opposite-orientation-for-nested-containers = false
+
+# Default container layout and orientation
+default-root-container-layout = 'tiles'
+default-root-container-orientation = 'horizontal'
 
 # Mouse follows focus
 on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
+on-focus-changed = ['move-mouse window-lazy-center']
 
 # Gaps
 [gaps]
-inner.horizontal = 8
-inner.vertical =   8
+inner.horizontal = 12
+inner.vertical =   12
 outer.left =       8
 outer.bottom =     8
 outer.top =        8
@@ -26,7 +31,7 @@ outer.right =      8
 # Apps are handled by Raycast (CAPS+T, CAPS+C, CAPS+Z, etc)
 
 # Layout toggle (CAPS+SPACE) - cycles through tiles and accordion (fullscreen-like)
-ctrl-shift-cmd-alt-space = 'layout tiles accordion horizontal vertical'
+ctrl-shift-cmd-alt-space = 'layout tiles horizontal vertical accordion'
 
 # Fullscreen (CAPS+F)
 ctrl-shift-cmd-alt-f = 'fullscreen'
