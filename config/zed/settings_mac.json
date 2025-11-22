@@ -247,7 +247,7 @@
   },
   // AI Assistant Settings
   "agent": {
-    "default_profile": "write",
+    "default_profile": "ask",
     "inline_assistant_model": {
       "provider": "openai",
       "model": "gpt-5-mini"
