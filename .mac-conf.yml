@@ -26,6 +26,8 @@
     ~/.config/atuin: config/atuin/**
     ~/.config/ghostty: config/ghostty/**
     ~/.config/yazi: config/yazi/**
+    ~/.config/eza: config/eza/**
+    ~/.config/aerospace: config/aerospace/**
     ~/.gitkraken/config: config/gitkraken/config
     ~/.gitkraken/themes/: config/gitkraken/themes/**
     "~/Library/Application Support/com.mitchellh.ghostty/config": config/ghostty/config

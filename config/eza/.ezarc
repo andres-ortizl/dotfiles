@@ -1,0 +1,15 @@
+# eza configuration file
+# https://github.com/eza-community/eza
+
+# Default options for eza
+--icons
+--group-directories-first
+--color=auto
+--classify
+
+# Git integration
+--git
+
+# Display options
+--time-style=relative
+--group
