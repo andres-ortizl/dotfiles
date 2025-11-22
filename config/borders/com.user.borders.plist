@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.user.borders</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/opt/homebrew/opt/borders/bin/borders</string>
+        <string>style=round</string>
+        <string>active_color=gradient(angle=45,0xffcba6f7,0xff89b4fa,0xff94e2d5,0xfff5c2e7)</string>
+        <string>inactive_color=0xff45475a</string>
+        <string>width=5.0</string>
+        <string>duration=0.15</string>
+        <string>hidpi=on</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>ProcessType</key>
+    <string>Interactive</string>
+</dict>
+</plist>
