@@ -3,9 +3,10 @@ alias sudo='sudo '
 
 alias ..="cd .."
 alias ...="cd ../.."
-alias ll="lsd -l"
-alias la="lsd -la"
-alias ls="lsd"
+alias ls="eza --icons --group-directories-first"
+alias ll="eza -l --icons --group-directories-first"
+alias la="eza -la --icons --group-directories-first"
+alias lt="eza --tree --icons --group-directories-first --level=2"
 alias ~="cd ~"
 alias vim="micro"
 alias vi="micro"

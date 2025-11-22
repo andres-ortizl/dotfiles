@@ -30,6 +30,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     "/opt/homebrew/opt/libpq/bin"
     "/opt/homebrew/opt/openjdk/bin"
     "/Users/andresortiz/.local/bin"
+    "/Users/andrew/.local/bin"
     "/sbin"
   )
 fi
