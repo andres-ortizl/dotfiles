@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# JankyBorders configuration
+# Using Catppuccin Mocha gradient colors to match Hyprland setup
+# Gradient colors: Mauve -> Blue -> Teal -> Pink (45deg angle)
+
+borders style=round \
+        active_color="gradient(angle=45,0xffcba6f7,0xff89b4fa,0xff94e2d5,0xfff5c2e7)" \
+        inactive_color=0xff45475a \
+        width=5.0 \
+        duration=0.15 \
+        hidpi=on &
