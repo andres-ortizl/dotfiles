@@ -380,8 +380,22 @@ function shit() {
     local prompt="The following shell command failed with exit code $last_exit. Fix it and explain briefly what was wrong: $last_command"
   fi
 
-  echo "🤖 Asking AI..."
-  OPENAI_API_KEY="$OPENAI_API_KEY" aichat -r %shell% "$prompt" | bat -l md
+  OPENAI_API_KEY="$OPENAI_API_KEY" aichat -r command-fixer "$prompt" | bat -l md
+}
+
+function ai() {
+  # Ask general questions to AI with aichat
+  if ! command -v aichat &> /dev/null; then
+    echo "❌ aichat not installed. Run: brew install aichat"
+    return 1
+  fi
+
+  if ! _load_env "OPENAI_API_KEY"; then
+    echo "❌ Set OPENAI_API_KEY in $DOTFILES/.env"
+    return 1
+  fi
+
+  OPENAI_API_KEY="$OPENAI_API_KEY" aichat -r general "$*"
 }
 
 
