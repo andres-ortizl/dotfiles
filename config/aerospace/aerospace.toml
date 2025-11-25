@@ -52,7 +52,7 @@ ctrl-shift-cmd-alt-1 = 'focus-monitor --wrap-around next'
 ctrl-shift-cmd-alt-2 = 'swap --wrap-around dfs-next'
 
 # Move window to next monitor (CAPS+3)
-ctrl-shift-cmd-alt-3 = 'move-node-to-monitor --wrap-around next'
+ctrl-shift-cmd-alt-3 = ['move-node-to-monitor --wrap-around next', 'focus-monitor --wrap-around next', 'move-mouse window-lazy-center']
 
 # Resize mode (CAPS+R)
 ctrl-shift-cmd-alt-r = 'mode resize'
