@@ -57,6 +57,9 @@ ctrl-shift-cmd-alt-3 = ['move-node-to-monitor --wrap-around next', 'focus-monito
 # Resize mode (CAPS+R)
 ctrl-shift-cmd-alt-r = 'mode resize'
 
+# Quick toggle between last two focused windows/workspaces (CAPS+TAB)
+ctrl-shift-cmd-alt-tab = 'workspace-back-and-forth'
+
 # Service mode (CAPS+;)
 ctrl-shift-cmd-alt-semicolon = 'mode service'
 
