@@ -77,18 +77,11 @@
 
 - AI & Productivity:
     - Open WebUI:
-        icon: openwebui.png
+        icon: mdi-chat-processing
         href: http://openwebui.lab.lan
         description: AI Chat Interface
         server: my-docker
         container: openwebui
-
-    - Siyuan:
-        icon: si-glyph:notebook.png
-        href: http://siyuan.lab.lan
-        description: Note Taking & Knowledge Base
-        server: my-docker
-        container: siyuan
 
     - Excalidraw:
         icon: excalidraw.png
@@ -98,6 +91,13 @@
         container: excalidraw
 
 - Monitoring:
+    - Uptime Kuma:
+        icon: uptime-kuma.png
+        href: http://uptime.lab.lan
+        description: Service & Uptime Monitoring
+        server: my-docker
+        container: uptime-kuma
+
     - Watchtower:
         icon: watchtower.png
         href: "#"
