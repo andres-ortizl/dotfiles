@@ -21,8 +21,8 @@ services:
     container_name: traefik
     restart: unless-stopped
     ports:
-      - "8081:80" # HTTP on port 8081 (avoiding NAS conflict)
-      - "8444:443" # HTTPS on port 8444 (avoiding NAS conflict)
+      - "80:80" # HTTP
+      - "443:443" # HTTPS
       - "9090:8080" # Traefik dashboard on port 9090
     command:
       - --api.dashboard=true
@@ -47,7 +47,7 @@ services:
 
   # Portainer Configuration Management
   portainer:
-    image: portainer/portainer-ce:2.33.3
+    image: portainer/portainer-ce:latest
     container_name: portainer
     restart: unless-stopped
     environment:
@@ -59,6 +59,7 @@ services:
       - traefik
     labels:
       - "traefik.enable=true"
+      - "com.centurylinklabs.watchtower.enable=true"
       - "traefik.http.routers.portainer.rule=Host(`portainer.${DOMAIN:-localhost}`)"
       - "traefik.http.routers.portainer.entrypoints=web"
       - "traefik.http.routers.portainer-secure.rule=Host(`portainer.${DOMAIN:-localhost}`)"
@@ -68,7 +69,7 @@ services:
 
   # Homepage Dashboard
   homepage:
-    image: ghcr.io/gethomepage/homepage:v1.5.0
+    image: ghcr.io/gethomepage/homepage:latest
     container_name: homepage
     restart: unless-stopped
     user: "0:0"
@@ -85,6 +86,7 @@ services:
       - traefik
     labels:
       - "traefik.enable=true"
+      - "com.centurylinklabs.watchtower.enable=true"
       - "traefik.http.routers.homepage.rule=Host(`home.${DOMAIN:-localhost}`) || Host(`${DOMAIN:-localhost}`)"
       - "traefik.http.routers.homepage.entrypoints=web"
       - "traefik.http.routers.homepage-secure.rule=Host(`home.${DOMAIN:-localhost}`) || Host(`${DOMAIN:-localhost}`)"
@@ -94,7 +96,7 @@ services:
 
   # Watchtower Auto-updater (only updates containers with watchtower.enable=true label)
   watchtower:
-    image: containrrr/watchtower:1.7.1
+    image: containrrr/watchtower:latest
     container_name: watchtower
     restart: unless-stopped
     environment:
@@ -111,7 +113,7 @@ services:
 
   # Jellyfin Media Server
   jellyfin:
-    image: lscr.io/linuxserver/jellyfin:10.10.1
+    image: lscr.io/linuxserver/jellyfin:latest
     container_name: jellyfin
     restart: unless-stopped
     environment:
@@ -140,7 +142,7 @@ services:
 
   # Prowlarr Indexer Management
   prowlarr:
-    image: lscr.io/linuxserver/prowlarr:1.28.2
+    image: lscr.io/linuxserver/prowlarr:latest
     container_name: prowlarr
     restart: unless-stopped
     environment:
@@ -154,6 +156,7 @@ services:
       - media
     labels:
       - "traefik.enable=true"
+      - "com.centurylinklabs.watchtower.enable=true"
       - "traefik.http.routers.prowlarr.rule=Host(`prowlarr.${DOMAIN:-localhost}`)"
       - "traefik.http.routers.prowlarr.entrypoints=web"
       - "traefik.http.routers.prowlarr-secure.rule=Host(`prowlarr.${DOMAIN:-localhost}`)"
@@ -163,7 +166,7 @@ services:
 
   # Sonarr TV Management
   sonarr:
-    image: lscr.io/linuxserver/sonarr:4.0.10
+    image: lscr.io/linuxserver/sonarr:latest
     container_name: sonarr
     restart: unless-stopped
     environment:
@@ -179,6 +182,7 @@ services:
       - media
     labels:
       - "traefik.enable=true"
+      - "com.centurylinklabs.watchtower.enable=true"
       - "traefik.http.routers.sonarr.rule=Host(`sonarr.${DOMAIN:-localhost}`)"
       - "traefik.http.routers.sonarr.entrypoints=web"
       - "traefik.http.routers.sonarr-secure.rule=Host(`sonarr.${DOMAIN:-localhost}`)"
@@ -188,7 +192,7 @@ services:
 
   # Radarr Movie Management
   radarr:
-    image: lscr.io/linuxserver/radarr:5.12.2
+    image: lscr.io/linuxserver/radarr:latest
     container_name: radarr
     restart: unless-stopped
     environment:
@@ -204,6 +208,7 @@ services:
       - media
     labels:
       - "traefik.enable=true"
+      - "com.centurylinklabs.watchtower.enable=true"
       - "traefik.http.routers.radarr.rule=Host(`radarr.${DOMAIN:-localhost}`)"
       - "traefik.http.routers.radarr.entrypoints=web"
       - "traefik.http.routers.radarr-secure.rule=Host(`radarr.${DOMAIN:-localhost}`)"
@@ -213,7 +218,7 @@ services:
 
   # Bazarr Subtitle Management
   bazarr:
-    image: lscr.io/linuxserver/bazarr:1.4.5
+    image: lscr.io/linuxserver/bazarr:latest
     container_name: bazarr
     restart: unless-stopped
     environment:
@@ -229,6 +234,7 @@ services:
       - media
     labels:
       - "traefik.enable=true"
+      - "com.centurylinklabs.watchtower.enable=true"
       - "traefik.http.routers.bazarr.rule=Host(`bazarr.${DOMAIN:-localhost}`)"
       - "traefik.http.routers.bazarr.entrypoints=web"
       - "traefik.http.routers.bazarr-secure.rule=Host(`bazarr.${DOMAIN:-localhost}`)"
@@ -238,7 +244,7 @@ services:
 
   # Unpackerr Archive Extractor
   unpackerr:
-    image: golift/unpackerr:0.14.5
+    image: golift/unpackerr:latest
     container_name: unpackerr
     restart: unless-stopped
     environment:
@@ -254,6 +260,8 @@ services:
       - ${DOWNLOADS_ROOT:-./downloads}:/downloads
     networks:
       - media
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
 
   # Pi-hole DNS Server
   pihole:
@@ -316,7 +324,7 @@ services:
 
   # qBittorrent Download Client
   qbittorrent:
-    image: lscr.io/linuxserver/qbittorrent:5.0.2
+    image: lscr.io/linuxserver/qbittorrent:latest
     container_name: qbittorrent
     restart: unless-stopped
     environment:
@@ -374,7 +382,7 @@ services:
 
   # Immich Machine Learning
   immich-machine-learning:
-    image: ghcr.io/immich-app/immich-machine-learning:${IMMICH_VERSION:-release}
+    image: ghcr.io/immich-app/immich-machine-learning:release
     container_name: immich_machine_learning
     restart: unless-stopped
     volumes:
@@ -414,7 +422,7 @@ services:
 
   # Open WebUI for AI
   openwebui:
-    image: ghcr.io/open-webui/open-webui:v0.6.34
+    image: ghcr.io/open-webui/open-webui:latest
     container_name: openwebui
     restart: unless-stopped
     environment:
@@ -426,6 +434,7 @@ services:
       - traefik
     labels:
       - "traefik.enable=true"
+      - "com.centurylinklabs.watchtower.enable=true"
       - "traefik.http.routers.openwebui.rule=Host(`openwebui.${DOMAIN:-localhost}`) || Host(`ai.${DOMAIN:-localhost}`)"
       - "traefik.http.routers.openwebui.entrypoints=web"
       - "traefik.http.routers.openwebui-secure.rule=Host(`openwebui.${DOMAIN:-localhost}`) || Host(`ai.${DOMAIN:-localhost}`)"
@@ -453,3 +462,18 @@ services:
       - "traefik.http.routers.excalidraw-secure.entrypoints=websecure"
       - "traefik.http.routers.excalidraw-secure.tls=true"
       - "traefik.http.services.excalidraw.loadbalancer.server.port=80"
+
+  # Home Assistant Smart Home Hub
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:2024.12
+    container_name: homeassistant
+    restart: unless-stopped
+    privileged: true
+    network_mode: host
+    environment:
+      - TZ=${TZ:-Europe/Madrid}
+    volumes:
+      - ./homeassistant/config:/config
+      - /run/dbus:/run/dbus:ro
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
