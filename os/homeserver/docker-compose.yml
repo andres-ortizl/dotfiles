@@ -265,7 +265,7 @@ services:
 
   # Pi-hole DNS Server
   pihole:
-    image: pihole/pihole:2025.10.3
+    image: pihole/pihole:latest
     container_name: pihole
     restart: unless-stopped
     environment:
