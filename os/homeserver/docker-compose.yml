@@ -434,9 +434,9 @@ services:
     labels:
       - "traefik.enable=true"
       - "com.centurylinklabs.watchtower.enable=true"
-      - "traefik.http.routers.openwebui.rule=Host(`openwebui.${DOMAIN:-localhost}`) || Host(`ai.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.openwebui.rule=Host(`chat.${DOMAIN:-localhost}`)"
       - "traefik.http.routers.openwebui.entrypoints=web"
-      - "traefik.http.routers.openwebui-secure.rule=Host(`openwebui.${DOMAIN:-localhost}`) || Host(`ai.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.openwebui-secure.rule=Host(`chat.${DOMAIN:-localhost}`)"
       - "traefik.http.routers.openwebui-secure.entrypoints=websecure"
       - "traefik.http.routers.openwebui-secure.tls=true"
       - "traefik.http.services.openwebui.loadbalancer.server.port=8080"
