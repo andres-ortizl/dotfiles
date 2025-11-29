@@ -3,44 +3,26 @@
 # Format: IP_ADDRESS HOSTNAME
 
 # Main domain
-192.168.1.193 nasito.local
+192.168.1.193 lab.lan
 
-# Service subdomains for nasito.local
-192.168.1.193 home.nasito.local
-192.168.1.193 pihole.nasito.local
-192.168.1.193 portainer.nasito.local
-192.168.1.193 jellyfin.nasito.local
-192.168.1.193 sonarr.nasito.local
-192.168.1.193 radarr.nasito.local
-192.168.1.193 prowlarr.nasito.local
-192.168.1.193 bazarr.nasito.local
-192.168.1.193 qbittorrent.nasito.local
-192.168.1.193 immich.nasito.local
-192.168.1.193 siyuan.nasito.local
-192.168.1.193 openwebui.nasito.local
-192.168.1.193 ai.nasito.local
-192.168.1.193 traefik.nasito.local
-192.168.1.193 excalidraw.nasito.local
-
-# Legacy .local domains (for backward compatibility)
-192.168.1.193 nas.local
-192.168.1.193 home.local
-192.168.1.193 pihole.local
-192.168.1.193 portainer.local
-192.168.1.193 jellyfin.local
-192.168.1.193 sonarr.local
-192.168.1.193 radarr.local
-192.168.1.193 prowlarr.local
-192.168.1.193 bazarr.local
-192.168.1.193 qbittorrent.local
-192.168.1.193 immich.local
-192.168.1.193 siyuan.local
-192.168.1.193 openwebui.local
-192.168.1.193 ai.local
-192.168.1.193 traefik.local
-192.168.1.193 excalidraw.local
+# Service subdomains for lab.lan
+192.168.1.193 home.lab.lan
+192.168.1.193 pihole.lab.lan
+192.168.1.193 portainer.lab.lan
+192.168.1.193 jellyfin.lab.lan
+192.168.1.193 sonarr.lab.lan
+192.168.1.193 radarr.lab.lan
+192.168.1.193 prowlarr.lab.lan
+192.168.1.193 bazarr.lab.lan
+192.168.1.193 qbittorrent.lab.lan
+192.168.1.193 immich.lab.lan
+192.168.1.193 openwebui.lab.lan
+192.168.1.193 ai.lab.lan
+192.168.1.193 traefik.lab.lan
+192.168.1.193 excalidraw.lab.lan
+192.168.1.193 homeassistant.lab.lan
 
 # Add your custom local DNS entries below
-# 192.168.1.101 printer.local
-# 192.168.1.102 camera.local
-# 192.168.1.103 router.local
+# 192.168.1.101 printer.lab.lan
+# 192.168.1.102 camera.lab.lan
+# 192.168.1.103 router.lab.lan

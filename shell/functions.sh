@@ -201,7 +201,8 @@ function kubeconfig() {
     source <(kubectl completion zsh)
 }
 function kubedown() {
-    # Unload kubeconfig environment variables
+    # Unload kubeconfig environment variables and unset current context
+    kubectl config unset current-context 2>/dev/null
     unset KUBECONFIG
     unset KUBEHOME
 }
