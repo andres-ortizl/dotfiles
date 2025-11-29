@@ -268,7 +268,6 @@ services:
     image: pihole/pihole:2025.10.3
     container_name: pihole
     restart: unless-stopped
-    network_mode: host
     environment:
       - TZ=${TZ:-Europe/Madrid}
       - WEBPASSWORD=${PIHOLE_PASSWORD:-admin}
@@ -276,23 +275,52 @@ services:
       - DNSMASQ_LISTENING=all
       - DNSSEC=true
       - WEBTHEME=default-dark
-      - WEB_PORT=8080
+      - VIRTUAL_HOST=pihole.${DOMAIN:-localhost}
+      - PIHOLE_DOMAIN=${DOMAIN:-localhost}
     volumes:
       - ./pihole/etc-pihole:/etc/pihole
       - ./pihole/etc-dnsmasq.d:/etc/dnsmasq.d
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "3333:80"
+    dns:
+      - 127.0.0.1
+      - 1.1.1.1
     cap_add:
       - NET_ADMIN
+    networks:
+      traefik: {}
+      pihole_network:
+        ipv4_address: "172.31.0.100"
     labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pihole.rule=Host(`pihole.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.pihole.entrypoints=web"
+      - "traefik.http.routers.pihole-secure.rule=Host(`pihole.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.pihole-secure.entrypoints=websecure"
+      - "traefik.http.routers.pihole-secure.tls=true"
+      - "traefik.http.services.pihole.loadbalancer.server.port=80"
       - "com.centurylinklabs.watchtower.enable=true"
       - "homepage.group=Network"
       - "homepage.name=Pi-hole"
       - "homepage.icon=pihole.png"
-      - "homepage.href=http://192.168.1.193:8080/admin"
+      - "homepage.href=http://pihole.${DOMAIN:-localhost}:3333/admin"
       - "homepage.description=Network-wide ad blocking and DNS"
       - "homepage.weight=1"
       - "homepage.widget.type=pihole"
-      - "homepage.widget.url=http://192.168.1.193:8080"
+      - "homepage.widget.url=http://pihole"
       - "homepage.widget.key=${PIHOLE_API_KEY:-}"
+
+  # DHCP Helper for Pi-hole
+  dhcphelper:
+    image: noamokman/dhcp-helper
+    container_name: dhcp-helper
+    restart: unless-stopped
+    network_mode: "host"
+    command: -s 172.31.0.100
+    cap_add:
+      - NET_ADMIN
 
   # qBittorrent Download Client
   qbittorrent:
