@@ -5,14 +5,14 @@
 - Media:
     - Jellyfin:
         icon: jellyfin.png
-        href: http://jellyfin.nasito.local:8081
+        href: http://jellyfin.lab.lan
         description: Media Server - Movies & TV Shows
         server: my-docker
         container: jellyfin
 
     - Immich:
         icon: immich.png
-        href: http://immich.nasito.local:8081
+        href: http://immich.lab.lan
         description: Photo & Video Management
         server: my-docker
         container: immich_server
@@ -20,35 +20,35 @@
 - Media Automation:
     - Sonarr:
         icon: sonarr.png
-        href: http://sonarr.nasito.local:8081
+        href: http://sonarr.lab.lan
         description: TV Show Manager
         server: my-docker
         container: sonarr
 
     - Radarr:
         icon: radarr.png
-        href: http://radarr.nasito.local:8081
+        href: http://radarr.lab.lan
         description: Movie Manager
         server: my-docker
         container: radarr
 
     - Prowlarr:
         icon: prowlarr.png
-        href: http://prowlarr.nasito.local:8081
+        href: http://prowlarr.lab.lan
         description: Indexer Manager
         server: my-docker
         container: prowlarr
 
     - Bazarr:
         icon: bazarr.png
-        href: http://bazarr.nasito.local:8081
+        href: http://bazarr.lab.lan
         description: Subtitle Manager
         server: my-docker
         container: bazarr
 
     - qBittorrent:
         icon: qbittorrent.png
-        href: http://qbittorrent.nasito.local:8081
+        href: http://qbittorrent.lab.lan
         description: Torrent Client
         server: my-docker
         container: qbittorrent
@@ -56,21 +56,21 @@
 - Network & Infrastructure:
     - Pi-hole:
         icon: pi-hole.png
-        href: http://pihole.nasito.local:8081
+        href: http://pihole.lab.lan
         description: Network-wide Ad Blocker & DNS
         server: my-docker
         container: pihole
 
     - Traefik:
         icon: traefik.png
-        href: http://traefik.nasito.local:8081
+        href: http://traefik.lab.lan
         description: Reverse Proxy & Load Balancer
         server: my-docker
         container: traefik
 
     - Portainer:
         icon: portainer.png
-        href: http://portainer.nasito.local:8081
+        href: http://portainer.lab.lan
         description: Docker Management
         server: my-docker
         container: portainer
@@ -78,21 +78,21 @@
 - AI & Productivity:
     - Open WebUI:
         icon: openwebui.png
-        href: http://openwebui.nasito.local:8081
+        href: http://openwebui.lab.lan
         description: AI Chat Interface
         server: my-docker
         container: openwebui
 
     - Siyuan:
         icon: si-glyph:notebook.png
-        href: http://siyuan.nasito.local:8081
+        href: http://siyuan.lab.lan
         description: Note Taking & Knowledge Base
         server: my-docker
         container: siyuan
 
     - Excalidraw:
         icon: excalidraw.png
-        href: http://excalidraw.nasito.local:8081
+        href: http://excalidraw.lab.lan
         description: Collaborative Whiteboard & Diagrams
         server: my-docker
         container: excalidraw
