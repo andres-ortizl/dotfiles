@@ -72,7 +72,6 @@ services:
     image: ghcr.io/gethomepage/homepage:latest
     container_name: homepage
     restart: unless-stopped
-    user: "0:121"
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
@@ -81,7 +80,7 @@ services:
       - HOMEPAGE_VAR_DOMAIN=${DOMAIN:-localhost}
     volumes:
       - ./homepage:/app/config
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - traefik
     labels:
