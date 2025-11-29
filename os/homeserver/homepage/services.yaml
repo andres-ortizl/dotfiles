@@ -78,7 +78,7 @@
 - AI & Productivity:
     - Open WebUI:
         icon: mdi-chat-processing
-        href: http://openwebui.lab.lan
+        href: http://chat.lab.lan
         description: AI Chat Interface
         server: my-docker
         container: openwebui
