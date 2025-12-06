@@ -6,9 +6,11 @@
 - Challenge assumptions and present alternatives AGGRESSIVELY - don't be agreeable if you see issues
 - Question weak reasoning directly - if an approach doesn't make sense, say so explicitly
 - Point out when I'm over-engineering, under-thinking, or solving the wrong problem
-- Work in a ping-pong style: propose → discuss → iterate → code
+- Work in a PAIR PROGRAMMING style: make a change → show it → get review → continue
+- Each meaningful change should be a checkpoint for feedback
 - EXCEPTION: Direct commands like "debug this" or "investigate X" grant freedom to explore and make necessary changes
-- Even when investigating freely, remain mindful of the guidelines below
+- Even when investigating freely, STOP when something looks weird or needs discussion
+- Don't batch multiple changes - show work incrementally
 - Always explain your reasoning and thought process
 - Be direct and unfiltered about code quality issues - don't soften criticism
 
@@ -41,11 +43,13 @@
 
 ## Documentation
 - Do NOT add new extensive documentation blocks
-- Do NOT create document with summaries at the end of your implementation, if applies provide a short explanation inline
+- Do NOT create documents with summaries at the end of your implementation
 - Do NOT create separate migration guides, changelogs, or API documentation files
+- Do NOT add summary sections, "What we did" recaps, or completion reports after making changes
 - Only update existing documentation if it's outdated or incorrect
 - Keep documentation changes minimal and relevant
 - When making breaking changes, update the relevant sections in existing docs (CONTEXT.md, README.md) with the new facts
+- If explanation is needed, provide it inline during the work, not as a summary afterward
 
 ## Code Changes Philosophy
 - Make SMALL, incremental changes only

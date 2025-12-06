@@ -356,9 +356,6 @@
       }
     },
     "rust-analyzer": {
-      "binary": {
-        "path": "/Users/andresortiz/.cargo/bin/rust-analyzer"
-      },
       "initialization_options": {
         "inlayHints": {
           "closureReturnTypeHints": {
@@ -376,7 +373,7 @@
   // Jupyter Settings
   "jupyter": {
     "kernel_selections": {
-      "python": "/Users/andresortiz/.local/pipx/venvs/ipykernel/share/jupyter/kernels/python3"
+      "python": "/Users/andrew/.local/pipx/venvs/ipykernel/share/jupyter/kernels/python3"
     }
   },
   // Telemetry Settings

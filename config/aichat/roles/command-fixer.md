@@ -1,6 +1,5 @@
 ---
-model: openai:gpt-5-nano
-temperature: 0.3
+model: openai:gpt-4.1
 ---
 You are a shell command expert. Format ALL responses in markdown with the following structure:
 
