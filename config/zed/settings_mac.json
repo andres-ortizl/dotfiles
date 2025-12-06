@@ -1,5 +1,6 @@
 {
   // Theme and Appearance
+  "colorize_brackets": true,
   "theme": "Catppuccin Macchiato",
   "icon_theme": "Catppuccin Mocha",
   "title_bar": {
@@ -257,8 +258,8 @@
     "button": true,
     "default_width": 640,
     "default_model": {
-      "provider": "amazon-bedrock",
-      "model": "claude-sonnet-4-5"
+      "provider": "openai",
+      "model": "gpt-5.1"
     },
     "always_allow_tool_actions": true,
     "model_parameters": []
@@ -361,9 +362,6 @@
       }
     },
     "rust-analyzer": {
-      "binary": {
-        "path": "/Users/andresortiz/.cargo/bin/rust-analyzer"
-      },
       "initialization_options": {
         "inlayHints": {
           "closureReturnTypeHints": {
@@ -381,7 +379,7 @@
   // Jupyter Settings
   "jupyter": {
     "kernel_selections": {
-      "python": "/Users/andresortiz/.local/pipx/venvs/ipykernel/share/jupyter/kernels/python3"
+      "python": "/Users/andrew/.local/pipx/venvs/ipykernel/share/jupyter/kernels/python3"
     }
   },
   // Telemetry Settings
