@@ -1,0 +1,11 @@
+--- exercises/096_memory_allocation.zig	2023-11-21 14:55:33.805678390 +0100
++++ answers/096_memory_allocation.zig	2023-11-21 14:56:00.236163484 +0100
+@@ -64,7 +64,7 @@
+     const allocator = arena.allocator();
+ 
+     // allocate memory for this array
+-    const avg: []f64 = ???;
++    const avg: []f64 = try allocator.alloc(f64, arr.len);
+ 
+     runningAverage(arr, avg);
+     std.debug.print("Running Average: ", .{});

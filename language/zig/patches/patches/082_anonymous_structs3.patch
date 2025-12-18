@@ -1,0 +1,32 @@
+--- exercises/082_anonymous_structs3.zig	2025-03-14 16:41:17.892873287 +0200
++++ answers/082_anonymous_structs3.zig	2025-03-14 16:40:56.043829543 +0200
+@@ -82,14 +82,14 @@
+     //         @typeInfo(Circle).@"struct".fields
+     //
+     // This will be an array of StructFields.
+-    const fields = ???;
++    const fields = @typeInfo(@TypeOf(tuple)).@"struct".fields;
+ 
+     // 2. Loop through each field. This must be done at compile
+     // time.
+     //
+     //     Hint: remember 'inline' loops?
+     //
+-    for (fields) |field| {
++    inline for (fields) |field| {
+         // 3. Print the field's name, type, and value.
+         //
+         //     Each 'field' in this loop is one of these:
+@@ -119,9 +119,9 @@
+         //
+         // The first field should print as: "0"(bool):true
+         print("\"{s}\"({any}):{any} ", .{
+-            field.???,
+-            field.???,
+-            ???,
++            field.name,
++            field.type,
++            @field(tuple, field.name),
+         });
+     }
+ }

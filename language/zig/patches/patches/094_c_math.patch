@@ -1,0 +1,11 @@
+--- exercises/094_c_math.zig	2024-02-28 12:50:35.789939935 +0100
++++ answers/094_c_math.zig	2024-02-28 12:53:57.910309471 +0100
+@@ -26,7 +26,7 @@
+ 
+ const c = @cImport({
+     // What do we need here?
+-    ???
++    @cInclude("math.h");
+ });
+ 
+ pub fn main() !void {
