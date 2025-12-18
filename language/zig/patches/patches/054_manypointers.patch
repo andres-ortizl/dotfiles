@@ -1,0 +1,11 @@
+--- exercises/054_manypointers.zig	2023-10-22 13:59:15.818523309 +0200
++++ answers/054_manypointers.zig	2023-10-22 14:05:24.095241143 +0200
+@@ -33,7 +33,7 @@
+     // we can CONVERT IT TO A SLICE. (Hint: we do know the length!)
+     //
+     // Please fix this line so the print statement below can print it:
+-    const zen12_string: []const u8 = zen_manyptr;
++    const zen12_string: []const u8 = zen_manyptr[0..21];
+ 
+     // Here's the moment of truth!
+     std.debug.print("{s}\n", .{zen12_string});

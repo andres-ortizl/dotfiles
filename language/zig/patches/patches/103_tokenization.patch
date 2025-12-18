@@ -1,0 +1,11 @@
+--- exercises/103_tokenization.zig	2023-10-05 21:57:23.245974688 +0200
++++ answers/103_tokenization.zig	2023-10-05 22:06:08.319119156 +0200
+@@ -136,7 +136,7 @@
+     ;
+ 
+     // now the tokenizer, but what do we need here?
+-    var it = std.mem.tokenizeAny(u8, poem, ???);
++    var it = std.mem.tokenizeAny(u8, poem, " ,;!\n");
+ 
+     // print all words and count them
+     var cnt: usize = 0;

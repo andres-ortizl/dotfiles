@@ -258,8 +258,8 @@
     "button": true,
     "default_width": 640,
     "default_model": {
-      "provider": "openai",
-      "model": "gpt-5.1"
+      "provider": "amazon-bedrock",
+      "model": "claude-sonnet-4-5"
     },
     "always_allow_tool_actions": true,
     "model_parameters": []

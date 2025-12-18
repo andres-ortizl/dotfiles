@@ -36,6 +36,7 @@
     "~/Library/Application Support/lazygit/config.yml": config/lazygit/config.yml
     # ~/Library/Preferences/com.raycast.macos.plist: config/raycast/com.raycast.macos.plist
     ~/Library/Application Support/aichat: config/aichat/**
+    ~/.factory/AGENTS.md: config/factory/AGENTS.md
 
 - shell:
     - [git submodule update --init --recursive, Installing submodules]

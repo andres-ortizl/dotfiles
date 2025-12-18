@@ -29,9 +29,10 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     "/opt/homebrew/opt/make/libexec/gnubin"
     "/opt/homebrew/opt/libpq/bin"
     "/opt/homebrew/opt/openjdk/bin"
-    "/Users/andresortiz/.local/bin"
     "/Users/andrew/.local/bin"
     "/sbin"
+    "$HOME/.zvm/self"
+    "$HOME/.zvm/bin"
   )
 fi
 
