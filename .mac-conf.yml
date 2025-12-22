@@ -34,6 +34,7 @@
     ~/.amethyst.yml: config/amethyst/.amethyst.yml
     ~/.config/delta: config/delta/**
     "~/Library/Application Support/lazygit/config.yml": config/lazygit/config.yml
+    "~/Library/Application Support/jesseduffield/lazydocker/config.yml": config/lazydocker/config.yml
     # ~/Library/Preferences/com.raycast.macos.plist: config/raycast/com.raycast.macos.plist
     ~/Library/Application Support/aichat: config/aichat/**
     ~/.factory/AGENTS.md: config/factory/AGENTS.md

@@ -1,5 +1,5 @@
 {
-  "lastUpgradeScriptRun": "v11.0.0",
+  "lastUpgradeScriptRun": "v11.6.0",
   "appId": "c6c6445fde569dbb7a311342144a28670f1bdbf0",
   "appLocale": "en-ES",
   "appDateFormat": null,
@@ -19,10 +19,12 @@
     "connectIntegration": true,
     "startATrial": true,
     "createACommit": true,
-    "mergeABranch": true
+    "mergeABranch": true,
+    "installDate": 1763477742229,
+    "acknowledgedTipAiMergeConflictResolution": true
   },
   "sslWhitelist": [],
-  "lastReleaseNotesDisplayed": "11.0.0",
+  "lastReleaseNotesDisplayed": "11.7.0",
   "ui": {
     "shouldShowStartupPromoModal": false
   },
@@ -31,12 +33,12 @@
     "tabs": {}
   },
   "windowSettings": {
-    "x": 1512,
-    "y": -476,
-    "width": 1080,
-    "height": 1440,
+    "x": 1710,
+    "y": 39,
+    "width": 950,
+    "height": 1392,
     "fullScreen": false,
-    "maximized": true
+    "maximized": false
   },
   "registration": {
     "EULA": {
@@ -65,91 +67,144 @@
   ],
   "userFeatures": [
     {
-      "name": "activityStatus"
+      "name": "activityStatus",
+      "value": true
     },
     {
-      "name": "changePriceEnabled"
+      "name": "changePriceEnabled",
+      "value": true
     },
     {
-      "name": "cli"
+      "name": "cli",
+      "value": true
     },
     {
-      "name": "experimentalAiCommmitMsg"
+      "name": "experimentalAiCommmitMsg",
+      "value": true
     },
     {
-      "name": "experimentalGitBinary"
+      "name": "experimentalGitBinarySpawnServer961",
+      "value": true
     },
     {
-      "name": "experimentalGitBinaryDefaultOn960"
+      "name": "gitBash",
+      "value": true
     },
     {
-      "name": "experimentalGitBinaryDefaultOn971"
+      "name": "gitkraken",
+      "value": true
     },
     {
-      "name": "experimentalGitBinarySpawnServer961"
+      "name": "gkApi",
+      "value": true
     },
     {
-      "name": "gitBash"
+      "name": "gkdAIComposeCommitsNudge_11_5_0",
+      "value": true
     },
     {
-      "name": "gitkraken"
+      "name": "gkdAIFeedback_11_2_0",
+      "value": true
     },
     {
-      "name": "gkApi"
+      "name": "gkdAIMergeConflictResolutionNudge_11_3_0",
+      "value": true
     },
     {
-      "name": "gkdConflictPreventionFeedback_11_1_0"
+      "name": "gkdCommitComposeWipButtonBottom_11_3_0",
+      "value": true
     },
     {
-      "name": "gkDevConflictPreventionSetting"
+      "name": "gkdConflictPreventionFeedback_11_1_0",
+      "value": true
     },
     {
-      "name": "gkdevEnableAllAutomationProviders"
+      "name": "gkdevAllowInviteMessages",
+      "value": true
     },
     {
-      "name": "gkDevReferralSystem"
+      "name": "gkDevReferralSystem",
+      "value": true
     },
     {
-      "name": "gkdOnboardingTutorial_10_5_0"
+      "name": "gkdOnboardingTutorial_10_5_0",
+      "value": true
     },
     {
-      "name": "gkDotDevAutomations"
+      "name": "gkDotDevAIAutomations",
+      "value": true
     },
     {
-      "name": "gkDotDevCycleTime"
+      "name": "gkDotDevAutoConnectTargetProvider",
+      "value": true
     },
     {
-      "name": "gkdReferralProgram_11_0_0"
+      "name": "gkDotDevDefaultCouponCode",
+      "value": "50OFFPRO26"
     },
     {
-      "name": "gkdTrialStartModalPromoMessage_11_1_0"
+      "name": "gkDotDevInsightsBitbucket",
+      "value": true
     },
     {
-      "name": "goldenTicketSpecial"
+      "name": "gkDotDevInsightsMultiDashboards",
+      "value": true
     },
     {
-      "name": "onboardingGuide"
+      "name": "gkDotDevInsightsVisxGraphs",
+      "value": true
     },
     {
-      "name": "privateRepoModalTest_10_5_0"
+      "name": "gkDotDevUpdateProfilePicture",
+      "value": true
     },
     {
-      "name": "registeredForGST"
+      "name": "gkdReferralProgram_11_0_0",
+      "value": true
     },
     {
-      "name": "terminalInsideRepoTab"
+      "name": "gkdTrialStartModalPromoMessage_11_1_0",
+      "value": true
     },
     {
-      "name": "unregisteredTrials"
+      "name": "gkdUpgradeLicenseFlowVariant_11_5_0",
+      "value": "pricingPage"
     },
     {
-      "name": "useNewTrialStartModalTest_10_8_0"
+      "name": "goldenTicketSpecial",
+      "value": true
     },
     {
-      "name": "velocityInClient_9_0_0"
+      "name": "onboardingGuide",
+      "value": true
     },
     {
-      "name": "workspacesPRComplexity"
+      "name": "privateRepoModalTest_10_5_0",
+      "value": true
+    },
+    {
+      "name": "registeredForGST",
+      "value": true
+    },
+    {
+      "name": "terminalInsideRepoTab",
+      "value": true
+    },
+    {
+      "name": "unregisteredTrials",
+      "value": true
+    },
+    {
+      "name": "useNewTrialStartModalTest_10_8_0",
+      "value": true
+    },
+    {
+      "name": "velocityInClient_9_0_0",
+      "value": true
+    },
+    {
+      "name": "workspacesPRComplexity",
+      "value": true
     }
   ],
   "onboarding": {},
@@ -187,6 +242,14 @@
             1742212380846
           ],
           "total": 1
+        },
+        "openRepo-/Users/andrew/code/anyformat-backend": {
+          "id": "openRepo-/Users/andrew/code/anyformat-backend",
+          "timestamps": [
+            1766067624202,
+            1766067636715
+          ],
+          "total": 2
         }
       }
     }
@@ -207,34 +270,60 @@
       "aiSettings": {
         "enabled": true,
         "createdAt": "2024-08-09T21:44:07.477936Z",
-        "updatedAt": "2024-08-09T21:44:07.480675Z"
+        "updatedAt": "2025-08-11T01:31:35.964985Z"
       },
       "draftsSettings": {
         "enabled": true,
         "createdAt": "2024-08-09T21:51:14.024136Z",
-        "updatedAt": "2024-08-09T21:51:14.024136Z"
+        "updatedAt": "2025-08-11T01:31:35.954384Z"
       },
       "ssoSettings": {
         "enabled": false,
         "enforced": false,
         "provision": false,
         "createdAt": "2024-08-09T21:44:07.477936Z",
-        "updatedAt": "2024-08-09T21:44:07.480675Z"
+        "updatedAt": "2025-08-11T01:31:35.964985Z"
       },
       "memberInvitesRequireApproval": true,
       "conflictDetectionEnabled": true,
+      "insightsEnabled": false,
       "aiEnabled": true,
+      "enforceAiProviders": false,
+      "aiProviders": {},
       "ssoEnabled": false,
       "ssoEnforced": false,
       "ssoProvision": false,
       "createdAt": "2024-08-09T21:44:07.477936Z",
-      "updatedAt": "2024-08-09T21:44:07.480675Z"
+      "updatedAt": "2025-08-11T01:31:35.964985Z"
     }
   },
   "commits": {
     "maxCommitsInGraph": 2000
   },
   "ai": {
-    "enabled": true
+    "enabled": true,
+    "providers": {
+      "ConfigurableOpenAI": {}
+    }
+  },
+  "webConfig": {
+    "lastUpdatedAt": "2025-12-18T14:20:08.311Z",
+    "config": {
+      "callouts": [],
+      "promos": [
+        {
+          "key": "CYBERWEEK25",
+          "code": "CYBERWEEK25",
+          "startsOn": "2025-11-23T23:59:00.000Z",
+          "expiresOn": "2025-12-06T09:59:00.000Z",
+          "content": {
+            "promoBadgeMarkdown": "**Cyber Week Sale!**\n\nSave 50% on GitKraken Pro.",
+            "proPromoLabelSmall": "SAVE 50% for a limited time!",
+            "toolbarLinkLabelOverride": "Save 50% on Pro"
+          }
+        }
+      ]
+    },
+    "dismissedCallouts": {}
   }
 }
