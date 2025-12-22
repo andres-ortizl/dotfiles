@@ -76,3 +76,8 @@ enter = 'mode main'
 [mode.service.binding]
 r = ['reload-config', 'mode main']
 esc = 'mode main'
+
+[[on-window-detected]]
+if.app-id = 'com.tinyspeck.slackmacgap'
+if.window-title-regex-substring = '^Huddle'
+run = 'layout tiling'

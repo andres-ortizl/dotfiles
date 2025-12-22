@@ -1,0 +1,81 @@
+# Lazydocker Configuration
+# Catppuccin Mocha Theme
+
+gui:
+  # Scroll distance (lines per scroll action)
+  scrollHeight: 2
+
+  # Language: 'auto', 'en', 'zh', 'fr', 'de', 'nl', 'tr', 'pl'
+  language: 'auto'
+
+  # Border style: 'rounded', 'single', 'double', 'hidden'
+  border: 'rounded'
+
+  # Container health/status display: 'icon' (emoji), 'short' (abbreviated), 'long' (full words)
+  containerStatusHealthStyle: 'icon'
+
+  # Show keybinding hints at bottom
+  showBottomLine: true
+
+  # Screen mode: 'normal', 'half', 'fullscreen'
+  screenMode: 'normal'
+
+  # Catppuccin Mocha Theme Colors
+  theme:
+    # Active border (focused panel) - Catppuccin Blue
+    activeBorderColor:
+      - '#89b4fa'
+      - bold
+
+    # Inactive border (unfocused panels) - Catppuccin Overlay0
+    inactiveBorderColor:
+      - '#6c7086'
+
+    # Selected line background - Catppuccin Surface0
+    selectedLineBgColor:
+      - '#313244'
+
+    # Options/menu text color - Catppuccin Blue
+    optionsTextColor:
+      - '#89b4fa'
+
+# Logging configuration
+logs:
+  # Show timestamps in logs
+  timestamps: true
+
+  # Time range for logs (e.g., '60m', '24h', '7d')
+  # Comment out to show all logs
+  # since: '60m'
+
+  # Number of lines to show (comment out to show all)
+  # tail: '300'
+
+# Docker compose command template
+commandTemplates:
+  # Use 'docker compose' (newer) or 'docker-compose' (legacy)
+  dockerCompose: 'docker compose'
+
+# Don't ask for confirmation when quitting
+confirmOnQuit: false
+
+# Anonymous usage reporting: 'on', 'off', 'undetermined'
+reporting: 'undetermined'
+
+# Custom commands (uncomment and modify as needed)
+# customCommands:
+#   containers:
+#     - name: bash-root
+#       attach: true
+#       command: 'docker exec -it -u root {{ .Container.ID }} /bin/bash'
+#     - name: sh-root
+#       attach: true
+#       command: 'docker exec -it -u root {{ .Container.ID }} /bin/sh'
+#   services:
+#     - name: restart-with-build
+#       attach: false
+#       command: 'docker-compose restart {{ .Service.Name }} --build'
+
+# Image name replacements for cleaner display
+# replacements:
+#   'registry.company.com/': ''
