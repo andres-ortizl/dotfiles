@@ -30,6 +30,7 @@ alias gg="gitui"
 
 # Utils
 alias k=kubectl
+alias lzd=lazydocker
 alias cat=bat
 alias z.='(zed $PWD &>/dev/null &)'
 alias o.='open .'

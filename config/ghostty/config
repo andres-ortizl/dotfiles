@@ -19,3 +19,4 @@ keybind = shift+right=adjust_selection:right
 keybind = shift+page_down=adjust_selection:page_down
 keybind = shift+down=adjust_selection:down
 keybind = shift+home=adjust_selection:home
+keybind = shift+enter=text:\x1b\r
