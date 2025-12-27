@@ -20,24 +20,27 @@ gui:
   # Screen mode: 'normal', 'half', 'fullscreen'
   screenMode: 'normal'
 
-  # Catppuccin Mocha Theme Colors
+  # Return to UI immediately after running commands
+  returnImmediately: true
+
+  # Catppuccin Mocha Theme Colors (using closest standard colors)
   theme:
-    # Active border (focused panel) - Catppuccin Blue
+    # Active border (focused panel) - Blue
     activeBorderColor:
-      - '#89b4fa'
+      - blue
       - bold
 
-    # Inactive border (unfocused panels) - Catppuccin Overlay0
+    # Inactive border (unfocused panels) - Dimmed
     inactiveBorderColor:
-      - '#6c7086'
+      - white
 
-    # Selected line background - Catppuccin Surface0
+    # Selected line background - Subtle default
     selectedLineBgColor:
-      - '#313244'
+      - default
 
-    # Options/menu text color - Catppuccin Blue
+    # Options/menu text color - Cyan
     optionsTextColor:
-      - '#89b4fa'
+      - cyan
 
 # Logging configuration
 logs:
@@ -62,19 +65,31 @@ confirmOnQuit: false
 # Anonymous usage reporting: 'on', 'off', 'undetermined'
 reporting: 'undetermined'
 
-# Custom commands (uncomment and modify as needed)
-# customCommands:
-#   containers:
-#     - name: bash-root
-#       attach: true
-#       command: 'docker exec -it -u root {{ .Container.ID }} /bin/bash'
-#     - name: sh-root
-#       attach: true
-#       command: 'docker exec -it -u root {{ .Container.ID }} /bin/sh'
-#   services:
-#     - name: restart-with-build
-#       attach: false
-#       command: 'docker-compose restart {{ .Service.Name }} --build'
+# Custom commands
+customCommands:
+  containers:
+    - name: debug
+      attach: true
+      command: 'sh -c "docker build -q -f $DOTFILES/config/docker/debug-toolbox/Dockerfile -t debug-toolbox:latest $DOTFILES/config/docker/debug-toolbox >/dev/null 2>&1 && exec docker run -i --rm --pid=container:{{ .Container.ID }} --net=container:{{ .Container.ID }} --volumes-from {{ .Container.ID }} -t debug-toolbox:latest"'
+    - name: bash
+      attach: true
+      command: 'docker exec -it {{ .Container.ID }} /bin/bash'
+    - name: sh
+      attach: true
+      command: 'docker exec -it {{ .Container.ID }} /bin/sh'
+    - name: bash-root
+      attach: true
+      command: 'docker exec -it -u root {{ .Container.ID }} /bin/bash'
+    - name: sh-root
+      attach: true
+      command: 'docker exec -it -u root {{ .Container.ID }} /bin/sh'
+  services:
+    - name: restart-with-build
+      attach: false
+      command: 'docker compose restart {{ .Service.Name }} --build'
+    - name: rebuild
+      attach: false
+      command: 'docker compose up -d --build {{ .Service.Name }}'
 
 # Image name replacements for cleaner display
 # replacements:

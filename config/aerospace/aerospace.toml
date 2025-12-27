@@ -80,4 +80,5 @@ esc = 'mode main'
 [[on-window-detected]]
 if.app-id = 'com.tinyspeck.slackmacgap'
 if.window-title-regex-substring = '^Huddle'
-run = 'layout tiling'
+check-further-callbacks = false
+run = ['layout tiling', 'move-node-to-workspace H']

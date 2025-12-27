@@ -28,6 +28,8 @@
     ~/.config/yazi: config/yazi/**
     ~/.config/eza: config/eza/**
     ~/.config/aerospace: config/aerospace/**
+    ~/.config/fastfetch: config/fastfetch/**
+    ~/.local/bin/pokefetch: config/scripts/pokefetch.sh
     ~/.gitkraken/config: config/gitkraken/config
     ~/.gitkraken/themes/: config/gitkraken/themes/**
     "~/Library/Application Support/com.mitchellh.ghostty/config": config/ghostty/config
@@ -35,6 +37,7 @@
     ~/.config/delta: config/delta/**
     "~/Library/Application Support/lazygit/config.yml": config/lazygit/config.yml
     "~/Library/Application Support/jesseduffield/lazydocker/config.yml": config/lazydocker/config.yml
+    ~/.config/docker: config/docker/**
     # ~/Library/Preferences/com.raycast.macos.plist: config/raycast/com.raycast.macos.plist
     ~/Library/Application Support/aichat: config/aichat/**
     ~/.factory/AGENTS.md: config/factory/AGENTS.md

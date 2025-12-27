@@ -1,0 +1,129 @@
+{
+  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+  "logo": {
+    "type": "command-raw",
+    "source": "pokeget charmeleon --hide-name",
+    "padding": {
+      "top": 1,
+      "right": 3
+    }
+  },
+  "display": {
+    "separator": " ",
+    "color": {
+      "keys": "blue",
+      "title": "blue"
+    }
+  },
+  "modules": [
+    {
+      "type": "title",
+      "color": {
+        "user": "blue",
+        "at": "white",
+        "host": "cyan"
+      }
+    },
+    {
+      "type": "separator",
+      "string": "─"
+    },
+    {
+      "type": "os",
+      "key": "󰀵 OS",
+      "keyColor": "blue"
+    },
+    {
+      "type": "host",
+      "key": "󰌢 Host",
+      "keyColor": "blue"
+    },
+    {
+      "type": "kernel",
+      "key": "󰌽 Kernel",
+      "keyColor": "blue"
+    },
+    {
+      "type": "uptime",
+      "key": "󰥔 Uptime",
+      "keyColor": "blue"
+    },
+    {
+      "type": "packages",
+      "key": "󰏖 Packages",
+      "keyColor": "blue"
+    },
+    {
+      "type": "shell",
+      "key": "󰣀 Shell",
+      "keyColor": "blue"
+    },
+    {
+      "type": "terminal",
+      "key": "󰆍 Terminal",
+      "keyColor": "blue"
+    },
+    {
+      "type": "terminalfont",
+      "key": "󰉼 Font",
+      "keyColor": "blue"
+    },
+    {
+      "type": "de",
+      "key": "󰍹 DE",
+      "keyColor": "blue"
+    },
+    {
+      "type": "wm",
+      "key": "󱂬 WM",
+      "keyColor": "blue"
+    },
+    {
+      "type": "wmtheme",
+      "key": "󰉼 Theme",
+      "keyColor": "blue"
+    },
+    {
+      "type": "icons",
+      "key": "󰀻 Icons",
+      "keyColor": "blue"
+    },
+    {
+      "type": "display",
+      "key": "󰍹 Display",
+      "keyColor": "blue"
+    },
+    "break",
+    {
+      "type": "cpu",
+      "key": "󰻠 CPU",
+      "keyColor": "green"
+    },
+    {
+      "type": "gpu",
+      "key": "󰍛 GPU",
+      "keyColor": "green"
+    },
+    {
+      "type": "memory",
+      "key": "󰑭 Memory",
+      "keyColor": "green"
+    },
+    {
+      "type": "disk",
+      "key": "󰋊 Disk (/)",
+      "keyColor": "green"
+    },
+    {
+      "type": "battery",
+      "key": "󰁹 Battery",
+      "keyColor": "green"
+    },
+    "break",
+    {
+      "type": "colors",
+      "paddingLeft": 2,
+      "symbol": "circle"
+    }
+  ]
+}
