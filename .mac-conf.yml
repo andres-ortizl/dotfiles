@@ -29,9 +29,9 @@
     ~/.config/eza: config/eza/**
     ~/.config/aerospace: config/aerospace/**
     ~/.config/fastfetch: config/fastfetch/**
-    ~/.local/bin/pokefetch: config/scripts/pokefetch.sh
     ~/.gitkraken/config: config/gitkraken/config
     ~/.gitkraken/themes/: config/gitkraken/themes/**
+    ~/.config/mise: config/mise/**
     "~/Library/Application Support/com.mitchellh.ghostty/config": config/ghostty/config
     ~/.amethyst.yml: config/amethyst/.amethyst.yml
     ~/.config/delta: config/delta/**
@@ -40,7 +40,7 @@
     ~/.config/docker: config/docker/**
     # ~/Library/Preferences/com.raycast.macos.plist: config/raycast/com.raycast.macos.plist
     ~/Library/Application Support/aichat: config/aichat/**
-    ~/.factory/AGENTS.md: config/factory/AGENTS.md
+    ~/.factory/: config/factory/**
 
 - shell:
     - [git submodule update --init --recursive, Installing submodules]
