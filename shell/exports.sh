@@ -31,8 +31,6 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     "/opt/homebrew/opt/openjdk/bin"
     "/Users/andrew/.local/bin"
     "/sbin"
-    "$HOME/.zvm/self"
-    "$HOME/.zvm/bin"
   )
 fi
 

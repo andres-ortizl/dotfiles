@@ -21,7 +21,8 @@
     "createACommit": true,
     "mergeABranch": true,
     "installDate": 1763477742229,
-    "acknowledgedTipAiMergeConflictResolution": true
+    "acknowledgedTipAiMergeConflictResolution": true,
+    "acknowledgedTipAiComposeCommits": true
   },
   "sslWhitelist": [],
   "lastReleaseNotesDisplayed": "11.7.0",
@@ -33,10 +34,10 @@
     "tabs": {}
   },
   "windowSettings": {
-    "x": 8,
-    "y": 39,
-    "width": 2544,
-    "height": 1393,
+    "x": 762,
+    "y": 42,
+    "width": 950,
+    "height": 931,
     "fullScreen": false,
     "maximized": false
   },
@@ -311,7 +312,7 @@
     }
   },
   "webConfig": {
-    "lastUpdatedAt": "2025-12-26T08:28:48.020Z",
+    "lastUpdatedAt": "2025-12-29T16:57:26.275Z",
     "config": {
       "callouts": [],
       "promos": [
