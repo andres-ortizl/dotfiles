@@ -1,0 +1,7 @@
+ [tools]
+node = "lts"
+python = "3.13"
+rust = "stable"
+zig = "master"
+
+ [tasks]

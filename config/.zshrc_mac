@@ -34,7 +34,4 @@ zsh-defer _evalcache direnv hook zsh
 _evalcache starship init zsh
 zsh-defer _evalcache zoxide init zsh
 zsh-defer _evalcache atuin init --disable-up-arrow zsh
-
-
-
-eval "$(fnm env --use-on-cd)"
+zsh-defer _evalcache mise activate zsh
