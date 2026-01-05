@@ -511,7 +511,7 @@ services:
 
   # Home Assistant Smart Home Hub
   homeassistant:
-    image: ghcr.io/home-assistant/home-assistant:latest
+    image: ghcr.io/home-assistant/home-assistant:2024.12
     container_name: homeassistant
     restart: unless-stopped
     privileged: true
@@ -523,3 +523,41 @@ services:
       - /run/dbus:/run/dbus:ro
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
+
+  # Jellyseerr Media Request Manager
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    restart: unless-stopped
+    environment:
+      - LOG_LEVEL=debug
+      - TZ=${TZ:-Europe/Madrid}
+    volumes:
+      - ./jellyseerr:/app/config
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "traefik.http.routers.jellyseerr.rule=Host(`request.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.jellyseerr.entrypoints=web"
+      - "traefik.http.routers.jellyseerr-secure.rule=Host(`request.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.jellyseerr-secure.entrypoints=websecure"
+      - "traefik.http.routers.jellyseerr-secure.tls=true"
+      - "traefik.http.services.jellyseerr.loadbalancer.server.port=5055"
+
+  # FlareSolverr Proxy for Cloudflare Bypassing
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    restart: unless-stopped
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - TZ=${TZ:-Europe/Madrid}
+    ports:
+      - "8191:8191"
+    networks:
+      - traefik
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
