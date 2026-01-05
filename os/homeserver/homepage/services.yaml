@@ -75,13 +75,6 @@
         server: my-docker
         container: traefik
 
-    - LinkStack:
-        icon: mdi-link-variant
-        href: http://links.${HOMEPAGE_VAR_DOMAIN:-lab.lan}
-        description: Linktree Alternative
-        server: my-docker
-        container: linkstack
-
     - Dozzle:
         icon: dozzle.png
         href: http://logs.${HOMEPAGE_VAR_DOMAIN:-lab.lan}
