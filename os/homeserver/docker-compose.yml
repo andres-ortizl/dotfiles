@@ -13,6 +13,8 @@ networks:
 
 volumes:
   model-cache:
+  immich-db:
+  immich-redis:
 
 services:
   # Traefik Reverse Proxy
@@ -153,8 +155,7 @@ services:
       - TZ=${TZ:-Europe/Madrid}
     volumes:
       - ./jellyfin/config/sonarr:/config
-      - ${DOWNLOADS_ROOT:-./downloads}:/downloads
-      - ${MEDIA_ROOT:-./media}/series:/tv
+      - ${DATA_ROOT:-./data}:/data
     networks:
       - traefik
       - media
@@ -179,8 +180,7 @@ services:
       - TZ=${TZ:-Europe/Madrid}
     volumes:
       - ./jellyfin/config/radarr:/config
-      - ${DOWNLOADS_ROOT:-./downloads}:/downloads
-      - ${MEDIA_ROOT:-./media}/movies:/movies
+      - ${DATA_ROOT:-./data}:/data
     networks:
       - traefik
       - media
@@ -205,8 +205,7 @@ services:
       - TZ=${TZ:-Europe/Madrid}
     volumes:
       - ./jellyfin/config/bazarr:/config
-      - ${MEDIA_ROOT:-./media}/series:/tv
-      - ${MEDIA_ROOT:-./media}/movies:/movies
+      - ${DATA_ROOT:-./data}:/data
     networks:
       - traefik
       - media
@@ -235,7 +234,7 @@ services:
       - UN_RADARR_0_API_KEY=${RADARR_API_KEY:-}
       - TZ=${TZ:-Europe/Madrid}
     volumes:
-      - ${DOWNLOADS_ROOT:-./downloads}:/downloads
+      - ${DATA_ROOT:-./data}:/data
     networks:
       - media
     labels:
@@ -312,7 +311,7 @@ services:
       - WEBUI_PORT=8080
     volumes:
       - ./qbittorrent/config:/config
-      - ${DOWNLOADS_ROOT:-./downloads}:/downloads
+      - ${DATA_ROOT:-./data}:/data
     ports:
       - "6881:6881"
       - "6881:6881/udp"
@@ -330,6 +329,7 @@ services:
       - "traefik.http.routers.qbittorrent-secure.tls=true"
       - "traefik.http.routers.qbittorrent-secure.service=qbittorrent"
       - "traefik.http.services.qbittorrent.loadbalancer.server.port=8080"
+
 
   # Immich Photo Management
   immich-server:
@@ -379,6 +379,8 @@ services:
     image: docker.io/valkey/valkey:8-bookworm@sha256:fea8b3e67b15729d4bb70589eb03367bab9ad1ee89c876f54327fc7c6e618571
     container_name: immich_redis
     restart: unless-stopped
+    volumes:
+      - immich-redis:/data
     networks:
       - traefik
     healthcheck:
@@ -395,7 +397,7 @@ services:
       POSTGRES_DB: ${DB_DATABASE_NAME:-immich}
       POSTGRES_INITDB_ARGS: "--data-checksums"
     volumes:
-      - ${DB_DATA_LOCATION:-./immich/postgres}:/var/lib/postgresql/data
+      - immich-db:/var/lib/postgresql/data
     shm_size: 128mb
     networks:
       - traefik
