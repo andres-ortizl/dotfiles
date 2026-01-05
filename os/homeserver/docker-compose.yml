@@ -422,6 +422,7 @@ services:
       - "traefik.http.routers.openwebui-secure.entrypoints=websecure"
       - "traefik.http.routers.openwebui-secure.tls=true"
       - "traefik.http.services.openwebui.loadbalancer.server.port=8080"
+
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
