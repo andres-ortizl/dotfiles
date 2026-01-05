@@ -446,7 +446,7 @@ services:
 
   # Uptime Kuma Monitoring
   uptime-kuma:
-    image: louislam/uptime-kuma:1
+    image: louislam/uptime-kuma:latest
     container_name: uptime-kuma
     restart: unless-stopped
     environment:
@@ -599,3 +599,26 @@ services:
       - "traefik.http.routers.cobalt-secure.entrypoints=websecure"
       - "traefik.http.routers.cobalt-secure.tls=true"
       - "traefik.http.services.cobalt.loadbalancer.server.port=3000"
+
+  # LinkStack - Self-hosted Linktree Alternative
+  linkstack:
+    image: linkstackorg/linkstack:latest
+    container_name: linkstack
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ:-Europe/Madrid}
+      - SERVER_NAME=links.${DOMAIN:-localhost}
+    volumes:
+      - ./linkstack:/htdocs
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "traefik.http.routers.linkstack.rule=Host(`links.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.linkstack.entrypoints=web"
+      - "traefik.http.routers.linkstack-secure.rule=Host(`links.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.linkstack-secure.entrypoints=websecure"
+      - "traefik.http.routers.linkstack-secure.tls=true"
+      - "traefik.http.services.linkstack.loadbalancer.server.port=80"
+

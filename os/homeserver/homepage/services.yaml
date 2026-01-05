@@ -75,12 +75,12 @@
         server: my-docker
         container: traefik
 
-    - File Browser:
-        icon: filebrowser.png
-        href: http://files.${HOMEPAGE_VAR_DOMAIN:-lab.lan}
-        description: Web-based File Manager
+    - LinkStack:
+        icon: mdi-link-variant
+        href: http://links.${HOMEPAGE_VAR_DOMAIN:-lab.lan}
+        description: Linktree Alternative
         server: my-docker
-        container: filebrowser
+        container: linkstack
 
     - Dozzle:
         icon: dozzle.png
