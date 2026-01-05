@@ -477,14 +477,18 @@ services:
       - SELF_HOSTED=true
       - DB_PASSWORD=${COOLIFY_DB_PASSWORD:-password}
       - REDIS_PASSWORD=${COOLIFY_REDIS_PASSWORD:-password}
+      - COOLIFY_DATABASE_URL=postgres://coolify:${COOLIFY_DB_PASSWORD:-password}@coolify-db:5432/coolify
+      - COOLIFY_REDIS_URL=redis://:${COOLIFY_REDIS_PASSWORD:-password}@coolify-redis:6379
     volumes:
       - ./coolify/data:/data
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - traefik
     depends_on:
-      - coolify-db
-      - coolify-redis
+      coolify-db:
+        condition: service_healthy
+      coolify-redis:
+        condition: service_healthy
     labels:
       - "traefik.enable=true"
       - "com.centurylinklabs.watchtower.enable=true"
@@ -493,7 +497,7 @@ services:
       - "traefik.http.routers.coolify-secure.rule=Host(`coolify.${DOMAIN:-localhost}`)"
       - "traefik.http.routers.coolify-secure.entrypoints=websecure"
       - "traefik.http.routers.coolify-secure.tls=true"
-      - "traefik.http.services.coolify.loadbalancer.server.port=8000"
+      - "traefik.http.services.coolify.loadbalancer.server.port=80"
 
   coolify-db:
     image: postgres:15-alpine
@@ -507,6 +511,11 @@ services:
       - ./coolify/db:/var/lib/postgresql/data
     networks:
       - traefik
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U coolify"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   coolify-redis:
     image: redis:alpine
@@ -515,6 +524,11 @@ services:
     command: redis-server --requirepass ${COOLIFY_REDIS_PASSWORD:-password}
     networks:
       - traefik
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   # Home Assistant Smart Home Hub
   homeassistant:
