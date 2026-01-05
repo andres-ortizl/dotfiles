@@ -544,16 +544,25 @@ services:
     image: ghcr.io/imputnet/cobalt:latest
     container_name: cobalt
     restart: unless-stopped
+    networks:
+      - traefik
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  cobalt-web:
+    image: ghcr.io/imputnet/cobalt-web:latest
+    container_name: cobalt-web
+    restart: unless-stopped
     environment:
-      - API_URL=http://download.${DOMAIN:-localhost}/api
+      - API_URL=http://cobalt:9000
     networks:
       - traefik
     labels:
       - "traefik.enable=true"
       - "com.centurylinklabs.watchtower.enable=true"
-      - "traefik.http.routers.cobalt.rule=Host(`download.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.cobalt.entrypoints=web"
-      - "traefik.http.routers.cobalt-secure.rule=Host(`download.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.cobalt-secure.entrypoints=websecure"
-      - "traefik.http.routers.cobalt-secure.tls=true"
-      - "traefik.http.services.cobalt.loadbalancer.server.port=9000"
+      - "traefik.http.routers.cobalt-web.rule=Host(`download.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.cobalt-web.entrypoints=web"
+      - "traefik.http.routers.cobalt-web-secure.rule=Host(`download.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.cobalt-web-secure.entrypoints=websecure"
+      - "traefik.http.routers.cobalt-web-secure.tls=true"
+      - "traefik.http.services.cobalt-web.loadbalancer.server.port=3000"
