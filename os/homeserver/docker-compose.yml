@@ -586,7 +586,7 @@ services:
     image: tsl0922/ttyd:latest
     container_name: ttyd
     restart: unless-stopped
-    command: ttyd -W -p 7681 -c ${TTYD_USER:-admin}:${TTYD_PASS:-admin} zsh
+    command: ttyd -W -p 7681 -c ${TTYD_USER:-admin}:${TTYD_PASS:-admin} bash
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /usr/bin/docker:/usr/bin/docker:ro
@@ -640,26 +640,3 @@ services:
       - "traefik.http.routers.cobalt-secure.entrypoints=websecure"
       - "traefik.http.routers.cobalt-secure.tls=true"
       - "traefik.http.services.cobalt.loadbalancer.server.port=9000"
-
-  # LinkStack - Self-hosted Linktree Alternative
-  linkstack:
-    image: linkstackorg/linkstack:latest
-    container_name: linkstack
-    restart: unless-stopped
-    environment:
-      - TZ=${TZ:-Europe/Madrid}
-      - HTTP_SERVER_NAME=links.${DOMAIN:-localhost}
-      - HTTPS_SERVER_NAME=links.${DOMAIN:-localhost}
-    volumes:
-      - linkstack-data:/htdocs
-    networks:
-      - traefik
-    labels:
-      - "traefik.enable=true"
-      - "com.centurylinklabs.watchtower.enable=true"
-      - "traefik.http.routers.linkstack.rule=Host(`links.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.linkstack.entrypoints=web"
-      - "traefik.http.routers.linkstack-secure.rule=Host(`links.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.linkstack-secure.entrypoints=websecure"
-      - "traefik.http.routers.linkstack-secure.tls=true"
-      - "traefik.http.services.linkstack.loadbalancer.server.port=80"
