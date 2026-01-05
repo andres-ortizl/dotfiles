@@ -541,9 +541,11 @@ services:
 
   # Cobalt - Web-based Media Downloader
   cobalt:
-    image: ghcr.io/imputnet/cobalt:11
+    image: dennysubke/cobalt:11.5
     container_name: cobalt
     restart: unless-stopped
+    init: true
+    read_only: true
     environment:
       - API_URL=http://download.${DOMAIN:-localhost}/
     networks:
@@ -556,4 +558,4 @@ services:
       - "traefik.http.routers.cobalt-secure.rule=Host(`download.${DOMAIN:-localhost}`)"
       - "traefik.http.routers.cobalt-secure.entrypoints=websecure"
       - "traefik.http.routers.cobalt-secure.tls=true"
-      - "traefik.http.services.cobalt.loadbalancer.server.port=9000"
+      - "traefik.http.services.cobalt.loadbalancer.server.port=9001"
