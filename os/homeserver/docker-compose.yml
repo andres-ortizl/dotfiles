@@ -586,7 +586,7 @@ services:
     image: tsl0922/ttyd:latest
     container_name: ttyd
     restart: unless-stopped
-    command: ttyd -p 7681 -c ${TTYD_USER:-admin}:${TTYD_PASS:-admin} bash
+    command: ttyd -W -p 7681 -c ${TTYD_USER:-admin}:${TTYD_PASS:-admin} zsh
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /usr/bin/docker:/usr/bin/docker:ro
