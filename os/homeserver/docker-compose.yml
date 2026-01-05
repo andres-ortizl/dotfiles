@@ -545,7 +545,7 @@ services:
     container_name: cobalt
     restart: unless-stopped
     environment:
-      - API_URL=http://download.${DOMAIN:-localhost}/
+      - API_URL=http://download.${DOMAIN:-localhost}/api
     networks:
       - traefik
     labels:
