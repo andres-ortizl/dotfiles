@@ -5,14 +5,14 @@
 - Media:
     - Jellyfin:
         icon: jellyfin.png
-        href: http://jellyfin.lab.lan
+        href: http://jellyfin.${HOMEPAGE_VAR_DOMAIN:-lab.lan}
         description: Media Server - Movies & TV Shows
         server: my-docker
         container: jellyfin
 
     - Immich:
         icon: immich.png
-        href: http://immich.lab.lan
+        href: http://immich.${HOMEPAGE_VAR_DOMAIN:-lab.lan}
         description: Photo & Video Management
         server: my-docker
         container: immich_server
@@ -27,35 +27,35 @@
 
     - Sonarr:
         icon: sonarr.png
-        href: http://sonarr.lab.lan
+        href: http://sonarr.${HOMEPAGE_VAR_DOMAIN:-lab.lan}
         description: TV Show Manager
         server: my-docker
         container: sonarr
 
     - Radarr:
         icon: radarr.png
-        href: http://radarr.lab.lan
+        href: http://radarr.${HOMEPAGE_VAR_DOMAIN:-lab.lan}
         description: Movie Manager
         server: my-docker
         container: radarr
 
     - Prowlarr:
         icon: prowlarr.png
-        href: http://prowlarr.lab.lan
+        href: http://prowlarr.${HOMEPAGE_VAR_DOMAIN:-lab.lan}
         description: Indexer Manager
         server: my-docker
         container: prowlarr
 
     - Bazarr:
         icon: bazarr.png
-        href: http://bazarr.lab.lan
+        href: http://bazarr.${HOMEPAGE_VAR_DOMAIN:-lab.lan}
         description: Subtitle Manager
         server: my-docker
         container: bazarr
 
     - qBittorrent:
         icon: qbittorrent.png
-        href: http://qbittorrent.lab.lan
+        href: http://qbittorrent.${HOMEPAGE_VAR_DOMAIN:-lab.lan}
         description: Torrent Client
         server: my-docker
         container: qbittorrent
@@ -63,14 +63,14 @@
 - Network & Infrastructure:
     - Pi-hole:
         icon: pi-hole.png
-        href: http://pihole.lab.lan
+        href: http://pihole.${HOMEPAGE_VAR_DOMAIN:-lab.lan}
         description: Network-wide Ad Blocker & DNS
         server: my-docker
         container: pihole
 
     - Traefik:
         icon: traefik.png
-        href: http://traefik.lab.lan
+        href: http://traefik.${HOMEPAGE_VAR_DOMAIN:-lab.lan}
         description: Reverse Proxy & Load Balancer
         server: my-docker
         container: traefik
@@ -135,7 +135,7 @@
 
     - Uptime Kuma:
         icon: uptime-kuma.png
-        href: http://uptime.lab.lan
+        href: http://uptime.${HOMEPAGE_VAR_DOMAIN:-lab.lan}
         description: Service & Uptime Monitoring
         server: my-docker
         container: uptime-kuma
