@@ -16,6 +16,8 @@ volumes:
   immich-db:
   immich-redis:
   linkstack-data:
+  coolify-data:
+  coolify-postgres:
 
 services:
   # Traefik Reverse Proxy
@@ -466,28 +468,24 @@ services:
       - "traefik.http.routers.uptime-kuma-secure.tls=true"
       - "traefik.http.services.uptime-kuma.loadbalancer.server.port=3001"
 
-  # Coolify Self-Hosted PaaS
+  # Coolify - Self-hosted PaaS
   coolify:
     image: ghcr.io/coollabsio/coolify:latest
     container_name: coolify
     restart: unless-stopped
+    privileged: true
     environment:
-      - TZ=${TZ:-Europe/Madrid}
-      - SELF_HOSTED=true
-      - DB_PASSWORD=${COOLIFY_DB_PASSWORD:-password}
-      - REDIS_PASSWORD=${COOLIFY_REDIS_PASSWORD:-password}
-      - COOLIFY_DATABASE_URL=postgres://coolify:${COOLIFY_DB_PASSWORD:-password}@coolify-db:5432/coolify
-      - COOLIFY_REDIS_URL=redis://:${COOLIFY_REDIS_PASSWORD:-password}@coolify-redis:6379
+      - DATABASE_URL=postgres://coolify:${COOLIFY_DB_PASSWORD:-coolify}@coolify-db:5432/coolify
+      - REDIS_HOST=coolify-redis
+      - APP_KEY=${COOLIFY_APP_KEY:-base64:aKU13eSMWbNPentQCdVBLLb3vf4b9adxrN+S1Z1VPRM=}
     volumes:
-      - ./coolify/data:/data
+      - coolify-data:/app/data
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - traefik
     depends_on:
-      coolify-db:
-        condition: service_healthy
-      coolify-redis:
-        condition: service_healthy
+      - coolify-db
+      - coolify-redis
     labels:
       - "traefik.enable=true"
       - "com.centurylinklabs.watchtower.enable=true"
@@ -496,7 +494,7 @@ services:
       - "traefik.http.routers.coolify-secure.rule=Host(`coolify.${DOMAIN:-localhost}`)"
       - "traefik.http.routers.coolify-secure.entrypoints=websecure"
       - "traefik.http.routers.coolify-secure.tls=true"
-      - "traefik.http.services.coolify.loadbalancer.server.port=80"
+      - "traefik.http.services.coolify.loadbalancer.server.port=8080"
 
   coolify-db:
     image: postgres:15-alpine
@@ -504,30 +502,19 @@ services:
     restart: unless-stopped
     environment:
       - POSTGRES_USER=coolify
-      - POSTGRES_PASSWORD=${COOLIFY_DB_PASSWORD:-password}
+      - POSTGRES_PASSWORD=${COOLIFY_DB_PASSWORD:-coolify}
       - POSTGRES_DB=coolify
     volumes:
-      - ./coolify/db:/var/lib/postgresql/data
+      - coolify-postgres:/var/lib/postgresql/data
     networks:
       - traefik
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U coolify"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
 
   coolify-redis:
-    image: redis:alpine
+    image: redis:7-alpine
     container_name: coolify-redis
     restart: unless-stopped
-    command: redis-server --requirepass ${COOLIFY_REDIS_PASSWORD:-password}
     networks:
       - traefik
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
 
   # Home Assistant Smart Home Hub
   homeassistant:
