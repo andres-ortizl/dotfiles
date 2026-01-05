@@ -15,6 +15,7 @@ volumes:
   model-cache:
   immich-db:
   immich-redis:
+  linkstack-data:
 
 services:
   # Traefik Reverse Proxy
@@ -631,13 +632,13 @@ services:
   linkstack:
     image: linkstackorg/linkstack:latest
     container_name: linkstack
-    user: "0:0"
     restart: unless-stopped
     environment:
       - TZ=${TZ:-Europe/Madrid}
       - SERVER_NAME=links.${DOMAIN:-localhost}
     volumes:
-      - ./linkstack:/htdocs
+      - linkstack-data:/htdocs
+
     networks:
       - traefik
     labels:
