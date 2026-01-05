@@ -83,6 +83,13 @@
         container: dozzle
 
 - AI & Productivity:
+    - Cobalt:
+        icon: mdi-download-box
+        href: http://download.${HOMEPAGE_VAR_DOMAIN:-lab.lan}
+        description: Media Downloader
+        server: my-docker
+        container: cobalt
+
     - Open WebUI:
         icon: mdi-chat-processing
         href: http://chat.${HOMEPAGE_VAR_DOMAIN:-lab.lan}
