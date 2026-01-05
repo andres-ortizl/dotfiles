@@ -561,3 +561,25 @@ services:
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
 
+  # Web Terminal (accessible over Tailscale/Local)
+  ttyd:
+    image: tsl0922/ttyd:latest
+    container_name: ttyd
+    restart: unless-stopped
+    command: ttyd -p 7681 -c ${TTYD_USER:-admin}:${TTYD_PASS:-admin} bash
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/bin/docker:/usr/bin/docker:ro
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "traefik.http.routers.ttyd.rule=Host(`terminal.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.ttyd.entrypoints=web"
+      - "traefik.http.routers.ttyd-secure.rule=Host(`terminal.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.ttyd-secure.entrypoints=websecure"
+      - "traefik.http.routers.ttyd-secure.tls=true"
+      - "traefik.http.services.ttyd.loadbalancer.server.port=7681"
+
+
