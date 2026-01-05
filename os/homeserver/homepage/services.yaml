@@ -104,21 +104,15 @@
         server: my-docker
         container: excalidraw
 
+- Home Automation:
+    - Home Assistant:
+        icon: home-assistant.png
+        href: http://homeassistant.${HOMEPAGE_VAR_DOMAIN:-lab.lan}:8123
+        description: Smart Home Hub & Automation
+        server: my-docker
+        container: homeassistant
+
 - Monitoring:
-    - Coolify:
-        icon: coolify.png
-        href: http://coolify.${HOMEPAGE_VAR_DOMAIN:-lab.lan}
-        description: Self-Hosted PaaS
-        server: my-docker
-        container: coolify
-
-    - Web Terminal:
-        icon: mdi-console
-        href: http://terminal.${HOMEPAGE_VAR_DOMAIN:-lab.lan}
-        description: Browser-based Terminal
-        server: my-docker
-        container: ttyd
-
     - Uptime Kuma:
         icon: uptime-kuma.png
         href: http://uptime.${HOMEPAGE_VAR_DOMAIN:-lab.lan}
