@@ -132,6 +132,7 @@ services:
       - media
     labels:
       - "traefik.enable=true"
+      - "com.centurylinklabs.watchtower.enable=true"
       - "traefik.http.routers.jellyfin.rule=Host(`jellyfin.${DOMAIN:-localhost}`)"
       - "traefik.http.routers.jellyfin.entrypoints=web"
       - "traefik.http.routers.jellyfin-secure.rule=Host(`jellyfin.${DOMAIN:-localhost}`)"
@@ -342,6 +343,7 @@ services:
       - media
     labels:
       - "traefik.enable=true"
+      - "com.centurylinklabs.watchtower.enable=true"
       - "traefik.http.routers.qbittorrent.rule=Host(`qbittorrent.${DOMAIN:-localhost}`)"
       - "traefik.http.routers.qbittorrent.entrypoints=web"
       - "traefik.http.routers.qbittorrent.service=qbittorrent"
@@ -370,6 +372,7 @@ services:
       - traefik
     labels:
       - "traefik.enable=true"
+      - "com.centurylinklabs.watchtower.enable=true"
       - "traefik.http.routers.immich.rule=Host(`immich.${DOMAIN:-localhost}`)"
       - "traefik.http.routers.immich.entrypoints=web"
       - "traefik.http.routers.immich-secure.rule=Host(`immich.${DOMAIN:-localhost}`)"
@@ -483,9 +486,32 @@ services:
       - "traefik.http.routers.uptime-kuma-secure.tls=true"
       - "traefik.http.services.uptime-kuma.loadbalancer.server.port=3001"
 
+  # Coolify Self-Hosted PaaS
+  coolify:
+    image: ghcr.io/coollabsio/coolify:latest
+    container_name: coolify
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ:-Europe/Madrid}
+      - SELF_HOSTED=true
+    volumes:
+      - ./coolify/data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "traefik.http.routers.coolify.rule=Host(`coolify.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.coolify.entrypoints=web"
+      - "traefik.http.routers.coolify-secure.rule=Host(`coolify.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.coolify-secure.entrypoints=websecure"
+      - "traefik.http.routers.coolify-secure.tls=true"
+      - "traefik.http.services.coolify.loadbalancer.server.port=8000"
+
   # Home Assistant Smart Home Hub
   homeassistant:
-    image: ghcr.io/home-assistant/home-assistant:2024.12
+    image: ghcr.io/home-assistant/home-assistant:latest
     container_name: homeassistant
     restart: unless-stopped
     privileged: true
