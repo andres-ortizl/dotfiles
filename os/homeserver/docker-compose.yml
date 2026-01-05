@@ -582,4 +582,25 @@ services:
       - "traefik.http.routers.ttyd-secure.tls=true"
       - "traefik.http.services.ttyd.loadbalancer.server.port=7681"
 
+  # Stirling-PDF - Powerful Local PDF Tools
+  stirling-pdf:
+    image: frogglezk/stirling-pdf:latest
+    container_name: stirling-pdf
+    restart: unless-stopped
+    environment:
+      - DOCKER_ENABLE_SECURITY=false
+      - TZ=${TZ:-Europe/Madrid}
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "traefik.http.routers.stirling.rule=Host(`pdf.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.stirling.entrypoints=web"
+      - "traefik.http.routers.stirling-secure.rule=Host(`pdf.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.stirling-secure.entrypoints=websecure"
+      - "traefik.http.routers.stirling-secure.tls=true"
+      - "traefik.http.services.stirling.loadbalancer.server.port=8080"
+
+
 
