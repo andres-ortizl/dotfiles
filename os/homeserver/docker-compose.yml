@@ -422,9 +422,9 @@ services:
       - "traefik.http.routers.openwebui-secure.entrypoints=websecure"
       - "traefik.http.routers.openwebui-secure.tls=true"
       - "traefik.http.services.openwebui.loadbalancer.server.port=8080"
-
     extra_hosts:
       - "host.docker.internal:host-gateway"
+
 
   # Excalidraw Collaborative Whiteboard
   excalidraw:
@@ -474,11 +474,16 @@ services:
     environment:
       - TZ=${TZ:-Europe/Madrid}
       - SELF_HOSTED=true
+      - DB_PASSWORD=${COOLIFY_DB_PASSWORD:-password}
+      - REDIS_PASSWORD=${COOLIFY_REDIS_PASSWORD:-password}
     volumes:
       - ./coolify/data:/data
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - traefik
+    depends_on:
+      - coolify-db
+      - coolify-redis
     labels:
       - "traefik.enable=true"
       - "com.centurylinklabs.watchtower.enable=true"
@@ -488,6 +493,27 @@ services:
       - "traefik.http.routers.coolify-secure.entrypoints=websecure"
       - "traefik.http.routers.coolify-secure.tls=true"
       - "traefik.http.services.coolify.loadbalancer.server.port=8000"
+
+  coolify-db:
+    image: postgres:15-alpine
+    container_name: coolify-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=coolify
+      - POSTGRES_PASSWORD=${COOLIFY_DB_PASSWORD:-password}
+      - POSTGRES_DB=coolify
+    volumes:
+      - ./coolify/db:/var/lib/postgresql/data
+    networks:
+      - traefik
+
+  coolify-redis:
+    image: redis:alpine
+    container_name: coolify-redis
+    restart: unless-stopped
+    command: redis-server --requirepass ${COOLIFY_REDIS_PASSWORD:-password}
+    networks:
+      - traefik
 
   # Home Assistant Smart Home Hub
   homeassistant:
@@ -599,7 +625,7 @@ services:
       - "traefik.http.routers.cobalt-secure.rule=Host(`download.${DOMAIN:-localhost}`)"
       - "traefik.http.routers.cobalt-secure.entrypoints=websecure"
       - "traefik.http.routers.cobalt-secure.tls=true"
-      - "traefik.http.services.cobalt.loadbalancer.server.port=3000"
+      - "traefik.http.services.cobalt.loadbalancer.server.port=9000"
 
   # LinkStack - Self-hosted Linktree Alternative
   linkstack:
@@ -623,30 +649,3 @@ services:
       - "traefik.http.routers.linkstack-secure.entrypoints=websecure"
       - "traefik.http.routers.linkstack-secure.tls=true"
       - "traefik.http.services.linkstack.loadbalancer.server.port=80"
-
-  # File Browser - Web-based File Manager
-  filebrowser:
-    image: filebrowser/filebrowser:latest
-    container_name: filebrowser
-    restart: unless-stopped
-    environment:
-      - PUID=${PUID:-1000}
-      - PGID=${PGID:-1000}
-      - TZ=${TZ:-Europe/Madrid}
-    volumes:
-      - ${DATA_ROOT:-./data}:/srv
-      - ./filebrowser/database.db:/database.db
-      - ./filebrowser/settings.json:/config/settings.json
-    networks:
-      - traefik
-    labels:
-      - "traefik.enable=true"
-      - "com.centurylinklabs.watchtower.enable=true"
-      - "traefik.http.routers.filebrowser.rule=Host(`files.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.filebrowser.entrypoints=web"
-      - "traefik.http.routers.filebrowser-secure.rule=Host(`files.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.filebrowser-secure.entrypoints=websecure"
-      - "traefik.http.routers.filebrowser-secure.tls=true"
-      - "traefik.http.services.filebrowser.loadbalancer.server.port=80"
-
-
