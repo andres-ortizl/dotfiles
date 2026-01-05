@@ -18,6 +18,13 @@
         container: immich_server
 
 - Media Automation:
+    - Jellyseerr:
+        icon: jellyseerr.png
+        href: http://request.${HOMEPAGE_VAR_DOMAIN:-lab.lan}
+        description: Media Request Manager
+        server: my-docker
+        container: jellyseerr
+
     - Sonarr:
         icon: sonarr.png
         href: http://sonarr.lab.lan
@@ -76,21 +83,42 @@
         container: portainer
 
 - AI & Productivity:
+    - Stirling-PDF:
+        icon: stirling-pdf.png
+        href: http://pdf.${HOMEPAGE_VAR_DOMAIN:-lab.lan}
+        description: Local PDF Tools
+        server: my-docker
+        container: stirling-pdf
+
     - Open WebUI:
         icon: mdi-chat-processing
-        href: http://chat.lab.lan
+        href: http://chat.${HOMEPAGE_VAR_DOMAIN:-lab.lan}
         description: AI Chat Interface
         server: my-docker
         container: openwebui
 
     - Excalidraw:
         icon: excalidraw.png
-        href: http://excalidraw.lab.lan
+        href: http://excalidraw.${HOMEPAGE_VAR_DOMAIN:-lab.lan}
         description: Collaborative Whiteboard & Diagrams
         server: my-docker
         container: excalidraw
 
 - Monitoring:
+    - Coolify:
+        icon: coolify.png
+        href: http://coolify.${HOMEPAGE_VAR_DOMAIN:-lab.lan}
+        description: Self-Hosted PaaS
+        server: my-docker
+        container: coolify
+
+    - Web Terminal:
+        icon: mdi-console
+        href: http://terminal.${HOMEPAGE_VAR_DOMAIN:-lab.lan}
+        description: Browser-based Terminal
+        server: my-docker
+        container: ttyd
+
     - Uptime Kuma:
         icon: uptime-kuma.png
         href: http://uptime.lab.lan
