@@ -75,6 +75,13 @@
         server: my-docker
         container: traefik
 
+    - File Browser:
+        icon: filebrowser.png
+        href: http://files.${HOMEPAGE_VAR_DOMAIN:-lab.lan}
+        description: Web-based File Manager
+        server: my-docker
+        container: filebrowser
+
     - Dozzle:
         icon: dozzle.png
         href: http://logs.${HOMEPAGE_VAR_DOMAIN:-lab.lan}
