@@ -88,7 +88,7 @@
         href: http://download.${HOMEPAGE_VAR_DOMAIN:-lab.lan}
         description: Media Downloader
         server: my-docker
-        container: cobalt-web
+        container: cobalt
 
     - Open WebUI:
         icon: mdi-chat-processing
