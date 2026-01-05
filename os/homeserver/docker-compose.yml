@@ -45,28 +45,6 @@ services:
       - "traefik.http.routers.dashboard-secure.tls=true"
       - "traefik.http.routers.dashboard-secure.service=api@internal"
 
-  # Portainer Configuration Management
-  portainer:
-    image: portainer/portainer-ce:latest
-    container_name: portainer
-    restart: unless-stopped
-    environment:
-      - TZ=${TZ:-Europe/Madrid}
-    volumes:
-      - ./portainer:/data
-      - /var/run/docker.sock:/var/run/docker.sock
-    networks:
-      - traefik
-    labels:
-      - "traefik.enable=true"
-      - "com.centurylinklabs.watchtower.enable=true"
-      - "traefik.http.routers.portainer.rule=Host(`portainer.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.portainer.entrypoints=web"
-      - "traefik.http.routers.portainer-secure.rule=Host(`portainer.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.portainer-secure.entrypoints=websecure"
-      - "traefik.http.routers.portainer-secure.tls=true"
-      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
-
   # Homepage Dashboard
   homepage:
     image: ghcr.io/gethomepage/homepage:latest
@@ -582,25 +560,22 @@ services:
       - "traefik.http.routers.ttyd-secure.tls=true"
       - "traefik.http.services.ttyd.loadbalancer.server.port=7681"
 
-  # Stirling-PDF - Powerful Local PDF Tools
-  stirling-pdf:
-    image: frogglezk/stirling-pdf:latest
-    container_name: stirling-pdf
+  # Dozzle - Real-time Log Viewer
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: dozzle
     restart: unless-stopped
-    environment:
-      - DOCKER_ENABLE_SECURITY=false
-      - TZ=${TZ:-Europe/Madrid}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - traefik
     labels:
       - "traefik.enable=true"
       - "com.centurylinklabs.watchtower.enable=true"
-      - "traefik.http.routers.stirling.rule=Host(`pdf.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.stirling.entrypoints=web"
-      - "traefik.http.routers.stirling-secure.rule=Host(`pdf.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.stirling-secure.entrypoints=websecure"
-      - "traefik.http.routers.stirling-secure.tls=true"
-      - "traefik.http.services.stirling.loadbalancer.server.port=8080"
-
-
+      - "traefik.http.routers.dozzle.rule=Host(`logs.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.dozzle.entrypoints=web"
+      - "traefik.http.routers.dozzle-secure.rule=Host(`logs.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.dozzle-secure.entrypoints=websecure"
+      - "traefik.http.routers.dozzle-secure.tls=true"
+      - "traefik.http.services.dozzle.loadbalancer.server.port=8080"
 

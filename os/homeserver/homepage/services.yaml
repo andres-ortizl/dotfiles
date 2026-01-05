@@ -75,21 +75,14 @@
         server: my-docker
         container: traefik
 
-    - Portainer:
-        icon: portainer.png
-        href: http://portainer.lab.lan
-        description: Docker Management
+    - Dozzle:
+        icon: dozzle.png
+        href: http://logs.${HOMEPAGE_VAR_DOMAIN:-lab.lan}
+        description: Real-time Docker Logs
         server: my-docker
-        container: portainer
+        container: dozzle
 
 - AI & Productivity:
-    - Stirling-PDF:
-        icon: stirling-pdf.png
-        href: http://pdf.${HOMEPAGE_VAR_DOMAIN:-lab.lan}
-        description: Local PDF Tools
-        server: my-docker
-        container: stirling-pdf
-
     - Open WebUI:
         icon: mdi-chat-processing
         href: http://chat.${HOMEPAGE_VAR_DOMAIN:-lab.lan}
