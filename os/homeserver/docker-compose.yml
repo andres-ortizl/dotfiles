@@ -426,7 +426,6 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-
   # Excalidraw Collaborative Whiteboard
   excalidraw:
     image: excalidraw/excalidraw:latest
@@ -649,10 +648,10 @@ services:
     restart: unless-stopped
     environment:
       - TZ=${TZ:-Europe/Madrid}
-      - SERVER_NAME=links.${DOMAIN:-localhost}
+      - HTTP_SERVER_NAME=links.${DOMAIN:-localhost}
+      - HTTPS_SERVER_NAME=links.${DOMAIN:-localhost}
     volumes:
       - linkstack-data:/htdocs
-
     networks:
       - traefik
     labels:
