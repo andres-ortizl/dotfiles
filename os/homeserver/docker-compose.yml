@@ -601,4 +601,30 @@ services:
       - "traefik.http.routers.cobalt-secure.tls=true"
       - "traefik.http.services.cobalt.loadbalancer.server.port=3000"
 
+  # File Browser - Web-based File Manager
+  filebrowser:
+    image: filebrowser/filebrowser:latest
+    container_name: filebrowser
+    restart: unless-stopped
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Europe/Madrid}
+    volumes:
+      - ${DATA_ROOT:-./data}:/srv
+      - ./filebrowser/database.db:/database.db
+      - ./filebrowser/settings.json:/config/settings.json
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "traefik.http.routers.filebrowser.rule=Host(`files.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.filebrowser.entrypoints=web"
+      - "traefik.http.routers.filebrowser-secure.rule=Host(`files.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.filebrowser-secure.entrypoints=websecure"
+      - "traefik.http.routers.filebrowser-secure.tls=true"
+      - "traefik.http.services.filebrowser.loadbalancer.server.port=80"
+
+
 
