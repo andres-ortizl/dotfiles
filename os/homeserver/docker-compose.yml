@@ -16,8 +16,6 @@ volumes:
   immich-db:
   immich-redis:
   linkstack-data:
-  coolify-data:
-  coolify-postgres:
 
 services:
   # Traefik Reverse Proxy
@@ -468,54 +466,6 @@ services:
       - "traefik.http.routers.uptime-kuma-secure.tls=true"
       - "traefik.http.services.uptime-kuma.loadbalancer.server.port=3001"
 
-  # Coolify - Self-hosted PaaS
-  coolify:
-    image: ghcr.io/coollabsio/coolify:latest
-    container_name: coolify
-    restart: unless-stopped
-    privileged: true
-    environment:
-      - DATABASE_URL=postgres://coolify:${COOLIFY_DB_PASSWORD:-coolify}@coolify-db:5432/coolify
-      - REDIS_HOST=coolify-redis
-      - APP_KEY=${COOLIFY_APP_KEY:-base64:aKU13eSMWbNPentQCdVBLLb3vf4b9adxrN+S1Z1VPRM=}
-    volumes:
-      - coolify-data:/app/data
-      - /var/run/docker.sock:/var/run/docker.sock
-    networks:
-      - traefik
-    depends_on:
-      - coolify-db
-      - coolify-redis
-    labels:
-      - "traefik.enable=true"
-      - "com.centurylinklabs.watchtower.enable=true"
-      - "traefik.http.routers.coolify.rule=Host(`coolify.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.coolify.entrypoints=web"
-      - "traefik.http.routers.coolify-secure.rule=Host(`coolify.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.coolify-secure.entrypoints=websecure"
-      - "traefik.http.routers.coolify-secure.tls=true"
-      - "traefik.http.services.coolify.loadbalancer.server.port=8080"
-
-  coolify-db:
-    image: postgres:15-alpine
-    container_name: coolify-db
-    restart: unless-stopped
-    environment:
-      - POSTGRES_USER=coolify
-      - POSTGRES_PASSWORD=${COOLIFY_DB_PASSWORD:-coolify}
-      - POSTGRES_DB=coolify
-    volumes:
-      - coolify-postgres:/var/lib/postgresql/data
-    networks:
-      - traefik
-
-  coolify-redis:
-    image: redis:7-alpine
-    container_name: coolify-redis
-    restart: unless-stopped
-    networks:
-      - traefik
-
   # Home Assistant Smart Home Hub
   homeassistant:
     image: ghcr.io/home-assistant/home-assistant:latest
@@ -569,25 +519,6 @@ services:
       - "com.centurylinklabs.watchtower.enable=true"
 
   # Web Terminal (accessible over Tailscale/Local)
-  ttyd:
-    image: tsl0922/ttyd:latest
-    container_name: ttyd
-    restart: unless-stopped
-    command: ttyd -W -p 7681 -c ${TTYD_USER:-admin}:${TTYD_PASS:-admin} bash
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /usr/bin/docker:/usr/bin/docker:ro
-    networks:
-      - traefik
-    labels:
-      - "traefik.enable=true"
-      - "com.centurylinklabs.watchtower.enable=true"
-      - "traefik.http.routers.ttyd.rule=Host(`terminal.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.ttyd.entrypoints=web"
-      - "traefik.http.routers.ttyd-secure.rule=Host(`terminal.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.ttyd-secure.entrypoints=websecure"
-      - "traefik.http.routers.ttyd-secure.tls=true"
-      - "traefik.http.services.ttyd.loadbalancer.server.port=7681"
 
   # Dozzle - Real-time Log Viewer
   dozzle:
