@@ -32,6 +32,7 @@
     ~/.gitkraken/config: config/gitkraken/config
     ~/.gitkraken/themes/: config/gitkraken/themes/**
     ~/.config/mise: config/mise/**
+    ~/.config/helix: config/helix/**
     "~/Library/Application Support/com.mitchellh.ghostty/config": config/ghostty/config
     ~/.amethyst.yml: config/amethyst/.amethyst.yml
     ~/.config/delta: config/delta/**

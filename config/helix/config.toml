@@ -1,0 +1,37 @@
+theme = "catppuccin_mocha"
+
+[editor]
+line-number = "relative"
+cursorline = true
+text-width = 100
+rulers = []
+bufferline = "multiple"
+soft-wrap.enable = false
+
+[editor.cursor-shape]
+insert = "bar"
+normal = "block"
+select = "underline"
+
+[editor.file-picker]
+hidden = true
+git-ignore = true
+
+[editor.statusline]
+left = ["mode", "spinner", "file-name"]
+right = ["diagnostics", "selections", "position", "file-type"]
+
+[editor.lsp]
+auto-signature-help = true
+display-inlay-hints = true
+
+[editor.indent-guides]
+render = true
+
+[keys.insert]
+j = { k = "normal_mode" }
+
+[keys.normal."space"]
+s = ":write"
+f = "format_selections"
+d = "diagnostics_picker"
