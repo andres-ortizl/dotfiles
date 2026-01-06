@@ -547,7 +547,7 @@ services:
     init: true
     read_only: true
     environment:
-      - API_URL=http://download.${DOMAIN:-localhost}/
+      - API_URL=http://download.${DOMAIN:-localhost}/api/
     networks:
       - traefik
     labels:
@@ -559,3 +559,11 @@ services:
       - "traefik.http.routers.cobalt-secure.entrypoints=websecure"
       - "traefik.http.routers.cobalt-secure.tls=true"
       - "traefik.http.services.cobalt.loadbalancer.server.port=9001"
+      - "traefik.http.routers.cobalt-api.rule=Host(`download.${DOMAIN:-localhost}`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.cobalt-api.entrypoints=web"
+      - "traefik.http.routers.cobalt-api-secure.rule=Host(`download.${DOMAIN:-localhost}`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.cobalt-api-secure.entrypoints=websecure"
+      - "traefik.http.routers.cobalt-api-secure.tls=true"
+      - "traefik.http.services.cobalt-api.loadbalancer.server.port=9000"
+      - "traefik.http.routers.cobalt-api.service=cobalt-api"
+      - "traefik.http.routers.cobalt-api-secure.service=cobalt-api"
