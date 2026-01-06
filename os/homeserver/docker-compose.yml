@@ -55,14 +55,19 @@ services:
     container_name: dashy
     restart: unless-stopped
     environment:
-      - PUID=${PUID:-1000}
-      - PGID=${PGID:-1000}
-      - TZ=${TZ:-Europe/Madrid}
       - NODE_ENV=production
+      - UID=${PUID:-1000}
+      - GID=${PGID:-1000}
     volumes:
-      - ./dashy/conf.yml:/app/public/conf.yml
+      - ./dashy/conf.yml:/app/user-data/conf.yml
     networks:
       - traefik
+    healthcheck:
+      test: ["CMD", "node", "/app/services/healthcheck"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
       - "traefik.enable=true"
       - "com.centurylinklabs.watchtower.enable=true"
@@ -71,7 +76,7 @@ services:
       - "traefik.http.routers.dashy-secure.rule=Host(`home.${DOMAIN:-localhost}`) || Host(`${DOMAIN:-localhost}`)"
       - "traefik.http.routers.dashy-secure.entrypoints=websecure"
       - "traefik.http.routers.dashy-secure.tls=true"
-      - "traefik.http.services.dashy.loadbalancer.server.port=4000"
+      - "traefik.http.services.dashy.loadbalancer.server.port=8080"
 
   # PatchPanda - Smart Docker Update Manager
   # Dockhand - Docker Management UI
