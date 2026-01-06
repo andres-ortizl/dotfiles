@@ -1,0 +1,356 @@
+---
+# Page meta info, like heading, footer text and nav links
+pageInfo:
+  title: Lab Dashboard
+  description: Homeserver Services & Monitoring
+  logo: https://i.ibb.co/qWWpD0v/astro-dab-128.png
+  navLinks:
+    - title: GitHub
+      path: https://github.com
+    - title: Dashy Docs
+      path: https://dashy.to/docs
+    - title: Uptime
+      path: http://uptime.lab.lan
+
+# Optional app settings and configuration
+appConfig:
+  theme: oblivion
+  customCss: '.item { border-color: #9d4edd !important; } .item:hover { box-shadow: 0 0 15px #9d4edd !important; } section { border-color: #7b2cbf !important; } .section-heading { background: linear-gradient(90deg, #240046 0%, #3c096c 50%, #5a189a 100%) !important; }'
+  layout: auto
+  iconSize: medium
+  language: en
+  startingView: default
+  defaultOpeningMethod: newtab
+  statusCheck: true
+  statusCheckInterval: 60
+  faviconApi: google
+  routingMode: history
+  enableMultiTasking: false
+  widgetsAlwaysUseProxy: false
+  webSearch:
+    disableWebSearch: false
+    searchEngine: duckduckgo
+    openingMethod: newtab
+  enableFontAwesome: true
+  enableMaterialDesignIcons: true
+  hideComponents:
+    hideHeading: false
+    hideNav: false
+    hideSearch: false
+    hideSettings: false
+    hideFooter: true
+
+sections:
+  # Dashboard Widgets Section
+  - name: System Overview
+    icon: fas fa-gauge-high
+    displayData:
+      collapsed: false
+      rows: 1
+      cols: 3
+    widgets:
+      - type: clock
+        options:
+          timeZone: auto
+          format: en-US
+          hideDate: false
+
+      - type: weather
+        options:
+          apiKey: xxxxxxxxxxxxxxxxxxxxxxxxxx
+          city: London
+          units: metric
+          hideDetails: false
+
+      - type: iframe
+        options:
+          url: http://uptime.lab.lan/status/services
+          height: 200
+
+  # Media Services
+  - name: Media
+    icon: fas fa-photo-video
+    displayData:
+      cols: 2
+      collapsed: false
+      rows: 1
+    items:
+      - title: Jellyfin
+        description: Media Server - Movies & TV Shows
+        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/jellyfin.png
+        url: http://jellyfin.lab.lan
+        statusCheck: true
+        target: newtab
+        id: 0_jellyfin
+
+      - title: Immich
+        description: Photo & Video Management
+        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/immich.png
+        url: http://immich.lab.lan
+        statusCheck: true
+        target: newtab
+        id: 1_immich
+
+  # Media Automation
+  - name: Media Automation
+    icon: fas fa-robot
+    displayData:
+      cols: 3
+      collapsed: false
+      rows: 2
+    items:
+      - title: Jellyseerr
+        description: Media Request Manager
+        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/jellyseerr.png
+        url: http://request.lab.lan
+        statusCheck: true
+        target: newtab
+        id: 0_jellyseerr
+
+      - title: Sonarr
+        description: TV Show Manager
+        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/sonarr.png
+        url: http://sonarr.lab.lan
+        statusCheck: true
+        target: newtab
+        id: 1_sonarr
+
+      - title: Radarr
+        description: Movie Manager
+        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/radarr.png
+        url: http://radarr.lab.lan
+        statusCheck: true
+        target: newtab
+        id: 2_radarr
+
+      - title: Prowlarr
+        description: Indexer Manager
+        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/prowlarr.png
+        url: http://prowlarr.lab.lan
+        statusCheck: true
+        target: newtab
+        id: 3_prowlarr
+
+      - title: Bazarr
+        description: Subtitle Manager
+        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/bazarr.png
+        url: http://bazarr.lab.lan
+        statusCheck: true
+        target: newtab
+        id: 4_bazarr
+
+      - title: qBittorrent
+        description: Torrent Client
+        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/qbittorrent.png
+        url: http://qbittorrent.lab.lan
+        statusCheck: true
+        target: newtab
+        id: 5_qbittorrent
+
+  # Network & Infrastructure
+  - name: Network & Infrastructure
+    icon: fas fa-network-wired
+    displayData:
+      cols: 3
+      collapsed: false
+      rows: 1
+    items:
+      - title: Pi-hole
+        description: Network-wide Ad Blocker & DNS
+        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/pi-hole.png
+        url: http://pihole.lab.lan
+        statusCheck: true
+        target: newtab
+        id: 0_pihole
+
+      - title: Traefik
+        description: Reverse Proxy & Load Balancer
+        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/traefik.png
+        url: http://traefik.lab.lan
+        statusCheck: true
+        target: newtab
+        id: 1_traefik
+
+      - title: Dozzle
+        description: Real-time Docker Logs
+        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/dozzle.png
+        url: http://logs.lab.lan
+        statusCheck: true
+        target: newtab
+        id: 2_dozzle
+
+  # AI & Productivity
+  - name: AI & Productivity
+    icon: fas fa-brain
+    displayData:
+      cols: 3
+      collapsed: false
+      rows: 1
+    items:
+      - title: Cobalt
+        description: Media Downloader
+        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/cobalt.png
+        url: http://download.lab.lan
+        statusCheck: true
+        target: newtab
+        id: 0_cobalt
+
+      - title: Open WebUI
+        description: AI Chat Interface
+        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/open-webui.png
+        url: http://chat.lab.lan
+        statusCheck: true
+        target: newtab
+        id: 1_openwebui
+
+      - title: Excalidraw
+        description: Collaborative Whiteboard & Diagrams
+        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/excalidraw.png
+        url: http://excalidraw.lab.lan
+        statusCheck: true
+        target: newtab
+        id: 2_excalidraw
+
+  # Monitoring & Management
+  - name: Monitoring & Management
+    icon: fas fa-chart-line
+    displayData:
+      cols: 3
+      collapsed: false
+      rows: 1
+    items:
+      - title: Uptime Kuma
+        description: Service & Uptime Monitoring
+        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/uptime-kuma.png
+        url: http://uptime.lab.lan
+        statusCheck: true
+        target: newtab
+        id: 0_uptimekuma
+
+      - title: PatchPanda
+        description: Smart Docker Update Manager
+        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/docker.png
+        url: http://patchpanda.lab.lan
+        statusCheck: true
+        target: newtab
+        id: 1_patchpanda
+
+      - title: Dockhand
+        description: Docker Management UI
+        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/portainer.png
+        url: http://docker.lab.lan
+        statusCheck: true
+        target: newtab
+        id: 2_dockhand
+
+  # Quick Links & Tools
+  - name: Quick Links & Tools
+    icon: fas fa-link
+    displayData:
+      cols: 4
+      collapsed: true
+      itemSize: small
+    items:
+      - title: GitHub
+        description: Code Repository
+        icon: fab fa-github
+        url: https://github.com
+        target: newtab
+
+      - title: StackOverflow
+        description: Developer Q&A
+        icon: fab fa-stack-overflow
+        url: https://stackoverflow.com
+        target: newtab
+
+      - title: Reddit Homelab
+        description: Homelab Community
+        icon: fab fa-reddit
+        url: https://reddit.com/r/homelab
+        target: newtab
+
+      - title: Reddit Selfhosted
+        description: Self-hosting Community
+        icon: fab fa-reddit
+        url: https://reddit.com/r/selfhosted
+        target: newtab
+
+      - title: Docker Hub
+        description: Container Registry
+        icon: fab fa-docker
+        url: https://hub.docker.com
+        target: newtab
+
+      - title: LinuxServer.io
+        description: Container Images
+        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/linuxserver.png
+        url: https://www.linuxserver.io
+        target: newtab
+
+      - title: Awesome Selfhosted
+        description: Self-hosting Software List
+        icon: fas fa-star
+        url: https://awesome-selfhosted.net
+        target: newtab
+
+      - title: TRaSH Guides
+        description: *arr Stack Guides
+        icon: fas fa-book
+        url: https://trash-guides.info
+        target: newtab
+
+  # External Utilities
+  - name: External Utilities
+    icon: fas fa-toolbox
+    displayData:
+      cols: 4
+      collapsed: true
+      itemSize: small
+    items:
+      - title: Speed Test
+        description: Test internet speed
+        icon: fas fa-gauge-high
+        url: https://speed.cloudflare.com
+        target: newtab
+
+      - title: What's My IP
+        description: Check public IP address
+        icon: fas fa-globe
+        url: https://www.whatismyip.com
+        target: newtab
+
+      - title: CyberChef
+        description: Data encoding/decoding
+        icon: fas fa-hat-chef
+        url: https://gchq.github.io/CyberChef
+        target: newtab
+
+      - title: RegExr
+        description: Regular expression tester
+        icon: fas fa-code
+        url: https://regexr.com
+        target: newtab
+
+      - title: JSON Formatter
+        description: Format & validate JSON
+        icon: fas fa-brackets-curly
+        url: https://jsonformatter.org
+        target: newtab
+
+      - title: Crontab Guru
+        description: Cron schedule helper
+        icon: fas fa-clock
+        url: https://crontab.guru
+        target: newtab
+
+      - title: SSL Labs
+        description: SSL certificate testing
+        icon: fas fa-lock
+        url: https://www.ssllabs.com/ssltest
+        target: newtab
+
+      - title: Down Detector
+        description: Service outage checker
+        icon: fas fa-exclamation-triangle
+        url: https://downdetector.com
+        target: newtab
