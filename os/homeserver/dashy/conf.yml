@@ -109,6 +109,12 @@ sections:
     widgets:
       - type: rss-feed
         options:
+          rssUrl: https://selfh.st/rss
+          limit: 10
+          orderBy: pubDate
+
+      - type: rss-feed
+        options:
           rssUrl: https://www.reddit.com/r/selfhosted/.rss
           limit: 10
           orderBy: pubDate
