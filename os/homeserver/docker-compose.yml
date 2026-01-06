@@ -545,27 +545,14 @@ services:
     container_name: cobalt
     restart: unless-stopped
     init: true
-    read_only: true
+    read_only: false
+    entrypoint: /entrypoint.sh
+    ports:
+      - "9000:9000"
+      - "9001:9001"
     environment:
-      - API_URL=http://download-api.${DOMAIN:-localhost}/
-    networks:
-      - traefik
+      - API_URL=http://lab.lan:9000/
+    volumes:
+      - ./cobalt/entrypoint.sh:/entrypoint.sh:ro
     labels:
-      - "traefik.enable=true"
       - "com.centurylinklabs.watchtower.enable=true"
-      - "traefik.http.routers.cobalt-web.rule=Host(`download.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.cobalt-web.entrypoints=web"
-      - "traefik.http.routers.cobalt-web.service=cobalt-web"
-      - "traefik.http.routers.cobalt-web-secure.rule=Host(`download.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.cobalt-web-secure.entrypoints=websecure"
-      - "traefik.http.routers.cobalt-web-secure.tls=true"
-      - "traefik.http.routers.cobalt-web-secure.service=cobalt-web"
-      - "traefik.http.services.cobalt-web.loadbalancer.server.port=9001"
-      - "traefik.http.routers.cobalt-api.rule=Host(`download-api.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.cobalt-api.entrypoints=web"
-      - "traefik.http.routers.cobalt-api-secure.rule=Host(`download-api.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.cobalt-api-secure.entrypoints=websecure"
-      - "traefik.http.routers.cobalt-api-secure.tls=true"
-      - "traefik.http.services.cobalt-api.loadbalancer.server.port=9000"
-      - "traefik.http.routers.cobalt-api.service=cobalt-api"
-      - "traefik.http.routers.cobalt-api-secure.service=cobalt-api"
