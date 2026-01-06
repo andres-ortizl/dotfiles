@@ -17,6 +17,7 @@ volumes:
   immich-redis:
   linkstack-data:
   dockhand-data:
+  memos-data:
 
 services:
   # Traefik Reverse Proxy
@@ -144,27 +145,27 @@ services:
       - "traefik.http.routers.sync-service-secure.tls=true"
       - "traefik.http.services.sync-service.loadbalancer.server.port=8000"
 
-  # Dockploi - Self-hosted PaaS
-  dockploi:
-    image: dockploi/dockploi:latest
-    container_name: dockploi
+  # Dokploi - Self-hosted PaaS
+  dokploi:
+    image: dokploi/dokploi:latest
+    container_name: dokploi
     restart: unless-stopped
     environment:
       - TZ=${TZ:-Europe/Madrid}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./dockploi:/app/data
+      - ./dokploi:/app/data
     networks:
       - traefik
     labels:
       - "traefik.enable=true"
       - "com.centurylinklabs.watchtower.enable=true"
-      - "traefik.http.routers.dockploi.rule=Host(`deploy.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.dockploi.entrypoints=web"
-      - "traefik.http.routers.dockploi-secure.rule=Host(`deploy.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.dockploi-secure.entrypoints=websecure"
-      - "traefik.http.routers.dockploi-secure.tls=true"
-      - "traefik.http.services.dockploi.loadbalancer.server.port=3000"
+      - "traefik.http.routers.dokploi.rule=Host(`deploy.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.dokploi.entrypoints=web"
+      - "traefik.http.routers.dokploi-secure.rule=Host(`deploy.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.dokploi-secure.entrypoints=websecure"
+      - "traefik.http.routers.dokploi-secure.tls=true"
+      - "traefik.http.services.dokploi.loadbalancer.server.port=3000"
 
   # Pi-hole DNS Server
   pihole:
@@ -409,6 +410,27 @@ services:
       - "traefik.http.routers.dozzle-secure.entrypoints=websecure"
       - "traefik.http.routers.dozzle-secure.tls=true"
       - "traefik.http.services.dozzle.loadbalancer.server.port=8080"
+
+  # Memos - Note-taking Service
+  memos:
+    image: neosmemo/memos:stable
+    container_name: memos
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ:-Europe/Madrid}
+    volumes:
+      - memos-data:/var/opt/memos
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "traefik.http.routers.memos.rule=Host(`memos.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.memos.entrypoints=web"
+      - "traefik.http.routers.memos-secure.rule=Host(`memos.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.memos-secure.entrypoints=websecure"
+      - "traefik.http.routers.memos-secure.tls=true"
+      - "traefik.http.services.memos.loadbalancer.server.port=5230"
 
   # Cobalt - Web-based Media Downloader
   cobalt:
