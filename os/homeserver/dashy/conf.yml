@@ -57,6 +57,7 @@ sections:
 
       - type: weather
         options:
+          apiKey: VUE_APP_WEATHER_API_KEY
           city: Madrid
           units: metric
           hideDetails: false
@@ -65,13 +66,14 @@ sections:
         useProxy: true
         options:
           hostname: http://pihole.lab.lan
-          apiKey: admin
+          apiKey: VUE_APP_PIHOLE_API_KEY
           hideChart: false
           hideInfo: false
 
       - type: rss-feed
         options:
           rssUrl: https://hnrss.org/frontpage
+          apiKey: VUE_APP_RSS_API_KEY
           limit: 8
           orderBy: pubDate
           orderDirection: desc
@@ -88,14 +90,14 @@ sections:
         useProxy: true
         options:
           hostname: http://pihole.lab.lan
-          apiKey: admin
+          apiKey: VUE_APP_PIHOLE_API_KEY
           count: 10
 
       - type: pi-hole-traffic-v6
         useProxy: true
         options:
           hostname: http://pihole.lab.lan
-          apiKey: admin
+          apiKey: VUE_APP_PIHOLE_API_KEY
 
   # Tech News & Updates
   - name: Tech News & Updates
