@@ -134,81 +134,33 @@ sections:
   - name: Media
     icon: fas fa-photo-video
     displayData:
-      cols: 2
+      cols: 1
       collapsed: false
       rows: 1
     items:
-      - title: Jellyfin
-        description: Media Server - Movies & TV Shows
-        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/jellyfin.png
-        url: http://jellyfin.lab.lan
-        statusCheck: true
-        target: newtab
-        id: 0_jellyfin
-
       - title: Immich
         description: Photo & Video Management
         icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/immich.png
         url: http://immich.lab.lan
         statusCheck: true
         target: newtab
-        id: 1_immich
+        id: 0_immich
 
   # Media Automation
   - name: Media Automation
     icon: fas fa-robot
     displayData:
-      cols: 3
+      cols: 1
       collapsed: false
-      rows: 2
+      rows: 1
     items:
-      - title: Jellyseerr
-        description: Media Request Manager
-        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/jellyseerr.png
-        url: http://request.lab.lan
-        statusCheck: true
-        target: newtab
-        id: 0_jellyseerr
-
-      - title: Sonarr
-        description: TV Show Manager
-        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/sonarr.png
-        url: http://sonarr.lab.lan
-        statusCheck: true
-        target: newtab
-        id: 1_sonarr
-
-      - title: Radarr
-        description: Movie Manager
-        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/radarr.png
-        url: http://radarr.lab.lan
-        statusCheck: true
-        target: newtab
-        id: 2_radarr
-
-      - title: Prowlarr
-        description: Indexer Manager
-        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/prowlarr.png
-        url: http://prowlarr.lab.lan
-        statusCheck: true
-        target: newtab
-        id: 3_prowlarr
-
-      - title: Bazarr
-        description: Subtitle Manager
-        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/bazarr.png
-        url: http://bazarr.lab.lan
-        statusCheck: true
-        target: newtab
-        id: 4_bazarr
-
       - title: qBittorrent
         description: Torrent Client
         icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/qbittorrent.png
         url: http://qbittorrent.lab.lan
         statusCheck: true
         target: newtab
-        id: 5_qbittorrent
+        id: 0_qbittorrent
 
   # Network & Infrastructure
   - name: Network & Infrastructure
@@ -289,6 +241,14 @@ sections:
         statusCheck: true
         target: newtab
         id: 0_uptimekuma
+
+      - title: Sync Service
+        description: Configuration Sync & Updates
+        icon: fas fa-sync
+        url: http://sync.lab.lan
+        statusCheck: true
+        target: newtab
+        id: 1_sync
 
       - title: Dockhand
         description: Docker Management UI

@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homeserver Sync</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0a0014 0%, #1a0028 50%, #0f001f 100%);
+            color: #e0d4f7;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(157, 78, 221, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            top: -250px;
+            right: -250px;
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(123, 44, 191, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            bottom: -200px;
+            left: -200px;
+            animation: pulse 6s ease-in-out infinite reverse;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card {
+            background: rgba(20, 10, 30, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(157, 78, 221, 0.2);
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow:
+                0 8px 32px 0 rgba(0, 0, 0, 0.37),
+                0 0 80px 0 rgba(157, 78, 221, 0.1),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+            background: linear-gradient(135deg, #e0d4f7 0%, #b794f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #9d7ec9;
+            font-size: 0.95rem;
+            font-weight: 300;
+        }
+
+        .sync-button {
+            width: 100%;
+            padding: 1.25rem;
+            background: linear-gradient(135deg, #7b2cbf 0%, #9d4edd 100%);
+            border: none;
+            border-radius: 16px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow:
+                0 4px 20px rgba(157, 78, 221, 0.4),
+                0 0 0 0 rgba(157, 78, 221, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sync-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .sync-button:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                0 6px 30px rgba(157, 78, 221, 0.6),
+                0 0 0 4px rgba(157, 78, 221, 0.2);
+        }
+
+        .sync-button:hover::before {
+            left: 100%;
+        }
+
+        .sync-button:active {
+            transform: translateY(0);
+        }
+
+        .sync-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .sync-button.syncing {
+            background: linear-gradient(135deg, #5a189a 0%, #7b2cbf 100%);
+            animation: syncPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes syncPulse {
+            0%, 100% { box-shadow: 0 4px 20px rgba(157, 78, 221, 0.4); }
+            50% { box-shadow: 0 4px 30px rgba(157, 78, 221, 0.7); }
+        }
+
+        .status-section {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: rgba(10, 5, 15, 0.4);
+            border-radius: 16px;
+            border: 1px solid rgba(157, 78, 221, 0.1);
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(157, 78, 221, 0.1);
+        }
+
+        .status-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-label {
+            color: #9d7ec9;
+            font-size: 0.9rem;
+            font-weight: 400;
+        }
+
+        .status-value {
+            color: #e0d4f7;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.35rem 0.85rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-badge.idle {
+            background: rgba(123, 44, 191, 0.2);
+            color: #b794f6;
+        }
+
+        .status-badge.syncing {
+            background: rgba(157, 78, 221, 0.3);
+            color: #c77dff;
+            animation: badgePulse 1.5s ease-in-out infinite;
+        }
+
+        .status-badge.success {
+            background: rgba(76, 175, 80, 0.2);
+            color: #81c784;
+        }
+
+        .status-badge.error {
+            background: rgba(244, 67, 54, 0.2);
+            color: #e57373;
+        }
+
+        @keyframes badgePulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .logs-section {
+            margin-top: 2rem;
+        }
+
+        .logs-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            color: #b794f6;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .logs-container {
+            background: rgba(5, 2, 10, 0.6);
+            border: 1px solid rgba(157, 78, 221, 0.15);
+            border-radius: 12px;
+            padding: 1rem;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        .logs-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .logs-container::-webkit-scrollbar-track {
+            background: rgba(157, 78, 221, 0.05);
+            border-radius: 4px;
+        }
+
+        .logs-container::-webkit-scrollbar-thumb {
+            background: rgba(157, 78, 221, 0.3);
+            border-radius: 4px;
+        }
+
+        .logs-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(157, 78, 221, 0.5);
+        }
+
+        .log-entry {
+            color: #b8a4d4;
+            margin-bottom: 0.5rem;
+            opacity: 0;
+            animation: logFadeIn 0.3s ease-out forwards;
+        }
+
+        @keyframes logFadeIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .log-entry.empty {
+            color: #6b4c8a;
+            font-style: italic;
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(157, 78, 221, 0.3);
+            border-top-color: #9d4edd;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .icon {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            vertical-align: middle;
+        }
+
+        @media (max-width: 640px) {
+            .card {
+                padding: 2rem 1.5rem;
+            }
+
+            .header h1 {
+                font-size: 1.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <h1>🔄 Homeserver Sync</h1>
+                <p>Keep your configuration in sync</p>
+            </div>
+
+            <button id="syncButton" class="sync-button" onclick="triggerSync()">
+                <span id="buttonText">Sync Now</span>
+            </button>
+
+            <div class="status-section">
+                <div class="status-item">
+                    <span class="status-label">Status</span>
+                    <span class="status-badge {{ status }}" id="statusBadge">{{ status }}</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Last Sync</span>
+                    <span class="status-value" id="lastSync">{{ last_sync }}</span>
+                </div>
+            </div>
+
+            <div class="logs-section">
+                <div class="logs-header">
+                    <span>📋</span>
+                    <span>Activity Logs</span>
+                </div>
+                <div class="logs-container" id="logsContainer">
+                    <div class="log-entry empty">No recent activity</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ws = new WebSocket(`ws://${window.location.host}/ws`);
+        const logsContainer = document.getElementById('logsContainer');
+        const syncButton = document.getElementById('syncButton');
+        const buttonText = document.getElementById('buttonText');
+        const statusBadge = document.getElementById('statusBadge');
+        const lastSyncEl = document.getElementById('lastSync');
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.type === 'log') {
+                addLog(data.message);
+            }
+        };
+
+        ws.onerror = (error) => {
+            console.error('WebSocket error:', error);
+        };
+
+        function addLog(message) {
+            const empty = logsContainer.querySelector('.empty');
+            if (empty) {
+                logsContainer.innerHTML = '';
+            }
+
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            logEntry.textContent = message;
+            logsContainer.appendChild(logEntry);
+            logsContainer.scrollTop = logsContainer.scrollHeight;
+        }
+
+        async function triggerSync() {
+            syncButton.disabled = true;
+            syncButton.classList.add('syncing');
+            buttonText.innerHTML = '<span class="spinner"></span> Syncing...';
+            statusBadge.className = 'status-badge syncing';
+            statusBadge.textContent = 'syncing';
+
+            try {
+                const response = await fetch('/sync', { method: 'POST' });
+                const data = await response.json();
+
+                if (data.status === 'error') {
+                    addLog('❌ ' + data.message);
+                    statusBadge.className = 'status-badge error';
+                    statusBadge.textContent = 'error';
+                }
+            } catch (error) {
+                addLog('❌ Failed to trigger sync: ' + error.message);
+                statusBadge.className = 'status-badge error';
+                statusBadge.textContent = 'error';
+            } finally {
+                setTimeout(() => {
+                    syncButton.disabled = false;
+                    syncButton.classList.remove('syncing');
+                    buttonText.textContent = 'Sync Now';
+                    updateStatus();
+                }, 2000);
+            }
+        }
+
+        async function updateStatus() {
+            try {
+                const response = await fetch('/status');
+                const data = await response.json();
+
+                statusBadge.className = `status-badge ${data.status}`;
+                statusBadge.textContent = data.status;
+
+                if (data.last_sync) {
+                    const date = new Date(data.last_sync);
+                    lastSyncEl.textContent = date.toLocaleString();
+                }
+            } catch (error) {
+                console.error('Failed to fetch status:', error);
+            }
+        }
+
+        // Update status every 30 seconds
+        setInterval(updateStatus, 30000);
+
+        // Reconnect WebSocket if connection is lost
+        ws.onclose = () => {
+            setTimeout(() => {
+                window.location.reload();
+            }, 5000);
+        };
+    </script>
+</body>
+</html>
