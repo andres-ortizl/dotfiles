@@ -549,6 +549,7 @@ services:
     entrypoint: /entrypoint.sh
     environment:
       - API_URL=http://download-api.${DOMAIN:-localhost}/
+      - WEB_API_URL=http://download-api.${DOMAIN:-localhost}/
     volumes:
       - ./cobalt/entrypoint.sh:/entrypoint.sh:ro
     networks:
