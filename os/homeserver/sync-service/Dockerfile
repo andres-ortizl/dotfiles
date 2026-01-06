@@ -5,8 +5,8 @@ WORKDIR /app
 # Install bash, git, and docker CLI
 RUN apk add --no-cache bash git docker-cli
 
-# Configure git to trust the repo directory
-RUN git config --global safe.directory /homeserver
+# Configure git to trust any directory (for subdirectories)
+RUN git config --global --add safe.directory '*'
 
 # Copy dependency files
 COPY pyproject.toml .
