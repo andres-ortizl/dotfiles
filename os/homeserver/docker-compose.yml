@@ -131,7 +131,7 @@ services:
       - TZ=${TZ:-Europe/Madrid}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - .:/homeserver
+      - ../../..:/dotfiles
     networks:
       - traefik
     labels:

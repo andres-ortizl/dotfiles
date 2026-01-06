@@ -10,8 +10,8 @@ app = FastAPI(title="Homeserver Sync Service")
 templates = Jinja2Templates(directory="templates")
 
 # Configuration
-REPO_PATH = Path("/homeserver")
-COMPOSE_FILE = REPO_PATH / "docker-compose.yml"
+REPO_PATH = Path("/dotfiles")
+COMPOSE_FILE = REPO_PATH / "os" / "homeserver" / "docker-compose.yml"
 
 
 class SyncStatus:
@@ -108,7 +108,7 @@ async def sync_and_update():
         await broadcast_message("🐳 Updating Docker containers...")
         returncode, output = await run_command(
             "docker compose up -d --remove-orphans",
-            REPO_PATH,
+            COMPOSE_FILE.parent,
         )
 
         if returncode != 0:
@@ -120,7 +120,7 @@ async def sync_and_update():
 
         # Cleanup old images
         await broadcast_message("🧹 Cleaning up old images...")
-        await run_command("docker image prune -f", REPO_PATH)
+        await run_command("docker image prune -f", COMPOSE_FILE.parent)
 
         await broadcast_message("✨ Sync completed successfully!")
         sync_status.status = "success"
