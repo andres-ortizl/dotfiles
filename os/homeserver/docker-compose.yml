@@ -18,6 +18,9 @@ volumes:
   linkstack-data:
   dockhand-data:
   memos-data:
+g  dokploy-postgres:
+  dokploy-redis:
+  dokploy-data:
 
 services:
   # Traefik Reverse Proxy
@@ -145,16 +148,58 @@ services:
       - "traefik.http.routers.sync-service-secure.tls=true"
       - "traefik.http.services.sync-service.loadbalancer.server.port=8000"
 
+  # PostgreSQL for Dokploy
+  dokploy-postgres:
+    image: postgres:15-alpine
+    container_name: dokploy-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=dokploy
+      - POSTGRES_PASSWORD=${DOKPLOY_DB_PASSWORD:-dokploy_password_123}
+      - POSTGRES_DB=dokploy
+    volumes:
+      - dokploy-postgres:/var/lib/postgresql/data
+    networks:
+      - traefik
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dokploy"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Redis for Dokploy
+  dokploy-redis:
+    image: redis:7-alpine
+    container_name: dokploy-redis
+    restart: unless-stopped
+    volumes:
+      - dokploy-redis:/data
+    networks:
+      - traefik
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   # Dokploy - Self-hosted PaaS
   dokploy:
     image: dokploy/dokploy:latest
     container_name: dokploy
     restart: unless-stopped
+    depends_on:
+      dokploy-postgres:
+        condition: service_healthy
+      dokploy-redis:
+        condition: service_healthy
     environment:
+      - DATABASE_URL=postgresql://dokploy:${DOKPLOY_DB_PASSWORD:-dokploy_password_123}@dokploy-postgres:5432/dokploy
+      - REDIS_URL=redis://dokploy-redis:6379
+      - SECRET_KEY=${DOKPLOY_SECRET_KEY:-change-this-to-a-random-secret-key}
       - TZ=${TZ:-Europe/Madrid}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./dokploy:/app/data
+      - dokploy-data:/app/data
     networks:
       - traefik
     labels:
