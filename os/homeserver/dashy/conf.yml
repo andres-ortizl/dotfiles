@@ -62,7 +62,7 @@ sections:
           units: metric
           hideDetails: false
 
-      - type: pi-hole-stats
+      - type: pi-hole-stats-v6
         useProxy: true
         options:
           hostname: http://pihole
@@ -86,14 +86,14 @@ sections:
       rows: 1
       cols: 2
     widgets:
-      - type: pi-hole-top-queries
+      - type: pi-hole-top-queries-v6
         useProxy: true
         options:
           hostname: http://pihole
           apiKey: VUE_APP_PIHOLE_API_KEY
           count: 10
 
-      - type: pi-hole-traffic
+      - type: pi-hole-traffic-v6
         useProxy: true
         options:
           hostname: http://pihole
