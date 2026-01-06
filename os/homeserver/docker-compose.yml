@@ -145,27 +145,27 @@ services:
       - "traefik.http.routers.sync-service-secure.tls=true"
       - "traefik.http.services.sync-service.loadbalancer.server.port=8000"
 
-  # Dokploi - Self-hosted PaaS
-  dokploi:
-    image: dokploi/dokploi:latest
-    container_name: dokploi
+  # Dokploy - Self-hosted PaaS
+  dokploy:
+    image: dokploy/dokploy:latest
+    container_name: dokploy
     restart: unless-stopped
     environment:
       - TZ=${TZ:-Europe/Madrid}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./dokploi:/app/data
+      - ./dokploy:/app/data
     networks:
       - traefik
     labels:
       - "traefik.enable=true"
       - "com.centurylinklabs.watchtower.enable=true"
-      - "traefik.http.routers.dokploi.rule=Host(`deploy.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.dokploi.entrypoints=web"
-      - "traefik.http.routers.dokploi-secure.rule=Host(`deploy.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.dokploi-secure.entrypoints=websecure"
-      - "traefik.http.routers.dokploi-secure.tls=true"
-      - "traefik.http.services.dokploi.loadbalancer.server.port=3000"
+      - "traefik.http.routers.dokploy.rule=Host(`deploy.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.dokploy.entrypoints=web"
+      - "traefik.http.routers.dokploy-secure.rule=Host(`deploy.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.dokploy-secure.entrypoints=websecure"
+      - "traefik.http.routers.dokploy-secure.tls=true"
+      - "traefik.http.services.dokploy.loadbalancer.server.port=3000"
 
   # Pi-hole DNS Server
   pihole:
