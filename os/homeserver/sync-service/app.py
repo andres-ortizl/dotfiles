@@ -176,36 +176,26 @@ async def sync_and_update():
             return False
 
         if "Already up to date" in output:
-            await broadcast_message("✅ Already up to date - no changes")
+            await broadcast_message("✅ Already up to date - no changes to apply")
+            await broadcast_message("✨ Everything in sync!")
         else:
             await broadcast_message("✅ Git pull successful")
 
-        # Docker compose up
-        await broadcast_message("🐳 Updating Docker containers...")
-        returncode, output = await run_command(
-            "docker compose up -d --remove-orphans",
-            COMPOSE_FILE.parent,
-        )
-        docker_output = output
+            # Schedule docker compose to run after we finish responding
+            await broadcast_message("🐳 Scheduling container updates...")
+            await broadcast_message("⚠️  Connection will drop during restart")
 
-        if returncode != 0:
-            await broadcast_message("❌ Docker compose failed")
-            sync_status.status = "error"
-            _update_history(
-                sync_status.current_history_id,
-                "error",
-                git_output,
-                docker_output,
+            # Run in background with delay so this service can respond first
+            returncode, output = await run_command(
+                "sh -c 'sleep 3 && docker compose up -d --remove-orphans && docker image prune -f' > /tmp/compose.log 2>&1 &",
+                COMPOSE_FILE.parent,
             )
-            return False
+            docker_output = "Scheduled for background execution"
 
-        await broadcast_message("✅ Docker containers updated")
-
-        # Cleanup old images
-        await broadcast_message("🧹 Cleaning up old images...")
-        await run_command("docker image prune -f", COMPOSE_FILE.parent)
-
-        await broadcast_message("✨ Sync completed successfully!")
+            await broadcast_message(
+                "✅ Update scheduled - containers will restart in 3 seconds"
+            )
+            await broadcast_message("✨ Sync initiated successfully!")
         sync_status.status = "success"
         sync_status.last_sync = datetime.now()
         _update_history(
