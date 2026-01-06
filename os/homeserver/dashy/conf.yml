@@ -256,13 +256,21 @@ sections:
         target: newtab
         id: 1_sync
 
+      - title: Dockploi
+        description: Self-hosted PaaS for Quick Deployments
+        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/dokku.png
+        url: http://deploy.lab.lan
+        statusCheck: true
+        target: newtab
+        id: 2_dockploi
+
       - title: Dockhand
         description: Docker Management UI
         icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/portainer.png
         url: http://docker.lab.lan
         statusCheck: true
         target: newtab
-        id: 2_dockhand
+        id: 3_dockhand
 
   # Quick Links & Tools
   - name: Quick Links & Tools
