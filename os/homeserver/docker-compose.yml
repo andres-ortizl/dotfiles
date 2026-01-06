@@ -144,7 +144,27 @@ services:
       - "traefik.http.routers.sync-service-secure.tls=true"
       - "traefik.http.services.sync-service.loadbalancer.server.port=8000"
 
-  # Prowlarr Indexer Management
+  # Dockploi - Self-hosted PaaS
+  dockploi:
+    image: dockploi/dockploi:latest
+    container_name: dockploi
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ:-Europe/Madrid}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./dockploi:/app/data
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "traefik.http.routers.dockploi.rule=Host(`deploy.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.dockploi.entrypoints=web"
+      - "traefik.http.routers.dockploi-secure.rule=Host(`deploy.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.dockploi-secure.entrypoints=websecure"
+      - "traefik.http.routers.dockploi-secure.tls=true"
+      - "traefik.http.services.dockploi.loadbalancer.server.port=3000"
 
   # Pi-hole DNS Server
   pihole:
