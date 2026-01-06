@@ -175,19 +175,33 @@ async def sync_and_update():
         else:
             await broadcast_message("✅ Git pull successful")
 
-            await broadcast_message("🐳 Scheduling container updates...")
-            await broadcast_message("⚠️  Connection will drop during restart")
-
+            # Docker compose up - connection may drop during execution
+            await broadcast_message("🐳 Updating Docker containers...")
+            await broadcast_message("⚠️  Connection may drop during restart")
             returncode, output = await run_command(
-                "sh -c 'sleep 3 && docker compose up -d --remove-orphans && docker image prune -f' > /tmp/compose.log 2>&1 &",
+                "docker compose up -d --remove-orphans",
                 COMPOSE_FILE.parent,
             )
-            docker_output = "Scheduled for background execution"
+            docker_output = output
 
-            await broadcast_message(
-                "✅ Update scheduled - containers will restart in 3 seconds",
-            )
-            await broadcast_message("✨ Sync initiated successfully!")
+            if returncode != 0:
+                await broadcast_message("❌ Docker compose failed")
+                sync_status.status = "error"
+                _update_history(
+                    sync_status.current_history_id,
+                    "error",
+                    git_output,
+                    docker_output,
+                )
+                return False
+
+            await broadcast_message("✅ Docker containers updated")
+
+            # Cleanup old images
+            await broadcast_message("🧹 Cleaning up old images...")
+            await run_command("docker image prune -f", COMPOSE_FILE.parent)
+
+            await broadcast_message("✨ Sync completed successfully!")
         sync_status.status = "success"
         sync_status.last_sync = datetime.now()
         _update_history(
@@ -310,6 +324,15 @@ async def websocket_endpoint(websocket: WebSocket):
             await websocket.receive_text()
     except WebSocketDisconnect:
         active_connections.remove(websocket)
+
+
+@app.get("/compose-log")
+async def get_compose_log():
+    """Get docker compose execution log"""
+    log_file = Path("/tmp/compose.log")
+    if log_file.exists():
+        return {"log": log_file.read_text()}
+    return {"log": "No log file found yet"}
 
 
 @app.get("/health")
