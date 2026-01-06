@@ -16,6 +16,8 @@ volumes:
   immich-db:
   immich-redis:
   linkstack-data:
+  patchpanda-data:
+  dockhand-data:
 
 services:
   # Traefik Reverse Proxy
@@ -49,30 +51,78 @@ services:
       - "traefik.http.routers.dashboard-secure.service=api@internal"
 
   # Homepage Dashboard
-  homepage:
-    image: ghcr.io/gethomepage/homepage:latest
-    container_name: homepage
+  dashy:
+    image: lissy93/dashy:latest
+    container_name: dashy
     restart: unless-stopped
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
       - TZ=${TZ:-Europe/Madrid}
-      - HOMEPAGE_ALLOWED_HOSTS=home.${DOMAIN:-localhost}:8081,${DOMAIN:-localhost}:8081,home.${DOMAIN:-localhost},${DOMAIN:-localhost},*
-      - HOMEPAGE_VAR_DOMAIN=${DOMAIN:-localhost}
+      - NODE_ENV=production
     volumes:
-      - ./homepage:/app/config
-      - /var/run/docker.sock:/var/run/docker.sock
+      - ./dashy/conf.yml:/app/public/conf.yml
     networks:
       - traefik
     labels:
       - "traefik.enable=true"
       - "com.centurylinklabs.watchtower.enable=true"
-      - "traefik.http.routers.homepage.rule=Host(`home.${DOMAIN:-localhost}`) || Host(`${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.homepage.entrypoints=web"
-      - "traefik.http.routers.homepage-secure.rule=Host(`home.${DOMAIN:-localhost}`) || Host(`${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.homepage-secure.entrypoints=websecure"
-      - "traefik.http.routers.homepage-secure.tls=true"
-      - "traefik.http.services.homepage.loadbalancer.server.port=3000"
+      - "traefik.http.routers.dashy.rule=Host(`home.${DOMAIN:-localhost}`) || Host(`${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.dashy.entrypoints=web"
+      - "traefik.http.routers.dashy-secure.rule=Host(`home.${DOMAIN:-localhost}`) || Host(`${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.dashy-secure.entrypoints=websecure"
+      - "traefik.http.routers.dashy-secure.tls=true"
+      - "traefik.http.services.dashy.loadbalancer.server.port=80"
+
+  # PatchPanda - Smart Docker Update Manager
+  patchpanda:
+    image: ghcr.io/dkorecko/patchpanda:latest
+    container_name: patchpanda
+    restart: unless-stopped
+    environment:
+      - BASE_URL=http://patchpanda.${DOMAIN:-localhost}
+      - GITHUB_USERNAME=${GITHUB_USERNAME}
+      - GITHUB_PASSWORD=${GITHUB_TOKEN}
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL:-}
+      - OLLAMA_URL=http://openwebui:11434
+      - OLLAMA_MODEL=llama3.2
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - /volume1/dotfiles/os/homeserver:/volume1/dotfiles/os/homeserver:rw
+      - patchpanda-data:/app/data:rw
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "traefik.http.routers.patchpanda.rule=Host(`patchpanda.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.patchpanda.entrypoints=web"
+      - "traefik.http.routers.patchpanda-secure.rule=Host(`patchpanda.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.patchpanda-secure.entrypoints=websecure"
+      - "traefik.http.routers.patchpanda-secure.tls=true"
+      - "traefik.http.services.patchpanda.loadbalancer.server.port=8080"
+
+  # Dockhand - Docker Management UI
+  dockhand:
+    image: finsys/dockhand:latest
+    container_name: dockhand
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ:-Europe/Madrid}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - dockhand-data:/data
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "traefik.http.routers.dockhand.rule=Host(`docker.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.dockhand.entrypoints=web"
+      - "traefik.http.routers.dockhand-secure.rule=Host(`docker.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.dockhand-secure.entrypoints=websecure"
+      - "traefik.http.routers.dockhand-secure.tls=true"
+      - "traefik.http.services.dockhand.loadbalancer.server.port=8000"
 
   # Watchtower Auto-updater (only updates containers with watchtower.enable=true label)
   watchtower:
@@ -466,21 +516,6 @@ services:
       - "traefik.http.routers.uptime-kuma-secure.tls=true"
       - "traefik.http.services.uptime-kuma.loadbalancer.server.port=3001"
 
-  # Home Assistant Smart Home Hub
-  homeassistant:
-    image: ghcr.io/home-assistant/home-assistant:latest
-    container_name: homeassistant
-    restart: unless-stopped
-    privileged: true
-    network_mode: host
-    environment:
-      - TZ=${TZ:-Europe/Madrid}
-    volumes:
-      - ./homeassistant/config:/config
-      - /run/dbus:/run/dbus:ro
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
-
   # Jellyseerr Media Request Manager
   jellyseerr:
     image: fallenbagel/jellyseerr:latest
@@ -517,8 +552,6 @@ services:
       - traefik
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
-
-  # Web Terminal (accessible over Tailscale/Local)
 
   # Dozzle - Real-time Log Viewer
   dozzle:
