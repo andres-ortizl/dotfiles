@@ -10,16 +10,13 @@ from sqlmodel import Field, Session, SQLModel, create_engine, select
 app = FastAPI(title="Homeserver Sync Service")
 templates = Jinja2Templates(directory="templates")
 
-# Configuration
 REPO_PATH = Path("/dotfiles")
 COMPOSE_FILE = REPO_PATH / "os" / "homeserver" / "docker-compose.yml"
 DB_PATH = Path("/app/data/sync.db")
 
-# Ensure data directory exists
 DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 
-# Database models
 class SyncLog(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     timestamp: datetime = Field(default_factory=datetime.now)
@@ -36,7 +33,6 @@ class SyncHistory(SQLModel, table=True):
     docker_output: str = ""
 
 
-# Create database
 engine = create_engine(f"sqlite:///{DB_PATH}")
 SQLModel.metadata.create_all(engine)
 
@@ -56,7 +52,6 @@ class SyncStatus:
         if len(self.logs) > 50:
             self.logs.pop(0)
 
-        # Save to database
         with Session(engine) as session:
             log = SyncLog(
                 timestamp=datetime.now(),
@@ -159,7 +154,6 @@ async def sync_and_update():
     try:
         await broadcast_message("🔄 Starting sync process...")
 
-        # Git pull
         await broadcast_message("📥 Pulling latest changes from git...")
         returncode, output = await run_command("git pull", REPO_PATH)
         git_output = output
@@ -181,11 +175,9 @@ async def sync_and_update():
         else:
             await broadcast_message("✅ Git pull successful")
 
-            # Schedule docker compose to run after we finish responding
             await broadcast_message("🐳 Scheduling container updates...")
             await broadcast_message("⚠️  Connection will drop during restart")
 
-            # Run in background with delay so this service can respond first
             returncode, output = await run_command(
                 "sh -c 'sleep 3 && docker compose up -d --remove-orphans && docker image prune -f' > /tmp/compose.log 2>&1 &",
                 COMPOSE_FILE.parent,
@@ -193,7 +185,7 @@ async def sync_and_update():
             docker_output = "Scheduled for background execution"
 
             await broadcast_message(
-                "✅ Update scheduled - containers will restart in 3 seconds"
+                "✅ Update scheduled - containers will restart in 3 seconds",
             )
             await broadcast_message("✨ Sync initiated successfully!")
         sync_status.status = "success"
@@ -304,7 +296,6 @@ async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     active_connections.append(websocket)
 
-    # Send recent logs
     for log in sync_status.logs[-10:]:
         await websocket.send_json(
             {
