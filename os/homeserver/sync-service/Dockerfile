@@ -2,8 +2,8 @@ FROM ghcr.io/astral-sh/uv:python3.12-alpine
 
 WORKDIR /app
 
-# Install bash, git, and docker CLI
-RUN apk add --no-cache bash git docker-cli
+# Install bash, git, docker CLI and docker-compose
+RUN apk add --no-cache bash git docker-cli docker-cli-compose
 
 # Configure git to trust the dotfiles repository
 RUN git config --global --add safe.directory /dotfiles
