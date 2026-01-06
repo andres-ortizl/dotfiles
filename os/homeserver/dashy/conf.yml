@@ -256,13 +256,13 @@ sections:
         target: newtab
         id: 1_sync
 
-      - title: Dockploi
+      - title: Dokploy
         description: Self-hosted PaaS for Quick Deployments
         icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/dokku.png
         url: http://deploy.lab.lan
         statusCheck: true
         target: newtab
-        id: 2_dockploi
+        id: 2_dokploy
 
       - title: Dockhand
         description: Docker Management UI
@@ -271,6 +271,14 @@ sections:
         statusCheck: true
         target: newtab
         id: 3_dockhand
+
+      - title: Memos
+        description: Note-taking & Knowledge Base
+        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/memos.png
+        url: http://memos.lab.lan
+        statusCheck: true
+        target: newtab
+        id: 4_memos
 
   # Quick Links & Tools
   - name: Quick Links & Tools
