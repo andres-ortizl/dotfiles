@@ -65,7 +65,7 @@ sections:
       - type: pi-hole-stats-v6
         useProxy: true
         options:
-          hostname: http://pihole
+          hostname: http://pihole.lab.lan
           apiKey: VUE_APP_PIHOLE_API_KEY
           hideChart: false
           hideInfo: false
@@ -89,14 +89,14 @@ sections:
       - type: pi-hole-top-queries-v6
         useProxy: true
         options:
-          hostname: http://pihole
+          hostname: http://pihole.lab.lan
           apiKey: VUE_APP_PIHOLE_API_KEY
           count: 10
 
       - type: pi-hole-traffic-v6
         useProxy: true
         options:
-          hostname: http://pihole
+          hostname: http://pihole.lab.lan
           apiKey: VUE_APP_PIHOLE_API_KEY
 
   # Tech News & Updates
