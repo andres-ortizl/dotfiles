@@ -5,6 +5,9 @@ WORKDIR /app
 # Install bash, git, and docker CLI
 RUN apk add --no-cache bash git docker-cli
 
+# Configure git to trust the dotfiles repository
+RUN git config --global --add safe.directory /dotfiles
+
 # Copy dependency files
 COPY pyproject.toml .
 
@@ -17,5 +20,5 @@ COPY . .
 # Expose port
 EXPOSE 8000
 
-# Run the application with git config setup
-CMD ["sh", "-c", "git config --global --add safe.directory /dotfiles && fastapi run app.py --host 0.0.0.0 --port 8000"]
+# Run the application
+CMD ["fastapi", "run", "app.py", "--host", "0.0.0.0", "--port", "8000"]

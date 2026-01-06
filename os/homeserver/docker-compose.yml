@@ -126,7 +126,6 @@ services:
     build: ./sync-service
     container_name: sync-service
     restart: unless-stopped
-    user: "${PUID:-1000}:${PGID:-1000}"
     environment:
       - TZ=${TZ:-Europe/Madrid}
     volumes:
