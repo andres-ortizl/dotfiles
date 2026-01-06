@@ -43,7 +43,7 @@ async def broadcast_message(message: str):
                     "type": "log",
                     "message": message,
                     "timestamp": datetime.now().isoformat(),
-                }
+                },
             )
         except:
             disconnected.append(connection)
@@ -61,6 +61,7 @@ async def run_command(cmd: str, cwd: Path) -> tuple[int, str]:
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.STDOUT,
         cwd=cwd,
+        executable="/bin/bash",
     )
 
     output = []
@@ -186,7 +187,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 "type": "log",
                 "message": log,
                 "timestamp": datetime.now().isoformat(),
-            }
+            },
         )
 
     try:
