@@ -58,6 +58,9 @@ services:
       - NODE_ENV=production
       - UID=${PUID:-1000}
       - GID=${PGID:-1000}
+      - VUE_APP_WEATHER_API_KEY=${WEATHER_API_KEY:-}
+      - VUE_APP_PIHOLE_API_KEY=${PIHOLE_PASSWORD:-admin}
+      - VUE_APP_RSS_API_KEY=${RSS_API_KEY:-}
     volumes:
       - ./dashy/conf.yml:/app/user-data/conf.yml
     networks:
