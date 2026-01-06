@@ -121,155 +121,29 @@ services:
     networks:
       - traefik
 
-  # Jellyfin Media Server
-  jellyfin:
-    image: lscr.io/linuxserver/jellyfin:latest
-    container_name: jellyfin
+  # Sync Service - Configuration Sync UI
+  sync-service:
+    build: ./sync-service
+    container_name: sync-service
     restart: unless-stopped
     environment:
-      - PUID=${PUID:-1000}
-      - PGID=${PGID:-1000}
       - TZ=${TZ:-Europe/Madrid}
-      - JELLYFIN_PublishedServerUrl=http://jellyfin.${DOMAIN:-localhost}:8081
     volumes:
-      - ./jellyfin/config:/config
-      - ${MEDIA_ROOT:-./media}:/media
-      - ${CACHE_ROOT:-./cache}:/cache
-    ports:
-      - "7359:7359/udp"
-      - "1900:1900/udp"
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ..:/homeserver
     networks:
       - traefik
-      - media
     labels:
       - "traefik.enable=true"
       - "com.centurylinklabs.watchtower.enable=true"
-      - "traefik.http.routers.jellyfin.rule=Host(`jellyfin.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.jellyfin.entrypoints=web"
-      - "traefik.http.routers.jellyfin-secure.rule=Host(`jellyfin.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.jellyfin-secure.entrypoints=websecure"
-      - "traefik.http.routers.jellyfin-secure.tls=true"
-      - "traefik.http.services.jellyfin.loadbalancer.server.port=8096"
+      - "traefik.http.routers.sync-service.rule=Host(`sync.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.sync-service.entrypoints=web"
+      - "traefik.http.routers.sync-service-secure.rule=Host(`sync.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.sync-service-secure.entrypoints=websecure"
+      - "traefik.http.routers.sync-service-secure.tls=true"
+      - "traefik.http.services.sync-service.loadbalancer.server.port=8000"
 
   # Prowlarr Indexer Management
-  prowlarr:
-    image: lscr.io/linuxserver/prowlarr:latest
-    container_name: prowlarr
-    restart: unless-stopped
-    environment:
-      - PUID=${PUID:-1000}
-      - PGID=${PGID:-1000}
-      - TZ=${TZ:-Europe/Madrid}
-    volumes:
-      - ./jellyfin/config/prowlarr:/config
-    networks:
-      - traefik
-      - media
-    labels:
-      - "traefik.enable=true"
-      - "com.centurylinklabs.watchtower.enable=true"
-      - "traefik.http.routers.prowlarr.rule=Host(`prowlarr.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.prowlarr.entrypoints=web"
-      - "traefik.http.routers.prowlarr-secure.rule=Host(`prowlarr.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.prowlarr-secure.entrypoints=websecure"
-      - "traefik.http.routers.prowlarr-secure.tls=true"
-      - "traefik.http.services.prowlarr.loadbalancer.server.port=9696"
-
-  # Sonarr TV Management
-  sonarr:
-    image: lscr.io/linuxserver/sonarr:latest
-    container_name: sonarr
-    restart: unless-stopped
-    environment:
-      - PUID=${PUID:-1000}
-      - PGID=${PGID:-1000}
-      - TZ=${TZ:-Europe/Madrid}
-    volumes:
-      - ./jellyfin/config/sonarr:/config
-      - ${DATA_ROOT:-./data}:/data
-    networks:
-      - traefik
-      - media
-    labels:
-      - "traefik.enable=true"
-      - "com.centurylinklabs.watchtower.enable=true"
-      - "traefik.http.routers.sonarr.rule=Host(`sonarr.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.sonarr.entrypoints=web"
-      - "traefik.http.routers.sonarr-secure.rule=Host(`sonarr.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.sonarr-secure.entrypoints=websecure"
-      - "traefik.http.routers.sonarr-secure.tls=true"
-      - "traefik.http.services.sonarr.loadbalancer.server.port=8989"
-
-  # Radarr Movie Management
-  radarr:
-    image: lscr.io/linuxserver/radarr:latest
-    container_name: radarr
-    restart: unless-stopped
-    environment:
-      - PUID=${PUID:-1000}
-      - PGID=${PGID:-1000}
-      - TZ=${TZ:-Europe/Madrid}
-    volumes:
-      - ./jellyfin/config/radarr:/config
-      - ${DATA_ROOT:-./data}:/data
-    networks:
-      - traefik
-      - media
-    labels:
-      - "traefik.enable=true"
-      - "com.centurylinklabs.watchtower.enable=true"
-      - "traefik.http.routers.radarr.rule=Host(`radarr.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.radarr.entrypoints=web"
-      - "traefik.http.routers.radarr-secure.rule=Host(`radarr.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.radarr-secure.entrypoints=websecure"
-      - "traefik.http.routers.radarr-secure.tls=true"
-      - "traefik.http.services.radarr.loadbalancer.server.port=7878"
-
-  # Bazarr Subtitle Management
-  bazarr:
-    image: lscr.io/linuxserver/bazarr:latest
-    container_name: bazarr
-    restart: unless-stopped
-    environment:
-      - PUID=${PUID:-1000}
-      - PGID=${PGID:-1000}
-      - TZ=${TZ:-Europe/Madrid}
-    volumes:
-      - ./jellyfin/config/bazarr:/config
-      - ${DATA_ROOT:-./data}:/data
-    networks:
-      - traefik
-      - media
-    labels:
-      - "traefik.enable=true"
-      - "com.centurylinklabs.watchtower.enable=true"
-      - "traefik.http.routers.bazarr.rule=Host(`bazarr.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.bazarr.entrypoints=web"
-      - "traefik.http.routers.bazarr-secure.rule=Host(`bazarr.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.bazarr-secure.entrypoints=websecure"
-      - "traefik.http.routers.bazarr-secure.tls=true"
-      - "traefik.http.services.bazarr.loadbalancer.server.port=6767"
-
-  # Unpackerr Archive Extractor
-  unpackerr:
-    image: golift/unpackerr:latest
-    container_name: unpackerr
-    restart: unless-stopped
-    environment:
-      - UN_SONARR_0_URL=http://sonarr:8989
-      - UN_RADARR_0_URL=http://radarr:7878
-      - UN_QBITTORRENT_0_URL=http://qbittorrent:8080
-      - UN_QBITTORRENT_0_USER=${QBITTORRENT_USERNAME:-admin}
-      - UN_QBITTORRENT_0_PASS=${QBITTORRENT_PASSWORD:-adminpass}
-      - UN_SONARR_0_API_KEY=${SONARR_API_KEY:-}
-      - UN_RADARR_0_API_KEY=${RADARR_API_KEY:-}
-      - TZ=${TZ:-Europe/Madrid}
-    volumes:
-      - ${DATA_ROOT:-./data}:/data
-    networks:
-      - media
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
 
   # Pi-hole DNS Server
   pihole:
@@ -476,13 +350,14 @@ services:
 
   # Uptime Kuma Monitoring
   uptime-kuma:
-    image: louislam/uptime-kuma:latest
+    image: louislam/uptime-kuma:2
     container_name: uptime-kuma
     restart: unless-stopped
     environment:
       - TZ=${TZ:-Europe/Madrid}
     volumes:
       - ./uptime-kuma:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - traefik
     labels:
@@ -494,43 +369,6 @@ services:
       - "traefik.http.routers.uptime-kuma-secure.entrypoints=websecure"
       - "traefik.http.routers.uptime-kuma-secure.tls=true"
       - "traefik.http.services.uptime-kuma.loadbalancer.server.port=3001"
-
-  # Jellyseerr Media Request Manager
-  jellyseerr:
-    image: fallenbagel/jellyseerr:latest
-    container_name: jellyseerr
-    restart: unless-stopped
-    environment:
-      - LOG_LEVEL=debug
-      - TZ=${TZ:-Europe/Madrid}
-    volumes:
-      - ./jellyseerr:/app/config
-    networks:
-      - traefik
-    labels:
-      - "traefik.enable=true"
-      - "com.centurylinklabs.watchtower.enable=true"
-      - "traefik.http.routers.jellyseerr.rule=Host(`request.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.jellyseerr.entrypoints=web"
-      - "traefik.http.routers.jellyseerr-secure.rule=Host(`request.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.jellyseerr-secure.entrypoints=websecure"
-      - "traefik.http.routers.jellyseerr-secure.tls=true"
-      - "traefik.http.services.jellyseerr.loadbalancer.server.port=5055"
-
-  # FlareSolverr Proxy for Cloudflare Bypassing
-  flaresolverr:
-    image: ghcr.io/flaresolverr/flaresolverr:latest
-    container_name: flaresolverr
-    restart: unless-stopped
-    environment:
-      - LOG_LEVEL=${LOG_LEVEL:-info}
-      - TZ=${TZ:-Europe/Madrid}
-    ports:
-      - "8191:8191"
-    networks:
-      - traefik
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
 
   # Dozzle - Real-time Log Viewer
   dozzle:
