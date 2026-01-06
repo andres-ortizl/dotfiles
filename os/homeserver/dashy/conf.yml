@@ -41,7 +41,7 @@ appConfig:
     hideFooter: true
 
 sections:
-  # Dashboard Widgets Section
+  # System Overview Section with Widgets
   - name: System Overview
     icon: fas fa-gauge-high
     displayData:
@@ -78,8 +78,144 @@ sections:
           orderBy: pubDate
           orderDirection: desc
 
-  # Pi-Hole Monitoring
-  - name: Pi-Hole Monitoring
+  # Media Services
+  - name: Media
+    icon: fas fa-photo-video
+    displayData:
+      cols: 3
+      collapsed: false
+      rows: 1
+    items:
+      - title: Immich
+        description: Photo & Video Management
+        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/immich.png
+        url: http://immich.lab.lan
+        statusCheck: true
+        target: newtab
+        id: 0_immich
+
+      - title: qBittorrent
+        description: Torrent Client
+        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/qbittorrent.png
+        url: http://qbittorrent.lab.lan
+        statusCheck: true
+        target: newtab
+        id: 1_qbittorrent
+
+      - title: Cobalt
+        description: Media Downloader
+        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/cobalt.png
+        url: http://download.lab.lan
+        statusCheck: true
+        target: newtab
+        id: 2_cobalt
+
+  # Productivity & AI
+  - name: Productivity & AI
+    icon: fas fa-brain
+    displayData:
+      cols: 3
+      collapsed: false
+      rows: 1
+    items:
+      - title: Memos
+        description: Note-taking & Knowledge Base
+        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/memos.png
+        url: http://memos.lab.lan
+        statusCheck: true
+        target: newtab
+        id: 0_memos
+
+      - title: Open WebUI
+        description: AI Chat Interface
+        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/open-webui.png
+        url: http://chat.lab.lan
+        statusCheck: true
+        target: newtab
+        id: 1_openwebui
+
+      - title: Excalidraw
+        description: Collaborative Whiteboard
+        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/excalidraw.png
+        url: http://excalidraw.lab.lan
+        statusCheck: true
+        target: newtab
+        id: 2_excalidraw
+
+  # Network & Infrastructure
+  - name: Network & Infrastructure
+    icon: fas fa-network-wired
+    displayData:
+      cols: 3
+      collapsed: false
+      rows: 1
+    items:
+      - title: Pi-hole
+        description: Network-wide Ad Blocker & DNS
+        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/pi-hole.png
+        url: http://pihole.lab.lan/admin
+        statusCheck: true
+        target: newtab
+        id: 0_pihole
+
+      - title: Traefik
+        description: Reverse Proxy & Load Balancer
+        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/traefik.png
+        url: http://traefik.lab.lan
+        statusCheck: true
+        target: newtab
+        id: 1_traefik
+
+      - title: Dozzle
+        description: Real-time Docker Logs
+        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/dozzle.png
+        url: http://logs.lab.lan
+        statusCheck: true
+        target: newtab
+        id: 2_dozzle
+
+  # Management & Deployment
+  - name: Management & Deployment
+    icon: fas fa-server
+    displayData:
+      cols: 4
+      collapsed: false
+      rows: 1
+    items:
+      - title: Dokploy
+        description: Self-hosted PaaS Deployments
+        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/dokku.png
+        url: http://deploy.lab.lan
+        statusCheck: true
+        target: newtab
+        id: 0_dokploy
+
+      - title: Dockhand
+        description: Docker Management UI
+        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/portainer.png
+        url: http://docker.lab.lan
+        statusCheck: true
+        target: newtab
+        id: 1_dockhand
+
+      - title: Uptime Kuma
+        description: Service Monitoring
+        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/uptime-kuma.png
+        url: http://uptime.lab.lan
+        statusCheck: true
+        target: newtab
+        id: 2_uptimekuma
+
+      - title: Sync Service
+        description: Configuration Sync
+        icon: fas fa-sync
+        url: http://sync.lab.lan
+        statusCheck: true
+        target: newtab
+        id: 3_sync
+
+  # Pi-hole Monitoring Details
+  - name: Pi-hole Monitoring
     icon: fas fa-shield-halved
     displayData:
       collapsed: false
@@ -130,155 +266,6 @@ sections:
           rssUrl: https://www.theverge.com/rss/index.xml
           limit: 10
           orderBy: pubDate
-
-      - type: iframe
-        options:
-          url: http://uptime.lab.lan/status/services
-          frameHeight: 200
-
-  # Media Services
-  - name: Media
-    icon: fas fa-photo-video
-    displayData:
-      cols: 1
-      collapsed: false
-      rows: 1
-    items:
-      - title: Immich
-        description: Photo & Video Management
-        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/immich.png
-        url: http://immich.lab.lan
-        statusCheck: true
-        target: newtab
-        id: 0_immich
-
-  # Media Automation
-  - name: Media Automation
-    icon: fas fa-robot
-    displayData:
-      cols: 1
-      collapsed: false
-      rows: 1
-    items:
-      - title: qBittorrent
-        description: Torrent Client
-        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/qbittorrent.png
-        url: http://qbittorrent.lab.lan
-        statusCheck: true
-        target: newtab
-        id: 0_qbittorrent
-
-  # Network & Infrastructure
-  - name: Network & Infrastructure
-    icon: fas fa-network-wired
-    displayData:
-      cols: 3
-      collapsed: false
-      rows: 1
-    items:
-      - title: Pi-hole
-        description: Network-wide Ad Blocker & DNS
-        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/pi-hole.png
-        url: http://pihole.lab.lan/admin
-        statusCheck: true
-        target: newtab
-        id: 0_pihole
-
-      - title: Traefik
-        description: Reverse Proxy & Load Balancer
-        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/traefik.png
-        url: http://traefik.lab.lan
-        statusCheck: true
-        target: newtab
-        id: 1_traefik
-
-      - title: Dozzle
-        description: Real-time Docker Logs
-        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/dozzle.png
-        url: http://logs.lab.lan
-        statusCheck: true
-        target: newtab
-        id: 2_dozzle
-
-  # AI & Productivity
-  - name: AI & Productivity
-    icon: fas fa-brain
-    displayData:
-      cols: 3
-      collapsed: false
-      rows: 1
-    items:
-      - title: Cobalt
-        description: Media Downloader
-        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/cobalt.png
-        url: http://download.lab.lan
-        statusCheck: true
-        target: newtab
-        id: 0_cobalt
-
-      - title: Open WebUI
-        description: AI Chat Interface
-        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/open-webui.png
-        url: http://chat.lab.lan
-        statusCheck: true
-        target: newtab
-        id: 1_openwebui
-
-      - title: Excalidraw
-        description: Collaborative Whiteboard & Diagrams
-        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/excalidraw.png
-        url: http://excalidraw.lab.lan
-        statusCheck: true
-        target: newtab
-        id: 2_excalidraw
-
-  # Monitoring & Management
-  - name: Monitoring & Management
-    icon: fas fa-chart-line
-    displayData:
-      cols: 3
-      collapsed: false
-      rows: 1
-    items:
-      - title: Uptime Kuma
-        description: Service & Uptime Monitoring
-        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/uptime-kuma.png
-        url: http://uptime.lab.lan
-        statusCheck: true
-        target: newtab
-        id: 0_uptimekuma
-
-      - title: Sync Service
-        description: Configuration Sync & Updates
-        icon: fas fa-sync
-        url: http://sync.lab.lan
-        statusCheck: true
-        target: newtab
-        id: 1_sync
-
-      - title: Dokploy
-        description: Self-hosted PaaS for Quick Deployments
-        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/dokku.png
-        url: http://deploy.lab.lan
-        statusCheck: true
-        target: newtab
-        id: 2_dokploy
-
-      - title: Dockhand
-        description: Docker Management UI
-        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/portainer.png
-        url: http://docker.lab.lan
-        statusCheck: true
-        target: newtab
-        id: 3_dockhand
-
-      - title: Memos
-        description: Note-taking & Knowledge Base
-        icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/memos.png
-        url: http://memos.lab.lan
-        statusCheck: true
-        target: newtab
-        id: 4_memos
 
   # Quick Links & Tools
   - name: Quick Links & Tools
