@@ -47,7 +47,7 @@ sections:
     displayData:
       collapsed: false
       rows: 1
-      cols: 3
+      cols: 2
     widgets:
       - type: clock
         options:
@@ -55,17 +55,10 @@ sections:
           format: en-US
           hideDate: false
 
-      - type: weather
-        options:
-          apiKey: xxxxxxxxxxxxxxxxxxxxxxxxxx
-          city: London
-          units: metric
-          hideDetails: false
-
       - type: iframe
         options:
           url: http://uptime.lab.lan/status/services
-          height: 200
+          frameHeight: 200
 
   # Media Services
   - name: Media

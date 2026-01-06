@@ -104,7 +104,7 @@ services:
 
   # Dockhand - Docker Management UI
   dockhand:
-    image: finsys/dockhand:latest
+    image: fnsys/dockhand:latest
     container_name: dockhand
     restart: unless-stopped
     environment:
