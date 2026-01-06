@@ -65,7 +65,7 @@ sections:
       - type: pi-hole-stats
         useProxy: true
         options:
-          hostname: http://pihole.lab.lan:3333
+          hostname: http://pihole
           apiKey: VUE_APP_PIHOLE_API_KEY
           hideChart: false
           hideInfo: false
@@ -89,14 +89,14 @@ sections:
       - type: pi-hole-top-queries
         useProxy: true
         options:
-          hostname: http://192.168.1.193:3333/
+          hostname: http://pihole
           apiKey: VUE_APP_PIHOLE_API_KEY
           count: 10
 
       - type: pi-hole-traffic
         useProxy: true
         options:
-          hostname: http://192.168.1.193:3333/
+          hostname: http://pihole
           apiKey: VUE_APP_PIHOLE_API_KEY
 
   # Tech News & Updates
