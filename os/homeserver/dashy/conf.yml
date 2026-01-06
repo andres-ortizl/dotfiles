@@ -15,7 +15,7 @@ pageInfo:
 # Optional app settings and configuration
 appConfig:
   theme: oblivion
-  customCss: '.item { border-color: #9d4edd !important; } .item:hover { box-shadow: 0 0 15px #9d4edd !important; } section { border-color: #7b2cbf !important; } .section-heading { background: linear-gradient(90deg, #240046 0%, #3c096c 50%, #5a189a 100%) !important; }'
+  customCss: ".item { border-color: #9d4edd !important; } .item:hover { box-shadow: 0 0 15px #9d4edd !important; } section { border-color: #7b2cbf !important; } .section-heading { background: linear-gradient(90deg, #240046 0%, #3c096c 50%, #5a189a 100%) !important; }"
   layout: auto
   iconSize: medium
   language: en
@@ -287,7 +287,7 @@ sections:
         target: newtab
 
       - title: TRaSH Guides
-        description: *arr Stack Guides
+        description: "*arr Stack Guides"
         icon: fas fa-book
         url: https://trash-guides.info
         target: newtab
