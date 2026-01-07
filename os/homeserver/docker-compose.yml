@@ -536,7 +536,7 @@ services:
 
   # Copyparty - File Server with Web UI
   copyparty:
-    image: copyparty/ac:latest
+    image: copyparty/min:latest
     container_name: copyparty
     restart: unless-stopped
     environment:
