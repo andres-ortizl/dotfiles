@@ -536,7 +536,7 @@ services:
 
   # Copyparty - File Server with Web UI
   copyparty:
-    image: ghcr.io/9001/copyparty:latest
+    image: copyparty/ac:latest
     container_name: copyparty
     restart: unless-stopped
     environment:
