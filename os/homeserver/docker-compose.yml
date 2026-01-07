@@ -539,6 +539,7 @@ services:
     image: copyparty/ac:latest
     container_name: copyparty
     restart: unless-stopped
+    command: -c /cfg/copyparty.conf
     environment:
       - TZ=${TZ:-Europe/Madrid}
     volumes:
