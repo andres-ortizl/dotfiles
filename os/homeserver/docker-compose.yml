@@ -21,6 +21,7 @@ volumes:
   dokploy-postgres:
   dokploy-redis:
   dokploy-data:
+  tailscale-data:
 
 services:
   # Traefik Reverse Proxy
@@ -85,7 +86,6 @@ services:
       - "traefik.http.routers.dashy-secure.tls=true"
       - "traefik.http.services.dashy.loadbalancer.server.port=8080"
 
-  # PatchPanda - Smart Docker Update Manager
   # Dockhand - Docker Management UI
   dockhand:
     image: fnsys/dockhand:latest
@@ -124,6 +124,29 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - traefik
+
+  # Tailscale - VPN Access
+  tailscale:
+    image: tailscale/tailscale:latest
+    container_name: tailscale
+    hostname: homeserver
+    restart: unless-stopped
+    environment:
+      - TS_AUTHKEY=${TS_AUTHKEY}
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_USERSPACE=false
+      - TS_ROUTES=172.18.0.0/16,172.31.0.0/16
+      - TS_ACCEPT_DNS=false
+    volumes:
+      - tailscale-data:/var/lib/tailscale
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    networks:
+      - traefik
+      - media
+      - pihole_network
 
   # Sync Service - Configuration Sync UI
   sync-service:
