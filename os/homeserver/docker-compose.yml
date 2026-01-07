@@ -3,8 +3,9 @@ name: lab
 networks:
   traefik:
     driver: bridge
-  media:
-    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.18.0.0/24
   pihole_network:
     driver: bridge
     ipam:
@@ -135,7 +136,7 @@ services:
       - TS_AUTHKEY=${TS_AUTHKEY}
       - TS_STATE_DIR=/var/lib/tailscale
       - TS_USERSPACE=false
-      - TS_ROUTES=172.18.0.0/16,172.31.0.0/16
+      - TS_ROUTES=172.18.0.0/24,172.31.0.0/16
       - TS_ACCEPT_DNS=false
     volumes:
       - tailscale-data:/var/lib/tailscale
@@ -145,7 +146,6 @@ services:
       - SYS_MODULE
     networks:
       - traefik
-      - media
       - pihole_network
 
   # Sync Service - Configuration Sync UI
@@ -312,7 +312,6 @@ services:
       - "6881:6881/udp"
     networks:
       - traefik
-      - media
     labels:
       - "traefik.enable=true"
       - "com.centurylinklabs.watchtower.enable=true"
