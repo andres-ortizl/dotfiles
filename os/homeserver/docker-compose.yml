@@ -533,3 +533,25 @@ services:
       - "traefik.http.routers.cobalt-api-secure.tls=true"
       - "traefik.http.routers.cobalt-api-secure.service=cobalt-api"
       - "traefik.http.services.cobalt-api.loadbalancer.server.port=9000"
+
+  # Copyparty - File Server with Web UI
+  copyparty:
+    image: copyparty/copyparty:latest
+    container_name: copyparty
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ:-Europe/Madrid}
+    volumes:
+      - ./copyparty/config:/cfg
+      - ${DATA_ROOT:-./data}:/data
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "traefik.http.routers.copyparty.rule=Host(`files.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.copyparty.entrypoints=web"
+      - "traefik.http.routers.copyparty-secure.rule=Host(`files.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.copyparty-secure.entrypoints=websecure"
+      - "traefik.http.routers.copyparty-secure.tls=true"
+      - "traefik.http.services.copyparty.loadbalancer.server.port=3923"
