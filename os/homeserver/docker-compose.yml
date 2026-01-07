@@ -539,11 +539,11 @@ services:
     image: copyparty/ac:latest
     container_name: copyparty
     restart: unless-stopped
-    command: -c /cfg/copyparty.conf
     environment:
       - TZ=${TZ:-Europe/Madrid}
     volumes:
-      - ./copyparty/config:/cfg
+      - ./copyparty/config/copyparty.conf:/cfg/config.conf:ro
+      - ./copyparty/db:/cfg/hists
       - ${DATA_ROOT:-./data}:/data
     networks:
       - traefik
