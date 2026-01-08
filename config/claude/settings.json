@@ -1,0 +1,221 @@
+{
+  "numStartups": 12,
+  "installMethod": "native",
+  "autoUpdates": false,
+  "tipsHistory": {
+    "new-user-warmup": 7,
+    "plan-mode-for-complex-tasks": 12,
+    "terminal-setup": 11,
+    "memory-command": 1,
+    "theme-command": 1,
+    "status-line": 1,
+    "stickers-command": 1,
+    "prompt-queue": 7,
+    "enter-to-steer-in-relatime": 1,
+    "todo-list": 1,
+    "install-github-app": 12,
+    "install-slack-app": 12,
+    "drag-and-drop-images": 3,
+    "paste-images-mac": 3,
+    "double-esc-code-restore": 5,
+    "continue": 5,
+    "shift-tab": 5,
+    "image-paste": 5,
+    "ultrathink-keyword": 6,
+    "custom-agents": 6,
+    "desktop-app": 6,
+    "web-app": 6,
+    "mobile-app": 7,
+    "permissions": 11,
+    "rename-conversation": 11,
+    "custom-commands": 11
+  },
+  "promptQueueUseCount": 9,
+  "cachedStatsigGates": {
+    "tengu_prompt_suggestion": true,
+    "tengu_streaming_tool_execution2": false
+  },
+  "cachedDynamicConfigs": {
+    "tengu_1p_event_batch_config": {
+      "scheduledDelayMillis": 5000,
+      "maxExportBatchSize": 200,
+      "maxQueueSize": 8192
+    },
+    "tengu-top-of-feed-tip": {
+      "tip": "",
+      "color": ""
+    }
+  },
+  "cachedGrowthBookFeatures": {
+    "tengu_mcp_tool_search": false,
+    "tengu_disable_bypass_permissions_mode": false,
+    "strawberry_granite_flag": "N/A",
+    "persimmon_marble_flag": "N/A",
+    "tengu_pid_based_version_locking": false,
+    "tengu_tool_pear": false,
+    "tengu_c4w_usage_limit_notifications_enabled": true,
+    "tengu_thinkback": false,
+    "tengu_sumi": false,
+    "tengu_react_vulnerability_warning": true,
+    "tengu_tool_search_unsupported_models": null,
+    "tengu_ant_attribution_header_new": true,
+    "tengu_accept_with_feedback": false,
+    "tengu_tool_result_persistence": true
+  },
+  "mcpServers": {
+    "sentry": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@sentry/mcp-server"
+      ],
+      "env": {
+        "SENTRY_AUTH_TOKEN": "${SENTRY_AUTH_TOKEN}"
+      }
+    },
+    "slack": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@anthropic/mcp-slack"
+      ],
+      "env": {
+        "SLACK_BOT_TOKEN": "${SLACK_BOT_TOKEN}",
+        "SLACK_USER_TOKEN": "${SLACK_USER_TOKEN}"
+      }
+    },
+    "linear": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://mcp.linear.app/mcp"
+      ]
+    },
+    "memos": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-server-memos"
+      ],
+      "env": {
+        "MEMOS_URL": "${MEMOS_URL}",
+        "MEMOS_TOKEN": "${MEMOS_ACCESS_TOKEN}"
+      }
+    },
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp@latest"
+      ],
+      "env": {
+        "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}"
+      }
+    }
+  },
+  "projects": {
+    "/Users/andrew/code/dotfiles": {
+      "allowedTools": [],
+      "mcpContextUris": [],
+      "mcpServers": {},
+      "enabledMcpjsonServers": [],
+      "disabledMcpjsonServers": [],
+      "hasTrustDialogAccepted": true,
+      "projectOnboardingSeenCount": 1,
+      "hasClaudeMdExternalIncludesApproved": false,
+      "hasClaudeMdExternalIncludesWarningShown": false,
+      "lastCost": 4.6757597,
+      "lastAPIDuration": 29370897,
+      "lastAPIDurationWithoutRetries": 29370825,
+      "lastToolDuration": 716951,
+      "lastDuration": 31125972,
+      "lastLinesAdded": 8,
+      "lastLinesRemoved": 7,
+      "lastTotalInputTokens": 338834,
+      "lastTotalOutputTokens": 80842,
+      "lastTotalCacheCreationInputTokens": 512808,
+      "lastTotalCacheReadInputTokens": 5811942,
+      "lastTotalWebSearchRequests": 7,
+      "lastModelUsage": {
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 337699,
+          "outputTokens": 20065,
+          "cacheReadInputTokens": 685497,
+          "cacheCreationInputTokens": 110735,
+          "webSearchRequests": 0,
+          "costUSD": 0.6449924500000002
+        },
+        "claude-sonnet-4-5-20250929": {
+          "inputTokens": 1135,
+          "outputTokens": 60777,
+          "cacheReadInputTokens": 5126445,
+          "cacheCreationInputTokens": 402073,
+          "webSearchRequests": 7,
+          "costUSD": 4.03076725
+        }
+      },
+      "lastSessionId": "5999a1a2-bc3e-487f-bb34-24bc682ea5ee",
+      "reactVulnerabilityCache": {
+        "detected": false,
+        "package": null,
+        "packageName": null,
+        "version": null,
+        "packageManager": null
+      },
+      "exampleFiles": [
+        "app.py",
+        "exports.sh",
+        "docker-compose.yml",
+        "keys.py",
+        "services.yaml"
+      ],
+      "exampleFilesGeneratedAt": 1767829168419
+    }
+  },
+  "userID": "507e235a9055ba3ad6b2c63c5b0e2e60352f1bd2b8240ee1f15bb7b8827d2434",
+  "firstStartTime": "2026-01-07T23:38:49.917Z",
+  "sonnet45MigrationComplete": true,
+  "sonnet45MigrationTimestamp": 1767829129921,
+  "opus45MigrationComplete": true,
+  "thinkingMigrationComplete": true,
+  "githubRepoPaths": {
+    "andres-ortizl/dotfiles": [
+      "/Users/andrew/code/dotfiles"
+    ]
+  },
+  "changelogLastFetched": 1767829167014,
+  "oauthAccount": {
+    "accountUuid": "12f69b09-985e-429e-95a4-2c0cfb69be98",
+    "emailAddress": "andres@anyformat.ai",
+    "organizationUuid": "b235a175-1218-444b-a724-7776b885969f",
+    "hasExtraUsageEnabled": false,
+    "displayName": "Andrés",
+    "organizationRole": "user",
+    "workspaceRole": null,
+    "organizationName": "anyformat"
+  },
+  "claudeCodeFirstTokenDate": "2025-12-19T10:47:07.239746Z",
+  "hasCompletedOnboarding": true,
+  "lastOnboardingVersion": "2.1.1",
+  "lastReleaseNotesSeen": "2.1.1",
+  "hasShownOpus45Notice": {
+    "b235a175-1218-444b-a724-7776b885969f": true
+  },
+  "officialMarketplaceAutoInstallAttempted": true,
+  "officialMarketplaceAutoInstalled": true,
+  "s1mAccessCache": {
+    "b235a175-1218-444b-a724-7776b885969f": {
+      "hasAccess": false,
+      "hasAccessNotAsDefault": true,
+      "timestamp": 1767829167060
+    }
+  },
+  "hasShownS1MWelcomeV2": {
+    "b235a175-1218-444b-a724-7776b885969f": true
+  },
+  "autoUpdatesProtectedForNative": true,
+  "feedbackSurveyState": {
+    "lastShownTime": 1767832333956
+  }
+}

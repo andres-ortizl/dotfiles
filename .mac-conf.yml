@@ -42,6 +42,11 @@
     # ~/Library/Preferences/com.raycast.macos.plist: config/raycast/com.raycast.macos.plist
     ~/Library/Application Support/aichat: config/aichat/**
     ~/.factory/: config/factory/**
+    ~/.factory/AGENTS.md: AGENTS.md
+    ~/.claude/CLAUDE.md: AGENTS.md
+    ~/.claude/commands: config/claude/commands/**
+    ~/.claude.json: config/claude/settings.json
+    ~/.factory/mcp.json: config/factory/mcp.json
 
 - shell:
     - [git submodule update --init --recursive, Installing submodules]
