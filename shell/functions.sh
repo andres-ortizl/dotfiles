@@ -409,3 +409,19 @@ function git_branch_clean() {
   git branch -d $(git branch --merged=master | grep -v master)
   git fetch --prune
 }
+
+function claude() {
+  # Wrapper that loads .env before calling Claude Code (for MCP servers)
+  if [ -f "$DOTFILES/.env" ]; then
+    export $(grep -v '^#' "$DOTFILES/.env" | grep -v '^$' | xargs)
+  fi
+  /Users/andrew/.local/bin/claude "$@"
+}
+
+function droid() {
+  # Wrapper that loads .env before calling Droid
+  if [ -f "$DOTFILES/.env" ]; then
+    export $(grep -v '^#' "$DOTFILES/.env" | grep -v '^$' | xargs)
+  fi
+  command droid "$@"
+}
