@@ -1,5 +1,5 @@
 {
-  "numStartups": 27,
+  "numStartups": 28,
   "installMethod": "native",
   "autoUpdates": false,
   "tipsHistory": {
@@ -56,7 +56,7 @@
     "tengu_tool_pear": false,
     "tengu_c4w_usage_limit_notifications_enabled": true,
     "tengu_thinkback": false,
-    "tengu_sumi": false,
+    "tengu_sumi": true,
     "tengu_react_vulnerability_warning": false,
     "tengu_tool_search_unsupported_models": null,
     "tengu_ant_attribution_header_new": true,
@@ -72,7 +72,12 @@
       "tip": "",
       "color": ""
     },
-    "tengu_permission_explainer": false
+    "tengu_permission_explainer": false,
+    "tengu_scratch": false,
+    "tengu_log_segment_events": false,
+    "tengu_log_datadog_events": true,
+    "tengu_streaming_tool_execution2": false,
+    "tengu_post_compact_survey": false
   },
   "mcpServers": {
     "sentry": {
@@ -134,7 +139,7 @@
       "enabledMcpjsonServers": [],
       "disabledMcpjsonServers": [],
       "hasTrustDialogAccepted": true,
-      "projectOnboardingSeenCount": 1,
+      "projectOnboardingSeenCount": 2,
       "hasClaudeMdExternalIncludesApproved": false,
       "hasClaudeMdExternalIncludesWarningShown": false,
       "lastCost": 0.8612533,
@@ -305,7 +310,7 @@
       "/Users/andrew/code/anyformat-backend"
     ]
   },
-  "changelogLastFetched": 1767946888505,
+  "changelogLastFetched": 1768173763202,
   "oauthAccount": {
     "accountUuid": "12f69b09-985e-429e-95a4-2c0cfb69be98",
     "emailAddress": "andres@anyformat.ai",
@@ -319,7 +324,7 @@
   "claudeCodeFirstTokenDate": "2025-12-19T10:47:07.239746Z",
   "hasCompletedOnboarding": true,
   "lastOnboardingVersion": "2.1.1",
-  "lastReleaseNotesSeen": "2.1.2",
+  "lastReleaseNotesSeen": "2.1.5",
   "hasShownOpus45Notice": {
     "b235a175-1218-444b-a724-7776b885969f": true
   },
