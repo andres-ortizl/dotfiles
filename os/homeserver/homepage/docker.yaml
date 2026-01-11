@@ -1,8 +1,0 @@
----
-# Docker integration for Homepage
-# This allows Homepage to automatically discover and display Docker containers
-
-# Local Docker socket configuration
-my-docker:
-  socket: /var/run/docker.sock
-  host: unix:///var/run/docker.sock
