@@ -144,6 +144,10 @@
       "value": "50OFFPRO26"
     },
     {
+      "name": "gkDotDevHideWhatsIncludedCheckoutPageTest",
+      "value": true
+    },
+    {
       "name": "gkDotDevInsightsBitbucket",
       "value": true
     },
@@ -312,7 +316,7 @@
     }
   },
   "webConfig": {
-    "lastUpdatedAt": "2026-01-05T09:52:40.103Z",
+    "lastUpdatedAt": "2026-01-09T14:12:16.790Z",
     "config": {
       "callouts": [],
       "promos": [
