@@ -16,13 +16,8 @@ volumes:
   model-cache:
   immich-db:
   immich-redis:
-  linkstack-data:
-  dockhand-data:
-  memos-data:
   dokploy-postgres:
   dokploy-redis:
-  dokploy-data:
-  tailscale-data:
 
 services:
   # Traefik Reverse Proxy
@@ -68,7 +63,7 @@ services:
       - VUE_APP_PIHOLE_API_KEY=${PIHOLE_PASSWORD:-admin}
       - VUE_APP_RSS_API_KEY=${RSS_API_KEY:-}
     volumes:
-      - ./dashy/conf.yml:/app/user-data/conf.yml
+      - ./config/dashy/conf.yml:/app/user-data/conf.yml
     networks:
       - traefik
     healthcheck:
@@ -96,7 +91,7 @@ services:
       - TZ=${TZ:-Europe/Madrid}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - dockhand-data:/data
+      - ./data/dockhand:/data
     networks:
       - traefik
     labels:
@@ -139,7 +134,7 @@ services:
       - TS_ROUTES=172.18.0.0/24,172.31.0.0/16,192.168.1.0/24
       - TS_ACCEPT_DNS=false
     volumes:
-      - tailscale-data:/var/lib/tailscale
+      - ./data/tailscale:/var/lib/tailscale
       - /dev/net/tun:/dev/net/tun
     cap_add:
       - NET_ADMIN
@@ -150,7 +145,7 @@ services:
 
   # Sync Service - Configuration Sync UI
   sync-service:
-    build: ./sync-service
+    build: ./config/sync-service
     container_name: sync-service
     restart: unless-stopped
     environment:
@@ -158,7 +153,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ../../../dotfiles:/dotfiles
-      - ./sync-service/data:/app/data
+      - ./data/sync-service:/app/data
     networks:
       - traefik
     labels:
@@ -222,7 +217,7 @@ services:
       - TZ=${TZ:-Europe/Madrid}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - dokploy-data:/app/data
+      - ./data/dokploy:/app/data
     networks:
       - traefik
     labels:
@@ -250,8 +245,8 @@ services:
       - VIRTUAL_HOST=pihole.${DOMAIN:-localhost}
       - PIHOLE_DOMAIN=${DOMAIN:-localhost}
     volumes:
-      - ./pihole/etc-pihole:/etc/pihole
-      - ./pihole/etc-dnsmasq.d:/etc/dnsmasq.d
+      - ./config/pihole/etc-pihole:/etc/pihole
+      - ./config/pihole/etc-dnsmasq.d:/etc/dnsmasq.d
     ports:
       - "53:53/tcp"
       - "53:53/udp"
@@ -305,8 +300,8 @@ services:
       - TZ=${TZ:-Europe/Madrid}
       - WEBUI_PORT=8080
     volumes:
-      - ./qbittorrent/config:/config
-      - ${DATA_ROOT:-./data}:/data
+      - ./config/qbittorrent:/config
+      - ${DATA_ROOT:-./data/shared}:/data
     ports:
       - "6881:6881"
       - "6881:6881/udp"
@@ -330,7 +325,7 @@ services:
     container_name: immich_server
     restart: unless-stopped
     volumes:
-      - ${UPLOAD_LOCATION:-./immich/upload}:/data
+      - ${UPLOAD_LOCATION:-./data/immich}:/data
       - /etc/localtime:/etc/localtime:ro
       - /home/andrew/immich:/mnt/old-immich:ro
       - /home/andrew/immich-test:/mnt/immich-test:ro
@@ -403,7 +398,7 @@ services:
     environment:
       - TZ=${TZ:-Europe/Madrid}
     volumes:
-      - ./openwebui/data:/app/backend/data
+      - ./data/openwebui:/app/backend/data
     networks:
       - traefik
     labels:
@@ -445,7 +440,7 @@ services:
     environment:
       - TZ=${TZ:-Europe/Madrid}
     volumes:
-      - ./uptime-kuma:/app/data
+      - ./data/uptime-kuma:/app/data
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - traefik
@@ -486,7 +481,7 @@ services:
     environment:
       - TZ=${TZ:-Europe/Madrid}
     volumes:
-      - memos-data:/var/opt/memos
+      - ./data/memos:/var/opt/memos
     networks:
       - traefik
     labels:
@@ -511,7 +506,7 @@ services:
       - API_URL=http://download-api.${DOMAIN:-localhost}/
       - WEB_API_URL=http://download-api.${DOMAIN:-localhost}/
     volumes:
-      - ./cobalt/entrypoint.sh:/entrypoint.sh:ro
+      - ./config/cobalt/entrypoint.sh:/entrypoint.sh:ro
     networks:
       - traefik
     labels:
@@ -542,9 +537,9 @@ services:
     environment:
       - TZ=${TZ:-Europe/Madrid}
     volumes:
-      - ./copyparty/config/copyparty.conf:/cfg/config.conf:ro
-      - ./copyparty/db:/cfg/hists
-      - ${DATA_ROOT:-./data}:/data
+      - ./config/copyparty/copyparty.conf:/cfg/config.conf:ro
+      - ./data/copyparty:/cfg/hists
+      - ${DATA_ROOT:-./data/shared}:/data
     networks:
       - traefik
     labels:

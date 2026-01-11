@@ -47,7 +47,7 @@
     "editor.indent_guide_active": "#ffffff80",
     "editor.line_number": "#ffffff80",
     "editor.active_line.background": "#bd93f920",
-    "editor.selection.background": "#44475a99"
+    //"editor.selection.background": "#44475a99"
   },
   // Cursor and Line Highlighting
   "cursor_blink": false,
@@ -302,7 +302,7 @@
         }
       ],
       "language_servers": [
-        "basedpyright",
+        //"basedpyright",
         "ty",
         "ruff"
       ]
