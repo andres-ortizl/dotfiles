@@ -321,15 +321,6 @@
         ]
       }
     },
-    "pyright": {
-      "settings": {
-        "python.analysis": {
-          "diagnosticMode": "openFilesOnly",
-          "typeCheckingMode": "basic"
-        },
-        "disableOrganizeImports": true
-      }
-    },
     "basedpyright": {
       "settings": {
         "python": {

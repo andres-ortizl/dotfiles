@@ -1,40 +1,48 @@
 {
-  "numStartups": 28,
+  "numStartups": 55,
   "installMethod": "native",
   "autoUpdates": false,
   "tipsHistory": {
     "new-user-warmup": 7,
-    "plan-mode-for-complex-tasks": 27,
-    "terminal-setup": 22,
-    "memory-command": 16,
-    "theme-command": 21,
-    "status-line": 26,
-    "stickers-command": 21,
+    "plan-mode-for-complex-tasks": 55,
+    "terminal-setup": 52,
+    "memory-command": 47,
+    "theme-command": 41,
+    "status-line": 51,
+    "stickers-command": 41,
     "prompt-queue": 7,
-    "enter-to-steer-in-relatime": 22,
-    "todo-list": 22,
-    "install-github-app": 22,
-    "install-slack-app": 22,
-    "drag-and-drop-images": 23,
-    "paste-images-mac": 23,
-    "double-esc-code-restore": 25,
-    "continue": 25,
-    "shift-tab": 25,
-    "image-paste": 25,
-    "ultrathink-keyword": 26,
-    "custom-agents": 22,
-    "desktop-app": 22,
-    "web-app": 22,
-    "mobile-app": 22,
-    "permissions": 22,
-    "rename-conversation": 26,
-    "custom-commands": 26
+    "enter-to-steer-in-relatime": 42,
+    "todo-list": 42,
+    "install-github-app": 52,
+    "install-slack-app": 52,
+    "drag-and-drop-images": 53,
+    "paste-images-mac": 53,
+    "double-esc-code-restore": 48,
+    "continue": 48,
+    "shift-tab": 48,
+    "image-paste": 47,
+    "ultrathink-keyword": 49,
+    "custom-agents": 53,
+    "desktop-app": 53,
+    "web-app": 53,
+    "mobile-app": 53,
+    "permissions": 52,
+    "rename-conversation": 41,
+    "custom-commands": 41,
+    "git-worktrees": 51
   },
-  "promptQueueUseCount": 26,
+  "promptQueueUseCount": 601,
   "cachedStatsigGates": {
     "tengu_prompt_suggestion": true,
     "tengu_streaming_tool_execution2": false,
-    "tengu_session_memory": false
+    "tengu_session_memory": false,
+    "tengu_log_1p_events": true,
+    "tengu_disable_bypass_permissions_mode": false,
+    "code_slack_app_install_banner": false,
+    "tengu_tool_pear": false,
+    "tengu_c4w_usage_limit_notifications_enabled": true,
+    "tengu_thinkback": false,
+    "tengu_ant_attribution_header_new": true
   },
   "cachedDynamicConfigs": {
     "tengu_1p_event_batch_config": {
@@ -48,7 +56,7 @@
     }
   },
   "cachedGrowthBookFeatures": {
-    "tengu_mcp_tool_search": false,
+    "tengu_mcp_tool_search": true,
     "tengu_disable_bypass_permissions_mode": false,
     "strawberry_granite_flag": "N/A",
     "persimmon_marble_flag": "N/A",
@@ -77,7 +85,10 @@
     "tengu_log_segment_events": false,
     "tengu_log_datadog_events": true,
     "tengu_streaming_tool_execution2": false,
-    "tengu_post_compact_survey": false
+    "tengu_post_compact_survey": false,
+    "enhanced_telemetry_beta": false,
+    "tengu_code_diff_cli": true,
+    "tengu_compact_streaming_retry": false
   },
   "mcpServers": {
     "sentry": {
@@ -142,37 +153,37 @@
       "projectOnboardingSeenCount": 2,
       "hasClaudeMdExternalIncludesApproved": false,
       "hasClaudeMdExternalIncludesWarningShown": false,
-      "lastCost": 0.8612533,
-      "lastAPIDuration": 220893,
-      "lastAPIDurationWithoutRetries": 215760,
-      "lastToolDuration": 59,
-      "lastDuration": 836754,
-      "lastLinesAdded": 34,
-      "lastLinesRemoved": 44,
-      "lastTotalInputTokens": 901,
-      "lastTotalOutputTokens": 11488,
-      "lastTotalCacheCreationInputTokens": 100126,
-      "lastTotalCacheReadInputTokens": 1145236,
+      "lastCost": 0.2246123,
+      "lastAPIDuration": 102233,
+      "lastAPIDurationWithoutRetries": 102231,
+      "lastToolDuration": 696,
+      "lastDuration": 577603,
+      "lastLinesAdded": 0,
+      "lastLinesRemoved": 0,
+      "lastTotalInputTokens": 1565,
+      "lastTotalOutputTokens": 3958,
+      "lastTotalCacheCreationInputTokens": 22740,
+      "lastTotalCacheReadInputTokens": 263521,
       "lastTotalWebSearchRequests": 0,
       "lastModelUsage": {
-        "claude-sonnet-4-5-20250929": {
-          "inputTokens": 332,
-          "outputTokens": 11174,
-          "cacheReadInputTokens": 1145236,
-          "cacheCreationInputTokens": 88712,
-          "webSearchRequests": 0,
-          "costUSD": 0.8448467999999999
-        },
         "claude-haiku-4-5-20251001": {
-          "inputTokens": 569,
-          "outputTokens": 314,
+          "inputTokens": 1252,
+          "outputTokens": 128,
           "cacheReadInputTokens": 0,
-          "cacheCreationInputTokens": 11414,
+          "cacheCreationInputTokens": 0,
           "webSearchRequests": 0,
-          "costUSD": 0.0164065
+          "costUSD": 0.001892
+        },
+        "claude-sonnet-4-5-20250929": {
+          "inputTokens": 313,
+          "outputTokens": 3830,
+          "cacheReadInputTokens": 263521,
+          "cacheCreationInputTokens": 22740,
+          "webSearchRequests": 0,
+          "costUSD": 0.22272029999999998
         }
       },
-      "lastSessionId": "dacf26c4-e754-4f92-b814-77dd1f9a124b",
+      "lastSessionId": "6af85f5d-69d8-4a2a-940c-04078dc1d19f",
       "reactVulnerabilityCache": {
         "detected": false,
         "package": null,
@@ -181,13 +192,13 @@
         "packageManager": null
       },
       "exampleFiles": [
-        "app.py",
-        "exports.sh",
         "docker-compose.yml",
-        "keys.py",
-        "services.yaml"
+        "exports.sh",
+        "app.py",
+        "functions.sh",
+        "keys.py"
       ],
-      "exampleFilesGeneratedAt": 1767829168419
+      "exampleFilesGeneratedAt": 1768468297816
     },
     "/Users/andrew/code/anyformat-backend": {
       "allowedTools": [],
@@ -196,7 +207,7 @@
       "enabledMcpjsonServers": [],
       "disabledMcpjsonServers": [],
       "hasTrustDialogAccepted": true,
-      "projectOnboardingSeenCount": 1,
+      "projectOnboardingSeenCount": 3,
       "hasClaudeMdExternalIncludesApproved": false,
       "hasClaudeMdExternalIncludesWarningShown": false,
       "reactVulnerabilityCache": {
@@ -213,38 +224,38 @@
         "cli.py",
         "inference.py"
       ],
-      "exampleFilesGeneratedAt": 1767863581718,
-      "lastCost": 1.8821419,
-      "lastAPIDuration": 552156,
-      "lastAPIDurationWithoutRetries": 552138,
-      "lastToolDuration": 42868,
-      "lastDuration": 3427099,
-      "lastLinesAdded": 11,
-      "lastLinesRemoved": 5,
-      "lastTotalInputTokens": 21870,
-      "lastTotalOutputTokens": 21928,
-      "lastTotalCacheCreationInputTokens": 286476,
-      "lastTotalCacheReadInputTokens": 1627448,
+      "exampleFilesGeneratedAt": 1768468448991,
+      "lastCost": 2.8950806499999997,
+      "lastAPIDuration": 632185,
+      "lastAPIDurationWithoutRetries": 632169,
+      "lastToolDuration": 5102,
+      "lastDuration": 10088810,
+      "lastLinesAdded": 649,
+      "lastLinesRemoved": 60,
+      "lastTotalInputTokens": 12898,
+      "lastTotalOutputTokens": 31225,
+      "lastTotalCacheCreationInputTokens": 353309,
+      "lastTotalCacheReadInputTokens": 3624983,
       "lastTotalWebSearchRequests": 0,
       "lastModelUsage": {
         "claude-haiku-4-5-20251001": {
-          "inputTokens": 20990,
-          "outputTokens": 453,
+          "inputTokens": 9346,
+          "outputTokens": 570,
           "cacheReadInputTokens": 0,
-          "cacheCreationInputTokens": 11359,
+          "cacheCreationInputTokens": 0,
           "webSearchRequests": 0,
-          "costUSD": 0.03745375
+          "costUSD": 0.012196000000000002
         },
         "claude-sonnet-4-5-20250929": {
-          "inputTokens": 880,
-          "outputTokens": 21475,
-          "cacheReadInputTokens": 1627448,
-          "cacheCreationInputTokens": 275117,
+          "inputTokens": 3552,
+          "outputTokens": 30655,
+          "cacheReadInputTokens": 3624983,
+          "cacheCreationInputTokens": 353309,
           "webSearchRequests": 0,
-          "costUSD": 1.8446881499999999
+          "costUSD": 2.88288465
         }
       },
-      "lastSessionId": "31bbe20d-3060-4a49-90c1-1c409612bca7"
+      "lastSessionId": "1d3daecd-7f5c-46af-8699-b8c72d286b4b"
     },
     "/Users/andrew/code/fastmcp_memo": {
       "allowedTools": [],
@@ -294,6 +305,63 @@
         }
       },
       "lastSessionId": "77200177-bf63-4a71-ad67-6fbc9e8450ba"
+    },
+    "/Users/andrew/code/anyformat-frontend": {
+      "allowedTools": [],
+      "mcpContextUris": [],
+      "mcpServers": {},
+      "enabledMcpjsonServers": [],
+      "disabledMcpjsonServers": [],
+      "hasTrustDialogAccepted": true,
+      "projectOnboardingSeenCount": 0,
+      "hasClaudeMdExternalIncludesApproved": false,
+      "hasClaudeMdExternalIncludesWarningShown": false,
+      "exampleFiles": [
+        "api-v2.types.ts",
+        "graphCRUDInterface.ts",
+        "FilesTable.tsx",
+        "GraphReader.ts",
+        "WorkflowComposerLayout.tsx"
+      ],
+      "exampleFilesGeneratedAt": 1768477399598,
+      "reactVulnerabilityCache": {
+        "detected": false,
+        "package": null,
+        "packageName": null,
+        "version": null,
+        "packageManager": null
+      },
+      "lastCost": 0.2884651,
+      "lastAPIDuration": 86483,
+      "lastAPIDurationWithoutRetries": 86481,
+      "lastToolDuration": 9190,
+      "lastDuration": 161039,
+      "lastLinesAdded": 0,
+      "lastLinesRemoved": 0,
+      "lastTotalInputTokens": 1966,
+      "lastTotalOutputTokens": 3732,
+      "lastTotalCacheCreationInputTokens": 40050,
+      "lastTotalCacheReadInputTokens": 258172,
+      "lastTotalWebSearchRequests": 0,
+      "lastModelUsage": {
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 256,
+          "outputTokens": 54,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.000526
+        },
+        "claude-sonnet-4-5-20250929": {
+          "inputTokens": 1710,
+          "outputTokens": 3678,
+          "cacheReadInputTokens": 258172,
+          "cacheCreationInputTokens": 40050,
+          "webSearchRequests": 0,
+          "costUSD": 0.2879391
+        }
+      },
+      "lastSessionId": "8c58c337-c439-46de-9f10-0aa103824d93"
     }
   },
   "userID": "507e235a9055ba3ad6b2c63c5b0e2e60352f1bd2b8240ee1f15bb7b8827d2434",
@@ -307,10 +375,14 @@
       "/Users/andrew/code/dotfiles"
     ],
     "anyformat-ai/anyformat-backend": [
+      "/Users/andrew/code/anyformat-backend/anyformat/services/modal-yolo",
       "/Users/andrew/code/anyformat-backend"
+    ],
+    "anyformat-ai/anyformat-frontend": [
+      "/Users/andrew/code/anyformat-frontend"
     ]
   },
-  "changelogLastFetched": 1768173763202,
+  "changelogLastFetched": 1768381200242,
   "oauthAccount": {
     "accountUuid": "12f69b09-985e-429e-95a4-2c0cfb69be98",
     "emailAddress": "andres@anyformat.ai",
@@ -324,7 +396,7 @@
   "claudeCodeFirstTokenDate": "2025-12-19T10:47:07.239746Z",
   "hasCompletedOnboarding": true,
   "lastOnboardingVersion": "2.1.1",
-  "lastReleaseNotesSeen": "2.1.5",
+  "lastReleaseNotesSeen": "2.1.7",
   "hasShownOpus45Notice": {
     "b235a175-1218-444b-a724-7776b885969f": true
   },
@@ -334,7 +406,7 @@
     "b235a175-1218-444b-a724-7776b885969f": {
       "hasAccess": false,
       "hasAccessNotAsDefault": true,
-      "timestamp": 1768171711108
+      "timestamp": 1768516896130
     }
   },
   "hasShownS1MWelcomeV2": {
@@ -342,6 +414,8 @@
   },
   "autoUpdatesProtectedForNative": true,
   "feedbackSurveyState": {
-    "lastShownTime": 1767832333956
-  }
+    "lastShownTime": 1768383523685
+  },
+  "opusProMigrationComplete": true,
+  "cachedChromeExtensionInstalled": false
 }
