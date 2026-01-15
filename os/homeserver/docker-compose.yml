@@ -34,6 +34,7 @@ services:
       - --api.insecure=true
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
+      - --entrypoints.websecure.transport.respondingTimeouts.readTimeout=0
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
     volumes:
