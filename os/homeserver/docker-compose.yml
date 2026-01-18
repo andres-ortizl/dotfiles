@@ -538,7 +538,7 @@ services:
     environment:
       - TZ=${TZ:-Europe/Madrid}
     volumes:
-      - ./config/copyparty/copyparty.conf:/cfg/config.conf:ro
+      - ./config/copyparty/config/copyparty.conf:/cfg/config.conf:ro
       - ./data/copyparty:/cfg/hists
       - ${DATA_ROOT:-./data/shared}:/data
     networks:

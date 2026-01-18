@@ -340,7 +340,7 @@
           "lineLength": 88,
           "showSyntaxErrors": true,
           "lint": {
-            "select": [
+            "extendSelect": [
               "ALL"
             ],
             "ignore": [
