@@ -2,8 +2,8 @@
 	path = ~/.config/delta/catppuccin.gitconfig
 
 [user]
-	email = andres.ortiz.xyz@gmail.com
-	name = andresortiz
+	email = andres@anyformat.ai
+	name = andrew
 [pull]
         rebase = true
 [rebase]
