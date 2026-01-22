@@ -9,11 +9,18 @@
   "userMilestones": {
     "installId": "ddd92677-c9a0-46be-a0fa-fe0cc8d85fc2",
     "installDate": 1763477742229,
-    "firstAppOpen": true
+    "firstAppOpen": true,
+    "firstProfileCreated": true,
+    "completedNewUserOnboarding": true,
+    "connectIntegration": true,
+    "firstLoginRegister": true,
+    "startATrial": true,
+    "firstRepoOpened": true,
+    "firstTimeCommitSelected": true
   },
   "sslWhitelist": [],
   "webConfig": {
-    "lastUpdatedAt": "2026-01-16T12:08:35.963Z",
+    "lastUpdatedAt": "2026-01-20T16:06:21.805Z",
     "config": {
       "callouts": [],
       "promos": [
@@ -42,10 +49,236 @@
   },
   "windowSettings": {
     "x": 8,
-    "y": 39,
-    "width": 2544,
-    "height": 1392,
+    "y": 42,
+    "width": 950,
+    "height": 931,
     "fullScreen": false,
     "maximized": false
+  },
+  "registration": {
+    "EULA": {
+      "status": "agree_verified",
+      "version": "8.3.1"
+    },
+    "status": "activated",
+    "email": "andres.ortiz.xyz@gmail.com",
+    "name": "Andrés",
+    "loginType": "github",
+    "date": "2026-01-20T16:08:37.556Z"
+  },
+  "licensedFeatures": [
+    "pro",
+    "gitgui:pro",
+    "gitlens:pro",
+    "bundle:pro",
+    "gitkraken_v1:pro",
+    "suite:pro",
+    "student",
+    "gitgui:student",
+    "gitlens:student",
+    "bundle:student",
+    "gitkraken_v1:student",
+    "suite:student"
+  ],
+  "userFeatures": [
+    {
+      "name": "activityStatus",
+      "value": true
+    },
+    {
+      "name": "changePriceEnabled",
+      "value": true
+    },
+    {
+      "name": "cli",
+      "value": true
+    },
+    {
+      "name": "experimentalAiCommmitMsg",
+      "value": true
+    },
+    {
+      "name": "experimentalGitBinarySpawnServer961",
+      "value": true
+    },
+    {
+      "name": "gitBash",
+      "value": true
+    },
+    {
+      "name": "gitkraken",
+      "value": true
+    },
+    {
+      "name": "gkApi",
+      "value": true
+    },
+    {
+      "name": "gkdAIComposeCommitsNudge_11_5_0",
+      "value": true
+    },
+    {
+      "name": "gkdAIFeedback_11_2_0",
+      "value": true
+    },
+    {
+      "name": "gkdAIMergeConflictResolutionNudge_11_3_0",
+      "value": true
+    },
+    {
+      "name": "gkdCommitComposeWipButtonBottom_11_3_0",
+      "value": true
+    },
+    {
+      "name": "gkdConflictPreventionFeedback_11_1_0",
+      "value": true
+    },
+    {
+      "name": "gkdevAllowInviteMessages",
+      "value": true
+    },
+    {
+      "name": "gkDevReferralSystem",
+      "value": true
+    },
+    {
+      "name": "gkdOnboardingTutorial_10_5_0",
+      "value": true
+    },
+    {
+      "name": "gkDotDevAIAutomations",
+      "value": true
+    },
+    {
+      "name": "gkDotDevAutoConnectTargetProvider",
+      "value": true
+    },
+    {
+      "name": "gkDotDevDefaultCouponCode",
+      "value": "50OFFPRO26"
+    },
+    {
+      "name": "gkDotDevHideWhatsIncludedCheckoutPageTest",
+      "value": true
+    },
+    {
+      "name": "gkDotDevInsightsBitbucket",
+      "value": true
+    },
+    {
+      "name": "gkDotDevInsightsVisxGraphs",
+      "value": true
+    },
+    {
+      "name": "gkDotDevShowNewPriceComponent",
+      "value": true
+    },
+    {
+      "name": "gkDotDevUpdateProfilePicture",
+      "value": true
+    },
+    {
+      "name": "gkdPrivateRepoModalOffer_11_8_0",
+      "value": true
+    },
+    {
+      "name": "gkdReferralProgram_11_0_0",
+      "value": true
+    },
+    {
+      "name": "gkdTrialStartModalPromoMessage_11_1_0",
+      "value": true
+    },
+    {
+      "name": "gkdUpgradeLicenseFlowVariant_11_5_0",
+      "value": "pricingPage"
+    },
+    {
+      "name": "goldenTicketSpecial",
+      "value": true
+    },
+    {
+      "name": "onboardingGuide",
+      "value": true
+    },
+    {
+      "name": "privateRepoModalTest_10_5_0",
+      "value": true
+    },
+    {
+      "name": "registeredForGST",
+      "value": true
+    },
+    {
+      "name": "terminalInsideRepoTab",
+      "value": true
+    },
+    {
+      "name": "unregisteredTrials",
+      "value": true
+    },
+    {
+      "name": "useNewTrialStartModalTest_10_8_0",
+      "value": true
+    },
+    {
+      "name": "velocityInClient_9_0_0",
+      "value": true
+    },
+    {
+      "name": "workspacesPRComplexity",
+      "value": true
+    }
+  ],
+  "fuzzyFinderMetadata": {
+    "itemMetadata": {
+      "OPEN_REPO": {
+        "openRepo-/Users/andrew/code/anyformat-backend": {
+          "id": "openRepo-/Users/andrew/code/anyformat-backend",
+          "timestamps": [
+            1768925261931,
+            1768925273480,
+            1768925325003
+          ],
+          "total": 3
+        }
+      }
+    }
+  },
+  "commits": {
+    "maxCommitsInGraph": 2000
+  },
+  "userId": "f426a6e1-922f-4167-85fb-4d9e5fbae613",
+  "orgSettingsByOrgId": {
+    "66b68da736f07fee5116e5b0": {
+      "aiSettings": {
+        "enabled": true,
+        "createdAt": "2024-08-09T21:44:07.477936Z",
+        "updatedAt": "2025-08-11T01:31:35.964985Z"
+      },
+      "draftsSettings": {
+        "enabled": true,
+        "createdAt": "2024-08-09T21:51:14.024136Z",
+        "updatedAt": "2025-08-11T01:31:35.954384Z"
+      },
+      "ssoSettings": {
+        "enabled": false,
+        "enforced": false,
+        "provision": false,
+        "createdAt": "2024-08-09T21:44:07.477936Z",
+        "updatedAt": "2025-08-11T01:31:35.964985Z"
+      },
+      "memberInvitesRequireApproval": true,
+      "conflictDetectionEnabled": true,
+      "insightsEnabled": false,
+      "aiEnabled": true,
+      "enforceAiProviders": false,
+      "aiProviders": {},
+      "ssoEnabled": false,
+      "ssoEnforced": false,
+      "ssoProvision": false,
+      "createdAt": "2024-08-09T21:44:07.477936Z",
+      "updatedAt": "2025-08-11T01:31:35.964985Z"
+    }
   }
 }

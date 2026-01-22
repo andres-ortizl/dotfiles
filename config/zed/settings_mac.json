@@ -248,10 +248,11 @@
   },
   // AI Assistant Settings
   "agent": {
+    "notify_when_agent_waiting": "never",
     "default_profile": "write",
     "inline_assistant_model": {
-      "provider": "openai",
-      "model": "gpt-5-mini"
+      "provider": "amazon-bedrock",
+      "model": "claude-haiku-4.5"
     },
     "play_sound_when_agent_done": true,
     "dock": "right",
@@ -259,7 +260,7 @@
     "default_width": 640,
     "default_model": {
       "provider": "amazon-bedrock",
-      "model": "claude-sonnet-4-5"
+      "model": "claude-haiku-4.5"
     },
     "always_allow_tool_actions": true,
     "model_parameters": []
@@ -302,7 +303,6 @@
         }
       ],
       "language_servers": [
-        //"basedpyright",
         "ty",
         "ruff"
       ]
@@ -319,19 +319,6 @@
         "arguments": [
           "server"
         ]
-      }
-    },
-    "basedpyright": {
-      "settings": {
-        "python": {
-          "reportMissingTypeStubs": false
-        },
-        "basedpyright.analysis": {
-          "diagnosticMode": "openFilesOnly",
-          "typeCheckingMode": "basic",
-          "reportMissingTypeStubs": false
-        },
-        "disableOrganizeImports": true
       }
     },
     "ruff": {

@@ -35,3 +35,10 @@ _evalcache starship init zsh
 zsh-defer _evalcache zoxide init zsh
 zsh-defer _evalcache atuin init --disable-up-arrow zsh
 zsh-defer _evalcache mise activate zsh
+
+# bun completions
+[ -s "/Users/andrew/.bun/_bun" ] && source "/Users/andrew/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
