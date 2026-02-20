@@ -248,6 +248,9 @@
   },
   // AI Assistant Settings
   "agent": {
+    "tool_permissions": {
+      "default": "allow"
+    },
     "notify_when_agent_waiting": "never",
     "default_profile": "write",
     "inline_assistant_model": {
@@ -259,10 +262,9 @@
     "button": true,
     "default_width": 640,
     "default_model": {
-      "provider": "amazon-bedrock",
-      "model": "claude-haiku-4.5"
+      "provider": "openai",
+      "model": "gpt-5.2-codex"
     },
-    "always_allow_tool_actions": true,
     "model_parameters": []
   },
   "show_completions_on_input": true,
@@ -270,10 +272,8 @@
   "completion_menu_scrollbar": "never",
   "snippet_sort_order": "inline",
   "edit_predictions": {
+    "provider": "copilot",
     "mode": "subtle"
-  },
-  "features": {
-    "edit_prediction_provider": "copilot"
   },
   "debugger": {
     "dock": "left",

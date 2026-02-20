@@ -42,3 +42,5 @@ zsh-defer _evalcache mise activate zsh
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+
+alias claude-mem='bun "/Users/andrew/.claude/plugins/marketplaces/thedotmack/plugin/scripts/worker-service.cjs"'

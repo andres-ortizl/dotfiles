@@ -1,0 +1,59 @@
+{
+  "agents": {
+    "defaults": {
+      "workspace": "/home/picoclaw/.picoclaw/workspace",
+      "restrict_to_workspace": true,
+      "model": "gpt4o",
+      "max_tokens": 8192,
+      "temperature": 0.7,
+      "max_tool_iterations": 20
+    }
+  },
+  "model_list": [
+    {
+      "model_name": "gpt4o",
+      "model": "openai/gpt-4o",
+      "api_key": "sk-YOUR_OPENAI_API_KEY",
+      "api_base": "https://api.openai.com/v1"
+    }
+  ],
+  "channels": {
+    "discord": {
+      "enabled": true,
+      "token": "YOUR_DISCORD_BOT_TOKEN",
+      "allow_from": [],
+      "mention_only": false
+    }
+  },
+  "tools": {
+    "web": {
+      "duckduckgo": {
+        "enabled": true,
+        "max_results": 5
+      }
+    },
+    "exec": {
+      "enable_deny_patterns": false,
+      "custom_deny_patterns": []
+    },
+    "skills": {
+      "registries": {
+        "clawhub": {
+          "enabled": true,
+          "base_url": "https://clawhub.ai",
+          "search_path": "/api/v1/search",
+          "skills_path": "/api/v1/skills",
+          "download_path": "/api/v1/download"
+        }
+      }
+    }
+  },
+  "heartbeat": {
+    "enabled": true,
+    "interval": 30
+  },
+  "gateway": {
+    "host": "0.0.0.0",
+    "port": 18790
+  }
+}

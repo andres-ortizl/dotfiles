@@ -16,11 +16,12 @@
     "firstLoginRegister": true,
     "startATrial": true,
     "firstRepoOpened": true,
-    "firstTimeCommitSelected": true
+    "firstTimeCommitSelected": true,
+    "usedWorktrees": true
   },
   "sslWhitelist": [],
   "webConfig": {
-    "lastUpdatedAt": "2026-01-20T16:06:21.805Z",
+    "lastUpdatedAt": "2026-02-02T09:01:24.910Z",
     "config": {
       "callouts": [],
       "promos": [
@@ -49,11 +50,11 @@
   },
   "windowSettings": {
     "x": 8,
-    "y": 42,
-    "width": 950,
-    "height": 931,
+    "y": 39,
+    "width": 2544,
+    "height": 1393,
     "fullScreen": false,
-    "maximized": false
+    "maximized": true
   },
   "registration": {
     "EULA": {
@@ -280,5 +281,12 @@
       "createdAt": "2024-08-09T21:44:07.477936Z",
       "updatedAt": "2025-08-11T01:31:35.964985Z"
     }
-  }
+  },
+  "annotations": {
+    "acknowledgedAnnotations": {
+      "mergeConflictResolution": true
+    },
+    "lastAnnotationTime": 1769095252223
+  },
+  "lastSatisfactionSurveyDate": 1770022923467
 }
