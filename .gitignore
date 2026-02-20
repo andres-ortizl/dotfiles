@@ -36,6 +36,7 @@ tmp
 # Homeserver Services
 # Environment files with sensitive data
 os/homeserver/.env
+os/homeserver/config/picoclaw/config.json
 
 # Service data directories (runtime data, databases, logs)
 os/homeserver/cache/*

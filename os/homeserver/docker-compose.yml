@@ -530,6 +530,17 @@ services:
       - "traefik.http.routers.cobalt-api-secure.service=cobalt-api"
       - "traefik.http.services.cobalt-api.loadbalancer.server.port=9000"
 
+  # Picoclaw - AI Discord Bot
+  picoclaw:
+    build: ./config/picoclaw
+    container_name: picoclaw
+    restart: unless-stopped
+    volumes:
+      - ./config/picoclaw/config.json:/home/picoclaw/.picoclaw/config.json:ro
+      - ./data/picoclaw:/home/picoclaw/.picoclaw/workspace
+    networks:
+      - traefik
+
   # Copyparty - File Server with Web UI
   copyparty:
     image: copyparty/min:latest
