@@ -538,6 +538,11 @@ services:
     volumes:
       - ./config/picoclaw/config.json:/home/picoclaw/.picoclaw/config.json:ro
       - ./data/picoclaw:/home/picoclaw/.picoclaw/workspace
+      - ./config/picoclaw/IDENTITY.md:/home/picoclaw/.picoclaw/workspace/IDENTITY.md:ro
+      - ./config/picoclaw/SOUL.md:/home/picoclaw/.picoclaw/workspace/SOUL.md:ro
+      - ./config/picoclaw/AGENTS.md:/home/picoclaw/.picoclaw/workspace/AGENTS.md:ro
+      - ./config/picoclaw/USER.md:/home/picoclaw/.picoclaw/workspace/USER.md:ro
+      - ./config/picoclaw/HEARTBEAT.md:/home/picoclaw/.picoclaw/workspace/HEARTBEAT.md:ro
     networks:
       - traefik
 
