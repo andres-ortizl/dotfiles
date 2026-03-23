@@ -415,6 +415,7 @@ function claude() {
   if [ -f "$DOTFILES/.env" ]; then
     export $(grep -v '^#' "$DOTFILES/.env" | grep -v '^$' | xargs)
   fi
+  export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
   /Users/andrew/.local/bin/claude "$@"
 }
 
