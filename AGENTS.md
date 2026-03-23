@@ -66,3 +66,5 @@ When a task takes more than 2 back-and-forths:
 - Keep responses focused and concise
 - Explain trade-offs when multiple approaches exist
 - Call out when solutions are playing it too safe or missing the bigger picture
+
+@RTK.md

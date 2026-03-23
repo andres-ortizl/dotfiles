@@ -1,5 +1,10 @@
 {
   // Theme and Appearance
+  "agent_servers": {
+    "opencode": {
+      "type": "registry"
+    }
+  },
   "colorize_brackets": true,
   "theme": "Catppuccin Macchiato",
   "icon_theme": "Catppuccin Mocha",
@@ -262,8 +267,8 @@
     "button": true,
     "default_width": 640,
     "default_model": {
-      "provider": "openai",
-      "model": "gpt-5.2-codex"
+      "provider": "copilot_chat",
+      "model": "gpt-5.3-codex"
     },
     "model_parameters": []
   },
