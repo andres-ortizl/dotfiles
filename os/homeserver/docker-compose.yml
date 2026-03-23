@@ -568,3 +568,38 @@ services:
       - "traefik.http.routers.copyparty-secure.entrypoints=websecure"
       - "traefik.http.routers.copyparty-secure.tls=true"
       - "traefik.http.services.copyparty.loadbalancer.server.port=3923"
+
+  # MinIO Object Storage
+  minio:
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+    container_name: minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER:-minioadmin}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-minioadmin}
+      - TZ=${TZ:-Europe/Madrid}
+    volumes:
+      - ./data/minio:/data
+    networks:
+      - traefik
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "traefik.enable=true"
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "traefik.http.routers.minio-console.rule=Host(`minio.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.minio-console.entrypoints=web"
+      - "traefik.http.routers.minio-console-secure.rule=Host(`minio.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.minio-console-secure.entrypoints=websecure"
+      - "traefik.http.routers.minio-console-secure.tls=true"
+      - "traefik.http.services.minio-console.loadbalancer.server.port=9001"
+      - "traefik.http.routers.minio-api.rule=Host(`s3.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.minio-api.entrypoints=web"
+      - "traefik.http.routers.minio-api-secure.rule=Host(`s3.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.minio-api-secure.entrypoints=websecure"
+      - "traefik.http.routers.minio-api-secure.tls=true"
+      - "traefik.http.services.minio-api.loadbalancer.server.port=9000"
