@@ -330,6 +330,8 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /home/andrew/immich:/mnt/old-immich:ro
       - /home/andrew/immich-test:/mnt/immich-test:ro
+    environment:
+      - DB_HOSTNAME=database
     env_file:
       - .env
     depends_on:
