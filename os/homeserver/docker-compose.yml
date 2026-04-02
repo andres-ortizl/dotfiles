@@ -530,21 +530,50 @@ services:
       - "traefik.http.routers.cobalt-api-secure.service=cobalt-api"
       - "traefik.http.services.cobalt-api.loadbalancer.server.port=9000"
 
-  # Picoclaw - AI Discord Bot
+  # Picoclaw - AI Agent (Launcher + WebUI + Gateway)
   picoclaw:
-    build: ./config/picoclaw
+    image: docker.io/sipeed/picoclaw:launcher
     container_name: picoclaw
     restart: unless-stopped
+    environment:
+      - PICOCLAW_GATEWAY_HOST=0.0.0.0
+      - TZ=${TZ:-Europe/Madrid}
     volumes:
-      - ./config/picoclaw/config.json:/home/picoclaw/.picoclaw/config.json:ro
-      - ./data/picoclaw:/home/picoclaw/.picoclaw/workspace
-      - ./config/picoclaw/IDENTITY.md:/home/picoclaw/.picoclaw/workspace/IDENTITY.md:ro
-      - ./config/picoclaw/SOUL.md:/home/picoclaw/.picoclaw/workspace/SOUL.md:ro
-      - ./config/picoclaw/AGENTS.md:/home/picoclaw/.picoclaw/workspace/AGENTS.md:ro
-      - ./config/picoclaw/USER.md:/home/picoclaw/.picoclaw/workspace/USER.md:ro
-      - ./config/picoclaw/HEARTBEAT.md:/home/picoclaw/.picoclaw/workspace/HEARTBEAT.md:ro
+      - ./config/picoclaw/config.json:/root/.picoclaw/config.json:ro
+      - ./config/picoclaw/.security.yml:/root/.picoclaw/.security.yml:ro
+      - ./data/picoclaw:/root/.picoclaw/workspace
+      - ./config/picoclaw/IDENTITY.md:/root/.picoclaw/workspace/IDENTITY.md:ro
+      - ./config/picoclaw/SOUL.md:/root/.picoclaw/workspace/SOUL.md:ro
+      - ./config/picoclaw/AGENTS.md:/root/.picoclaw/workspace/AGENTS.md:ro
+      - ./config/picoclaw/USER.md:/root/.picoclaw/workspace/USER.md:ro
+      - ./config/picoclaw/HEARTBEAT.md:/root/.picoclaw/workspace/HEARTBEAT.md:ro
     networks:
       - traefik
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:18790/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    labels:
+      - "traefik.enable=true"
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "traefik.http.routers.picoclaw.rule=Host(`picoclaw.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.picoclaw.entrypoints=web"
+      - "traefik.http.routers.picoclaw.service=picoclaw"
+      - "traefik.http.routers.picoclaw-secure.rule=Host(`picoclaw.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.picoclaw-secure.entrypoints=websecure"
+      - "traefik.http.routers.picoclaw-secure.tls=true"
+      - "traefik.http.routers.picoclaw-secure.service=picoclaw"
+      - "traefik.http.services.picoclaw.loadbalancer.server.port=18800"
+      - "traefik.http.routers.picoclaw-api.rule=Host(`picoclaw-api.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.picoclaw-api.entrypoints=web"
+      - "traefik.http.routers.picoclaw-api.service=picoclaw-api"
+      - "traefik.http.routers.picoclaw-api-secure.rule=Host(`picoclaw-api.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.picoclaw-api-secure.entrypoints=websecure"
+      - "traefik.http.routers.picoclaw-api-secure.tls=true"
+      - "traefik.http.routers.picoclaw-api-secure.service=picoclaw-api"
+      - "traefik.http.services.picoclaw-api.loadbalancer.server.port=18790"
 
   # Copyparty - File Server with Web UI
   copyparty:
