@@ -539,8 +539,8 @@ services:
       - PICOCLAW_GATEWAY_HOST=0.0.0.0
       - TZ=${TZ:-Europe/Madrid}
     volumes:
-      - ./config/picoclaw/config.json:/root/.picoclaw/config.json:ro
-      - ./config/picoclaw/.security.yml:/root/.picoclaw/.security.yml:ro
+      - ./config/picoclaw/config.json:/root/.picoclaw/config.json
+      - ./config/picoclaw/.security.yml:/root/.picoclaw/.security.yml
       - ./data/picoclaw:/root/.picoclaw/workspace
       - ./config/picoclaw/IDENTITY.md:/root/.picoclaw/workspace/IDENTITY.md:ro
       - ./config/picoclaw/SOUL.md:/root/.picoclaw/workspace/SOUL.md:ro
