@@ -1,0 +1,13 @@
+# PicoClaw Security Configuration (v1)
+# Copy to .security.yml and fill in your API keys
+# This file is auto-migrated from config.json v0 API keys
+
+providers:
+  openai:
+    api_key: "sk-YOUR_OPENAI_API_KEY"
+  anthropic:
+    api_key: "sk-ant-YOUR_ANTHROPIC_API_KEY"
+
+channels:
+  discord:
+    token: "YOUR_DISCORD_BOT_TOKEN"
