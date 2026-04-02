@@ -532,7 +532,7 @@ services:
 
   # Picoclaw - AI Agent (Launcher + WebUI + Gateway)
   picoclaw:
-    image: docker.io/sipeed/picoclaw:launcher
+    build: ./config/picoclaw
     container_name: picoclaw
     restart: unless-stopped
     environment:
