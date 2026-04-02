@@ -550,7 +550,7 @@ services:
     networks:
       - traefik
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:18790/health"]
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:18800/"]
       interval: 30s
       timeout: 5s
       retries: 3
