@@ -1,5 +1,5 @@
 # Navigation
-alias sudo=’sudo ‘
+alias sudo='sudo '
 alias ..="cd .."
 alias ...="cd ../.."
 alias ~="cd ~"
