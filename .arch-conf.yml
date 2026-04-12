@@ -34,7 +34,7 @@
     ~/.config/delta: config/delta/**
     ~/.config/yazi: config/yazi/**
     ~/.config/eza: config/eza/**
-
+    ~/.config/lazygit: config/lazygit/**
     ~/.config/wlogout/: config/wlogout/**
     ~/.config/btop/**: config/btop/**
     ~/.gtkrc-2.0: config/gtk-2.0/gtkrc
