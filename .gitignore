@@ -82,3 +82,6 @@ os/homeserver/qbittorrent/config/*
 
 # Siyuan (note-taking)
 os/homeserver/siyuan/workspace/
+.spec
+.claude/worktrees/
+.claude/settings.local.json
