@@ -60,6 +60,7 @@ color_075 = "BrightRed|Red"
 color_100 = "BrightRed|Red"
 
 [style.by_unit]
+color_x = "BrightWhite|White"
 color_k = "BrightBlue|Blue"
 color_m = "BrightGreen|Green"
 color_g = "BrightYellow|Yellow"
