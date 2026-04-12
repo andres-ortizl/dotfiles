@@ -19,13 +19,15 @@ cd anyformat/libs && uv run pytest
 cd anyformat/anyformat-engine && uv run pytest
 cd anyformat/inference && uv run pytest
 cd anyformat/cli && uv run pytest
+cd anyformat/services/evals_v2 && uv run pytest
+cd anyformat/cronjobs/email_processor && uv run pytest
 ```
 
 ## Docker services (require infrastructure)
 
 ```bash
 docker compose run --rm backend pytest -n auto
-docker compose run --rm external-api pytest
+docker compose run --rm api pytest
 docker compose run --rm anyformat-core pytest -n auto
 ```
 
