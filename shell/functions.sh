@@ -19,72 +19,72 @@ function _load_env() {
 
 function alias-help() {
   # Show all available aliases
-  echo "📝 Available Aliases"
-  echo "==================="
-  echo ""
-  grep "^alias " "$DOTFILES/shell/aliases.sh" | \
-    grep -v "^alias sudo=" | \
-    sed 's/alias //' | \
-    sed 's/=/ → /' | \
-    column -t -s '→'
+  local md=()
+  md+=("| Alias | Command |")
+  md+=("| --- | --- |")
+  while IFS= read -r line; do
+    if [[ "$line" =~ ^alias\  ]]; then
+      local name=$(echo "$line" | sed 's/alias //' | cut -d= -f1)
+      local cmd=$(echo "$line" | sed "s/alias [^=]*=//" | sed "s/^[\"']//" | sed "s/[\"']$//" | sed 's/|/∣/g' | cut -c1-55)
+      md+=("| \`${name}\` | \`${cmd}\` |")
+    fi
+  done < "$DOTFILES/shell/aliases.sh"
+
+  if command -v gum &>/dev/null; then
+    gum style --border rounded --border-foreground 99 --padding "0 1" --bold --foreground 212 " Aliases"
+    echo ""
+    gum format -- "${md[@]}"
+  else
+    printf '%s\n' "${md[@]}"
+  fi
 }
 
 function func-help() {
   # Show all available functions with descriptions
-  echo "🔧 Available Functions"
-  echo "======================"
-  echo ""
-  awk '/^function / {
+  local md=()
+  md+=("| Function | Description |")
+  md+=("| --- | --- |")
+  while IFS= read -r entry; do
+    local fname="${entry%%\|*}"
+    local desc="${entry#*\|}"
+    md+=("| \`${fname}\` | ${desc} |")
+  done < <(awk '/^function / {
     fname = $2;
     sub(/\(\) \{/, "", fname);
     getline;
     if ($0 ~ /^  #/) {
       desc = $0;
       sub(/^  # /, "", desc);
-      printf "%-20s %s\n", fname, desc;
-    } else {
-      printf "%-20s\n", fname;
+      printf "%s|%s\n", fname, desc;
     }
-  }' "$DOTFILES/shell/functions.sh" | \
-  grep -v "alias-help\|func-help\|help\|test_dotfiles"
+  }' "$DOTFILES/shell/functions.sh" | grep -v "alias-help\|func-help\|_load_env")
+
+  if command -v gum &>/dev/null; then
+    gum style --border rounded --border-foreground 99 --padding "0 1" --bold --foreground 212 " Functions"
+    echo ""
+    gum format -- "${md[@]}"
+  else
+    printf '%s\n' "${md[@]}"
+  fi
 }
 
 function help() {
-  # Interactive search of all aliases and functions
-  if ! command -v fzf &> /dev/null; then
-    echo "❌ fzf not installed. Run: brew install fzf"
-    return 1
+  # Show all aliases and functions together, or search with fzf
+  if [[ "$1" == "-s" ]] || [[ "$1" == "--search" ]]; then
+    {
+      grep "^alias " "$DOTFILES/shell/aliases.sh" | grep -v "^alias sudo=" | sed 's/alias //' | sed 's/=/ → /'
+      awk '/^function / {
+        fname = $2; sub(/\(\) \{/, "", fname); getline;
+        if ($0 ~ /^  #/) { desc = $0; sub(/^  # /, "", desc); printf "%s → %s\n", fname, desc; }
+      }' "$DOTFILES/shell/functions.sh" | grep -v "alias-help\|func-help\|_load_env"
+    } | fzf --height=50% --header="Search (ESC to exit)" --bind='enter:execute(echo {} | pbcopy)+abort'
+    return
   fi
-  {
-    echo "=== ALIASES ==="
-    grep "^alias " "$DOTFILES/shell/aliases.sh" | \
-      grep -v "^alias sudo=" | \
-      sed 's/alias //' | \
-      sed 's/=/ | /'
-    echo ""
-    echo "=== FUNCTIONS ==="
-    awk '/^function / {
-      fname = $2;
-      sub(/\(\) \{/, "", fname);
-      getline;
-      if ($0 ~ /^  #/) {
-        desc = $0;
-        sub(/^  # /, "", desc);
-        printf "%s | %s\n", fname, desc;
-      } else {
-        printf "%s\n", fname;
-      }
-    }' "$DOTFILES/shell/functions.sh" | \
-    grep -v "alias-help\|func-help\|help\|test_dotfiles"
-  } | fzf --height=100% \
-      --header="🔍 Search aliases and functions (ESC to exit)" \
-      --preview='echo {}' \
-      --bind='enter:execute(echo {} | pbcopy)+abort'
+  alias-help
+  echo ""
+  func-help
 }
 
-function test_dotfiles() {
-  echo "Hello world"
-}
 
 function shell-bench() {
   # Quick benchmark of shell startup and alias performance
@@ -259,14 +259,6 @@ function ds(){
   fi
 }
 
-function fh() {
-  # Search and execute command from shell history using fzf
-  if ! command -v fzf &> /dev/null; then
-    echo "❌ fzf not installed. Run: brew install fzf"
-    return 1
-  fi
-  eval $( ([ -n "$ZSH_NAME" ] && fc -l 1 || history) | fzf +s --tac | sed 's/ *[0-9]* *//')
-}
 
 function ch() {
   # Search Chrome browsing history with fzf and open selected URL
@@ -352,6 +344,7 @@ function s3json() {
 
 function shit() {
   # Fix last command using AI with aichat
+  local last_exit=$?
   if ! command -v aichat &> /dev/null; then
     echo "❌ aichat not installed. Run: brew install aichat"
     return 1
@@ -370,7 +363,6 @@ function shit() {
   if [ -n "$1" ]; then
     local prompt="$1"
   else
-    local last_exit=$(echo $?)
     local last_command=$(fc -ln -1 | sed 's/^[[:space:]]*//')
 
     if [ "$last_command" = "shit" ]; then
@@ -400,29 +392,160 @@ function ai() {
 }
 
 
-function git_branch_clean() {
-  # Delete local branches that have been merged to master
+function git-branch-clean() {
+  # Delete local branches that have been merged to the default branch
   if ! command -v git &> /dev/null; then
     echo "❌ git not installed"
     return 1
   fi
-  git branch -d $(git branch --merged=master | grep -v master)
+  local default=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@')
+  [[ -z "$default" ]] && default="main"
+  local merged=$(git branch --merged="$default" | grep -v "$default" | grep -v '^\*')
+  if [[ -z "$merged" ]]; then
+    echo "No merged branches to clean."
+    return 0
+  fi
+  echo "$merged" | xargs git branch -d
   git fetch --prune
 }
 
 function claude() {
   # Wrapper that loads .env before calling Claude Code (for MCP servers)
   if [ -f "$DOTFILES/.env" ]; then
-    export $(grep -v '^#' "$DOTFILES/.env" | grep -v '^$' | xargs)
+    while IFS='=' read -r key value; do
+      [[ "$key" =~ ^#.*$ || -z "$key" ]] && continue
+      export "$key=$value"
+    done < "$DOTFILES/.env"
   fi
   export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
-  /Users/andrew/.local/bin/claude "$@"
+  EDITOR=nvim VISUAL=nvim /Users/andrew/.local/bin/claude "$@"
 }
 
 function droid() {
   # Wrapper that loads .env before calling Droid
   if [ -f "$DOTFILES/.env" ]; then
-    export $(grep -v '^#' "$DOTFILES/.env" | grep -v '^$' | xargs)
+    while IFS='=' read -r key value; do
+      [[ "$key" =~ ^#.*$ || -z "$key" ]] && continue
+      export "$key=$value"
+    done < "$DOTFILES/.env"
   fi
   command droid "$@"
+}
+
+function cleanup-worktrees() {
+  # Find and remove git worktrees across all projects
+  local -a sizes paths repos
+
+  while IFS= read -r gitdir; do
+    local repo_git=$(dirname $(dirname "$gitdir"))
+    local repo=$(dirname "$repo_git")
+    local wt_name=$(basename $(dirname "$gitdir"))
+    local actual=$(git -C "$repo" worktree list --porcelain 2>/dev/null | grep -A2 "$wt_name" | grep "worktree " | sed 's/worktree //')
+    if [[ -n "$actual" ]] && [[ -d "$actual" ]]; then
+      sizes+=($(du -sh "$actual" 2>/dev/null | cut -f1))
+      paths+=("$actual")
+      repos+=("$repo")
+    fi
+  done < <(find ~/code -name "gitdir" -path "*worktrees*" -maxdepth 8 2>/dev/null)
+
+  if [[ ${#paths[@]} -eq 0 ]]; then
+    echo "No worktrees found."
+    return 0
+  fi
+
+  echo "Git worktrees found:"
+  echo "===================="
+  for i in {1..${#paths[@]}}; do
+    printf "  %d) %6s  %s\n" "$i" "${sizes[$i]}" "${paths[$i]}"
+  done
+  echo ""
+  echo "Options: 'all' to remove all, numbers to pick (e.g. '1 3'), 'q' to quit"
+  read "choice?> "
+
+  [[ "$choice" == "q" ]] && return 0
+
+  local -a indices
+  if [[ "$choice" == "all" ]]; then
+    indices=($(seq 1 ${#paths[@]}))
+  else
+    indices=(${=choice})
+  fi
+
+  for idx in "${indices[@]}"; do
+    echo "Removing ${paths[$idx]}..."
+    git -C "${repos[$idx]}" worktree remove "${paths[$idx]}" --force 2>/dev/null || rm -rf "${paths[$idx]}"
+    git -C "${repos[$idx]}" worktree prune 2>/dev/null
+  done
+  echo "Done."
+}
+
+function spec-status() {
+  # Show status of all specs across projects
+  local md=()
+  md+=("| Project | Spec | Status |")
+  md+=("| --- | --- | --- |")
+  local found=0
+  for logbook in ~/.spec/*/*/logbook.md(N); do
+    local spec=$(basename $(dirname "$logbook"))
+    local project=$(basename $(dirname $(dirname "$logbook")))
+    local status=$(grep -m1 "Status:" "$logbook" 2>/dev/null | sed 's/.*Status: *//')
+    [[ -z "$status" ]] && status="UNKNOWN"
+    md+=("| ${project} | ${spec} | ${status} |")
+    found=1
+  done
+
+  if [[ $found -eq 0 ]]; then
+    echo "No specs found."
+    return 0
+  fi
+
+  if command -v gum &>/dev/null; then
+    gum style --border rounded --border-foreground 99 --padding "0 1" --bold --foreground 212 " Spec Sessions"
+    echo ""
+    gum format -- "${md[@]}"
+  else
+    printf '%s\n' "${md[@]}"
+  fi
+}
+
+function cleanup-docker() {
+  # Show Docker disk usage and interactively prune resources
+  if ! command -v docker &> /dev/null; then
+    echo "❌ docker not installed"
+    return 1
+  fi
+  if ! docker ps >/dev/null 2>&1; then
+    echo "❌ Docker daemon is not running"
+    return 1
+  fi
+
+  echo "Docker disk usage:"
+  echo "=================="
+  docker system df
+  echo ""
+
+  local images=$(docker images -q | wc -l | tr -d ' ')
+  local containers=$(docker ps -aq | wc -l | tr -d ' ')
+  local volumes=$(docker volume ls -q | wc -l | tr -d ' ')
+
+  echo "Resources: $images images, $containers containers, $volumes volumes"
+  echo ""
+  echo "Options:"
+  echo "  1) Prune unused (safe — keeps tagged images)"
+  echo "  2) Prune ALL (removes everything not running)"
+  echo "  3) Prune ALL + volumes (nuclear)"
+  echo "  q) Quit"
+  read "choice?> "
+
+  case "$choice" in
+    1) docker system prune -f ;;
+    2) docker system prune -a -f ;;
+    3) docker system prune -a --volumes -f ;;
+    q) return 0 ;;
+    *) echo "Invalid option" ;;
+  esac
+
+  echo ""
+  echo "After cleanup:"
+  docker system df
 }
