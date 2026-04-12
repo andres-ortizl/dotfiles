@@ -53,6 +53,18 @@ button:hover {
     background-image: image(url("/home/andres/.config/wlogout/icons/reboot_white.png"));
 }
 
+#logout {
+    background-image: image(url("/home/andres/.config/wlogout/icons/logout_white.png"));
+}
+
+#suspend {
+    background-image: image(url("/home/andres/.config/wlogout/icons/suspend_white.png"));
+}
+
+#hibernate {
+    background-image: image(url("/home/andres/.config/wlogout/icons/hibernate_white.png"));
+}
+
 #lock:hover {
     background-image: image(url("/home/andres/.config/wlogout/icons/lock_black.png"));
 }
@@ -63,4 +75,16 @@ button:hover {
 
 #reboot:hover {
     background-image: image(url("/home/andres/.config/wlogout/icons/reboot_black.png"));
+}
+
+#logout:hover {
+    background-image: image(url("/home/andres/.config/wlogout/icons/logout_black.png"));
+}
+
+#suspend:hover {
+    background-image: image(url("/home/andres/.config/wlogout/icons/suspend_black.png"));
+}
+
+#hibernate:hover {
+    background-image: image(url("/home/andres/.config/wlogout/icons/hibernate_black.png"));
 }

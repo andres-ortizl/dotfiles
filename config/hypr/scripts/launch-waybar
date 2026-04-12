@@ -2,10 +2,21 @@
 
 CONFIG_FILES="$HOME/.config/waybar/config $HOME/.config/waybar/style.css"
 
-trap "killall waybar" EXIT
+waybar_pid=""
+
+cleanup() {
+    if [ -n "$waybar_pid" ] && kill -0 "$waybar_pid" 2>/dev/null; then
+        kill "$waybar_pid"
+    fi
+}
+
+trap cleanup EXIT
 
 while true; do
     waybar &
+    waybar_pid=$!
     inotifywait -e create,modify $CONFIG_FILES
-    killall waybar
+    if kill -0 "$waybar_pid" 2>/dev/null; then
+        kill "$waybar_pid"
+    fi
 done
