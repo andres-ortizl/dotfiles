@@ -1,12 +1,5 @@
 #!/bin/bash
 
-SHOT=/tmp/shot.png
-BLURRED=/tmp/shot_blurred.png
-
-
-grim -t png "$SHOT"
-magick "$SHOT" -blur 0x8 "$BLURRED" &
-
 wlogout --layout "$HOME/.config/wlogout/layout" \
         --css "$HOME/.config/wlogout/style.css" \
         --buttons-per-row 3 \
