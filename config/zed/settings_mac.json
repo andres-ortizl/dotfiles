@@ -267,8 +267,10 @@
     "button": true,
     "default_width": 640,
     "default_model": {
-      "provider": "copilot_chat",
-      "model": "gpt-5.3-codex"
+      "effort": "high",
+      "enable_thinking": true,
+      "provider": "amazon-bedrock",
+      "model": "claude-opus-4-6"
     },
     "model_parameters": []
   },
