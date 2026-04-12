@@ -36,6 +36,14 @@ When a task takes more than 2 back-and-forths:
 - Default to simplest possible implementation
 - If I say "basic" or "simple", take it literally - bare minimum only
 
+## Code Changes
+
+- When modifying existing code, read and understand existing data structures before assuming they lack fields. Always inspect current implementations before proposing rewrites.
+
+## Git
+
+- Do NOT add Co-Authored-By trailers to commits
+
 ## Code Philosophy
 
 - Make SMALL, incremental changes only
@@ -52,6 +60,7 @@ When a task takes more than 2 back-and-forths:
 - Prefer self-documenting code over explanatory comments
 - Do NOT add summary documents or "What we did" recaps after changes
 - Only update existing documentation if outdated or incorrect
+- Never use decorative section separator comments (`# -----`, `# =====`, etc.)
 
 ## Testing
 
