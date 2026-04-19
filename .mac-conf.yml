@@ -56,7 +56,7 @@
     ~/.pi/agent/settings.json: config/pi/settings.json
     ~/.pi/agent/AGENTS.md: AGENTS.md
     ~/.pi/agent/skills: config/claude/skills
-    ~/.skills-library: config/skills-library
+    ~/.skills-library/langchain: config/skills-library/langchain-skills/config/skills
     ~/.pi/agent/themes: config/pi/themes
 
 - shell:
