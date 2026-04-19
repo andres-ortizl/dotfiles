@@ -25,8 +25,8 @@ If unsure which framework to use, read **framework-selection** first:
 
 | When | Read |
 |---|---|
-| Creating agents, defining tools, basic agent loop | `~/.skills-library/langchain/langchain-fundamentals/SKILL.md` (392 lines) |
-| Human-in-the-loop approval, custom middleware, structured output | `~/.skills-library/langchain/langchain-middleware/SKILL.md` (302 lines) |
+| Creating agents, defining tools, basic agent loop | `~/.skills-library/langchain/langchain-fundamentals/SKILL.md` (394 lines) |
+| Human-in-the-loop approval, custom middleware, structured output | `~/.skills-library/langchain/langchain-middleware/SKILL.md` (388 lines) |
 | RAG: document loaders, splitters, embeddings, vector stores | `~/.skills-library/langchain/langchain-rag/SKILL.md` (517 lines) |
 | Package versions, installation, dependency management | `~/.skills-library/langchain/langchain-dependencies/SKILL.md` (419 lines) |
 
