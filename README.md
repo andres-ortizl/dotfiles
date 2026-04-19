@@ -379,5 +379,3 @@ MIT License - See [LICENSE](LICENSE) file for details.
 ## 📫 Contact
 
 For questions or suggestions: andres.ortiz.xyz@gmail.com
-
-

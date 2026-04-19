@@ -7,7 +7,7 @@
 -    const expected_result: u8 = ???;
 +    const expected_result: u8 = 0b00010010;
      print(". Without overflow: {b:0>8}. ", .{expected_result});
- 
+
      print("Furthermore, ", .{});
 @@ -78,6 +78,6 @@
      // Now it's your turn. See if you can fix this attempt to use

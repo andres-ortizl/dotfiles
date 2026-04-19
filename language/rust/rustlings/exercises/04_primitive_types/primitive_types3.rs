@@ -6,7 +6,7 @@ fn main() {
     for _ in 1..101 {
         a.push(1);
     };
-    
+
     if a.len() >= 100 {
         println!("Wow, that's a big array!");
     } else {

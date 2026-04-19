@@ -34,8 +34,6 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   )
 fi
 
-
-
 # Linux
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
   export JAVA_HOME=/usr/lib/jvm/default

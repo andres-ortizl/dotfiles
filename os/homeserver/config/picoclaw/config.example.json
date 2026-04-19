@@ -1,42 +1,50 @@
 {
   "agents": {
     "defaults": {
-      "model_name": "gpt4o",
-      "max_tokens": 8192,
       "context_window": 131072,
-      "temperature": 0.7,
+      "max_tokens": 8192,
       "max_tool_iterations": 20,
-      "workspace": "/root/.picoclaw/workspace",
-      "restrict_to_workspace": true
+      "model_name": "gpt4o",
+      "restrict_to_workspace": true,
+      "temperature": 0.7,
+      "workspace": "/root/.picoclaw/workspace"
     }
+  },
+  "channels": {
+    "discord": {
+      "allow_from": [],
+      "enabled": true,
+      "mention_only": false,
+      "token": "YOUR_DISCORD_BOT_TOKEN"
+    }
+  },
+  "gateway": {
+    "host": "0.0.0.0",
+    "hot_reload": false,
+    "log_level": "info",
+    "port": 18790
+  },
+  "heartbeat": {
+    "enabled": true,
+    "interval": 30
   },
   "model_list": [
     {
-      "model_name": "gpt4o",
-      "model": "openai/gpt-4o",
+      "api_base": "https://api.openai.com/v1",
       "api_key": "YOUR_OPENAI_API_KEY",
-      "api_base": "https://api.openai.com/v1"
+      "model": "openai/gpt-4o",
+      "model_name": "gpt4o"
     },
     {
-      "model_name": "claude-sonnet",
+      "api_key": "YOUR_ANTHROPIC_API_KEY",
       "model": "anthropic/claude-sonnet-4-20250514",
-      "api_key": "YOUR_ANTHROPIC_API_KEY"
+      "model_name": "claude-sonnet"
     }
   ],
-  "channels": {
-    "discord": {
-      "enabled": true,
-      "token": "YOUR_DISCORD_BOT_TOKEN",
-      "allow_from": [],
-      "mention_only": false
-    }
-  },
   "tools": {
-    "web": {
-      "duckduckgo": {
-        "enabled": true,
-        "max_results": 5
-      }
+    "exec": {
+      "custom_deny_patterns": [],
+      "enable_deny_patterns": false
     },
     "mcp": {
       "discovery": {
@@ -44,30 +52,22 @@
       },
       "servers": {}
     },
-    "exec": {
-      "enable_deny_patterns": false,
-      "custom_deny_patterns": []
-    },
     "skills": {
       "registries": {
         "clawhub": {
-          "enabled": true,
           "base_url": "https://clawhub.ai",
+          "download_path": "/api/v1/download",
+          "enabled": true,
           "search_path": "/api/v1/search",
-          "skills_path": "/api/v1/skills",
-          "download_path": "/api/v1/download"
+          "skills_path": "/api/v1/skills"
         }
       }
+    },
+    "web": {
+      "duckduckgo": {
+        "enabled": true,
+        "max_results": 5
+      }
     }
-  },
-  "gateway": {
-    "host": "0.0.0.0",
-    "port": 18790,
-    "hot_reload": false,
-    "log_level": "info"
-  },
-  "heartbeat": {
-    "enabled": true,
-    "interval": 30
   }
 }

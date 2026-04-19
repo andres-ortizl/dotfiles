@@ -17,7 +17,7 @@ Do NOT load all sub-skills. Read ONLY the file(s) relevant to the current task.
 ## Step 1: Pick framework
 
 If unsure which framework to use, read **framework-selection** first:
-→ `~/.agents/skills/framework-selection/SKILL.md` (163 lines)
+→ `~/.skills-library/langchain/framework-selection/SKILL.md` (163 lines)
 
 ## Step 2: Load the relevant sub-skill(s)
 
@@ -25,26 +25,26 @@ If unsure which framework to use, read **framework-selection** first:
 
 | When | Read |
 |---|---|
-| Creating agents, defining tools, basic agent loop | `~/.agents/skills/langchain-fundamentals/SKILL.md` (392 lines) |
-| Human-in-the-loop approval, custom middleware, structured output | `~/.agents/skills/langchain-middleware/SKILL.md` (302 lines) |
-| RAG: document loaders, splitters, embeddings, vector stores | `~/.agents/skills/langchain-rag/SKILL.md` (517 lines) |
-| Package versions, installation, dependency management | `~/.agents/skills/langchain-dependencies/SKILL.md` (419 lines) |
+| Creating agents, defining tools, basic agent loop | `~/.skills-library/langchain/langchain-fundamentals/SKILL.md` (392 lines) |
+| Human-in-the-loop approval, custom middleware, structured output | `~/.skills-library/langchain/langchain-middleware/SKILL.md` (302 lines) |
+| RAG: document loaders, splitters, embeddings, vector stores | `~/.skills-library/langchain/langchain-rag/SKILL.md` (517 lines) |
+| Package versions, installation, dependency management | `~/.skills-library/langchain/langchain-dependencies/SKILL.md` (419 lines) |
 
 ### LangGraph (stateful graphs, complex workflows)
 
 | When | Read |
 |---|---|
-| StateGraph, nodes, edges, Command, Send, streaming | `~/.agents/skills/langgraph-fundamentals/SKILL.md` (811 lines) |
-| interrupt(), approval workflows, error handling tiers | `~/.agents/skills/langgraph-human-in-the-loop/SKILL.md` (532 lines) |
-| Checkpointers, thread_id, time travel, Store, subgraph persistence | `~/.agents/skills/langgraph-persistence/SKILL.md` (560 lines) |
+| StateGraph, nodes, edges, Command, Send, streaming | `~/.skills-library/langchain/langgraph-fundamentals/SKILL.md` (811 lines) |
+| interrupt(), approval workflows, error handling tiers | `~/.skills-library/langchain/langgraph-human-in-the-loop/SKILL.md` (532 lines) |
+| Checkpointers, thread_id, time travel, Store, subgraph persistence | `~/.skills-library/langchain/langgraph-persistence/SKILL.md` (560 lines) |
 
 ### Deep Agents (hierarchical agent systems)
 
 | When | Read |
 |---|---|
-| create_deep_agent(), harness architecture, SKILL.md format | `~/.agents/skills/deep-agents-core/SKILL.md` (423 lines) |
-| SubAgentMiddleware, TodoList planning, HITL interrupts | `~/.agents/skills/deep-agents-orchestration/SKILL.md` (471 lines) |
-| StateBackend, StoreBackend, FilesystemMiddleware, CompositeBackend | `~/.agents/skills/deep-agents-memory/SKILL.md` (301 lines) |
+| create_deep_agent(), harness architecture, SKILL.md format | `~/.skills-library/langchain/deep-agents-core/SKILL.md` (423 lines) |
+| SubAgentMiddleware, TodoList planning, HITL interrupts | `~/.skills-library/langchain/deep-agents-orchestration/SKILL.md` (471 lines) |
+| StateBackend, StoreBackend, FilesystemMiddleware, CompositeBackend | `~/.skills-library/langchain/deep-agents-memory/SKILL.md` (301 lines) |
 
 ## Rules
 

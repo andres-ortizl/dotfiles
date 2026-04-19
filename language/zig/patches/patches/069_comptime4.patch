@@ -9,5 +9,5 @@
 +fn makeSequence(comptime T: type, comptime size: usize) [size]T {
 +    var sequence: [size]T = undefined;
      var i: usize = 0;
- 
+
      while (i < size) : (i += 1) {

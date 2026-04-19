@@ -7,7 +7,7 @@
 -    blue = ???,
 +    blue = 0x0000ff,
  };
- 
+
  pub fn main() void {
 @@ -53,12 +53,12 @@
          \\<p>

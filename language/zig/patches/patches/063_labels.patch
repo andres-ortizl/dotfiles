@@ -10,4 +10,3 @@
 +    } else menu[0];
      // ^ Oops! We forgot to return Mac & Cheese as the default
      // Food when the requested ingredients aren't found.
- 

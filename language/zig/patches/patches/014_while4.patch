@@ -7,5 +7,5 @@
 -        if (???) ???;
 +        if (n == 4) break;
      }
- 
+
      // Result: we want n=4

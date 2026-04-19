@@ -4,21 +4,21 @@
 useradd -m andrew
 passwd andrew
 usermod -aG wheel andrew
-echo "%wheel ALL=(ALL:ALL) ALL" >> /etc/sudoers
+echo "%wheel ALL=(ALL:ALL) ALL" >>/etc/sudoers
 
 #install paru repositories
-mkdir -p /home/andrew/code/paru && cd !$ && \
-git clone https://aur.archlinux.org/paru-bin.git
-cd paru-bin
+mkdir -p /home/andrew/code/paru && cd !$ &&
+  git clone https://aur.archlinux.org/paru-bin.git
+cd paru-bin || exit
 makepkg -si
 
 # install blackarch repositories
-mkdir -p /home/andrew/code/blackarch && \
-cd /home/andrew/code/blackarch && \
-curl -O https://blackarch.org/strap.sh && \
-chmod +x strap.sh
-sudo su && \
-./strap .sh
+mkdir -p /home/andrew/code/blackarch &&
+  cd /home/andrew/code/blackarch &&
+  curl -O https://blackarch.org/strap.sh &&
+  chmod +x strap.sh
+sudo su &&
+  ./strap .sh
 
 # install zimrc
 curl -fsSL https://raw.githubusercontent.com/zimfw/install/master/install.zsh | zsh

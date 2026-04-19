@@ -6,6 +6,6 @@
      //
 -    const x = detect(n);
 +    const x = try detect(n);
- 
+
      return x + 5;
  }

@@ -1,27 +1,27 @@
 {
   "mcpServers": {
-    "memos": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "mcp-server-memos"
-      ],
-      "env": {
-        "MEMOS_URL": "${MEMOS_URL}",
-        "MEMOS_TOKEN": "${MEMOS_ACCESS_TOKEN}"
-      }
-    },
     "context7": {
-      "type": "stdio",
-      "command": "npx",
       "args": [
         "-y",
         "@upstash/context7-mcp@latest"
       ],
+      "command": "npx",
       "env": {
         "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}"
-      }
+      },
+      "type": "stdio"
+    },
+    "memos": {
+      "args": [
+        "-y",
+        "mcp-server-memos"
+      ],
+      "command": "npx",
+      "env": {
+        "MEMOS_TOKEN": "${MEMOS_ACCESS_TOKEN}",
+        "MEMOS_URL": "${MEMOS_URL}"
+      },
+      "type": "stdio"
     }
   }
 }
