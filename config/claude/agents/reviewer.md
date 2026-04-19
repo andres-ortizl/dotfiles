@@ -52,6 +52,28 @@ For each changed function/class:
 - Overly complex logic that could be simpler
 - Test coverage gaps for changed behavior
 
+**Craftsmanship** — hold the bar on clean code. Every finding in this category MUST come with a reasoned justification: the principle being violated, the concrete cost, and the cleaner shape. No vibes, no "feels off" — always teachable.
+
+Look for:
+- **Missing abstractions** — logic duplicated across call sites, or a concept that exists in the domain but has no name in the code
+- **Separation of concerns** — a function/class doing multiple unrelated jobs; logic living in the wrong layer (e.g. domain rules in an adapter, I/O in a pure function)
+- **Cohesion & coupling** — modules that know too much about each other's internals; helpers reaching across boundaries they shouldn't
+- **Naming** — identifiers that don't say what the thing is or why it exists; generic names (`data`, `info`, `handle`, `process`) where a domain term would clarify intent
+- **Type expressiveness** — types that lose information (untyped dicts, `Any`, stringly-typed enums) where a dataclass / TypedDict / Literal / domain type would make the contract explicit and catch bugs at parse time
+- **Explainability** — code a new reader cannot follow without tracing five call sites; control flow that hides the actual intent; magic values without a name
+- **Extensibility vs over-engineering** — hardcoded branches that will clearly need to grow (flag it), AND speculative abstractions built for hypothetical futures (also flag it — YAGNI)
+- **Right place** — is this code where a future developer would look for it? If not, say where it belongs and why
+
+For each finding, write it like a short lesson:
+> `file.py:88` — `_handle_data()` mixes parsing, validation, and persistence in one 90-line function. **Principle:** Single Responsibility. **Cost:** can't unit-test parsing without a DB; the validation branch at L120 is unreachable from tests. **Shape:** split into `parse_payload() -> Payload`, `validate(payload)`, `repo.save(payload)` — each independently testable.
+
+Severity for craftsmanship findings:
+- **BLOCKER** only when the smell is objective and load-bearing: duplication across ≥3 call sites, logic in the wrong architectural layer (violates hex boundaries / ARCHITECTURE.md), a function doing ≥3 unrelated jobs, or a type signature that actively hides bugs downstream
+- **ISSUE** for clear improvements with a concrete cost, even if only one call site is affected today
+- **NIT** for naming polish and local readability wins
+
+Do NOT raise craftsmanship findings for: code you merely would have written differently, premature generalization you can't justify with current call sites, or style preferences without a principle behind them.
+
 ### 4. Report findings
 
 ```

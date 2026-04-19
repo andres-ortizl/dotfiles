@@ -45,3 +45,8 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 export EDITOR=nano
 
 alias claude-mem='bun "/Users/andrew/.claude/plugins/marketplaces/thedotmack/plugin/scripts/worker-service.cjs"'
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:/Users/andrew/.lmstudio/bin"
+# End of LM Studio CLI section
+

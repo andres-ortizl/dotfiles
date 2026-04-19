@@ -15,3 +15,8 @@ PATH="/opt/homebrew/opt/make/libexec/gnubin:$PATH"
 eval "$(atuin init bash)"
 
 alias claude-mem='bun "/Users/andrew/.claude/plugins/marketplaces/thedotmack/plugin/scripts/worker-service.cjs"'
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:/Users/andrew/.lmstudio/bin"
+# End of LM Studio CLI section
+
