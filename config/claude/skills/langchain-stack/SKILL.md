@@ -46,6 +46,8 @@ If unsure which framework to use, read **framework-selection** first:
 | SubAgentMiddleware, TodoList planning, HITL interrupts | `~/.skills-library/langchain/deep-agents-orchestration/SKILL.md` (471 lines) |
 | StateBackend, StoreBackend, FilesystemMiddleware, CompositeBackend | `~/.skills-library/langchain/deep-agents-memory/SKILL.md` (301 lines) |
 
+`~/.skills-library/langchain` is a symlink to the `langchain-skills` submodule — don't hardcode the submodule path, use this alias so the skill stays portable if the submodule moves.
+
 ## Rules
 
 - Read the sub-skill file with the Read tool — it contains full API reference and examples

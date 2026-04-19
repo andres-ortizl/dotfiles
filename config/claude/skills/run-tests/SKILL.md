@@ -1,6 +1,6 @@
 ---
 name: run-tests
-description: Run tests for the current anyformat workspace package
+description: "Run tests for the anyformat monorepo (uv + docker compose). Use ONLY inside the anyformat-monorepo repo. Do NOT use for other repos — use their native test runner directly."
 triggers:
   - run tests
   - run the tests

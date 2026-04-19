@@ -1,6 +1,6 @@
 ---
 name: pr
-description: "Commit changes grouped by logical chunks, push to a feature branch, and create a PR targeting dev. Triggers on: commit, push, create PR, ship it, send PR."
+description: "Commit changes grouped by logical chunks, push to a feature branch, and create a PR. Targets 'dev' if it exists on origin (anyformat convention), otherwise the repo's default branch. Triggers on: commit, push, create PR, ship it, send PR."
 triggers:
   - commit
   - push
@@ -11,7 +11,21 @@ triggers:
 
 # Chunked Commit & PR
 
-Commit changes grouped by logical chunks of work, push to a feature branch, and create a PR targeting `dev`.
+Commit changes grouped by logical chunks of work, push to a feature branch, and create a PR.
+
+## Base branch detection
+
+Run this once at the start and reuse `$base` throughout:
+
+```bash
+if git ls-remote --exit-code --heads origin dev >/dev/null 2>&1; then
+  base=dev
+else
+  base=$(gh repo view --json defaultBranchRef -q .defaultBranchRef.name)
+fi
+```
+
+Anyformat repos use `dev`; other repos fall back to whatever `main`/`master` the remote declares as default.
 
 ## Workflow
 
@@ -21,8 +35,8 @@ Commit changes grouped by logical chunks of work, push to a feature branch, and 
 current_branch=$(git branch --show-current)
 ```
 
-- If on `main` or `dev` → create a new feature branch: `git checkout -b <descriptive-name>`
-- If on an UNRELATED feature branch → create a new branch from `dev`: `git checkout dev && git pull && git checkout -b <descriptive-name>`
+- If on `$base` or `main` → create a new feature branch: `git checkout -b <descriptive-name>`
+- If on an UNRELATED feature branch → create a new branch from `$base`: `git checkout $base && git pull && git checkout -b <descriptive-name>`
 - If on the correct feature branch → stay on it
 
 Branch naming: `<type>/<short-description>` (e.g. `fix/smart-table-worker-scoping`, `refactor/smart-table-prompts`)
@@ -60,16 +74,16 @@ git commit -m "<type>(<scope>): <description>"
 
 ### 4. Sync with base branch
 
-Before pushing, check if the branch is behind `dev`:
+Before pushing, check if the branch is behind `$base`:
 
 ```bash
-git fetch origin dev
-git log --oneline HEAD..origin/dev
+git fetch origin $base
+git log --oneline HEAD..origin/$base
 ```
 
 If there are upstream commits, rebase:
 ```bash
-git rebase origin/dev
+git rebase origin/$base
 ```
 
 If conflicts arise, resolve them carefully — understand what both sides intended before choosing. After resolving, continue with `git rebase --continue`.
@@ -93,9 +107,9 @@ Check for existing PR:
 gh pr list --head <branch-name> --state open
 ```
 
-If no PR exists, create one. **Always target `dev`** — never create PRs against `main`:
+If no PR exists, create one targeting `$base`:
 ```bash
-gh pr create --base dev --title "<title>" --body "$(cat <<'EOF'
+gh pr create --base "$base" --title "<title>" --body "$(cat <<'EOF'
 ## Summary
 <bullet points describing the changes>
 
@@ -109,7 +123,7 @@ If PR already exists, skip creation and return the existing PR URL.
 
 ## Important
 
-- **Always target `dev`** — never PR against `main`
+- Target `$base` (detected above) — in anyformat this is `dev`, elsewhere it's the repo default. Never override manually.
 - Group related files into the same commit
 - Each commit should pass tests independently if possible
 - Return the PR URL when done
