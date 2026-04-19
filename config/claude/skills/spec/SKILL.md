@@ -518,7 +518,7 @@ The user must explicitly accept the spec to trigger cleanup. This happens when t
 
 ### If the user rejects:
 
-Rejection means the spec needs more iteration, NOT deletion. 
+Rejection means the spec needs more iteration, NOT deletion.
 
 1. Update logbook status to `ITERATING`
 2. Log the user's feedback in `~/.spec/<project-name>/<spec-name>/logbook.md`

@@ -1,0 +1,12 @@
+{
+  "defaultProvider": "openai",
+  "defaultModel": "gpt-5.3-codex",
+  "theme": "catppuccin-mocha-andrew",
+  "lastChangelogVersion": "0.67.68",
+  "packages": [
+    "npm:pi-subagents",
+    "npm:pi-web-access",
+    "npm:pi-docparser",
+    "npm:@ifi/pi-plan"
+  ]
+}

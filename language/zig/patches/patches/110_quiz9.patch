@@ -7,7 +7,7 @@
 -    PORTB ^= (1 << 1) | (1 << 0); // What's wrong here?
 +    PORTB ^= (1 << 2) | (1 << 0);
      checkAnswer(0b1001, PORTB);
- 
+
      newline();
 @@ -116,7 +116,7 @@
      PORTB = 0b1100;
@@ -16,7 +16,7 @@
 -    PORTB ^= (1 << 1) & (1 << 0); // What's wrong here?
 +    PORTB ^= (1 << 1) | (1 << 0);
      checkAnswer(0b1111, PORTB);
- 
+
      newline();
 @@ -170,7 +170,7 @@
      PORTB = 0b1001; // reset PORTB
@@ -25,7 +25,7 @@
 -    PORTB = PORTB ??? (1 << 2); // What's missing here?
 +    PORTB = PORTB | (1 << 2);
      checkAnswer(0b1101, PORTB);
- 
+
      newline();
 @@ -178,7 +178,7 @@
      PORTB = 0b1001; // reset PORTB
@@ -34,7 +34,7 @@
 -    PORTB ??? (1 << 2); // What's missing here?
 +    PORTB |= (1 << 2);
      checkAnswer(0b1101, PORTB);
- 
+
      newline();
 @@ -269,7 +269,7 @@
      PORTB = 0b1110; // reset PORTB
@@ -43,7 +43,7 @@
 -    PORTB = PORTB & ???@as(u4, 1 << 2); // What character is missing here?
 +    PORTB = PORTB & ~@as(u4, 1 << 2);
      checkAnswer(0b1010, PORTB);
- 
+
      newline();
 @@ -277,7 +277,7 @@
      PORTB = 0b0111; // reset PORTB
@@ -52,5 +52,5 @@
 -    PORTB &= ~(1 << 0); // What's missing here?
 +    PORTB &= ~@as(u4, 1 << 0);
      checkAnswer(0b0110, PORTB);
- 
+
      newline();

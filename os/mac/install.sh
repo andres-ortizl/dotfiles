@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # Download HomeBrew
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
@@ -5,7 +6,7 @@
 brew bundle --file="$DOTFILES/os/mac/Brewfile" --force cleanup
 
 # Setting defaults for mac
-$DOTFILES/os/mac/defaults.sh
+"$DOTFILES/os/mac/defaults.sh"
 
 # export brew
 brew bundle dump

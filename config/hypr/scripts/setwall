@@ -14,14 +14,14 @@ NC='\033[0m'
 
 # if swww is not started, start it
 if ! pgrep -x "swww" >/dev/null; then
-    swww-daemon &
-    # Wait for swww-daemon to start (max 2s)
-    for i in {1..20}; do
-        if pgrep -x "swww" >/dev/null; then
-            break
-        fi
-        sleep 0.1
-    done
+  swww-daemon &
+  # Wait for swww-daemon to start (max 2s)
+  for i in {1..20}; do
+    if pgrep -x "swww" >/dev/null; then
+      break
+    fi
+    sleep 0.1
+  done
 fi
 
 var=$(cat ~/.config/hypr/store/wallpaper)
@@ -33,29 +33,29 @@ wallpapers=($(ls ~/.config/wallpaper))
 
 # Test startup arg
 if [[ $1 != "startup" ]]; then
-    # If the script is not called on startup, then increment the wallpaper number
-    if [[ $var -ge $wallpapernum ]]; then
-        echo 1 >$HOME/.config/hypr/store/wallpaper
-    else
-        echo $new >$HOME/.config/hypr/store/wallpaper
-    fi
+  # If the script is not called on startup, then increment the wallpaper number
+  if [[ $var -ge $wallpapernum ]]; then
+    echo 1 >$HOME/.config/hypr/store/wallpaper
+  else
+    echo $new >$HOME/.config/hypr/store/wallpaper
+  fi
 else
-    var=$(($var - 1))
-    if [ $var -eq 0 ]; then
-        var=$wallpapernum
-    fi
+  var=$(($var - 1))
+  if [ $var -eq 0 ]; then
+    var=$wallpapernum
+  fi
 fi
 
 # Test mode
 if [[ $1 =~ ^[0-9]+$ ]] && [[ $(ls $HOME/.config/wallpaper | grep $1) ]]; then
-    var=$1
-    printf "$GREEN[MODE]$NC Direct\n"
+  var=$1
+  printf "$GREEN[MODE]$NC Direct\n"
 else
-    if [[ $1 == "startup" ]]; then
-        printf "$GREEN[MODE]$NC Startup\n"
-    else
-        printf "$GREEN[MODE]$NC Cycle\n"
-    fi
+  if [[ $1 == "startup" ]]; then
+    printf "$GREEN[MODE]$NC Startup\n"
+  else
+    printf "$GREEN[MODE]$NC Cycle\n"
+  fi
 fi
 
 # Set wallpaper

@@ -5,19 +5,19 @@ killall xdg-desktop-portal-wlr 2>/dev/null
 killall xdg-desktop-portal 2>/dev/null
 
 for i in {1..10}; do
-    if ! pgrep -x "xdg-desktop-portal" > /dev/null; then
-        break
-    fi
-    sleep 0.1
+  if ! pgrep -x "xdg-desktop-portal" >/dev/null; then
+    break
+  fi
+  sleep 0.1
 done
 
 /usr/libexec/xdg-desktop-portal-hyprland &
 
 for i in {1..20}; do
-    if pgrep -x "xdg-desktop-por" > /dev/null; then
-        break
-    fi
-    sleep 0.1
+  if pgrep -x "xdg-desktop-por" >/dev/null; then
+    break
+  fi
+  sleep 0.1
 done
 
 /usr/lib/xdg-desktop-portal &

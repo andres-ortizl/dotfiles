@@ -10,7 +10,6 @@ source $DOTFILES/shell/main.sh
 PATH="/opt/homebrew/opt/make/libexec/gnubin:$PATH"
 . "$HOME/.cargo/env"export
 
-
 [[ -f ~/.bash-preexec.sh ]] && source ~/.bash-preexec.sh
 eval "$(atuin init bash)"
 
@@ -19,4 +18,3 @@ alias claude-mem='bun "/Users/andrew/.claude/plugins/marketplaces/thedotmack/plu
 # Added by LM Studio CLI (lms)
 export PATH="$PATH:/Users/andrew/.lmstudio/bin"
 # End of LM Studio CLI section
-

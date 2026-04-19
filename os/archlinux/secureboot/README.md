@@ -183,7 +183,7 @@ sudo sbctl sign-all
 2. **Files Signed**: Linux bootloader and kernel signed with your db key
 3. **Keys Enrolled**: Both your keys AND Microsoft keys enrolled in firmware
 4. **Secure Boot On**: Firmware only boots signed files
-5. **Dual Boot Works**: 
+5. **Dual Boot Works**:
    - Linux files signed by YOUR key ✓
    - Windows files signed by MICROSOFT key ✓
    - Both keys in firmware → both OS boot ✓

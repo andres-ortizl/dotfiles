@@ -3,7 +3,7 @@
 @@ -67,7 +67,7 @@
  pub fn main() void {
      var letter: u8 = 'A';
- 
+
 -    const my_letter:   ???   = &letter;
 +    const my_letter: ?*[1]u8 = &letter;
      //               ^^^^^^^

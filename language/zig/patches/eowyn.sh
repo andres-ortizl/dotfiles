@@ -13,18 +13,17 @@
 # to convalesce in the healed directory.
 #
 delete_progress() {
-    progress_file=".progress.txt"
-    if [ -f $progress_file ]; then
-        rm $progress_file 
-    fi
+  progress_file=".progress.txt"
+  if [ -f $progress_file ]; then
+    rm $progress_file
+  fi
 }
 set -e
 
 # We check ourselves before we wreck ourselves.
-if [ ! -f patches/eowyn.sh ]
-then
-    echo "But I must be run from the project root directory."
-    exit 1
+if [ ! -f patches/eowyn.sh ]; then
+  echo "But I must be run from the project root directory."
+  exit 1
 fi
 
 # Which version we have?
@@ -39,23 +38,21 @@ delete_progress
 mkdir -p patches/healed
 
 # Cycle through all the little broken Zig applications.
-for broken in exercises/*.zig
-do
-    # Remove the dir and extension, rendering the True Name.
-    true_name=$(basename "$broken" .zig)
-    patch_name="patches/patches/$true_name.patch"
+for broken in exercises/*.zig; do
+  # Remove the dir and extension, rendering the True Name.
+  true_name=$(basename "$broken" .zig)
+  patch_name="patches/patches/$true_name.patch"
 
-    if [ -f "$patch_name" ]
-    then
-        # Apply the bandages to the wounds, grow new limbs, let
-        # new life spring into the broken bodies of the fallen.
-        echo Healing "$true_name"...
-		cp "$broken" "patches/healed/$true_name.zig"
-		patch -i "$patch_name" "patches/healed/$true_name.zig"
+  if [ -f "$patch_name" ]; then
+    # Apply the bandages to the wounds, grow new limbs, let
+    # new life spring into the broken bodies of the fallen.
+    echo Healing "$true_name"...
+    cp "$broken" "patches/healed/$true_name.zig"
+    patch -i "$patch_name" "patches/healed/$true_name.zig"
 
-    else
-        echo Cannot heal "$true_name". No patch found.
-    fi
+  else
+    echo Cannot heal "$true_name". No patch found.
+  fi
 done
 
 echo "Looking for non-conforming code formatting..."

@@ -49,4 +49,3 @@ alias claude-mem='bun "/Users/andrew/.claude/plugins/marketplaces/thedotmack/plu
 # Added by LM Studio CLI (lms)
 export PATH="$PATH:/Users/andrew/.lmstudio/bin"
 # End of LM Studio CLI section
-

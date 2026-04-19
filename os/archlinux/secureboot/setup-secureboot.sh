@@ -17,25 +17,25 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 echo_info() {
-    echo -e "${BLUE}[INFO]${NC} $1"
+  echo -e "${BLUE}[INFO]${NC} $1"
 }
 
 echo_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
+  echo -e "${GREEN}[SUCCESS]${NC} $1"
 }
 
 echo_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
+  echo -e "${YELLOW}[WARNING]${NC} $1"
 }
 
 echo_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
+  echo -e "${RED}[ERROR]${NC} $1"
 }
 
 # Check if running as root
 if [[ $EUID -ne 0 ]]; then
-   echo_error "This script must be run as root (use sudo)"
-   exit 1
+  echo_error "This script must be run as root (use sudo)"
+  exit 1
 fi
 
 echo_info "=== Secure Boot Setup for Dual Boot with Windows ==="
@@ -43,12 +43,12 @@ echo ""
 
 # Step 1: Check if sbctl is installed
 echo_info "Step 1: Checking if sbctl is installed..."
-if ! command -v sbctl &> /dev/null; then
-    echo_error "sbctl is not installed!"
-    echo_info "Installing sbctl..."
-    pacman -S --noconfirm sbctl
+if ! command -v sbctl &>/dev/null; then
+  echo_error "sbctl is not installed!"
+  echo_info "Installing sbctl..."
+  pacman -S --noconfirm sbctl
 else
-    echo_success "sbctl is already installed"
+  echo_success "sbctl is already installed"
 fi
 echo ""
 
@@ -60,9 +60,9 @@ echo ""
 # Step 3: Create keys if they don't exist
 echo_info "Step 3: Creating Secure Boot keys..."
 if sbctl create-keys 2>&1 | grep -q "already been created"; then
-    echo_success "Keys already exist"
+  echo_success "Keys already exist"
 else
-    echo_success "Keys created successfully"
+  echo_success "Keys created successfully"
 fi
 echo ""
 
@@ -71,19 +71,19 @@ echo_info "Step 4: Signing bootloader and kernel files..."
 
 # Sign systemd-boot
 if [ -f /efi/EFI/systemd/systemd-bootx64.efi ]; then
-    sbctl sign -s /efi/EFI/systemd/systemd-bootx64.efi || echo_warning "Already signed or failed"
+  sbctl sign -s /efi/EFI/systemd/systemd-bootx64.efi || echo_warning "Already signed or failed"
 fi
 
 # Sign fallback bootloader
 if [ -f /efi/EFI/BOOT/BOOTX64.EFI ]; then
-    sbctl sign -s /efi/EFI/BOOT/BOOTX64.EFI || echo_warning "Already signed or failed"
+  sbctl sign -s /efi/EFI/BOOT/BOOTX64.EFI || echo_warning "Already signed or failed"
 fi
 
 # Find and sign all Linux kernels
 echo_info "Finding and signing Linux kernels..."
 find /efi -name "linux" -type f 2>/dev/null | while read -r kernel; do
-    echo_info "Signing: $kernel"
-    sbctl sign -s "$kernel" || echo_warning "Already signed or failed: $kernel"
+  echo_info "Signing: $kernel"
+  sbctl sign -s "$kernel" || echo_warning "Already signed or failed: $kernel"
 done
 
 echo_success "Signing completed"
@@ -121,31 +121,31 @@ echo ""
 read -p "Do you want to enroll keys now? (yes/no): " -r
 echo ""
 if [[ $REPLY =~ ^[Yy][Ee][Ss]$ ]]; then
-    echo_info "Enrolling keys with Microsoft keys included..."
+  echo_info "Enrolling keys with Microsoft keys included..."
 
-    # Enroll with Microsoft keys to maintain Windows compatibility
-    if sbctl enroll-keys --microsoft; then
-        echo_success "Keys enrolled successfully!"
-        echo ""
-        echo_success "=== Next Steps ==="
-        echo_info "1. Reboot your system: 'reboot'"
-        echo_info "2. Press DEL/F2/F12 (depends on motherboard) to enter BIOS"
-        echo_info "3. Navigate to Boot -> Secure Boot settings"
-        echo_info "4. Enable Secure Boot"
-        echo_info "5. Save and Exit"
-        echo_info "6. Both Linux and Windows should boot with Secure Boot enabled"
-        echo ""
-    else
-        echo_error "Failed to enroll keys!"
-        echo_info "You may need to:"
-        echo_info "  - Enter BIOS and enable Setup Mode"
-        echo_info "  - Clear existing keys in BIOS"
-        echo_info "  - Try again"
-        exit 1
-    fi
+  # Enroll with Microsoft keys to maintain Windows compatibility
+  if sbctl enroll-keys --microsoft; then
+    echo_success "Keys enrolled successfully!"
+    echo ""
+    echo_success "=== Next Steps ==="
+    echo_info "1. Reboot your system: 'reboot'"
+    echo_info "2. Press DEL/F2/F12 (depends on motherboard) to enter BIOS"
+    echo_info "3. Navigate to Boot -> Secure Boot settings"
+    echo_info "4. Enable Secure Boot"
+    echo_info "5. Save and Exit"
+    echo_info "6. Both Linux and Windows should boot with Secure Boot enabled"
+    echo ""
+  else
+    echo_error "Failed to enroll keys!"
+    echo_info "You may need to:"
+    echo_info "  - Enter BIOS and enable Setup Mode"
+    echo_info "  - Clear existing keys in BIOS"
+    echo_info "  - Try again"
+    exit 1
+  fi
 else
-    echo_warning "Key enrollment skipped."
-    echo_info "You can enroll keys later with: sudo sbctl enroll-keys --microsoft"
+  echo_warning "Key enrollment skipped."
+  echo_info "You can enroll keys later with: sudo sbctl enroll-keys --microsoft"
 fi
 
 echo ""

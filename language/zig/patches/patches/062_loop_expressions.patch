@@ -6,6 +6,6 @@
          if (lang.len == 3) break lang;
 -    };
 +    } else null;
- 
+
      if (current_lang) |cl| {
          print("Current language: {s}\n", .{cl});

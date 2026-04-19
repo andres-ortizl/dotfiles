@@ -16,7 +16,7 @@
 -    var output_dir: std.fs.Dir = cwd.openDir("output", .{});
 +    var output_dir: std.fs.Dir = try cwd.openDir("output", .{});
      defer output_dir.close();
- 
+
      // we try to open the file `zigling.txt`,
 @@ -55,7 +55,7 @@
      // but here we are not yet done writing to the file
@@ -24,6 +24,6 @@
      // allowed you to "defer" code execution to the end of the scope...
 -    file.close();
 +    defer file.close();
- 
+
      // you are not allowed to move these two lines above the file closing line!
      const byte_written = try file.write("It's zigling time!");

@@ -1,5 +1,5 @@
 ---
-name: chunked-build
+name: chunked-review
 description: "Implement a plan in logical, ordered sequential chunks. Each chunk is proposed with current/after blocks for approval before applying."
 triggers:
   - chunked build

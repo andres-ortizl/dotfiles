@@ -6,7 +6,7 @@
      experience: u32,
 +    health: u8,
  };
- 
+
  pub fn main() void {
 @@ -44,6 +45,7 @@
          .role = Role.wizard,
@@ -14,5 +14,5 @@
          .experience = 10,
 +        .health = 100,
      };
- 
+
      // Glorp gains some gold.

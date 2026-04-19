@@ -11,5 +11,5 @@
 +        .dist = dist,
 +    };
  }
- 
+
  // Using our new function, these path definitions take up considerably less

@@ -6,5 +6,5 @@
              },
 +            else => unreachable,
          }
- 
+
          std.debug.print("{} ", .{current_value});
