@@ -10,7 +10,7 @@ triggers:
 
 # React to Greptile Review
 
-Address all Greptile review feedback on the current PR: fix every issue, reply to each thread with what changed, then ask Greptile to re-score.
+Address all Greptile review feedback on the current PR: fix every *live* issue, reply to each thread with what changed (or cite the SHA that already fixed it), then ask Greptile to re-score.
 
 ---
 
@@ -19,14 +19,10 @@ Address all Greptile review feedback on the current PR: fix every issue, reply t
 Determine the current PR from context or branch name:
 
 ```bash
-gh pr view --json number,url,headRefName
+gh pr view --json number,url,headRefName,baseRefName
 ```
 
-Store the PR number for all subsequent API calls. Detect the repo (may differ from local remote if the repo was renamed/moved):
-
-```bash
-gh pr view <number> --json url
-```
+Store the PR number and derive `<owner>/<repo>` from the URL (the local remote may have been renamed).
 
 ---
 
@@ -34,81 +30,104 @@ gh pr view <number> --json url
 
 Fetch both sources — the summary comment AND inline thread comments. Do NOT skip either.
 
-**Inline review comments:**
+**Inline review comments** (JSON — easier to parse than text output):
+
 ```bash
-gh api repos/<owner>/<repo>/pulls/<number>/comments
+gh api "/repos/<owner>/<repo>/pulls/<number>/comments" --paginate \
+  --jq '[.[] | select(.user.login | ascii_downcase | contains("greptile"))
+           | {id, path, body, original_commit_id, in_reply_to_id, diff_hunk}]'
 ```
 
-Filter to comments where `user.login` contains `greptile`. Extract for each:
-- `id` — needed to reply
-- `path` — file
-- `body` — the issue raised
-- `diff_hunk` — surrounding code context
+Extract `id`, `path`, `body`, `original_commit_id` (the SHA the comment was written against — used in Phase 3), and `diff_hunk` for each.
 
-**PR-level summary comment:**
+**PR-level summary comment** (latest only — Greptile re-posts on every review, so old summaries clutter the output):
+
 ```bash
-gh pr view <number> --comments
+gh api "/repos/<owner>/<repo>/issues/<number>/comments" --paginate \
+  --jq '[.[] | select(.user.login=="greptile-apps")] | sort_by(.created_at) | last | .body'
 ```
 
-Find the Greptile summary block (starts with `### Greptile Summary` or `<h3>Greptile Summary</h3>`). Read it fully — **the summary frequently raises issues (e.g. threshold inconsistencies, missing edge-case handling) that do NOT appear as inline comments.** Treat it as an equal source to inline threads, not a secondary one.
+Parse the latest summary for:
+- **Overall score** (e.g. "Confidence Score: 4/5")
+- **"Previously-flagged X is now resolved"** lines — these tell you which inline threads are already acknowledged-fixed by Greptile and need a "resolve the thread" reply, not a re-fix.
+- **New findings that do NOT appear as inline comments** — the summary is often where Greptile puts issues that span multiple files or don't anchor to a single line (e.g. "test X will fail because payload shape changed").
+
+Do NOT parse `gh pr view --comments` — that dumps a tab-separated text format with every comment in history, which is fragile and usually contains stale data.
 
 ---
 
-## Phase 3: Triage All Issues
+## Phase 3: Triage — Three Outcomes per Item
 
-**Start with the summary.** Extract every actionable item from it before looking at inline threads. Then merge with inline items.
+For every inline thread AND every summary-only finding, pick exactly one:
 
-List every actionable item from both sources. For each:
+1. **Already fixed on HEAD.** Check the flagged code on the current branch. If the code path no longer exists, or the fix clearly landed in a later commit, find that SHA (`git log --oneline -- <file>` or search commit messages) and note it. **Skip Phase 4** for this item — go straight to Phase 6 with `"Fixed in <sha>."`
 
-1. Read the relevant file(s)
-2. Decide: fix now, or explain why it's intentional / out of scope
-3. Group fixes that touch the same file
+2. **Fix now.** The issue still exists on HEAD. Proceed to Phase 4.
 
-Do NOT skip anything without a reason.
+3. **Intentional / out of scope.** Note the reason. The reply in Phase 6 explains why.
+
+No silent skips. Every item must land in one of these three buckets. Start with the summary so you triage the "big picture" findings before getting lost in inline detail.
 
 ---
 
 ## Phase 4: Fix Locally
 
-Implement all fixes. Rules:
+Implement fixes for items in bucket (2). Rules:
+
 - Smallest change that resolves the issue
 - Follow existing code style
 - No new dependencies without approval
-- If a suggestion conflicts with the codebase design, note it but don't blindly apply it
-- **Dependency changes:** use `uv add` / `uv remove` instead of hand-editing `pyproject.toml` — this keeps `uv.lock` in sync automatically
+- If a suggestion conflicts with the codebase design, move the item to bucket (3) — don't blindly apply it
+- **Dependency changes:** use `uv add` / `uv remove` instead of hand-editing `pyproject.toml` — keeps `uv.lock` in sync
 
-Run tests after fixing using the `/run-tests` skill to run tests for affected packages. Do NOT include markers like `-m llm` or `-m slow` — only run the default test suite.
+Run tests after fixing using the `/run-tests` skill for affected packages. Do NOT include markers like `-m llm` or `-m slow` — only the default suite.
 
-**If Greptile flagged a bug or edge case with no existing test coverage:** write a test that reproduces the issue before fixing it (TDD: RED → GREEN). Do not fix without a test if the issue is behavioral — untested fixes can regress silently.
+**If Greptile flagged a bug or edge case with no existing test coverage:** write a test that reproduces the issue before fixing it (TDD: RED → GREEN). Untested behavioral fixes regress silently.
 
 ---
 
 ## Phase 5: Commit and Push
 
+Skip this phase entirely if all items were bucket (1) — there's nothing to commit.
+
+Otherwise, prefer a single commit that references the review:
+
 ```bash
 git add <changed files>
-git commit -m "fix: address greptile review comments"
+git commit -m "$(cat <<'EOF'
+fix: address Greptile review comments
+
+- <one-line per item, e.g. "serializer accepts results_format (P0)">
+- <another>
+EOF
+)"
 git push
 ```
 
-Note the short commit SHA — you'll reference it in every reply.
+Note the short SHA — you'll reference it in Phase 6.
 
 ---
 
 ## Phase 6: Reply to Every Inline Thread
 
-For each Greptile inline comment, post a reply using:
+For each Greptile inline comment, post a reply. Use `--silent -q .html_url` so the 5KB POST response doesn't pollute your terminal:
 
 ```bash
-gh api repos/<owner>/<repo>/pulls/<number>/comments/<id>/replies \
-  -X POST \
-  -f body="Fixed in <sha> — <one-line description of what changed>."
+gh api "/repos/<owner>/<repo>/pulls/<number>/comments/<id>/replies" \
+  -X POST --silent -q '.html_url' \
+  -F body="$(cat <<'EOF'
+Fixed in <sha> — <one-line description>.
+EOF
+)"
 ```
 
-For issues intentionally not addressed:
-```bash
--f body="Intentional — <brief reason>."
-```
+Reply templates by bucket:
+
+- **(1) Already fixed on HEAD:** `"Fixed in <prior-sha> — <what that commit changed>."`
+- **(2) Fixed now:** `"Fixed in <new-sha> — <what changed>."`
+- **(3) Intentional:** `"Intentional — <brief reason>."`
+
+**Body escaping:** code references using backticks are common and safe inside a `'EOF'` heredoc (single-quoted delimiter prevents shell expansion). Do NOT use `-f body="... \`foo\` ..."` — zsh/bash command substitution on backticks will break the body or execute arbitrary text from the reply.
 
 Every thread must get a reply. No silent skips.
 
@@ -116,21 +135,33 @@ Every thread must get a reply. No silent skips.
 
 ## Phase 7: Tag Greptile for Re-Review
 
-Post a single PR-level comment tagging Greptile:
+Post a single PR-level comment. Include:
+
+- The SHA that addressed the latest round (or "no code changes, all prior feedback was already resolved on HEAD in <sha>…<sha>" if nothing needed fixing)
+- A bullet list of **summary-only findings** and where they were resolved — these have no inline thread to hang a reply on, so they only become visible here
+- The request to re-review
 
 ```bash
-gh pr comment <number> --repo <owner>/<repo> \
-  --body "@greptile-apps All comments addressed in <sha>. Please re-review each inline thread — resolve the ones that are fixed, and comment on any that are not. Then re-score."
+gh pr comment <number> --repo <owner>/<repo> --body "$(cat <<'EOF'
+@greptile-apps All feedback addressed. Please re-review each inline thread — resolve the ones that are fixed, comment on any that are not, and re-score.
+
+Summary-only items resolved:
+- <summary finding 1> — fixed in <sha>
+- <summary finding 2> — resolved on HEAD by <sha> (pre-existing)
+EOF
+)"
 ```
+
+Re-tagging `@greptile-apps` on the same PR is safe — Greptile is idempotent; it starts a new review, not a duplicate one.
 
 ---
 
 ## Rules
 
-- **The summary comment is not optional.** Always read it before fixing anything — it is where Greptile puts score rationale and issues that didn't fit inline. Missing it means fixing only half the feedback and getting the same low score again.
-- **Summary-only items need replies too.** Issues raised in the summary but without inline threads have no thread to reply to. Include them explicitly in the Phase 7 re-review comment so Greptile (and reviewers) can see they were addressed.
-- Reply to **every** greptile thread, even ones you disagree with — silence looks like oversight
-- Use the monorepo repo slug in all API calls (the remote may have been renamed)
-- If the repo slug is uncertain, infer it from `gh pr view --json url`
-- Commit SHA references in replies let reviewers jump straight to the diff
-- Do not push multiple commits if one is enough — keep the history clean
+- **Summary + inline are equal sources.** Always read the latest summary before fixing anything. Summary-only items are common and easy to miss; they must appear explicitly in Phase 7.
+- **"Is this still live?" check before every fix.** Greptile comments target the SHA they were posted against. On a long-lived branch, many will have been superseded. Check HEAD before reaching for the editor — then reply with the resolving SHA, not a duplicate fix.
+- Reply to **every** Greptile thread, even ones you disagree with — silence looks like oversight.
+- Infer `<owner>/<repo>` from `gh pr view --json url`; don't trust the local remote's slug.
+- Commit SHA references in replies let reviewers (and the next skill run) jump straight to the diff.
+- Prefer one commit over many when Phase 5 runs — keep history clean. But if fixes already landed across earlier commits, cite each by SHA rather than squashing.
+- Use `--silent -q <jq>` on `gh api` POST calls to avoid dumping 5KB response payloads into context.
