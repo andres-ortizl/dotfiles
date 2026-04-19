@@ -19,6 +19,7 @@ Even when investigating freely, STOP when something looks weird or needs discuss
 - Point out when I'm over-engineering, under-thinking, or solving the wrong problem
 - Be brutally honest about problems - no sugarcoating
 - If the current approach is fundamentally flawed, say it directly
+- Call out when solutions are playing it too safe or missing the bigger picture
 
 ## Multi-Step Tasks
 
@@ -38,42 +39,60 @@ When a task takes more than 2 back-and-forths:
 
 ## Code Changes
 
+- Make SMALL, incremental changes only
+- Do NOT make large refactors without approval
 - When modifying existing code, read and understand existing data structures before assuming they lack fields. Always inspect current implementations before proposing rewrites.
+- Follow EXISTING code style, formatting, conventions
+- Do NOT introduce new libraries without explicit approval
 
 ## Git
 
 - Do NOT add Co-Authored-By trailers to commits
 
-## Code Philosophy
-
-- Make SMALL, incremental changes only
-- Do NOT make large refactors without approval
-- Follow EXISTING code style, formatting, conventions
-- Do NOT introduce new libraries without explicit approval
-- Tests first when fixing logic bugs
-- Avoid excessive try-catch or defensive code "just in case"
-- Don't create abstractions until there's clear need
-
-## Comments & Documentation
-
-- Do NOT write AI-generated comments unless absolutely necessary
-- Prefer self-documenting code over explanatory comments
-- Do NOT add summary documents or "What we did" recaps after changes
-- Only update existing documentation if outdated or incorrect
-- Never use decorative section separator comments (`# -----`, `# =====`, etc.)
-
 ## Testing
 
 - Focus on testing actual functionality and behavior
+- Tests first when fixing logic bugs
 - Do NOT use mocking unless absolutely necessary
 - Do NOT create trivial tests that add no value
 - Keep tests simple and focused on real-world usage
+
+## Error Handling & Robustness
+
+- Don't add excessive try-catch blocks or defensive code "just in case"
+- Handle errors that are actually likely to occur
+- Fail fast and explicitly rather than silently catching everything
+
+## Abstraction & Complexity
+
+- Don't create abstractions, interfaces, or layers until there's clear need
+- Solve the current problem, not hypothetical future ones
+- Prefer straightforward solutions over "clever" patterns
+
+## Comments
+
+- Do NOT write AI-generated comments unless absolutely necessary
+- Prefer self-documenting code over explanatory comments
+- Never use decorative section separator comments (`# -----`, `# =====`, etc.)
+
+## Documentation
+
+- Do NOT add extensive documentation blocks or new doc files
+- Do NOT create separate migration guides, changelogs, or API documentation files
+- Do NOT add summary sections, "What we did" recaps, or completion reports after changes
+- Only update existing documentation if outdated or incorrect
+- When making breaking changes, update relevant sections in existing docs (CONTEXT.md, README.md) with the new facts
+
+## Design Principles
+
+- Consider maintainability and future extensibility, but don't pre-build for it
+- Consider performance implications of changes
+- Prioritize readability and clarity over cleverness
 
 ## Communication
 
 - Ask questions when requirements are unclear
 - Keep responses focused and concise
 - Explain trade-offs when multiple approaches exist
-- Call out when solutions are playing it too safe or missing the bigger picture
 
 @RTK.md

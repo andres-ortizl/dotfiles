@@ -1,11 +1,8 @@
 ---
 name: spec
-description: "End-to-end feature development loop. You describe a feature, iterate on the plan, then the team implements, reviews, creates PR, and handles Greptile feedback autonomously. DMs you at milestones."
+description: "End-to-end feature development loop. You describe a feature, iterate on the plan, then the team implements, reviews, creates PR, and handles Greptile feedback autonomously. DMs you at milestones. Use ONLY when the user wants the full autonomous implement→review→PR→CI→Greptile loop for a multi-file feature. Do NOT use for: quick bug fixes, single-file edits, exploratory/discussion tasks, or anything the user wants to drive step-by-step."
 triggers:
   - spec
-  - build feature
-  - develop
-  - end to end
 ---
 
 # Spec: End-to-End Feature Development
@@ -167,44 +164,7 @@ cp <original-project-root>/.spec-env .env 2>/dev/null
 
 ### 5. Assign ports and project name
 
-Find the lowest available port offset by checking which offsets are in use by active specs across ALL projects:
-
-1. Read every `~/.spec/*/*/logbook.md` — if status is NOT `COMPLETE`, that spec is active
-2. Read every active spec's `env.md` to find its offset (derive from any port, e.g., `BACKEND_PORT - 8080`)
-3. Pick the lowest multiple of 10 (starting at 10) not used by any active spec
-
-Offset 0 is reserved for the user's own dev stack (default ports).
-
-```
-offset = lowest unused multiple of 10, starting at 10
-```
-
-Append to the worktree's `.env`:
-
-```env
-COMPOSE_PROJECT_NAME=spec-<spec-name>
-FRONTEND_PORT=$((5173 + offset))
-BACKEND_PORT=$((8080 + offset))
-API_PORT=$((8081 + offset))
-POSTGRES_PORT=$((5432 + offset))
-```
-
-Log the assigned ports in `~/.spec/<project-name>/<spec-name>/env.md`:
-
-```markdown
-# Environment: <spec-name>
-
-Worktree: .claude/worktrees/spec/<spec-name>
-Branch: spec/<spec-name>
-COMPOSE_PROJECT_NAME: spec-<spec-name>
-
-| Service   | Port  |
-|-----------|-------|
-| Frontend  | <port> |
-| Backend   | <port> |
-| API       | <port> |
-| Postgres  | <port> |
-```
+See **`reference/ports.md`** for the offset-assignment algorithm and the `.env` / `env.md` templates.
 
 ### 6. Initialize logbook
 
@@ -446,52 +406,7 @@ If score is 5/5 — **FINAL DM**, before any other work:
 
 ## Slack DM Protocol
 
-**Every milestone MUST send a Slack DM. This is not optional.** The user relies on these notifications to track progress without watching the terminal.
-
-### Message format
-
-All messages use Slack markdown and emojis for scannability:
-
-```
-<emoji> *[<spec name>]* <status> — <description>
-```
-
-Emoji per milestone:
-- :rocket: — Spec started
-- :hammer_and_wrench: — Implementation started
-- :white_check_mark: — Implementation complete / tests passing
-- :mag: — Review in progress
-- :tada: — Review passed
-- :link: — PR created
-- :robot_face: — Greptile round verdict arrived
-- :wrench: — CI / Greptile fix pushed
-- :trophy: — Feature complete
-- :rotating_light: — Blocked / needs intervention
-
-Examples:
-- `:rocket: *[Snake Game]* Spec started — setting up workspace`
-- `:hammer_and_wrench: *[Snake Game]* Implementation started — you can detach now (\`Ctrl+O, D\`). Next DM when tests pass.`
-- `:white_check_mark: *[Snake Game]* Implementation complete — tests passing, moving to review`
-- `:tada: *[Snake Game]* Review passed — shipping PR`
-- `:link: *[Snake Game]* PR created — <https://github.com/org/repo/pull/123|#123>, waiting for Greptile`
-- `:robot_face: *[Snake Game]* Greptile round 1 — score 3/5, fixing issues`
-- `:trophy: *[Snake Game]* Complete — PR ready for human review: <https://github.com/org/repo/pull/123|#123>`
-- `:rotating_light: *[Snake Game]* Blocked — test suite failing after 3 review rounds\n>*Phase:* review\n>*Reason:* reviewer found race condition in auth handler that coder can't resolve\n>*Resume:* \`zellij attach spec-snake-game\``
-
-### Tool call
-
-```
-mcp__claude_ai_Slack__slack_send_message(channel_id="<slack-user-id>", message="[<spec name>] <status> — <description>")
-```
-
-### Milestones that require a DM
-- Implementation started (you can detach now)
-- Implementation complete, tests passing
-- Review passed (or failed after 3 rounds)
-- PR created
-- Each Greptile round score
-- Feature complete
-- User intervention required (any error)
+Every milestone MUST send a Slack DM. See **`reference/slack.md`** for the message format, emoji table, full milestone list, Greptile round DM pattern, and the final `:trophy:` DM.
 
 ## Cleanup — ACCEPTED Phase
 
@@ -527,26 +442,4 @@ Rejection means the spec needs more iteration, NOT deletion.
 
 ## Error Handling / Intervention Required
 
-When anything needs user intervention, including:
-- Errors (test suite broken, git conflict, API error)
-- Permission prompts blocking a teammate (e.g., `cd && git` compound commands, unknown tools)
-- Coder can't resolve review feedback after retries
-- Ambiguous requirements the plan didn't clarify
-- Any "Do you want to proceed?" prompt that blocks the autonomous flow
-
-**DM the user immediately with full context:**
-```
-mcp__claude_ai_Slack__slack_send_message(channel_id="<slack-user-id>", message=":rotating_light: *[<spec name>]* Blocked — <what happened>\n>*Phase:* <current phase>\n>*Reason:* <why it can't continue>\n>*Resume:* `zellij attach <session-name>`")
-```
-
-Then:
-1. Log in `~/.spec/<project-name>/<spec-name>/logbook.md`
-2. Stop the loop and wait for the user to come back
-
-The intervention DM must always include:
-- **What** went wrong (one line)
-- **Phase** it's stuck in (implementing, reviewing, shipping, greptile)
-- **Why** it can't continue without the user
-- **Resume command** (`zellij attach <session-name>`) so the user can jump straight in
-
-Do NOT retry blindly. Do NOT use destructive git operations to work around issues.
+See **`reference/errors.md`** for the intervention DM template, the mandatory fields, and the rules (no blind retries, no destructive git).

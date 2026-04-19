@@ -1,6 +1,6 @@
 ---
 name: langfuse-trace
-description: Fetch and debug a Langfuse trace by ID or URL. Shows span tree overview first, then asks which part to drill into before loading heavy LLM I/O.
+description: "Fetch and debug a Langfuse trace from langfuse.anyformat.ai by ID or URL. Shows span tree overview first, then asks which part to drill into before loading heavy LLM I/O. Anyformat-only — assumes LANGFUSE_TRACING_* env vars. Do NOT use for other Langfuse hosts."
 ---
 
 # Debug a Langfuse Trace
