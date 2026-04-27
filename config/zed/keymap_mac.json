@@ -23,16 +23,15 @@
   {
     "context": "Editor",
     "bindings": {
-      // Panel toggles
-      "alt-e": "project_panel::ToggleFocus",
-      "alt-o": "outline_panel::ToggleFocus",
-      "alt-g": "git_panel::ToggleFocus",
-      "alt-t": "terminal_panel::ToggleFocus",
-      "alt-d": "debug_panel::ToggleFocus",
-      "alt-a": "agent::ToggleFocus",
-      // Dock toggles
+      // Dock + panel toggles (re-asserted here so the Editor null disables don't swallow them — null cascades upward)
       "cmd-1": "workspace::ToggleLeftDock",
       "cmd-2": "workspace::ToggleRightDock",
+      "alt-e": "project_panel::Toggle",
+      "alt-o": "outline_panel::Toggle",
+      "alt-g": "git_panel::Toggle",
+      "alt-t": "terminal_panel::Toggle",
+      "alt-d": "debug_panel::Toggle",
+      "alt-a": "agent::Toggle",
       // File navigation
       "ctrl-e": "file_finder::Toggle",
       "ctrl-o": "tab_switcher::Toggle",
@@ -68,10 +67,7 @@
     "context": "ProjectPanel || OutlinePanel || GitPanel || Terminal || NotificationPanel || DebugPanel",
     "bindings": {
       // Return to previous pane
-      "escape": "workspace::ActivatePreviousPane",
-      // Dock toggles
-      "cmd-1": "workspace::ToggleLeftDock",
-      "cmd-2": "workspace::ToggleRightDock"
+      "escape": "workspace::ActivatePreviousPane"
     }
   },
   // ============================================================================
@@ -86,26 +82,45 @@
     }
   },
   // ============================================================================
-  // TERMINAL CONTEXT
-  // ============================================================================
-  {
-    "context": "Terminal",
-    "bindings": {
-      // Toggle terminal panel
-      "alt-t": "workspace::ToggleBottomDock"
-    }
-  },
-  // ============================================================================
-  // WORKSPACE CONTEXT - Pane navigation
+  // WORKSPACE CONTEXT - Panels, docks, panes, parallel agents
   // ============================================================================
   {
     "context": "Workspace",
     "bindings": {
-      // Navigate between split panes
+      // Panel toggles (open/swap/hide)
+      "alt-e": "project_panel::Toggle",
+      "alt-o": "outline_panel::Toggle",
+      "alt-g": "git_panel::Toggle",
+      "alt-t": "terminal_panel::Toggle",
+      "alt-d": "debug_panel::Toggle",
+      "alt-a": "agent::Toggle",
+      // Dock toggles
+      "cmd-1": "workspace::ToggleLeftDock",
+      "cmd-2": "workspace::ToggleRightDock",
+      // Split-pane navigation
       "ctrl-left": "workspace::ActivatePaneLeft",
       "ctrl-right": "workspace::ActivatePaneRight",
       "ctrl-up": "workspace::ActivatePaneUp",
-      "ctrl-down": "workspace::ActivatePaneDown"
+      "ctrl-down": "workspace::ActivatePaneDown",
+      // Parallel agents — new thread per ACP agent
+      "cmd-alt-c": ["agent::NewExternalAgentThread", { "agent": { "custom": { "name": "claude-acp" } } }],
+      "cmd-alt-x": ["agent::NewExternalAgentThread", { "agent": { "custom": { "name": "opencode" } } }],
+      "cmd-alt-p": ["agent::NewExternalAgentThread", { "agent": { "custom": { "name": "pi-acp" } } }],
+      // Project diff
+      "alt-shift-g": "git::Diff"
+    }
+  },
+  // ============================================================================
+  // GIT DIFF CONTEXT - Hunk-by-hunk review and staging
+  // ============================================================================
+  {
+    "context": "GitDiff > Editor",
+    "bindings": {
+      // Hunk navigation
+      "up": "editor::GoToPreviousHunk",
+      "down": "editor::GoToHunk",
+      // Stage current hunk and move to next
+      "cmd-a": "git::StageAndNext"
     }
   },
   // ============================================================================

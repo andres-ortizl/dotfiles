@@ -29,6 +29,16 @@ User describes feature
 └───────┬────────────────────┘
         │ plan approved
         ▼
+┌─ REVIEW PLAN (interactive)┐
+│  /review-plan produces:    │
+│   - scorecard + concerns   │
+│     (skip w/ --no-viability)│
+│   - execution strategy     │
+│     (always — mandatory)   │
+│  User confirms strategy    │
+└───────┬────────────────────┘
+        │ strategy approved
+        ▼
 ┌─ IMPLEMENT (autonomous) ─┐
 │  Coder implements plan    │
 │  TDD: RED → GREEN         │
@@ -72,6 +82,32 @@ User describes feature
       COMPLETE
 ```
 
+## Skip Flags
+
+The skill accepts skip flags in the invocation args. Parse them from the user's prompt before starting Phase 0. Flags can be written as `--<name>`, or as free-form phrases like "skip slack", "no pr", "skip slack, pr, greptile". Treat both forms identically.
+
+Supported flags:
+
+| Flag | Skips |
+|------|-------|
+| `--no-slack` | All Slack DMs (Phase 0b initial DM, all milestone DMs across every phase). Never prompt the user for Slack permissions either. |
+| `--no-worktree` | Phase 0 step 3 (`EnterWorktree`). Work in the current directory. |
+| `--no-env` | Phase 0 steps 4–5 (`.spec-env` copy, port assignment, `env.md` entry). |
+| `--no-pr` | Phase 4 (ship). Stop after review passes. Also implies `--no-ci` and `--no-greptile`. |
+| `--no-ci` | Phase 4b (CI watch). Only meaningful if a PR was created. |
+| `--no-greptile` | Phase 5 (Greptile loop). Only meaningful if a PR was created. |
+| `--no-viability` | Phase 1.5 scorecard + concerns (viability check). The execution-strategy portion still runs — it is not skippable. |
+| `--local` | Bundle: `--no-slack --no-worktree --no-env --no-pr` (and therefore `--no-ci` and `--no-greptile`). "Just plan + implement + review in the current repo." |
+
+Always-on (cannot be skipped):
+- Spec directory `~/.spec/<project-name>/<spec-name>/`
+- `plan.md` saved into that directory
+- `logbook.md` in that directory with phase transitions
+
+Guard pattern: at the top of each phase/step the flag affects, check the flag and silently skip with a one-line logbook entry. Do NOT prompt the user for permission to skip — the flags are opt-in by the user at invocation time and mean "just do it without this step." When a step is skipped, its Slack DM is also skipped (independent of `--no-slack`), since there is nothing to report.
+
+When `--no-pr` is set, the flow ends after Phase 3 (review PASS). Final status in the logbook is `COMPLETE (local)`, and the Phase 5 `:trophy:` DM is replaced by a short local completion log entry.
+
 ## Phase 0: Setup
 
 ### 0. Session persistence check
@@ -96,6 +132,8 @@ If **neither** is set, warn the user before proceeding:
 Wait for the user to confirm they want to continue anyway, or exit and restart in Zellij.
 
 ### 0b. Discover Slack user ID and verify permissions
+
+> **Skip if `--no-slack`** — log `Slack skipped (--no-slack)` in the logbook and continue. All subsequent DM calls are no-ops for this run.
 
 Get the current user's Slack ID from the MCP tool description (it includes the logged-in user's user_id). Store it as `<slack-user-id>` for all DMs in this spec.
 
@@ -136,6 +174,8 @@ If `~/.spec/<project-name>/<spec-name>/` already exists, append a numeric suffix
 
 ### 3. Enter worktree (if needed)
 
+> **Skip if `--no-worktree`** — work directly in the current directory. Log `Worktree skipped (--no-worktree), using <cwd>` and continue.
+
 Check if the current working directory is already a worktree:
 
 ```bash
@@ -153,6 +193,8 @@ EnterWorktree(name="spec/<spec-name>")
 This creates a new branch and working directory at `.claude/worktrees/spec/<spec-name>`. All implementation happens here — the main working tree is untouched.
 
 ### 4. Copy environment
+
+> **Skip if `--no-env`** — skip both `.spec-env` copy and port assignment (step 5). Log `Env skipped (--no-env)` and continue.
 
 Check for `.spec-env` in the project root. If it exists, copy it silently into the worktree as `.env`. If it doesn't exist, warn once and continue — do NOT block:
 
@@ -223,14 +265,57 @@ Rules:
 - Include happy path AND at least one edge case
 - If the user doesn't provide criteria, the planner proposes them and gets approval
 
-**Only after the user explicitly approves the plan, proceed to Phase 2.**
+Do NOT include an `## Execution` section in the plan itself. Phase 1.5 (below) produces the execution strategy via `/review-plan` after the plan content is approved.
+
+**Only after the user explicitly approves the plan content, proceed to Phase 1.5.**
+
+## Phase 1.5: Review Plan (interactive)
+
+After plan content is approved, but before any code is written, run the `/review-plan` skill on the saved `plan.md`. This produces two outputs:
+
+1. **Viability check** — scorecard (Viability / Completeness / AC / Risk / Scope) + concerns list with BLOCKER/RISK/SCOPE/MISSING/AC severity tags. Verdict: Go / Revise / Rethink.
+2. **Execution strategy** — dependency graph, team table (teammates with model assignments and file ownership), conflict check, ready-to-paste lead prompt.
+
+### Invocation
+
+```
+Skill(skill="review-plan", args="<absolute path to plan.md>")
+```
+
+If `--no-viability` is set: tell the skill to emit ONLY the execution-strategy portion (skip Phase 3 scorecard and Phase 4 concerns). The execution strategy is mandatory regardless of flags — it determines the team shape for Phase 2.
+
+### User confirmation
+
+Present the skill's output to the user. Wait for one of:
+
+- **Approve** → append the execution-strategy section (team table + ready-to-paste prompt) to `plan.md` under `## Execution`, then proceed to Phase 2.
+- **Revise plan** → go back to Phase 1, edit `plan.md`, re-run Phase 1.5.
+- **Revise strategy** → edit the team composition (e.g. fewer teammates, different models) with the user, update `plan.md`, proceed.
+
+### Handling BLOCKER verdicts
+
+If the scorecard returns **Rethink** OR any Concern is tagged **BLOCKER**, do NOT proceed to Phase 2 even if the user tries to approve. Surface the blocker clearly and require the user to either fix it in the plan (loop back to Phase 1) or explicitly override with a one-line justification that gets logged.
+
+### Small-plan short-circuit
+
+`/review-plan` itself short-circuits the team proposal for plans ≤3 steps or single-file changes. In that case the output says "execute sequentially" and Phase 2 falls back to inline execution (lead writes the change directly, single reviewer pass afterward). Log this in the logbook.
+
+### Logbook entry
+
+Log the verdict, the chosen execution approach (team shape or inline), and any BLOCKER overrides.
 
 ## Phase 2: Create Team and Implement (Autonomous)
 
-Create a team with two teammates, both with `mode: "bypassPermissions"` so they can run autonomously without blocking on approval prompts:
+**If Phase 1.5 short-circuited to inline execution** (small-plan case, or user explicitly chose inline): skip team creation. The lead writes the change directly, then spawns a single `reviewer` agent (not a teammate) for Phase 3. Still create and update the logbook, still enter the autonomous-mode DM flow if Slack is in scope. Jump to Phase 3 once the lead finishes writing the change.
+
+**Otherwise (team execution, the normal case):** continue below, using the team table from Phase 1.5 as the source of truth for teammate names, models, and file ownership.
+
+Create the team with the teammates approved in Phase 1.5, each with `mode: "bypassPermissions"` so they can run autonomously without blocking on approval prompts. The default team shape is:
 
 - **coder** — uses the `coder` agent definition. Implements the approved plan. Mode: `bypassPermissions`.
 - **reviewer** — uses the `reviewer` agent definition. Reviews the coder's work. Mode: `bypassPermissions`.
+
+Phase 1.5 may have proposed a richer team (e.g. frontend + backend + tests + reviewer for a larger feature). Use whatever was approved there — model assignments from the table must be honored via the `model` parameter to `Agent`.
 
 **IMPORTANT: Coder lifecycle management.**
 When sending the plan to the coder, include this instruction:
@@ -285,6 +370,8 @@ Send the coder's work to the reviewer. The reviewer:
 
 ## Phase 4: Ship (Autonomous)
 
+> **Skip if `--no-pr` or `--local`** — mark logbook status `COMPLETE (local)` and stop. Do NOT proceed to Phase 4b or Phase 5.
+
 Use the `/pr` skill to:
 1. Group changes into logical commits
 2. Push to a feature branch
@@ -296,6 +383,8 @@ Use the `/pr` skill to:
 3. Then proceed to Phase 4b
 
 ## Phase 4b: CI Pipeline Watch (Autonomous)
+
+> **Skip if `--no-ci`** — log `CI watch skipped (--no-ci)` and transition directly to Phase 5.
 
 After the PR is created, CI pipelines run on the PR head. Watch them and only proceed to Phase 5 once they're either all green or intentionally ignored.
 
@@ -367,6 +456,8 @@ Don't spam — one DM per push, not one per poll.
 Once all checks are green (or only SKIPPED / NEUTRAL), log and proceed to Phase 5. No Slack DM needed for the transition — Phase 5 will DM when Greptile comments.
 
 ## Phase 5: Greptile (Autonomous)
+
+> **Skip if `--no-greptile`** — log `Greptile skipped (--no-greptile)` and mark spec `COMPLETE` without waiting for Greptile review.
 
 Wait for Greptile to post its review on the PR. Check periodically:
 ```bash

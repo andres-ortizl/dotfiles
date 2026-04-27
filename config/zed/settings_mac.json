@@ -1,6 +1,13 @@
 {
   // Theme and Appearance
+  "diff_view_style": "split",
   "agent_servers": {
+    "pi-acp": {
+      "type": "registry"
+    },
+    "claude-acp": {
+      "type": "registry"
+    },
     "opencode": {
       "type": "registry"
     }
@@ -9,7 +16,6 @@
   "theme": "Catppuccin Macchiato",
   "icon_theme": "Catppuccin Mocha",
   "title_bar": {
-    "show_branch_icon": false,
     "show_branch_name": true,
     "show_project_items": true,
     "show_onboarding_banner": false,
@@ -169,6 +175,7 @@
     }
   },
   "collaboration_panel": {
+    "dock": "left",
     "button": true
   },
   "notification_panel": {
@@ -253,6 +260,8 @@
   },
   // AI Assistant Settings
   "agent": {
+    "flexible": true,
+    "sidebar_side": "right",
     "tool_permissions": {
       "default": "allow"
     },
@@ -262,7 +271,7 @@
       "provider": "amazon-bedrock",
       "model": "claude-haiku-4.5"
     },
-    "play_sound_when_agent_done": true,
+    "play_sound_when_agent_done": "always",
     "dock": "right",
     "button": true,
     "default_width": 640,
