@@ -1,242 +1,87 @@
 ---
 name: langfuse-trace
-description: "Fetch and debug a Langfuse trace from langfuse.anyformat.ai by ID or URL. Shows span tree overview first, then asks which part to drill into before loading heavy LLM I/O. Anyformat-only — assumes LANGFUSE_TRACING_* env vars. Do NOT use for other Langfuse hosts."
+description: "Fetches and debugs a Langfuse trace by ID or URL. Renders a span-tree overview with auto-suggested drill targets, then drills into a chosen section to surface system prompts, tool calls, and tool results. Supports comparing two spans side-by-side. Use when the user provides a Langfuse trace ID or URL, mentions a langfuse.* link, or asks to debug, inspect, or compare spans in an LLM trace. Defaults to anyformat credentials (LANGFUSE_TRACING_*) and host (langfuse.anyformat.ai); other hosts work if LANGFUSE_HOST and LANGFUSE_PUBLIC_KEY/LANGFUSE_SECRET_KEY are set."
 ---
 
 # Debug a Langfuse Trace
 
-## Setup
+All trace fetching, parsing, and rendering happens in `trace.py` (in this skill's directory). Do NOT rewrite the parsing logic inline — invoke the script.
 
-Extract the trace ID from the argument (bare ID or URL last segment).
+`trace.py` is a self-contained PEP 723 / `uv run` script (declares its own deps). Run it directly: `<skill_dir>/trace.py <args>`. Requires `uv` (Astral). On first invocation, `uv` resolves and caches `httpx` (~1s); subsequent runs are <200ms with the trace cache warm.
 
-Credentials are always:
-```bash
-LANGFUSE_PUBLIC_KEY=$LANGFUSE_TRACING_PUBLIC_KEY
-LANGFUSE_SECRET_KEY=$LANGFUSE_TRACING_SECRET_KEY
-LANGFUSE_HOST=https://langfuse.anyformat.ai
+## Workflow
+
+Tick each step before moving to the next. Steps are deliberately ordered to keep context lean: the overview is small, drills are large.
+
+- [ ] **Step 1 — Overview.** Run `<skill_dir>/trace.py <trace_id_or_url> overview` (delegate to a `general-purpose` subagent with `model: sonnet` to keep parent context clean). Relay the output to the user.
+- [ ] **Step 2 — Ask which section to drill.** After Step 1, stop and ask: *"Which section do you want to drill into? You can pass a name substring, an 8-char span id, or `compare A B`."* Do NOT proceed without an answer unless the overview surfaced a single obvious target (one ERROR span, or one span >70% of trace latency) — in which case suggest it explicitly and wait for confirmation.
+- [ ] **Step 3 — Drill or compare.** Spawn a fresh `general-purpose` subagent (`model: sonnet`) and run `<skill_dir>/trace.py <trace_id> drill <pattern>` or `... compare <a> <b>`. The cache means re-fetching is free.
+- [ ] **Step 4 — Synthesize.** The drill output is the raw evidence. Read it, then explain to the user what it means in your own words. Do NOT relay raw drill output to the user without commentary.
+
+For follow-up drills in the same session, prefer `SendMessage` to the existing subagent over spawning a new one — the fetched trace is cached on disk regardless, but staying in one agent preserves any in-memory analysis.
+
+## Subcommands of `trace.py`
+
+```
+trace.py <trace_id> overview                 # span tree, errors, suggested drills
+trace.py <trace_id> drill <pattern>          # full message history; pattern = name substring or id-prefix
+trace.py <trace_id> drill ""                 # everything (warn user — large output)
+trace.py <trace_id> compare <a> <b>          # side-by-side metadata + messages for two spans
+trace.py <trace_id> raw <span_id>            # full JSON of one span, no truncation
 ```
 
----
+Pass the trace ID as a bare ID OR as a full URL — the last path segment is taken either way.
 
-## Delegation
+### Useful flags
 
-All phases (1 and 3) MUST be executed by a `general-purpose` subagent with `model: "sonnet"`. Spawn the subagent with the full instructions for that phase. This keeps exploration cost low since the parent model may be Opus.
+- `--refresh` — bypass the `/tmp/langfuse-traces/<id>.json` cache (1h TTL).
+- `--truncate-system` — truncate system prompts to 1500 chars. **Do NOT use** when the user is investigating prompt content; system prompts are full by default precisely because they are usually the answer.
+- `--tool-input-max N`, `--tool-result-max N`, `--output-max N` — adjust per-message truncation. Defaults: 2500 / 600 / 2000 chars. Bump these when the user's question depends on a specific tool's full input.
+- `--inline-io-max N` (overview only) — inline I/O for non-GENERATION spans up to N chars; default 400.
 
----
+## Subagent rules
 
-## Phase 1: Fetch Overview (always do this first)
+When delegating Step 1 or Step 3 to a subagent, include this verbatim in the prompt:
 
-Fetch the trace and render a lightweight overview — span tree + cost summary only. No LLM I/O yet.
+> Return the script output **raw**. Do NOT abbreviate, summarize, or replace
+> sections with placeholders like `[as shown above]`, `[truncated]`, or `…`.
+> If output is large, return it as-is — the parent will excerpt. Your job is
+> to run the script and pass the bytes back.
 
-```bash
-LANGFUSE_PUBLIC_KEY=$LANGFUSE_TRACING_PUBLIC_KEY \
-LANGFUSE_SECRET_KEY=$LANGFUSE_TRACING_SECRET_KEY \
-LANGFUSE_HOST=https://langfuse.anyformat.ai \
-  npx langfuse-cli api traces get <trace-id> --json 2>/dev/null | python3 -c "
-import json, sys
-outer = json.load(sys.stdin)
-d = outer['body']
-obs = d.get('observations', [])
-obs.sort(key=lambda o: o.get('startTime', ''))
+This rule exists because the most common failure mode is a subagent silently summarizing a system prompt or tool call, forcing a second round-trip to recover the dropped text.
 
-parent_map = {o['id']: o.get('parentObservationId') for o in obs}
-id_to_name = {o['id']: o.get('name','?') for o in obs}
+## When to use which subcommand
 
-def depth(oid):
-    n = 0
-    while parent_map.get(oid):
-        oid = parent_map[oid]
-        n += 1
-        if n > 20: break
-    return n
+- **Default starting point:** `overview`. Always.
+- **"Why did span X behave that way?"** → `drill <id-prefix-of-X>`. Use the id-prefix instead of the name when names repeat (e.g. multiple workers).
+- **"Why did A do one thing and B do another?"** → `compare <A> <B>`. Pre-aligns metadata and shows both message histories.
+- **"I need every byte of span X"** → `raw <id>`. Returns the full JSON observation with no truncation.
+- **User asks for "the whole trace":** push back. Suggest `overview` first, then a targeted drill. `drill ""` is a last resort and you should warn before running it.
 
-print(f'Trace:    {d[\"id\"]}')
-print(f'Name:     {d.get(\"name\") or \"(unnamed)\"}')
-print(f'Time:     {d.get(\"timestamp\")}')
-print(f'Latency:  {d.get(\"latency\", \"?\")}s   Cost: \${d.get(\"totalCost\") or 0:.4f}')
-print(f'Env:      {d.get(\"environment\")}')
-print(f'URL:      https://langfuse.anyformat.ai{d.get(\"htmlPath\",\"\")}')
-print()
+## Credentials and host
 
-errors = [o for o in obs if o.get('level') in ('ERROR', 'WARNING') or o.get('statusMessage')]
-if errors:
-    print('=== Errors / Warnings ===')
-    for o in errors:
-        print(f'  [{o.get(\"level\")}] {o.get(\"name\")}: {o.get(\"statusMessage\")}')
-    print()
+The script reads:
+- `LANGFUSE_PUBLIC_KEY` / `LANGFUSE_SECRET_KEY` — preferred,
+- falls back to `LANGFUSE_TRACING_PUBLIC_KEY` / `LANGFUSE_TRACING_SECRET_KEY` (anyformat convention),
+- `LANGFUSE_HOST` defaults to `https://langfuse.anyformat.ai`.
 
-print('=== Span Tree ===')
-# DFS traversal to avoid parallel workers' children bleeding into each other visually
-children_map = {}
-roots = []
-obs_by_id = {o['id']: o for o in obs}
-for o in obs:
-    pid = o.get('parentObservationId')
-    if pid and pid in obs_by_id:
-        children_map.setdefault(pid, []).append(o)
-    else:
-        roots.append(o)
-# Sort each level by startTime so siblings appear chronologically
-roots.sort(key=lambda o: o.get('startTime', ''))
-for v in children_map.values():
-    v.sort(key=lambda o: o.get('startTime', ''))
+If the script exits with a credentials error, tell the user which env var is missing — do not retry blindly.
 
-def print_tree(o, indent=0):
-    typ = o.get('type', 'SPAN')
-    name = o.get('name', '?')
-    lat = f'{o.get(\"latency\",\"?\"):.1f}s' if isinstance(o.get('latency'), (int,float)) else ''
-    model = f' [{o.get(\"model\")}]' if o.get('model') else ''
-    tokens = f' {o[\"totalTokens\"]}tok' if o.get('totalTokens') else ''
-    cost = f' \${o[\"calculatedTotalCost\"]:.4f}' if o.get('calculatedTotalCost') else ''
-    warn = ' ⚠' if o.get('level') in ('ERROR','WARNING') else ''
-    print(f'{"  "*indent}{typ} {name}{model}{tokens}{cost} {lat}{warn}')
-    for child in children_map.get(o['id'], []):
-        print_tree(child, indent+1)
+## Output contract (what `trace.py` prints)
 
-for r in roots:
-    print_tree(r)
+So you know what to expect without reading the script:
 
-print()
-# Group spans by top-level parent for the user to choose
-top_spans = [o for o in obs if not o.get('parentObservationId') or o.get('parentObservationId') not in {x['id'] for x in obs}]
-named = [o for o in obs if o.get('name') and o.get('type') == 'SPAN']
-unique_names = sorted(set(o['name'] for o in named))
-print('=== Available sections to drill into ===')
-for name in unique_names:
-    print(f'  - {name}')
-"
-```
+- **`overview`** — header (id, name, latency, cost, env, URL), errors block (if any), span tree with id-prefixes and per-node latency/tokens/cost, "Suggested next drills" (errors first, then spans >30% of total latency), and a list of drill targets.
+- **`drill`** — per matching span: `━━━ [id8] TYPE name path latency ━━━` header, then either GENERATION message history (system, user, assistant text, `tool_call`, `tool_result`, `→OUT`) or non-GENERATION `IN:` / `OUT:` blocks.
+- **`compare`** — two-column metadata table with `≠` markers on differing fields, then each span rendered as in `drill`.
+- **`raw`** — pretty-printed JSON of one observation.
 
----
+## Error handling
 
-## Phase 2: Ask before drilling
+`trace.py` exits with a printed message on:
+- missing credentials (instructs which env var to set),
+- `langfuse-cli` failure (relays stderr),
+- `No spans match <pattern>` (drill),
+- `Ambiguous id prefix` / `Name not unique` (compare/raw — script lists candidate ids).
 
-After the Phase 1 subagent returns its output, relay it to the user, then **stop and ask**:
-
-> Which section do you want to drill into? (e.g. `smart_table_supervisor`, `smart_table_worker_*`, `_parse_all_blocks`, or `all` for everything)
-
-Do NOT load LLM inputs/outputs until the user specifies a focus area. Traces are large and loading everything floods context.
-
----
-
-## Phase 3: Drill into a specific section
-
-Once the user picks a section, spawn another `general-purpose` subagent with `model: "sonnet"` to run the drill. Filter observations by name pattern and show full I/O for that subset only.
-
-```bash
-LANGFUSE_PUBLIC_KEY=$LANGFUSE_TRACING_PUBLIC_KEY \
-LANGFUSE_SECRET_KEY=$LANGFUSE_TRACING_SECRET_KEY \
-LANGFUSE_HOST=https://langfuse.anyformat.ai \
-  npx langfuse-cli api traces get <trace-id> --json 2>/dev/null | python3 -c "
-import json, sys
-FILTER = '<section-name-pattern>'  # e.g. 'smart_table', 'supervisor', '_parse'
-
-outer = json.load(sys.stdin)
-d = outer['body']
-obs = d.get('observations', [])
-obs.sort(key=lambda o: o.get('startTime', ''))
-id_to_name = {o['id']: o.get('name','?') for o in obs}
-
-# Find relevant observations: name matches OR is a descendant of a matching span
-def matches(o):
-    return FILTER.lower() in o.get('name','').lower()
-
-# Build children map for descendant traversal
-children_map = {}
-for o in obs:
-    pid = o.get('parentObservationId')
-    if pid:
-        children_map.setdefault(pid, []).append(o['id'])
-
-def all_descendant_ids(oid):
-    result = set()
-    queue = list(children_map.get(oid, []))
-    while queue:
-        cid = queue.pop()
-        result.add(cid)
-        queue.extend(children_map.get(cid, []))
-    return result
-
-matching_ids = {o['id'] for o in obs if matches(o)}
-descendant_ids = set()
-for mid in matching_ids:
-    descendant_ids |= all_descendant_ids(mid)
-relevant_ids = matching_ids | descendant_ids
-relevant = [o for o in obs if o['id'] in relevant_ids]
-relevant.sort(key=lambda o: o.get('startTime', ''))
-
-# Build ancestor label for each span (e.g. "worker_abc > transformer_xyz")
-def ancestor_label(oid):
-    parts = []
-    cur = id_to_name.get(oid, '?')
-    pid = next((o.get('parentObservationId') for o in obs if o['id'] == oid), None)
-    while pid and pid in {o['id'] for o in obs}:
-        parts.append(id_to_name.get(pid, '?'))
-        pid = next((o.get('parentObservationId') for o in obs if o['id'] == pid), None)
-        if len(parts) > 5: break
-    # Only include ancestors that are within the filtered set for brevity
-    relevant_ancestors = [p for p in reversed(parts) if p in {id_to_name[i] for i in relevant_ids}]
-    return ' > '.join(relevant_ancestors + [cur]) if relevant_ancestors else cur
-
-print(f'=== Drilling into: {FILTER} ({len(relevant)} spans) ===')
-print()
-
-seen_tools = set()
-for o in relevant:
-    name = o.get('name','?')
-    label = ancestor_label(o['id'])
-    parent_name = id_to_name.get(o.get('parentObservationId',''), '?')
-    typ = o.get('type', 'SPAN')
-    inp = o.get('input')
-    out = o.get('output')
-
-    # Non-GENERATION spans (e.g. smart_table_plan) store data directly on input/output
-    if typ != 'GENERATION':
-        if inp is not None and not isinstance(inp, list):
-            print(f'[{label}] INPUT: {json.dumps(inp)[:800]}')
-        if out is not None:
-            print(f'[{label}] OUTPUT: {json.dumps(out)[:800]}')
-        if inp is not None or out is not None:
-            print()
-        continue
-
-    # GENERATION spans: dig into message history for tool calls and results
-    if inp and isinstance(inp, list):
-        for msg in inp:
-            if not isinstance(msg, dict): continue
-            if msg.get('role') == 'assistant':
-                for block in (msg.get('content') or []):
-                    if not isinstance(block, dict) or block.get('type') != 'tool_use': continue
-                    bid = block.get('id','')
-                    if bid in seen_tools: continue
-                    seen_tools.add(bid)
-                    print(f'[{label}] TOOL_CALL {block[\"name\"]}: {json.dumps(block.get(\"input\",{}))[:600]}')
-            for block in (msg.get('content') or []):
-                if not isinstance(block, dict) or block.get('type') != 'tool_result': continue
-                rc = block.get('content','')
-                text = rc if isinstance(rc, str) else ' '.join(b.get('text','') for b in rc if isinstance(b,dict))
-                if text.strip():
-                    print(f'[{label}] TOOL_RESULT: {text[:400]}')
-
-    if out and isinstance(out, dict):
-        content = out.get('content','')
-        if isinstance(content, str) and content.strip():
-            print(f'[{name}] OUTPUT: {content[:600]}')
-        elif isinstance(content, list):
-            for block in content:
-                if isinstance(block, dict) and block.get('type') == 'text' and block['text'].strip():
-                    print(f'[{name}] OUTPUT: {block[\"text\"][:600]}')
-    print()
-"
-```
-
----
-
-## Rules
-
-- **Always show overview first, always ask before drilling.** Never dump full I/O without asking.
-- Traces easily exceed 200KB — be selective.
-- If errors are present in Phase 1, highlight them and suggest drilling into that span first.
-- If the user says `all`, drill with `FILTER = ''` (matches everything) but warn it will be large.
-- The Langfuse UI link is always `https://langfuse.anyformat.ai` + `htmlPath` from the trace.
-- Credentials: use `LANGFUSE_TRACING_PUBLIC_KEY` / `LANGFUSE_TRACING_SECRET_KEY` (not the generic names).
+If you see one of these, fix it directly (e.g. retry with a longer id-prefix) rather than punting to the user.
