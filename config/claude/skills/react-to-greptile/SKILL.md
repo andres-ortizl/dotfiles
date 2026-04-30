@@ -44,8 +44,10 @@ Extract `id`, `path`, `body`, `original_commit_id` (the SHA the comment was writ
 
 ```bash
 gh api "/repos/<owner>/<repo>/issues/<number>/comments" --paginate \
-  --jq '[.[] | select(.user.login=="greptile-apps")] | sort_by(.created_at) | last | .body'
+  --jq '[.[] | select(.user.login | ascii_downcase | contains("greptile"))] | sort_by(.created_at) | last | .body'
 ```
+
+(Use `contains("greptile")` — the bot's actual login on GitHub is `greptile-apps[bot]` with the `[bot]` suffix, so an exact `=="greptile-apps"` filter silently returns empty and you'll miss the entire summary.)
 
 Parse the latest summary for:
 - **Overall score** (e.g. "Confidence Score: 4/5")

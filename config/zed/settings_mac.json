@@ -1,5 +1,8 @@
 {
   // Theme and Appearance
+  "cli_default_open_behavior": "new_window",
+  "diff_view_style": "split",
+  "minimum_split_diff_width": 0,
   "agent_servers": {
     "opencode": {
       "type": "registry"
@@ -17,44 +20,50 @@
     "show_sign_in": false,
     "show_menus": false
   },
-  "experimental.theme_overrides": {
-    // "#00000000" black
-    // #1E1E2E catppuchino mocha
-    "pane_group.border": "#464b5700",
-    "background.appearance": "blurred",
-    "background": "#000000BB",
-    "panel.background": "#11111b",
-    // "background.image_file": "/Users/andresortiz/downloads/background.jpg",
-    "editor.background": "#11111b",
-    "tab_bar.background": "#11111b",
-    "terminal.background": "#11111b",
-    "toolbar.background": "#11111b",
-    "tab.inactive_background": "#11111b",
-    "tab.active_background": "#3f3f4650",
-    "border": "#11111b",
-    "status_bar.background": "#11111b",
-    "title_bar.background": "#11111b",
-    "border.variant": "#11111b",
-    "scrollbar.track.background": "#52525b20",
-    "scrollbar.track.border": "#11111b",
-    "scrollbar.thumb.background": "#52525b30",
-    "scrollbar.thumb.border": "#1E1E2E",
-    // "elevated_surface.background": "#00000090",
-    "elevated_surface.background": "#44475aee",
-    "warning.background": "#5A4A8A",
-    "warning.border": "#FFB84D",
-    "error.background": "#5A4A8A",
-    "error.border": "#d072771a",
-    "surface.background": "#00000090",
-    "editor.active_line_number": "#bd93f9",
-    "editor.gutter.background": "#11111b",
-    "editor.indent_guide": "#ffffff30",
-    "editor.indent_guide_active": "#ffffff80",
-    "editor.line_number": "#ffffff80",
-    "editor.active_line.background": "#bd93f920",
-    //"editor.selection.background": "#44475a99"
+  "theme_overrides": {
+    "Catppuccin Macchiato": {
+      // "#00000000" black
+      // #1E1E2E catppuchino mocha
+      "pane_group.border": "#464b5700",
+      "background.appearance": "blurred",
+      "background": "#00000080",
+      "panel.background": "#11111b",
+      "editor.background": "#11111b",
+      "tab_bar.background": "#11111b",
+      "terminal.background": "#11111b",
+      "toolbar.background": "#11111b",
+      "tab.inactive_background": "#11111b",
+      "tab.active_background": "#3f3f4650",
+      "border": "#11111b",
+      "status_bar.background": "#11111b",
+      "title_bar.background": "#11111b",
+      "border.variant": "#11111b",
+      "scrollbar.track.background": "#52525b20",
+      "scrollbar.track.border": "#11111b",
+      "scrollbar.thumb.background": "#52525b30",
+      "scrollbar.thumb.border": "#1E1E2E",
+      "elevated_surface.background": "#44475aee",
+      "warning.background": "#5A4A8A",
+      "warning.border": "#FFB84D",
+      "error.background": "#5A4A8A",
+      "error.border": "#d072771a",
+      "surface.background": "#00000090",
+      "editor.active_line_number": "#bd93f9",
+      "editor.gutter.background": "#11111b",
+      "editor.indent_guide": "#494d6420",
+      "editor.indent_guide_active": "#c6a0f680",
+      "editor.line_number": "#ffffff80",
+      "editor.active_line.background": "#bd93f920",
+      "syntax": {
+        "comment":     { "font_style": "italic" },
+        "comment.doc": { "font_style": "italic" },
+        "type":        { "font_style": "italic" }
+      }
+    }
   },
   // Cursor and Line Highlighting
+  "hide_mouse": "on_typing_and_movement",
+  "hover_popover_delay": 600,
   "cursor_blink": false,
   "cursor_shape": "block",
   "current_line_highlight": "gutter",
@@ -62,7 +71,7 @@
   // Workspace & Pane Settings
   "active_pane_modifiers": {
     "border_size": 2.0,
-    "inactive_opacity": 0.85
+    "inactive_opacity": 0.7
   },
   "scroll_beyond_last_line": "one_page",
   "vertical_scroll_margin": 3,

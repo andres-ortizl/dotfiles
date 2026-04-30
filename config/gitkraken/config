@@ -21,19 +21,25 @@
   },
   "sslWhitelist": [],
   "webConfig": {
-    "lastUpdatedAt": "2026-02-02T09:01:24.910Z",
+    "lastUpdatedAt": "2026-04-27T11:47:37.333Z",
     "config": {
       "callouts": [],
       "promos": [
         {
-          "key": "CYBERWEEK25",
-          "code": "CYBERWEEK25",
-          "startsOn": "2025-11-23T23:59:00.000Z",
-          "expiresOn": "2025-12-06T09:59:00.000Z",
+          "key": "StudentKeepProFor80PercentOff",
           "content": {
-            "promoBadgeMarkdown": "**Cyber Week Sale!**\n\nSave 50% on GitKraken Pro.",
-            "proPromoLabelSmall": "SAVE 50% for a limited time!",
-            "toolbarLinkLabelOverride": "Save 50% on Pro"
+            "studentTrialExpiringStatusBarLabel": "Your student trial is ending. Keep Pro features for up to 80% off."
+          }
+        },
+        {
+          "key": "AGENT26",
+          "code": "AGENT",
+          "startsOn": "2026-04-13T23:59:00.000Z",
+          "expiresOn": "2026-04-25T09:59:00.000Z",
+          "content": {
+            "promoBadgeMarkdown": "**Limited-time Sale!**\n\nSave 62% on GitKraken Pro.",
+            "proPromoLabelSmall": "SAVE 62% for a limited time!",
+            "toolbarLinkLabelOverride": "Save 62% on Pro"
           }
         }
       ]
@@ -54,7 +60,7 @@
     "width": 2544,
     "height": 1393,
     "fullScreen": false,
-    "maximized": true
+    "maximized": false
   },
   "registration": {
     "EULA": {
@@ -135,23 +141,11 @@
       "value": true
     },
     {
-      "name": "gkdevAllowInviteMessages",
-      "value": true
-    },
-    {
-      "name": "gkDevReferralSystem",
-      "value": true
-    },
-    {
       "name": "gkdOnboardingTutorial_10_5_0",
       "value": true
     },
     {
-      "name": "gkDotDevAIAutomations",
-      "value": true
-    },
-    {
-      "name": "gkDotDevAutoConnectTargetProvider",
+      "name": "gkDotDevCreateQuote",
       "value": true
     },
     {
@@ -159,23 +153,39 @@
       "value": "50OFFPRO26"
     },
     {
+      "name": "gkDotDevEnablePrViewer",
+      "value": true
+    },
+    {
       "name": "gkDotDevHideWhatsIncludedCheckoutPageTest",
       "value": true
     },
     {
-      "name": "gkDotDevInsightsBitbucket",
+      "name": "gkDotDevInsightsAzureDevOpsPAT",
       "value": true
     },
     {
-      "name": "gkDotDevInsightsVisxGraphs",
+      "name": "gkDotDevInsightsOrgStats",
+      "value": true
+    },
+    {
+      "name": "gkDotDevInsightsRangedAnnotations",
+      "value": true
+    },
+    {
+      "name": "gkDotDevInsightsSurveys",
+      "value": true
+    },
+    {
+      "name": "gkdotdevmergemateactions",
+      "value": true
+    },
+    {
+      "name": "gkDotDevPrAnalysisProModel",
       "value": true
     },
     {
       "name": "gkDotDevShowNewPriceComponent",
-      "value": true
-    },
-    {
-      "name": "gkDotDevUpdateProfilePicture",
       "value": true
     },
     {
@@ -185,6 +195,10 @@
     {
       "name": "gkdReferralProgram_11_0_0",
       "value": true
+    },
+    {
+      "name": "gkdTrialExtensionOffer_11_11_0",
+      "value": "control"
     },
     {
       "name": "gkdTrialStartModalPromoMessage_11_1_0",
@@ -272,7 +286,9 @@
       "memberInvitesRequireApproval": true,
       "conflictDetectionEnabled": true,
       "insightsEnabled": false,
+      "insightsConfigured": false,
       "aiEnabled": true,
+      "aiTrainingEnabled": false,
       "enforceAiProviders": false,
       "aiProviders": {},
       "ssoEnabled": false,
@@ -284,9 +300,10 @@
   },
   "annotations": {
     "acknowledgedAnnotations": {
-      "mergeConflictResolution": true
+      "mergeConflictResolution": true,
+      "aiCommitComposer": true
     },
-    "lastAnnotationTime": 1769095252223
+    "lastAnnotationTime": 1777290481847
   },
   "lastSatisfactionSurveyDate": 1770022923467
 }
