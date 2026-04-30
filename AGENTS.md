@@ -45,6 +45,11 @@ When a task takes more than 2 back-and-forths:
 - Follow EXISTING code style, formatting, conventions
 - Do NOT introduce new libraries without explicit approval
 
+## Code Intelligence
+
+- For Python files, the built-in `LSP` tool is wired up to Astral's `ty` (operations: `hover`, `goToDefinition`, `findReferences`, `documentSymbol`, `workspaceSymbol`, call hierarchy). Available when a symbol-shaped query is cleaner than grep/read — your call.
+- Diagnostics (type errors, lint) are NOT surfaced through the `LSP` tool. Use the `python-hygiene` skill or run `ty check` / `ruff check` directly to see them.
+
 ## Git
 
 - Do NOT add Co-Authored-By trailers to commits
