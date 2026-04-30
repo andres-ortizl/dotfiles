@@ -56,7 +56,13 @@ Commit 2: refactor(smart-table): consolidate briefing into ExtractionContext
 Commit 3: refactor(smart-table): remove duplicate workflow from worker prompt
 ```
 
-### 3. Create commits
+### 3. Hygiene pass (before committing)
+
+If any staged or modified files are Python (`.py`, `.pyi`), invoke the `python-hygiene` skill first to run ruff autofix + format and ty type-check. Fix anything ty surfaces and re-run. Do NOT proceed to step 4 if ty or ruff still report errors after autofix — surface them to the user.
+
+For non-Python languages, run their native quality tools (e.g. `npm run lint`, `cargo clippy`) using whatever the project already configures. No equivalent skill yet — add one if it becomes routine.
+
+### 4. Create commits
 
 For each logical group:
 ```bash
@@ -72,7 +78,7 @@ git commit -m "<type>(<scope>): <description>"
 - Keep commits atomic — one logical change per commit
 - **Dependency changes:** use `uv add` / `uv remove` instead of hand-editing `pyproject.toml` — this keeps `uv.lock` in sync automatically
 
-### 4. Sync with base branch
+### 5. Sync with base branch
 
 Before pushing, check if the branch is behind `$base`:
 
@@ -88,11 +94,11 @@ git rebase origin/$base
 
 If conflicts arise, resolve them carefully — understand what both sides intended before choosing. After resolving, continue with `git rebase --continue`.
 
-### 5. Run tests
+### 6. Run tests
 
 Use the `/run-tests` skill to run tests for affected packages. Do NOT include markers like `-m llm` or `-m slow` — only run the default test suite.
 
-### 6. Push
+### 7. Push
 
 ```bash
 git push -u origin <branch-name>
@@ -100,7 +106,7 @@ git push -u origin <branch-name>
 
 If the branch was rebased after a previous push, use `--force-with-lease`.
 
-### 7. Create PR if none exists
+### 8. Create PR if none exists
 
 Check for existing PR:
 ```bash
