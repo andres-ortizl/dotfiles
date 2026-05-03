@@ -49,3 +49,8 @@ alias claude-mem='bun "/Users/andrew/.claude/plugins/marketplaces/thedotmack/plu
 # Added by LM Studio CLI (lms)
 export PATH="$PATH:/Users/andrew/.lmstudio/bin"
 # End of LM Studio CLI section
+
+if [[ -z "$ZELLIJ" && "$TERM_PROGRAM" == "ghostty" && $- == *i* ]]; then
+  exec zellij attach -c default
+fi
+

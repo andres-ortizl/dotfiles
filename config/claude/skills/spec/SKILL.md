@@ -244,7 +244,7 @@ The coder must stay alive through the review loop. Only tell it to shut down aft
 
 Send the approved plan to the coder. The coder:
 1. Reads all relevant files
-2. Implements each step using TDD (RED → GREEN)
+2. Implements each step using TDD (RED → GREEN) — see `/tdd` for the discipline (vertical slicing, public-interface-only, integration-first, no horizontal batching)
 3. Parallelizes independent chunks via sub-agents
 4. Runs the full test suite
 5. Reports completion to lead — BUT STAYS ALIVE

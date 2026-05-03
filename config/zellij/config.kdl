@@ -162,6 +162,17 @@ keybinds clear-defaults=true {
         bind "Alt p" { TogglePaneInGroup; }
         bind "Alt Shift p" { ToggleGroupMarking; }
         bind "Ctrl q" { Quit; }
+
+        // Ghostty cmd-key passthrough via ESC+letter sequences
+        bind "Alt t" { NewTab; }
+        bind "Alt w" { CloseFocus; }
+        bind "Alt Shift w" { CloseTab; }
+        bind "Alt r" { NewPane "Right"; }
+        bind "Alt Shift d" { NewPane "Down"; }
+
+        // Scroll directo sin entrar a modo
+        bind "PageUp" { PageScrollUp; }
+        bind "PageDown" { PageScrollDown; }
     }
     shared_except "locked" "move" {
         bind "Ctrl h" { SwitchToMode "move"; }
@@ -272,11 +283,27 @@ load_plugins {
     zellij:link
 }
 
-theme "catppuccin-mocha"
-default_layout "compact"
+themes {
+    mocha-soft {
+        fg "#cdd6f4"
+        bg "#1e1e2e"
+        red "#f38ba8"
+        green "#cba6f7"
+        blue "#89b4fa"
+        yellow "#f9e2af"
+        magenta "#cba6f7"
+        orange "#fab387"
+        cyan "#94e2d5"
+        black "#181825"
+        white "#cdd6f4"
+    }
+}
+theme "mocha-soft"
+default_layout "zen"
 pane_frames false
 simplified_ui true
 show_startup_tips false
 show_release_notes false
 mouse_hover_effects false
+mouse_mode true
 session_serialization true

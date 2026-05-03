@@ -1,0 +1,29 @@
+layout {
+    pane
+    pane size=1 borderless=true {
+        plugin location="file:~/.config/zellij/plugins/zjstatus.wasm" {
+            color_rgb_fg "205,214,244"
+            color_rgb_bg "30,30,46"
+            color_rgb_black "24,24,37"
+            color_rgb_red "243,139,168"
+            color_rgb_green "166,227,161"
+            color_rgb_yellow "249,226,175"
+            color_rgb_blue "137,180,250"
+            color_rgb_magenta "203,166,247"
+            color_rgb_cyan "148,226,213"
+            color_rgb_white "205,214,244"
+            color_rgb_orange "250,179,135"
+
+            format_left   "{tabs}"
+            format_right  "#[fg=#6c7086]{session} "
+            format_space  ""
+
+            border_enabled  "false"
+            border_position "off"
+
+            tab_normal              "#[fg=#6c7086,bg=#1e1e2e] {index} {name} "
+            tab_active              "#[fg=#1e1e2e,bg=#cba6f7,bold] {index} {name} "
+            tab_separator           " "
+        }
+    }
+}

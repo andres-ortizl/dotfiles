@@ -95,3 +95,7 @@ This skill does NOT auto-queue. After dispatching the top 3 and posting Message 
 - Prod deploy gating — resolution happens on `dev` merge, not on prod. If a fix doesn't actually work in prod, Sentry will re-open the issue naturally.
 - Cross-issue dedup across cycles — within a cycle we cluster (see `reference/triage.md`), but two Sentry issues in different cycles each get their own spec loop. Fine for now; revisit if noisy.
 - Retry of previously-gated issues — each run re-triages fresh, so a previously-low-confidence issue may get a different verdict next run.
+
+## Companion skills
+
+- `/diagnose` — when a Sentry issue is gated as low-confidence and you want to attach manually rather than let `/spec` auto-dispatch, use `/diagnose` for the disciplined repro-and-root-cause loop before fixing.
