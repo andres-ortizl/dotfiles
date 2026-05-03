@@ -2,8 +2,21 @@ theme = Catppuccin Mocha
 shell-integration-features = no-cursor
 background-opacity=0.90
 background-blur-radius = 20
-window-decoration=false
+window-decoration=true
+macos-titlebar-style = hidden
+macos-titlebar-proxy-icon = hidden
+macos-window-buttons = hidden
 font-size=18
+macos-option-as-alt = true
+mouse-hide-while-typing = true
+window-padding-x = 12
+window-padding-y = 12
+window-padding-balance = true
+unfocused-split-opacity = 0.7
+confirm-close-surface = false
+copy-on-select = clipboard
+mouse-shift-capture = never
+
 
 
 keybind = alt+left=text:\x1bb
@@ -20,3 +33,22 @@ keybind = shift+page_down=adjust_selection:page_down
 keybind = shift+down=adjust_selection:down
 keybind = shift+home=adjust_selection:home
 keybind = shift+enter=text:\x1b\r
+
+# Scroll (PageUp/Down pasan a zellij, los cmd+ scrolean el buffer Ghostty)
+keybind = cmd+shift+up=scroll_to_top
+keybind = cmd+shift+down=scroll_to_bottom
+keybind = cmd+home=scroll_to_top
+keybind = cmd+end=scroll_to_bottom
+
+# Passthrough to zellij via ESC sequences (matched as Alt+key in zellij)
+keybind = cmd+t=text:\x1bt
+keybind = cmd+w=text:\x1bw
+keybind = cmd+shift+w=text:\x1bW
+keybind = cmd+d=text:\x1br
+keybind = cmd+shift+d=text:\x1bD
+
+# Navegación entre panes (cmd+alt+flechas → Alt+hjkl en zellij)
+keybind = cmd+alt+left=text:\x1bh
+keybind = cmd+alt+right=text:\x1bl
+keybind = cmd+alt+up=text:\x1bk
+keybind = cmd+alt+down=text:\x1bj
