@@ -51,7 +51,7 @@
     ~/.config/nvim/init.lua: config/nvim/init.lua
     ~/.config/nvim/stylua.toml: config/nvim/stylua.toml
     ~/.config/nvim/lua: config/nvim/lua/**
-    ~/.config/zellij: config/zellij/**
+    ~/.config/zellij: config/zellij/*
     ~/.factory/mcp.json: config/factory/mcp.json
     ~/.pi/agent/settings.json: config/pi/settings.json
     ~/.pi/agent/AGENTS.md: AGENTS.md
