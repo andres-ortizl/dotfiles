@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>specdex — list cell variants</title>
+<script>
+  // resolve theme before first paint (3-state: system → light → dark)
+  (function () {
+    try {
+      var s = localStorage.getItem("dexTheme") || "system";
+      var dark = s === "dark" || (s === "system" &&
+        window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+      if (dark) document.documentElement.setAttribute("data-theme", "dark");
+      document.documentElement.setAttribute("data-theme-state", s);
+    } catch (e) {}
+  })();
+</script>
+<style>
+  /* ============================ tokens (copied 1:1 from style.css) ============================ */
+  :root {
+    --paper:#f4f4f2; --surface:#ffffff; --surface-2:#faf9f7; --sunk:#f4f3f0;
+    --rule:#d9d6cf; --rule-soft:#ece9e2;
+    --ink:#262420; --ink-muted:#6e6a62; --ink-faint:#a29d92;
+    --accent:#0a86e8; --accent-fg:#ffffff; --accent-soft:#dbeefd;
+    --ember:#e85c18; --ember-soft:#fbe6d9;
+    --alive:#3f9d6b; --alive-soft:#e6f1ea;
+    --idle:#8b8780; --idle-soft:#edebe6;
+    --stale:#b08a3e; --stale-soft:#f5edda;
+    --needs:var(--ember); --needs-soft:var(--ember-soft);
+    --done:#7c7a72; --done-soft:#eceae5;
+    --lift:0 1px 2px rgba(40,38,34,.08), 0 4px 10px rgba(40,38,34,.07), 0 10px 22px rgba(40,38,34,.05);
+    --lift-1:0 1px 2px rgba(40,38,34,.09), 0 2px 5px rgba(40,38,34,.07);
+    --lift-hover:0 2px 4px rgba(40,38,34,.10), 0 8px 18px rgba(40,38,34,.10), 0 18px 40px rgba(40,38,34,.08);
+    --press:inset 0 1px 2px rgba(40,38,34,.12), inset 0 -1px 1px rgba(255,255,255,.6);
+    --well:#e6e4df;
+    --font-sans:"Inter","Inter Variable",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+    --font-mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+    --s-1:4px; --s-2:8px; --s-3:12px; --s-4:16px; --s-5:24px; --s-6:32px;
+    --r-card:12px; --r-pill:999px; --r-chip:6px;
+    --ease:cubic-bezier(.4,.0,.2,1); --ease-soft:cubic-bezier(.25,.1,.25,1);
+    --dur-fast:140ms; --dur:240ms; --dur-slow:420ms;
+  }
+  :root[data-theme="dark"] {
+    --paper:#181610; --surface:#211e17; --surface-2:#1b1812; --sunk:#14120d;
+    --rule:#36322a; --rule-soft:#2a261f;
+    --ink:#ece7da; --ink-muted:#a39c8c; --ink-faint:#6f695c;
+    --accent:#4fa8ff; --accent-fg:#11151c; --accent-soft:#1c3a59;
+    --ember:#ff6a2c; --ember-soft:#34200f;
+    --alive:#5fc08a; --alive-soft:#1a2a20;
+    --idle:#9a958a; --idle-soft:#26231b;
+    --stale:#d3a85a; --stale-soft:#2f2818;
+    --needs:var(--ember); --needs-soft:var(--ember-soft);
+    --done:#9b968a; --done-soft:#262219;
+    --lift:0 1px 2px rgba(0,0,0,.45), 0 4px 10px rgba(0,0,0,.4), 0 12px 26px rgba(0,0,0,.34);
+    --lift-1:0 1px 2px rgba(0,0,0,.45), 0 2px 6px rgba(0,0,0,.38);
+    --lift-hover:0 2px 5px rgba(0,0,0,.5), 0 10px 22px rgba(0,0,0,.45), 0 22px 48px rgba(0,0,0,.4);
+    --press:inset 0 1px 3px rgba(0,0,0,.5), inset 0 -1px 1px rgba(255,255,255,.04);
+    --well:#100e09;
+  }
+
+  * { box-sizing:border-box; }
+  body {
+    margin:0; background:var(--paper); color:var(--ink); font-family:var(--font-sans);
+    font-size:14px; line-height:1.5; letter-spacing:-.006em;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    padding:0 0 96px;
+  }
+  .skip { position:absolute; left:-9999px; top:0; background:var(--surface); color:var(--ink);
+          padding:8px 14px; border-radius:var(--r-chip); z-index:50; box-shadow:var(--lift); }
+  .skip:focus { left:16px; top:16px; }
+
+  /* ---- page head + theme toggle ---- */
+  .topbar { display:flex; align-items:flex-start; justify-content:space-between; gap:var(--s-4);
+            max-width:1180px; margin:0 auto; padding:36px var(--s-6) 0; }
+  .ph h1 { font-size:20px; font-weight:540; letter-spacing:-.02em; margin:0 0 6px; }
+  .ph p { font-size:13px; color:var(--ink-muted); margin:0; line-height:1.6; max-width:760px; }
+  .ph p b { color:var(--ink); font-weight:540; }
+  .ph code { font-family:var(--font-mono); font-size:12px; color:var(--ink-muted); }
+
+  /* theme toggle — drams soft 3-state */
+  .theme-toggle { border:none; background:none; padding:0; cursor:pointer; border-radius:var(--r-pill); flex:none; }
+  .theme-toggle:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+  .t-track { display:flex; align-items:center; position:relative; width:46px; height:26px; border-radius:var(--r-pill);
+             background:linear-gradient(180deg,var(--track-a,#ebeae7),var(--track-b,#f3f2ef)); box-shadow:var(--press);
+             transition:background var(--dur) var(--ease-soft); }
+  .t-knob { position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; display:grid; place-items:center;
+            background:radial-gradient(circle at 36% 30%,#fff,#efeeeb 72%,#e4e3df); box-shadow:var(--lift-1);
+            transition:transform var(--dur) cubic-bezier(.34,1.4,.5,1); color:var(--ink-muted); }
+  .t-knob svg { width:11px; height:11px; stroke:currentColor; fill:none; stroke-width:1.8; }
+  .theme-toggle[data-state="light"]  .t-knob { transform:translateX(0); }
+  .theme-toggle[data-state="system"] .t-knob { transform:translateX(10px); }
+  .theme-toggle[data-state="dark"]   .t-knob { transform:translateX(20px); }
+  .theme-toggle[data-state="dark"] .t-track {
+    background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 24%,#e9e8e5),color-mix(in srgb,var(--accent) 14%,#f1f0ed)); }
+  :root[data-theme="dark"] .t-track { --track-a:#15130e; --track-b:#1d1a14; }
+  :root[data-theme="dark"] .t-knob { background:radial-gradient(circle at 36% 30%,#45413a,#2f2c24 75%,#232019); }
+
+  /* ---- section scaffolding ---- */
+  main { max-width:1180px; margin:0 auto; padding:0 var(--s-6); }
+  section { margin-top:var(--s-6); padding-top:var(--s-5); border-top:1px solid var(--rule); }
+  section > h2 { font-size:15px; font-weight:540; letter-spacing:-.01em; margin:0 0 4px; }
+  section > .sd { font-size:12.5px; color:var(--ink-muted); margin:0 0 var(--s-4); line-height:1.6; max-width:760px; }
+  section > .sd b { color:var(--ink); font-weight:540; }
+
+  .variant { margin-bottom:var(--s-4); }
+  .vh { display:flex; align-items:baseline; gap:10px; margin:0 0 6px; padding:0 2px; }
+  .vh .vn { font-size:12px; font-weight:560; color:var(--ink); letter-spacing:-.01em; flex:none; }
+  .vh .vc { font-size:12px; color:var(--ink-muted); line-height:1.45; }
+  /* a locked / selected variant carries a quiet green check tag */
+  .vh .sel { flex:none; font-size:10.5px; font-weight:560; letter-spacing:.04em; text-transform:uppercase;
+             color:var(--alive); display:inline-flex; align-items:center; gap:4px; }
+  .vh .sel::before { content:"✓"; font-size:11px; }
+  .variant.locked { padding:10px 12px 4px; border-radius:var(--r-card);
+                    box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--alive) 28%,transparent); }
+
+  /* a realistic list frame holding rows in true context */
+  .listwrap { background:var(--surface); border-radius:var(--r-card); box-shadow:var(--lift); overflow:hidden; }
+
+  /* the grid mirrors style.css .list-cols / .list-row exactly, except phase
+     sections merge c-rail + c-phaselbl into a single ~110px phase cell */
+  .list-cols, .list-row {
+    display:grid;
+    grid-template-columns:
+      18px
+      minmax(160px,2.4fr)
+      minmax(96px,1fr)
+      minmax(72px,.9fr)
+      minmax(96px,1.1fr)
+      minmax(64px,.8fr)
+      minmax(56px,.6fr)
+      minmax(76px,.8fr);
+    align-items:center; column-gap:var(--s-3); padding:0 var(--s-4);
+  }
+  /* merged phase grid: drop the separate label column; phase cell is one ~110px unit */
+  .merged .list-cols, .merged .list-row {
+    grid-template-columns:
+      18px
+      minmax(160px,2.4fr)
+      112px
+      minmax(96px,1.1fr)
+      minmax(64px,.8fr)
+      minmax(56px,.6fr)
+      minmax(76px,.8fr);
+  }
+  .list-cols { height:34px; border-bottom:1px solid var(--rule); background:var(--surface-2); }
+  .col-h { font-size:11px; font-weight:450; letter-spacing:-.005em; color:var(--ink-faint);
+           white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .col-h.num { text-align:right; }
+  .list-row { min-height:46px; border-bottom:1px solid var(--rule-soft); color:inherit;
+              transition:background var(--dur-fast) var(--ease); }
+  .list-row:last-child { border-bottom:none; }
+  .list-row:hover { background:var(--surface-2); }
+
+  /* ---- shared baseline cell styles (1:1 with style.css) ---- */
+  .lc-dot { display:flex; align-items:center; }
+  .lc-name { min-width:0; display:flex; flex-direction:column; gap:1px; }
+  .lc-name .nm { font-size:14px; font-weight:500; letter-spacing:-.02em; color:var(--ink);
+                 overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .lc-name .pj { font-family:var(--font-mono); font-size:11px; color:var(--ink-muted);
+                 overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .lc-rail { min-width:0; }
+  .lc-rail .rail { display:flex; align-items:center; gap:0; }
+  .lc-rail .rail-node { width:7px; height:7px; border-radius:var(--r-pill); flex:none; background:var(--well);
+                        box-shadow:inset 0 1px 2px rgba(0,0,0,.22), inset 0 -1px 1px rgba(255,255,255,.4); }
+  .lc-rail .rail-node.done { background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--ink-faint) 55%,#fff),var(--ink-faint));
+                             box-shadow:0 0 2px color-mix(in srgb,var(--ink-faint) 40%,transparent); }
+  .lc-rail .rail-node.current { background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--accent) 42%,#fff),var(--accent));
+                                box-shadow:0 0 6px color-mix(in srgb,var(--accent) 70%,transparent), inset 0 0 1px rgba(255,255,255,.6); }
+  .lc-rail .rail.complete .rail-node.current { background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--ink-faint) 55%,#fff),var(--ink-faint));
+                                box-shadow:0 0 2px color-mix(in srgb,var(--ink-faint) 40%,transparent); }
+  .lc-rail .rail-link { height:2px; flex:1 1 auto; min-width:4px; border-radius:var(--r-pill); background:var(--well);
+                        box-shadow:inset 0 1px 2px rgba(0,0,0,.18); }
+  .lc-rail .rail-link.done { background:var(--ink-faint); box-shadow:none; }
+  .lc-phase { font-size:12.5px; letter-spacing:-.01em; color:var(--ink-muted); text-transform:capitalize;
+              overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .lc-agents { display:flex; align-items:center; min-width:0; }
+  .lc-pr { font-family:var(--font-mono); font-size:12px; font-variant-numeric:tabular-nums; min-width:0;
+           display:flex; align-items:center; gap:5px; }
+  .lc-pr a { color:var(--accent); text-decoration:none; border-bottom:1px solid color-mix(in srgb,var(--accent) 35%,transparent); padding-bottom:1px; }
+  .lc-pr a:hover { border-bottom-color:var(--accent); }
+  .lc-round { font-size:12.5px; font-variant-numeric:tabular-nums; color:var(--ink-muted); text-align:right; }
+  .lc-round .star { color:var(--stale); margin-right:2px; }
+  .lc-updated { font-size:12px; font-variant-numeric:tabular-nums; color:var(--ink-faint); text-align:right; white-space:nowrap; }
+  .lc-empty { color:var(--ink-faint); }
+
+  .dot { --hue:var(--idle); position:relative; flex:none; width:10px; height:10px; border-radius:var(--r-pill);
+         background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--hue) 38%,#fff),var(--hue));
+         box-shadow:0 0 5px color-mix(in srgb,var(--hue) 55%,transparent), inset 0 0 1px rgba(255,255,255,.6); }
+  .dot[data-health="alive"] { --hue:var(--alive); }
+  .dot[data-health="idle"] { background:transparent; box-shadow:inset 0 0 0 1.5px var(--idle); }
+  .dot[data-health="stale"] { --hue:var(--stale); }
+  .dot[data-health="needs-you"] { --hue:var(--needs); }
+  .dot[data-health="done"] { background:var(--done); box-shadow:inset 0 0 0 1px color-mix(in srgb,#fff 30%,transparent); }
+  .dot[data-health="done"]::after { content:""; position:absolute; left:3px; top:2.5px; width:2.5px; height:5px;
+         border:solid var(--surface); border-width:0 1.3px 1.3px 0; transform:rotate(40deg); }
+
+  /* baseline agents (face-pile) — the problem statement */
+  .agent { flex:none; width:21px; height:21px; margin-left:-6px; display:grid; place-items:center; border-radius:50%;
+           font-family:var(--font-mono); font-size:10px; font-weight:600; color:var(--ink-faint);
+           background:var(--surface); border:1px solid var(--rule); box-shadow:0 0 0 2px var(--surface); }
+  .agent:first-child { margin-left:0; }
+  .agent.active { color:#10140e; background:var(--alive); border-color:transparent; }
+  .list-row:hover .agent { box-shadow:0 0 0 2px var(--surface-2); }
+  .list-row:hover .agent.active { box-shadow:0 0 0 2px var(--surface-2); }
+
+  .pr-state { font-family:var(--font-mono); font-size:10px; letter-spacing:0; line-height:1; padding:2px 5px; border-radius:var(--r-chip); flex:none; }
+  .pr-state.pr-merged { color:var(--ink-muted); box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ink-muted) 40%,transparent); }
+  .pr-state.pr-closed { color:var(--ember); box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ember) 40%,transparent); }
+
+  /* ===================================================================== */
+  /* SECTION 1 — AGENTS · round 2 — "show only who's working right now"      */
+  /* The health dot already carries idle/working; the agents cell should     */
+  /* render only active:true agents and sit quietly empty when nobody is.    */
+  /* Green stays the only active signal.                                     */
+  /* ===================================================================== */
+
+  /* shared: a calm empty cell (nobody driving) — a faint centred middot */
+  .lc-agents .none { color:var(--ink-faint); opacity:.55; font-size:13px; }
+
+  /* AA — only-active monograms (C/R), green fill; idle/none → faint dot */
+  .aa .lc-agents { gap:5px; }
+  .aa .mon { width:21px; height:21px; border-radius:50%; display:grid; place-items:center;
+             font-family:var(--font-mono); font-size:10px; font-weight:600; color:#10140e;
+             background:var(--alive); box-shadow:0 0 5px color-mix(in srgb,var(--alive) 42%,transparent); }
+
+  /* AB — only-active role glyph (chevron / eye) tinted green, small LED */
+  .ab .lc-agents { gap:9px; }
+  .ab .ic { position:relative; width:18px; height:18px; color:var(--alive); }
+  .ab .ic svg { width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:1.8; }
+  .ab .ic::after { content:""; position:absolute; right:-3px; bottom:-2px; width:6px; height:6px; border-radius:50%;
+            background:var(--alive); box-shadow:0 0 4px color-mix(in srgb,var(--alive) 55%,transparent), 0 0 0 1.5px var(--surface); }
+  .list-row:hover .ab .ic::after { box-shadow:0 0 4px color-mix(in srgb,var(--alive) 55%,transparent), 0 0 0 1.5px var(--surface-2); }
+
+  /* AC — single live token: ● role, reads like a status not a face-pile */
+  .ac .lc-agents { gap:6px; }
+  .ac .live { display:inline-flex; align-items:center; gap:6px; font-size:12.5px; letter-spacing:-.01em; color:var(--ink); min-width:0; }
+  .ac .live .pip { flex:none; width:7px; height:7px; border-radius:50%; background:var(--alive);
+                   box-shadow:0 0 5px color-mix(in srgb,var(--alive) 55%,transparent); }
+  .ac .live .rl { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .ac .live .more { color:var(--ink-faint); font-variant-numeric:tabular-nums; }
+
+  /* AD — count-collapse: only-active pips, tight pair; 0/1/2 all read clean */
+  .ad .lc-agents { gap:4px; }
+  .ad .pip { width:16px; height:16px; border-radius:50%; display:grid; place-items:center;
+             font-family:var(--font-mono); font-size:9px; font-weight:600; color:#10140e;
+             background:var(--alive); box-shadow:0 0 4px color-mix(in srgb,var(--alive) 42%,transparent); }
+
+  /* AE — verb form: the active role as a quiet lowercase gerund, green dot */
+  .ae .lc-agents { gap:6px; }
+  .ae .verb { display:inline-flex; align-items:center; gap:5px; font-size:12.5px; letter-spacing:-.01em;
+              color:var(--ink-muted); min-width:0; }
+  .ae .verb .pip { flex:none; width:6px; height:6px; border-radius:50%; background:var(--alive);
+                   box-shadow:0 0 4px color-mix(in srgb,var(--alive) 50%,transparent); }
+  .ae .verb .w { color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .ae .verb + .verb { color:var(--ink-faint); }
+
+  /* ===================================================================== */
+  /* SECTION 2 — PHASE · LOCKED P1 (per-phase glyph + label)                */
+  /* ===================================================================== */
+  .lc-pcell { display:flex; align-items:center; gap:8px; min-width:0; }
+  .lc-pcell .plab { font-size:12.5px; letter-spacing:-.01em; color:var(--ink); text-transform:capitalize;
+                    overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .p1 .gly { flex:none; width:16px; height:16px; color:var(--ink-faint); display:grid; place-items:center; }
+  .p1 .gly svg { width:15px; height:15px; stroke:currentColor; fill:none; stroke-width:1.7; }
+  .p1 .gly.live { color:var(--accent); }
+
+  /* ===================================================================== */
+  /* SECTION 3 — PR · LOCKED V1 (leading glyph)                             */
+  /* ===================================================================== */
+  .r1 .lc-pr { gap:5px; }
+  .r1 .prg { flex:none; width:13px; height:13px; color:var(--accent); }
+  .r1 .prg svg { width:13px; height:13px; stroke:currentColor; fill:none; stroke-width:1.8; }
+  .r1 .prg.merged { color:var(--ink-muted); }
+  .r1 .prg.closed { color:var(--ember); }
+  .r1 .num.merged, .r1 .num.closed { color:var(--ink-muted); border-bottom:none; }
+  .r1 .num.closed { color:var(--ember); }
+
+  /* ===================================================================== */
+  /* SECTION 4 — REVIEW · round 2 — zen + cool, "it should whisper"          */
+  /* Right-aligned, tabular, secondary. r0/no-review nearly vanishes.        */
+  /* ===================================================================== */
+
+  /* RA — score as a 5-pip gold meter (▰▰▰▰▱), no "r", no digit */
+  .ra .lc-round { display:flex; align-items:center; justify-content:flex-end; gap:2px; }
+  .ra .pips { display:flex; gap:2px; }
+  .ra .pips i { width:6px; height:3px; border-radius:1px; background:var(--rule); }
+  .ra .pips i.f { background:var(--stale); }
+
+  /* RB — score is the glance (gold), round demoted to a faint superscript */
+  .rb .lc-round { display:flex; align-items:baseline; justify-content:flex-end; gap:1px; }
+  .rb .sc { color:var(--stale); font-weight:540; font-variant-numeric:tabular-nums; }
+  .rb .sc .st { font-size:10px; margin-right:1px; }
+  .rb .rnd { font-size:9px; color:var(--ink-faint); vertical-align:super; line-height:0; font-variant-numeric:tabular-nums; }
+
+  /* RC — round-history sparkline: one dot per round, last accented; ★ trails faintly */
+  .rc .lc-round { display:flex; align-items:center; justify-content:flex-end; gap:6px; }
+  .rc .spark { display:flex; align-items:center; gap:3px; }
+  .rc .spark i { width:4px; height:4px; border-radius:50%; background:var(--ink-faint); opacity:.5; }
+  .rc .spark i.last { width:5px; height:5px; opacity:1;
+                      background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--accent) 42%,#fff),var(--accent));
+                      box-shadow:0 0 4px color-mix(in srgb,var(--accent) 55%,transparent); }
+  .rc .sc { color:var(--stale); font-variant-numeric:tabular-nums; font-size:11.5px; }
+
+  /* RD — maximal zen: just the round number in faint ink; score as a hairline gold underline */
+  .rd .lc-round { display:flex; align-items:center; justify-content:flex-end; }
+  .rd .rn { color:var(--ink-faint); font-variant-numeric:tabular-nums; position:relative; padding-bottom:3px; }
+  .rd .rn.scored::after { content:""; position:absolute; left:0; right:0; bottom:0; height:2px; border-radius:var(--r-pill);
+            background:var(--stale); opacity:var(--so,.5); }
+
+  /* RE — star-only: a single gold ★ + score, round lives in the title */
+  .re .lc-round { display:flex; align-items:baseline; justify-content:flex-end; gap:2px; }
+  .re .st { color:var(--stale); font-size:11px; }
+  .re .sc { color:var(--ink); font-variant-numeric:tabular-nums; }
+  .re .only-round { color:var(--ink-faint); font-variant-numeric:tabular-nums; }
+
+  /* theme pair frames — render both light + dark side by side */
+  .pair { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  @media (max-width:880px){ .pair { grid-template-columns:1fr; } }
+  .pane { border-radius:var(--r-card); padding:14px; }
+  .pane.lt { background:#f4f4f2; }
+  .pane.dk { background:#181610; }
+  .pane .pl { font-size:10.5px; text-transform:uppercase; letter-spacing:.08em; font-weight:540; margin:0 0 8px; }
+  .pane.lt .pl { color:#a29d92; }
+  .pane.dk .pl { color:#6f695c; }
+  /* the dark pane is a self-contained dark scope regardless of page theme */
+  .pane.dk {
+    --paper:#181610; --surface:#211e17; --surface-2:#1b1812; --sunk:#14120d;
+    --rule:#36322a; --rule-soft:#2a261f; --ink:#ece7da; --ink-muted:#a39c8c; --ink-faint:#6f695c;
+    --accent:#4fa8ff; --accent-fg:#11151c; --ember:#ff6a2c; --ember-soft:#34200f;
+    --alive:#5fc08a; --idle:#9a958a; --stale:#d3a85a; --done:#9b968a; --well:#100e09;
+    --lift:0 1px 2px rgba(0,0,0,.45),0 4px 10px rgba(0,0,0,.4),0 12px 26px rgba(0,0,0,.34);
+    --lift-1:0 1px 2px rgba(0,0,0,.45),0 2px 6px rgba(0,0,0,.38);
+    --press:inset 0 1px 3px rgba(0,0,0,.5),inset 0 -1px 1px rgba(255,255,255,.04);
+    color:#ece7da;
+  }
+  .pane.lt {
+    --paper:#f4f4f2; --surface:#ffffff; --surface-2:#faf9f7; --sunk:#f4f3f0;
+    --rule:#d9d6cf; --rule-soft:#ece9e2; --ink:#262420; --ink-muted:#6e6a62; --ink-faint:#a29d92;
+    --accent:#0a86e8; --accent-fg:#ffffff; --ember:#e85c18; --ember-soft:#fbe6d9;
+    --alive:#3f9d6b; --idle:#8b8780; --stale:#b08a3e; --done:#7c7a72; --well:#e6e4df;
+    --lift:0 1px 2px rgba(40,38,34,.08),0 4px 10px rgba(40,38,34,.07),0 10px 22px rgba(40,38,34,.05);
+    --lift-1:0 1px 2px rgba(40,38,34,.09),0 2px 5px rgba(40,38,34,.07);
+    --press:inset 0 1px 2px rgba(40,38,34,.12),inset 0 -1px 1px rgba(255,255,255,.6);
+    color:#262420;
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<div class="topbar">
+  <div class="ph">
+    <h1>specdex — list view cell redesigns · round 2</h1>
+    <p>Iterating two cells of the fleet <b>List view</b>: <b>agents</b> (now "show only who's working")
+       and <b>review</b> (more zen). <b>Phase</b> and <b>PR</b> are locked to their selected designs below for reference.
+       Every variant sits in a real <code>.list-row</code> against its neighbors, in both light and dark.
+       Palette discipline holds: blue is the only interactive accent, green only means an active agent, ember only
+       means a human is needed, health lives in the dot alone.</p>
+  </div>
+  <button class="theme-toggle" id="theme" type="button" aria-label="Toggle theme">
+    <span class="t-track">
+      <span class="t-knob" id="knob"></span>
+    </span>
+  </button>
+</div>
+
+<main id="main">
+
+  <!-- ===================== SECTION 1 — AGENTS ===================== -->
+  <section>
+    <h2>1 · Agents — show only who's working</h2>
+    <p class="sd">New instinct: stop rendering idle/absent agents. The cell shows <b>only active:true</b> agents and
+       sits quietly when nobody is driving — the health dot already carries idle vs working, so the agents cell
+       needn't repeat it. Watch <b>parse-cache</b> (coder active), <b>timeseries-perf</b> (reviewer active),
+       <b>fleet-watch</b> (idle, nobody driving → empty), <b>verify-flake</b> (coder active), and
+       <b>typed-create-proxy</b> (done, no agents → empty). Tradeoff noted per variant: only-active drops the
+       "a reviewer is <i>assigned</i> but idle" signal — in a dense ambient list that's the right call.</p>
+    <div id="agents"></div>
+  </section>
+
+  <!-- ===================== SECTION 2 — PHASE (locked) ===================== -->
+  <section class="merged">
+    <h2>2 · Phase — locked</h2>
+    <p class="sd">Selected last round. The 8-node rail + separate label collapse into one ~112px cell: a per-phase
+       glyph + the label. Current phase glyph is accent blue; a done/accepted spec is fully neutral (no blue cursor).</p>
+    <div id="phase"></div>
+  </section>
+
+  <!-- ===================== SECTION 3 — PR (locked) ===================== -->
+  <section>
+    <h2>3 · PR — locked</h2>
+    <p class="sd">Selected last round. A small PR/branch glyph leads, its color carrying lifecycle (blue open ·
+       neutral merged · ember closed); the number trails in mono, tabular. Empty state is a quiet em-dash.</p>
+    <div id="pr"></div>
+  </section>
+
+  <!-- ===================== SECTION 4 — REVIEW ===================== -->
+  <section>
+    <h2>4 · Review — quieter, cooler</h2>
+    <p class="sd">Round 1 felt busy. Review meta is <b>secondary</b> — it should whisper, never compete with the name
+       or phase. These are restrained: pip meters, demoted rounds, a one-glance score. Right-aligned, tabular.
+       Rows shown: 0-review (vanishes), r1 (no score), r2 ★4, r1 ★5.</p>
+    <div id="review"></div>
+  </section>
+
+</main>
+
+<script>
+  // ---------- shared sample rows (from app.js FLEET) ----------
+  const PHASES = ["setup","plan","build","review","ship","verify","complete","accepted"];
+  const ROWS = [
+    { name:"parse-cache",        project:"anyformat-backend", phase:"build",    health:"alive",
+      agents:[["C",1],["R",0]], pr:null, pr_state:null, round:0, score:null, updated:"6s" },
+    { name:"timeseries-perf",    project:"anyformat-backend", phase:"review",   health:"alive",
+      agents:[["C",0],["R",1]], pr:3998, pr_state:"open", round:1, score:null, updated:"22s" },
+    { name:"fleet-watch",        project:"specdex",           phase:"plan",     health:"idle",
+      agents:[["C",0]],         pr:null, pr_state:null, round:0, score:null, updated:"8m" },
+    { name:"verify-flake",       project:"anyformat-backend", phase:"verify",   health:"needs-you",
+      agents:[["C",1],["R",0]], pr:4012, pr_state:"open", round:2, score:4, updated:"12m", blocked:"infra flake on CI — needs a human re-run" },
+    { name:"typed-create-proxy", project:"anyformat-sdk",     phase:"accepted", health:"done",
+      agents:[],                pr:3990, pr_state:"merged", round:1, score:5, updated:"2h" },
+  ];
+
+  const ROLE = { C:"coder", R:"reviewer" };
+  const GERUND = { C:"coding", R:"reviewing" };
+  const ICON = {
+    coder:'<svg viewBox="0 0 24 24"><path d="M8 9l-3 3 3 3M16 9l3 3-3 3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    reviewer:'<svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.3"/></svg>',
+  };
+  const PHASE_ICON = {
+    setup:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1" stroke-linecap="round"/></svg>',
+    plan:'<svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h10M4 19h13" stroke-linecap="round"/></svg>',
+    build:'<svg viewBox="0 0 24 24"><path d="M14 7l4 5-4 5M10 7l-4 5 4 5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    review:'<svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.3"/></svg>',
+    ship:'<svg viewBox="0 0 24 24"><path d="M12 3l8 5v8l-8 5-8-5V8z" stroke-linejoin="round"/></svg>',
+    verify:'<svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    complete:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    accepted:'<svg viewBox="0 0 24 24"><path d="M12 3l2.4 5 5.4.6-4 3.8 1.1 5.4L12 16.9 7.1 20.8 8.2 15.4l-4-3.8 5.4-.6z" stroke-linejoin="round"/></svg>',
+  };
+  const PRGLY = '<svg viewBox="0 0 24 24"><circle cx="7" cy="6" r="2.2"/><circle cx="7" cy="18" r="2.2"/><circle cx="17" cy="18" r="2.2"/><path d="M7 8.2v7.6M17 15.8V11a3 3 0 00-3-3H9.5" stroke-linecap="round"/></svg>';
+
+  const pIdx = (p) => PHASES.indexOf(p);
+  const activeAgents = (r) => r.agents.filter(([,on]) => on);
+
+  // shared cell builders (everything except the cell under test)
+  function dotCell(h){ return `<div class="lc-dot"><span class="dot" data-health="${h}" title="${h}"></span></div>`; }
+  function nameCell(r){
+    let blocked = "";
+    if (r.health === "needs-you" && r.blocked)
+      blocked = `<span class="pj" style="color:var(--ember)" title="${r.blocked}">⚑ ${r.blocked}</span>`;
+    return `<div class="lc-name"><span class="nm">${r.name}</span><span class="pj">${r.project}</span>${blocked}</div>`;
+  }
+  function phaseLabelCell(r){ return `<div class="lc-phase">${r.phase}</div>`; }
+
+  // LOCKED phase = P1 (per-phase glyph + label)
+  function phaseCellP1(r){ const done = r.health === "done";
+    return `<div class="lc-pcell"><span class="gly ${done?'':'live'}">${PHASE_ICON[r.phase]}</span><span class="plab">${r.phase}</span></div>`; }
+
+  // LOCKED pr = V1 (leading glyph)
+  function prState(r){ return r.pr_state || (r.pr != null ? "open" : null); }
+  function prCellV1(r){
+    if (r.pr == null) return `<div class="lc-pr"><span class="lc-empty">—</span></div>`;
+    const s = prState(r), open = s === "open";
+    return `<div class="lc-pr"><span class="prg ${s}">${PRGLY}</span>${open
+      ? `<a href="#">${r.pr}</a>` : `<span class="num ${s}">${r.pr}</span>`}</div>`;
+  }
+
+  function reviewCellBaseline(r){
+    if (!(r.round > 0 || r.score != null)) return `<div class="lc-round"><span class="lc-empty">—</span></div>`;
+    let s = "";
+    if (r.round > 0) s += "r" + r.round;
+    if (r.score != null) s += (s?" ":"") + `<span class="star">★</span>${r.score}`;
+    return `<div class="lc-round">${s}</div>`;
+  }
+  function agentsCellBaseline(r){
+    if (!r.agents.length) return `<div class="lc-agents"><span class="lc-empty">—</span></div>`;
+    return `<div class="lc-agents">${r.agents.map(([l,on])=>`<span class="agent${on?' active':''}" title="${ROLE[l]}">${l}</span>`).join("")}</div>`;
+  }
+
+  // a full row: only ONE cell differs per variant
+  function buildRow(r, opts){
+    const o = Object.assign({ agents:agentsCellBaseline, phase:null,
+                              pr:prCellV1, review:reviewCellBaseline }, opts);
+    const mid = o.phase ? o.phase(r) : phaseCellP1(r);
+    return `<div class="list-row">`
+      + dotCell(r.health)
+      + nameCell(r)
+      + mid
+      + o.agents(r)
+      + o.pr(r)
+      + o.review(r)
+      + `<div class="lc-updated">${r.updated}</div>`
+      + `</div>`;
+  }
+
+  function header(){
+    const cols = [["",""],["spec",""],["phase",""],["agents",""],["pr",""],["review","num"],["updated","num"]];
+    return `<div class="list-cols">${cols.map(([l,n])=>`<div class="col-h ${n}">${l}</div>`).join("")}</div>`;
+  }
+
+  // render one variant: light + dark panes, header + all five rows. Always
+  // merged grid (phase is the locked single-cell P1 in every section now).
+  function renderVariant(host, v){
+    const wrap = document.createElement("div");
+    wrap.className = "variant merged" + (v.locked ? " locked" : "");
+    const tag = v.locked ? `<span class="sel">selected</span>` : "";
+    wrap.innerHTML =
+      `<div class="vh"><span class="vn">${v.n}</span>${tag}<span class="vc">${v.cap}</span></div>
+       <div class="pair">
+         <div class="pane lt ${v.cls}"><p class="pl">light</p>
+           <div class="listwrap">${header()}${ROWS.map(r=>buildRow(r,v.opts)).join("")}</div></div>
+         <div class="pane dk ${v.cls}"><p class="pl">dark</p>
+           <div class="listwrap">${header()}${ROWS.map(r=>buildRow(r,v.opts)).join("")}</div></div>
+       </div>`;
+    host.appendChild(wrap);
+  }
+
+  // empty agents cell — calm, not broken
+  const NONE = `<div class="lc-agents"><span class="none">·</span></div>`;
+
+  // ---------- SECTION 1: AGENTS (only-active) ----------
+  const AGENTS = [
+    { n:"V0 · Baseline", cls:"",
+      cap:"Today: every assigned agent renders, idle ones too — the cell is busiest exactly when nothing's happening.",
+      opts:{ agents:agentsCellBaseline } },
+
+    { n:"AA · Only-active monograms", cls:"aa",
+      cap:"Render only active agents as a green C/R monogram; nobody working → a faint middot. No hollow rings, ever. Tradeoff: loses 'reviewer assigned but idle' — fine for an ambient list.",
+      opts:{ agents:(r)=>{ const a=activeAgents(r); if(!a.length) return NONE;
+        return `<div class="lc-agents">${a.map(([l])=>`<span class="mon" title="${ROLE[l]} · active">${l}</span>`).join("")}</div>`; } } },
+
+    { n:"AB · Only-active role glyph", cls:"ab",
+      cap:"Same only-active rule, but the role glyph (coder chevron / reviewer eye) tinted green with a tiny LED. Role reads without a letter; idle → empty.",
+      opts:{ agents:(r)=>{ const a=activeAgents(r); if(!a.length) return NONE;
+        return `<div class="lc-agents">${a.map(([l])=>`<span class="ic" title="${ROLE[l]} · active">${ICON[ROLE[l]]}</span>`).join("")}</div>`; } } },
+
+    { n:"AC · Single live token", cls:"ac",
+      cap:"At most one 'who's driving' token — ● coder — reads like a status line, not a face-pile. A second active agent collapses to '+1'. Calmest; the densest signal.",
+      opts:{ agents:(r)=>{ const a=activeAgents(r); if(!a.length) return NONE;
+        const [l]=a[0]; const more = a.length>1 ? `<span class="more">+${a.length-1}</span>` : "";
+        return `<div class="lc-agents"><span class="live"><span class="pip"></span><span class="rl">${ROLE[l]}</span></span>${more}</div>`; } } },
+
+    { n:"AD · Count-collapse pips", cls:"ad",
+      cap:"Only-active monogram pips in a tight pair; 0 → middot, 1 → one pip, 2 → a snug duo. Smallest footprint that still keeps role legible.",
+      opts:{ agents:(r)=>{ const a=activeAgents(r); if(!a.length) return NONE;
+        return `<div class="lc-agents">${a.map(([l])=>`<span class="pip" title="${ROLE[l]} · active">${l}</span>`).join("")}</div>`; } } },
+
+    { n:"AE · Verb form", cls:"ae",
+      cap:"The active role as a quiet lowercase gerund — coding / reviewing — with a green dot. Reads as live activity in plain language; widest of the set.",
+      opts:{ agents:(r)=>{ const a=activeAgents(r); if(!a.length) return NONE;
+        return `<div class="lc-agents">${a.map(([l],i)=>`<span class="verb">${i===0?'<span class="pip"></span>':''}<span class="w">${GERUND[l]}</span></span>`).join("")}</div>`; } } },
+  ];
+  AGENTS.forEach(v=>renderVariant(document.getElementById("agents"), v));
+
+  // ---------- SECTION 2: PHASE (locked P1) ----------
+  renderVariant(document.getElementById("phase"), {
+    n:"P1 · Glyph + label", cls:"p1", locked:true,
+    cap:"Per-phase icon + label in one cell; current glyph blue, done/accepted neutral.",
+    opts:{ phase:phaseCellP1 },
+  });
+
+  // ---------- SECTION 3: PR (locked V1) ----------
+  renderVariant(document.getElementById("pr"), {
+    n:"V1 · Leading glyph", cls:"r1", locked:true,
+    cap:"PR/branch glyph leads, its color = lifecycle (blue open · neutral merged · ember closed); mono number trails.",
+    opts:{ pr:prCellV1 },
+  });
+
+  // ---------- SECTION 4: REVIEW (zen) ----------
+  const REVIEW = [
+    { n:"V0 · Baseline", cls:"",
+      cap:"Today: 'rN' + optional '★ score'. Two numbers and a star competing — the un-zen starting point.",
+      opts:{ review:reviewCellBaseline } },
+
+    { n:"RA · 5-pip score meter", cls:"ra",
+      cap:"Score as a tiny 5-pip gold meter (▰▰▰▰▱) — no 'r', no digit. Glanceable, silent; round drops entirely (it's rarely scanned). No-review → blank.",
+      opts:{ review:(r)=>{ if(r.score==null) return `<div class="lc-round"></div>`;
+        let p=""; for(let i=1;i<=5;i++) p+=`<i class="${i<=r.score?'f':''}"></i>`;
+        return `<div class="lc-round" title="round ${r.round} · score ${r.score}/5"><span class="pips">${p}</span></div>`; } } },
+
+    { n:"RB · Score-led, round demoted", cls:"rb",
+      cap:"Pick the one signal that matters: the gold ★score is primary, the round shrinks to a faint superscript. Score-only rows still read; no-review vanishes.",
+      opts:{ review:(r)=>{ if(!(r.round>0||r.score!=null)) return `<div class="lc-round"></div>`;
+        if(r.score==null) return `<div class="lc-round" title="round ${r.round}"><span class="rnd" style="vertical-align:baseline;font-size:11px">r${r.round}</span></div>`;
+        return `<div class="lc-round" title="round ${r.round} · score ${r.score}/5"><span class="sc"><span class="st">★</span>${r.score}</span><span class="rnd">${r.round}</span></div>`; } } },
+
+    { n:"RC · Round sparkline + score", cls:"rc",
+      cap:"One dot per review round, the latest accent-blue — review history at a glance — with a faint gold ★score trailing. Shows momentum, not just a count.",
+      opts:{ review:(r)=>{ if(!(r.round>0||r.score!=null)) return `<div class="lc-round"></div>`;
+        let dots=""; for(let i=1;i<=r.round;i++) dots+=`<i class="${i===r.round?'last':''}"></i>`;
+        const sc = r.score!=null ? `<span class="sc">★${r.score}</span>` : "";
+        return `<div class="lc-round" title="round ${r.round}${r.score!=null?' · score '+r.score+'/5':''}"><span class="spark">${dots}</span>${sc}</div>`; } } },
+
+    { n:"RD · Number + hairline", cls:"rd",
+      cap:"Maximal zen: just the round in faint ink; score becomes a hairline gold underline whose opacity tracks the value. Reads as one calm token; no-review → nothing.",
+      opts:{ review:(r)=>{ if(!(r.round>0||r.score!=null)) return `<div class="lc-round"></div>`;
+        const scored = r.score!=null;
+        const so = scored ? (0.3 + r.score*0.14).toFixed(2) : 0;
+        return `<div class="lc-round" title="round ${r.round}${scored?' · score '+r.score+'/5':''}"><span class="rn ${scored?'scored':''}" style="--so:${so}">r${r.round}</span></div>`; } } },
+
+    { n:"RE · Star-only", cls:"re",
+      cap:"If humans scan for the score, lead with it: a single gold ★ + value, round tucked into the title. Un-scored rounds show a bare faint number; no-review → blank.",
+      opts:{ review:(r)=>{ if(!(r.round>0||r.score!=null)) return `<div class="lc-round"></div>`;
+        if(r.score==null) return `<div class="lc-round" title="round ${r.round}"><span class="only-round">r${r.round}</span></div>`;
+        return `<div class="lc-round" title="round ${r.round} · score ${r.score}/5"><span class="st">★</span><span class="sc">${r.score}</span></div>`; } } },
+  ];
+  REVIEW.forEach(v=>renderVariant(document.getElementById("review"), v));
+
+  // ---------- theme toggle: system → light → dark ----------
+  const SUN  = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19" stroke-linecap="round"/></svg>';
+  const MOON = '<svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 119.5 4 6.5 6.5 0 0020 14.5z"/></svg>';
+  const AUTO = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4v16" /></svg>';
+  const ICONS = { system:AUTO, light:SUN, dark:MOON };
+  const toggle = document.getElementById("theme");
+  const knob = document.getElementById("knob");
+  function applyTheme(state){
+    const dark = state==="dark" || (state==="system" &&
+      window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    if (dark) document.documentElement.setAttribute("data-theme","dark");
+    else document.documentElement.removeAttribute("data-theme");
+    toggle.setAttribute("data-state", state);
+    knob.innerHTML = ICONS[state];
+    try { localStorage.setItem("dexTheme", state); } catch(e){}
+  }
+  let state = (function(){ try { return localStorage.getItem("dexTheme") || "system"; } catch(e){ return "system"; } })();
+  applyTheme(state);
+  toggle.addEventListener("click", ()=>{
+    state = state==="system" ? "light" : state==="light" ? "dark" : "system";
+    applyTheme(state);
+  });
+</script>
+</body>
+</html>

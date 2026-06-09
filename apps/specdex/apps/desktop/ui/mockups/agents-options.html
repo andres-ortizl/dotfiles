@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>specdex — agents column options</title>
+<style>
+  :root[data-theme="dark"] {
+    --paper:#181610; --surface:#211e17; --surface-2:#1b1812; --sunk:#14120d;
+    --rule:#36322a; --rule-soft:#2a261f;
+    --ink:#ece7da; --ink-muted:#a39c8c; --ink-faint:#6f695c;
+    --accent:#4fa8ff; --ember:#ff6a2c; --alive:#5fc08a;
+    --lift-1:0 1px 2px rgba(0,0,0,.45),0 2px 6px rgba(0,0,0,.38);
+    --lift:0 1px 2px rgba(0,0,0,.45),0 4px 10px rgba(0,0,0,.4),0 12px 26px rgba(0,0,0,.34);
+    --font-sans:"Inter","Inter Variable",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+    --font-mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+    --r-pill:999px; --r-chip:6px;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink); font-family:var(--font-sans);
+         -webkit-font-smoothing:antialiased; padding:40px 32px 64px; }
+  .page-head { max-width:1180px; margin:0 auto 28px; }
+  .page-head h1 { font-size:18px; font-weight:560; letter-spacing:-.01em; margin:0 0 6px; }
+  .page-head p { font-size:13px; color:var(--ink-faint); margin:0; line-height:1.6; max-width:760px; }
+  .grid { max-width:1180px; margin:0 auto; display:grid; grid-template-columns:repeat(4,1fr); gap:24px 22px; }
+  @media (max-width:1080px){ .grid{ grid-template-columns:repeat(2,1fr); } }
+
+  .cell { display:flex; flex-direction:column; gap:10px; }
+  .frame { border-radius:14px; overflow:hidden; background:var(--paper); box-shadow:var(--lift);
+           border:1px solid var(--rule-soft); }
+  .fh { font-size:11px; color:var(--ink-faint); padding:10px 16px 8px; border-bottom:1px solid var(--rule-soft);
+        display:flex; justify-content:space-between; }
+  .fh .w { color:var(--ink-muted); font-variant-numeric:tabular-nums; }
+  .rows { padding:4px 0; }
+  .row { display:flex; align-items:center; min-height:40px; padding:0 16px; }
+  .row + .row { border-top:1px solid var(--rule-soft); }
+  .acell { display:flex; align-items:center; }
+
+  .caption { font-size:12px; color:var(--ink-muted); line-height:1.5; padding:0 2px; }
+  .caption b { color:var(--ink); font-weight:550; }
+  .tag { color:var(--ember); font-weight:550; }
+
+  /* ---- baseline (current) for reference ---- */
+  .v0 .acell { gap:14px; }
+  .ag { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--ink-muted); }
+  .ag.on { color:var(--ink); }
+  .pip { width:7px; height:7px; border-radius:50%; border:1.5px solid var(--ink-faint); }
+  .ag.on .pip { background:var(--alive); border-color:transparent; box-shadow:0 0 4px color-mix(in srgb,var(--alive) 55%,transparent); }
+
+  /* ---- V1 initials ---- */
+  .v1 .acell { gap:5px; }
+  .ini { width:20px; height:20px; border-radius:50%; display:grid; place-items:center;
+         font-family:var(--font-mono); font-size:10px; font-weight:600;
+         color:var(--ink-faint); border:1.5px solid var(--rule); }
+  .ini.on { color:#10140e; background:var(--alive); border-color:transparent;
+            box-shadow:0 0 5px color-mix(in srgb,var(--alive) 45%,transparent); }
+
+  /* ---- V2 role icons ---- */
+  .v2 .acell { gap:9px; }
+  .ic { width:17px; height:17px; color:var(--ink-faint); position:relative; }
+  .ic svg { width:17px; height:17px; stroke:currentColor; fill:none; stroke-width:1.7; }
+  .ic.on { color:var(--ink); }
+  .ic.on::after { content:""; position:absolute; right:-2px; bottom:-1px; width:6px; height:6px;
+                  border-radius:50%; background:var(--alive); box-shadow:0 0 0 1.5px var(--paper); }
+
+  /* ---- V3 bare dots ---- */
+  .v3 .acell { gap:7px; }
+  .bd { width:9px; height:9px; border-radius:50%; border:1.5px solid var(--ink-faint); }
+  .bd.on { background:var(--alive); border-color:transparent; box-shadow:0 0 4px color-mix(in srgb,var(--alive) 55%,transparent); }
+
+  /* ---- V4 face-pile ---- */
+  .v4 .acell { padding-left:3px; }
+  .fp { width:21px; height:21px; border-radius:50%; display:grid; place-items:center; margin-left:-6px;
+        font-family:var(--font-mono); font-size:10px; font-weight:600; color:var(--ink-faint);
+        background:var(--surface); box-shadow:0 0 0 2px var(--paper); border:1px solid var(--rule); }
+  .fp.on { color:#10140e; background:var(--alive); border-color:transparent; box-shadow:0 0 0 2px var(--paper); }
+
+  /* ---- V5 mono abbrev ---- */
+  .v5 .acell { gap:12px; }
+  .ab { display:inline-flex; align-items:center; gap:5px; font-family:var(--font-mono);
+        font-size:11px; letter-spacing:-.02em; color:var(--ink-faint); }
+  .ab.on { color:var(--ink); }
+  .ab .pip { width:6px; height:6px; }
+
+  /* ---- V6 summary pill ---- */
+  .v6 .acell { }
+  .sp { display:inline-flex; align-items:center; gap:7px; padding:3px 9px; border-radius:var(--r-pill);
+        background:var(--sunk); box-shadow:inset 0 0 0 1px var(--rule-soft); }
+  .sp .u { font-family:var(--font-mono); font-size:10px; font-weight:600; color:var(--ink-faint); }
+  .sp .u.on { color:var(--alive); }
+
+  /* ---- V7 micro tags ---- */
+  .v7 .acell { gap:5px; }
+  .mt { font-size:10px; letter-spacing:.01em; padding:2px 7px; border-radius:var(--r-chip);
+        color:var(--ink-faint); border:1px solid var(--rule); }
+  .mt.on { color:var(--alive); border-color:color-mix(in srgb,var(--alive) 45%,transparent);
+           background:color-mix(in srgb,var(--alive) 12%,transparent); }
+
+  /* ---- V8 active-only ---- */
+  .v8 .acell { gap:9px; }
+  .idle-dot { width:7px; height:7px; border-radius:50%; border:1.5px solid var(--ink-faint); }
+  .act { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--ink); }
+  .act .pip { background:var(--alive); border-color:transparent; box-shadow:0 0 4px color-mix(in srgb,var(--alive) 55%,transparent); }
+  .dash { color:var(--ink-faint); }
+</style>
+</head>
+<body>
+  <div class="page-head">
+    <h1>specdex — agents column, compacted</h1>
+    <p>8 ways to shrink the repeated <b style="color:var(--ink)">● coder ● reviewer</b> labels.
+       Same five rows in each (both active · both idle · idle+active · solo coder · solo lead).
+       Green = active/working, hollow = idle. The width each frame needs is noted top-right.</p>
+  </div>
+  <div class="grid" id="grid"></div>
+
+<script>
+  const ROWS = [
+    [["coder",1],["reviewer",1]],
+    [["coder",0],["reviewer",0]],
+    [["coder",0],["reviewer",1]],
+    [["coder",1]],
+    [["lead",1]],
+  ];
+  const L = { coder:"C", reviewer:"R", lead:"L" };
+  const AB = { coder:"cdr", reviewer:"rev", lead:"lead" };
+  const ICON = {
+    coder:'<svg viewBox="0 0 24 24"><path d="M8 9l-3 3 3 3M16 9l3 3-3 3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    reviewer:'<svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.5"/></svg>',
+    lead:'<svg viewBox="0 0 24 24"><path d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z" stroke-linejoin="round"/></svg>',
+  };
+
+  const VARIANTS = [
+    { n:"0 · Current", k:"v0", w:"~150px",
+      cap:"Baseline — dot + full word per agent. The space hog.",
+      r:(a)=>a.map(([role,on])=>`<span class="ag ${on?'on':''}"><span class="pip"></span>${role}</span>`).join("") },
+
+    { n:"1 · Initials", k:"v1", w:"~58px",
+      cap:"Monogram circles (C/R/L); green fill = active. Role on hover.",
+      r:(a)=>a.map(([role,on])=>`<span class="ini ${on?'on':''}" title="${role}">${L[role]}</span>`).join("") },
+
+    { n:"2 · Role icons", k:"v2", w:"~70px",
+      cap:"A glyph per role (code/eye/star) with a green dot when active.",
+      r:(a)=>a.map(([role,on])=>`<span class="ic ${on?'on':''}" title="${role}">${ICON[role]}</span>`).join("") },
+
+    { n:"3 · Bare dots", k:"v3", w:"~34px",
+      cap:"Just presence dots, role on hover. Most minimal — but role isn't visible at a glance.",
+      r:(a)=>a.map(([role,on])=>`<span class="bd ${on?'on':''}" title="${role}"></span>`).join("") },
+
+    { n:"4 · Face-pile", k:"v4", w:"~50px",
+      cap:"Overlapping monograms like an avatar stack. Dense, familiar from GitHub.",
+      r:(a)=>a.map(([role,on])=>`<span class="fp ${on?'on':''}" title="${role}">${L[role]}</span>`).join("") },
+
+    { n:"5 · Mono abbrev", k:"v5", w:"~110px",
+      cap:"Keeps a readable label but in 3-letter mono — half the width, still legible.",
+      r:(a)=>a.map(([role,on])=>`<span class="ab ${on?'on':''}"><span class="pip"></span>${AB[role]}</span>`).join("") },
+
+    { n:"6 · Summary pill", k:"v6", w:"~64px",
+      cap:"One chip holds all agents; active letters glow green. Tidiest single unit.",
+      r:(a)=>`<span class="sp">${a.map(([role,on])=>`<span class="u ${on?'on':''}" title="${role}">${L[role]}</span>`).join("")}</span>` },
+
+    { n:"7 · Micro tags", k:"v7", w:"~140px",
+      cap:"Tiny role chips, filled-green when active. Most explicit but widest of the compact set.",
+      r:(a)=>a.map(([role,on])=>`<span class="mt ${on?'on':''}">${role}</span>`).join("") },
+
+    { n:"8 · Active-only", k:"v8", w:"~90px",
+      cap:"Idle agents collapse to a bare dot; only working agents keep their word. Biggest real-world win.",
+      r:(a)=>a.map(([role,on])=>on?`<span class="act"><span class="pip"></span>${role}</span>`:`<span class="idle-dot" title="${role} (idle)"></span>`).join(" ") },
+  ];
+
+  document.getElementById("grid").innerHTML = VARIANTS.map(v=>`
+    <div class="cell">
+      <div class="frame ${v.k}">
+        <div class="fh"><span>agents</span><span class="w">${v.w}</span></div>
+        <div class="rows">
+          ${ROWS.map(a=>`<div class="row"><div class="acell">${v.r(a)}</div></div>`).join("")}
+        </div>
+      </div>
+      <div class="caption"><b>${v.n}</b> — ${v.cap}</div>
+    </div>
+  `).join("");
+</script>
+</body>
+</html>

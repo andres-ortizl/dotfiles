@@ -1,0 +1,10 @@
+/target
+/.claude/*
+!/.claude/agents/
+/.claude/agents/*
+!/.claude/agents/dex-designer.md
+.env
+.envrc
+tmp
+# personal agent guidelines — symlinked from dotfiles, not shared
+AGENTS.md

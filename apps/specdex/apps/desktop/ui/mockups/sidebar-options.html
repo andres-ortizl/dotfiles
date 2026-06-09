@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>specdex — sidebar options</title>
+<style>
+  :root[data-theme="dark"] {
+    --paper:#181610; --surface:#211e17; --surface-2:#1b1812; --sunk:#14120d;
+    --rule:#36322a; --rule-soft:#2a261f;
+    --ink:#ece7da; --ink-muted:#a39c8c; --ink-faint:#6f695c;
+    --accent:#4fa8ff; --ember:#ff6a2c; --ember-soft:#34200f;
+    --alive:#5fc08a; --idle:#9a958a;
+    --lift-1:0 1px 2px rgba(0,0,0,.45),0 2px 6px rgba(0,0,0,.38);
+    --lift:0 1px 2px rgba(0,0,0,.45),0 4px 10px rgba(0,0,0,.4),0 12px 26px rgba(0,0,0,.34);
+    --well:#100e09;
+    --font-sans:"Inter","Inter Variable",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+    --font-mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+    --r-card:12px; --r-chip:6px; --r-pill:999px;
+    --ease:cubic-bezier(.4,0,.2,1); --ease-soft:cubic-bezier(.25,.1,.25,1);
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:var(--font-sans); -webkit-font-smoothing:antialiased;
+    padding:40px 32px 64px;
+  }
+  .page-head { max-width:1180px; margin:0 auto 28px; }
+  .page-head h1 { font-size:18px; font-weight:560; letter-spacing:-.01em; margin:0 0 6px; }
+  .page-head p { font-size:13px; color:var(--ink-faint); margin:0; line-height:1.6; }
+  .grid {
+    max-width:1180px; margin:0 auto;
+    display:grid; grid-template-columns:repeat(4, 1fr); gap:24px 22px;
+  }
+  @media (max-width:1080px){ .grid{ grid-template-columns:repeat(2,1fr); } }
+
+  .cell { display:flex; flex-direction:column; gap:10px; }
+  .frame {
+    height:380px; border-radius:14px; overflow:hidden;
+    background:var(--paper); box-shadow:var(--lift);
+    border:1px solid var(--rule-soft); position:relative; display:flex;
+  }
+  /* the mock sidebar + a sliver of content so the divider reads in context */
+  .sb { width:172px; flex:none; background:var(--surface-2); position:relative;
+        display:flex; flex-direction:column; }
+  .body { flex:1 1 auto; background:var(--paper); }
+  .brand { display:flex; align-items:center; gap:8px; padding:14px 14px 12px; }
+  .brand svg { width:18px; height:18px; color:var(--ember); }
+  .brand b { font-size:14px; font-weight:600; letter-spacing:-.01em; }
+
+  .caption { font-size:12px; color:var(--ink-muted); line-height:1.5; padding:0 2px; }
+  .caption b { color:var(--ink); font-weight:550; }
+  .tag { color:var(--ember); font-weight:550; }
+
+  /* shared row primitives */
+  .proj { display:flex; align-items:center; gap:10px; cursor:pointer; }
+  .dot { width:7px; height:7px; border-radius:50%; background:var(--idle); flex:none; }
+  .dot.alive { background:var(--alive); }
+  .nm { flex:1 1 auto; font-size:13px; color:var(--ink); white-space:nowrap;
+        overflow:hidden; text-overflow:ellipsis; }
+  .ct { font-size:11px; color:var(--ink-faint); font-variant-numeric:tabular-nums; }
+  .chev { width:24px; height:24px; display:grid; place-items:center; border:none;
+          background:none; color:var(--ink-faint); cursor:pointer; border-radius:var(--r-chip);
+          transition:color .14s,background .14s; }
+  .chev:hover { color:var(--ember); background:var(--surface); }
+  .chev svg { width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2; }
+
+  /* ============ V1 Airy — pure spacing, no rules ============ */
+  .v1 .list { padding:6px 8px; display:flex; flex-direction:column; gap:2px; }
+  .v1 .proj { padding:9px 10px; border-radius:8px; transition:background .14s; }
+  .v1 .proj:hover { background:var(--surface); }
+  .v1 .proj.active { background:var(--ember-soft); }
+  .v1 .topchev { position:absolute; top:12px; right:10px; }
+
+  /* ============ V2 Left tick — active/hover ember bar ============ */
+  .v2 .list { padding:8px 0; }
+  .v2 .proj { padding:9px 14px 9px 12px; position:relative; transition:background .14s; }
+  .v2 .proj::before { content:""; position:absolute; left:0; top:6px; bottom:6px; width:2px;
+                      background:transparent; border-radius:2px; transition:background .14s; }
+  .v2 .proj:hover { background:var(--surface); }
+  .v2 .proj:hover::before { background:var(--rule); }
+  .v2 .proj.active::before { background:var(--ember); }
+  .v2 .proj.active .nm { font-weight:600; }
+  .v2 .topchev { position:absolute; top:12px; right:8px; }
+
+  /* ============ V3 Pills — each project a raised chip ============ */
+  .v3 .list { padding:8px; display:flex; flex-direction:column; gap:8px; }
+  .v3 .proj { padding:10px 11px; border-radius:9px; background:var(--surface);
+              box-shadow:var(--lift-1); transition:transform .16s var(--ease-soft); }
+  .v3 .proj:hover { transform:translateY(-1px); }
+  .v3 .proj.active { box-shadow:var(--lift-1), inset 0 0 0 1px var(--ember); }
+  .v3 .topchev { position:absolute; top:12px; right:8px; }
+
+  /* ============ V4 Edge handle — collapse hides until hover ============ */
+  .v4 .list { padding:8px 0; }
+  .v4 .proj { padding:9px 14px; transition:background .14s; }
+  .v4 .proj:hover { background:var(--surface); }
+  .v4 .handle { position:absolute; top:50%; right:-1px; transform:translateY(-50%);
+                width:5px; height:46px; border-radius:5px 0 0 5px; background:var(--rule);
+                opacity:0; transition:opacity .18s, background .14s; cursor:pointer; }
+  .v4 .sb:hover .handle { opacity:1; }
+  .v4 .handle:hover { background:var(--ember); width:7px; }
+
+  /* ============ V5 Inset well — recessed card, inset hairlines ============ */
+  .v5 .list { margin:10px; padding:4px 0; background:var(--sunk); border-radius:10px;
+              box-shadow:inset 0 1px 3px rgba(0,0,0,.5); }
+  .v5 .proj { padding:10px 12px; position:relative; }
+  .v5 .proj + .proj::before { content:""; position:absolute; top:0; left:12px; right:12px;
+                              height:1px; background:var(--rule-soft); }
+  .v5 .proj:hover .nm { color:var(--ember); }
+  .v5 .topchev { position:absolute; top:12px; right:8px; }
+
+  /* ============ V6 Header-integrated — chevron lives in the brand row ============ */
+  .v6 .brand { border-bottom:none; }
+  .v6 .hchev { margin-left:auto; }
+  .v6 .list { padding:4px 8px; display:flex; flex-direction:column; gap:1px; }
+  .v6 .proj { padding:8px 8px; border-radius:7px; transition:background .14s; }
+  .v6 .proj:hover { background:var(--surface); }
+  .v6 .proj.active { background:var(--surface); }
+  .v6 .proj.active .nm { color:var(--ember); font-weight:600; }
+
+  /* ============ V7 Eyebrow — tiny uppercase label, borderless ============ */
+  .v7 .eyebrow { font-size:10px; letter-spacing:.13em; text-transform:uppercase;
+                 color:var(--ink-faint); padding:6px 14px 4px; font-weight:600; }
+  .v7 .list { padding:2px 8px 8px; display:flex; flex-direction:column; gap:2px; }
+  .v7 .proj { padding:9px 8px; border-radius:7px; transition:background .14s; }
+  .v7 .proj:hover { background:var(--surface); }
+  .v7 .proj.active { background:var(--ember-soft); }
+  .v7 .topchev { position:absolute; top:12px; right:8px; }
+
+  /* ============ V8 Floating handle on the divider ============ */
+  .v8 .list { padding:8px 8px; display:flex; flex-direction:column; gap:2px; }
+  .v8 .proj { padding:9px 10px; border-radius:8px; transition:background .14s; }
+  .v8 .proj:hover { background:var(--surface); }
+  .v8 .proj.active { background:var(--surface); box-shadow:inset 2px 0 0 var(--ember); }
+  .v8 .fab { position:absolute; top:64px; right:-13px; z-index:3; width:26px; height:26px;
+             border-radius:50%; background:var(--surface); box-shadow:var(--lift-1);
+             border:1px solid var(--rule-soft); display:grid; place-items:center;
+             color:var(--ink-muted); cursor:pointer; transition:color .14s; }
+  .v8 .fab:hover { color:var(--ember); }
+  .v8 .fab svg { width:13px; height:13px; stroke:currentColor; fill:none; stroke-width:2; }
+
+  /* count chips used by a couple variants */
+  .chip { font-size:10px; color:var(--ink-faint); background:var(--sunk);
+          border-radius:var(--r-pill); padding:1px 7px; font-variant-numeric:tabular-nums; }
+</style>
+</head>
+<body>
+  <div class="page-head">
+    <h1>specdex — sidebar directions</h1>
+    <p>8 takes that drop the full-width divider rules and move the collapse control off the bottom.
+       Hover the rows (and frame edges) to feel the interactions. Same content in each: two projects,
+       one active.</p>
+  </div>
+
+  <div class="grid">
+
+    <!-- V1 -->
+    <div class="cell">
+      <div class="frame v1">
+        <div class="sb">
+          <div class="brand"><svg viewBox="0 0 24 24"><path d="M12 2.6 20.4 7.3v9.4L12 21.4 3.6 16.7V7.3z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.7" fill="currentColor"/></svg><b>specdex</b></div>
+          <button class="chev topchev" title="Collapse"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div class="list">
+            <div class="proj active"><span class="dot alive"></span><span class="nm">anyformat-backend</span><span class="ct">3</span></div>
+            <div class="proj"><span class="dot"></span><span class="nm">specdex</span><span class="ct">8</span></div>
+          </div>
+        </div>
+        <div class="body"></div>
+      </div>
+      <div class="caption"><b>1 · Airy</b> — pure spacing, zero rules; hover fills a soft rounded row, active = ember wash. Collapse: <span class="tag">top-right ghost chevron</span>.</div>
+    </div>
+
+    <!-- V2 -->
+    <div class="cell">
+      <div class="frame v2">
+        <div class="sb">
+          <div class="brand"><svg viewBox="0 0 24 24"><path d="M12 2.6 20.4 7.3v9.4L12 21.4 3.6 16.7V7.3z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.7" fill="currentColor"/></svg><b>specdex</b></div>
+          <button class="chev topchev" title="Collapse"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div class="list">
+            <div class="proj active"><span class="dot alive"></span><span class="nm">anyformat-backend</span><span class="ct">3</span></div>
+            <div class="proj"><span class="dot"></span><span class="nm">specdex</span><span class="ct">8</span></div>
+          </div>
+        </div>
+        <div class="body"></div>
+      </div>
+      <div class="caption"><b>2 · Left tick</b> — borderless rows; a 2px ember bar marks the active project (grey on hover). Collapse: <span class="tag">top-right</span>.</div>
+    </div>
+
+    <!-- V3 -->
+    <div class="cell">
+      <div class="frame v3">
+        <div class="sb">
+          <div class="brand"><svg viewBox="0 0 24 24"><path d="M12 2.6 20.4 7.3v9.4L12 21.4 3.6 16.7V7.3z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.7" fill="currentColor"/></svg><b>specdex</b></div>
+          <button class="chev topchev" title="Collapse"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div class="list">
+            <div class="proj active"><span class="dot alive"></span><span class="nm">anyformat-backend</span><span class="ct">3</span></div>
+            <div class="proj"><span class="dot"></span><span class="nm">specdex</span><span class="ct">8</span></div>
+          </div>
+        </div>
+        <div class="body"></div>
+      </div>
+      <div class="caption"><b>3 · Pills</b> — each project is a raised drams chip with depth; lifts on hover, ember ring when active. Collapse: <span class="tag">top-right</span>.</div>
+    </div>
+
+    <!-- V4 -->
+    <div class="cell">
+      <div class="frame v4">
+        <div class="sb">
+          <div class="brand"><svg viewBox="0 0 24 24"><path d="M12 2.6 20.4 7.3v9.4L12 21.4 3.6 16.7V7.3z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.7" fill="currentColor"/></svg><b>specdex</b></div>
+          <div class="list">
+            <div class="proj active"><span class="dot alive"></span><span class="nm">anyformat-backend</span><span class="ct">3</span></div>
+            <div class="proj"><span class="dot"></span><span class="nm">specdex</span><span class="ct">8</span></div>
+          </div>
+          <div class="handle" title="Collapse"></div>
+        </div>
+        <div class="body"></div>
+      </div>
+      <div class="caption"><b>4 · Edge handle</b> — no chrome at all; a slim grab-bar fades in on the divider when you hover the sidebar. Collapse: <span class="tag">edge-hover handle</span>.</div>
+    </div>
+
+    <!-- V5 -->
+    <div class="cell">
+      <div class="frame v5">
+        <div class="sb">
+          <div class="brand"><svg viewBox="0 0 24 24"><path d="M12 2.6 20.4 7.3v9.4L12 21.4 3.6 16.7V7.3z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.7" fill="currentColor"/></svg><b>specdex</b></div>
+          <button class="chev topchev" title="Collapse"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div class="list">
+            <div class="proj"><span class="dot alive"></span><span class="nm">anyformat-backend</span><span class="ct">3</span></div>
+            <div class="proj"><span class="dot"></span><span class="nm">specdex</span><span class="ct">8</span></div>
+          </div>
+        </div>
+        <div class="body"></div>
+      </div>
+      <div class="caption"><b>5 · Inset well</b> — the list sits in a recessed groove; separators are short inset hairlines, never full-bleed. Collapse: <span class="tag">top-right</span>.</div>
+    </div>
+
+    <!-- V6 -->
+    <div class="cell">
+      <div class="frame v6">
+        <div class="sb">
+          <div class="brand"><svg viewBox="0 0 24 24"><path d="M12 2.6 20.4 7.3v9.4L12 21.4 3.6 16.7V7.3z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.7" fill="currentColor"/></svg><b>specdex</b><button class="chev hchev" title="Collapse"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+          <div class="list">
+            <div class="proj active"><span class="dot alive"></span><span class="nm">anyformat-backend</span><span class="ct">3</span></div>
+            <div class="proj"><span class="dot"></span><span class="nm">specdex</span><span class="ct">8</span></div>
+          </div>
+        </div>
+        <div class="body"></div>
+      </div>
+      <div class="caption"><b>6 · Header chevron</b> — collapse tucks into the brand row, dense borderless rows below; active text turns ember. Collapse: <span class="tag">in the header</span>.</div>
+    </div>
+
+    <!-- V7 -->
+    <div class="cell">
+      <div class="frame v7">
+        <div class="sb">
+          <div class="brand"><svg viewBox="0 0 24 24"><path d="M12 2.6 20.4 7.3v9.4L12 21.4 3.6 16.7V7.3z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.7" fill="currentColor"/></svg><b>specdex</b></div>
+          <button class="chev topchev" title="Collapse"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div class="eyebrow">Projects</div>
+          <div class="list">
+            <div class="proj active"><span class="dot alive"></span><span class="nm">anyformat-backend</span><span class="chip">3</span></div>
+            <div class="proj"><span class="dot"></span><span class="nm">specdex</span><span class="chip">8</span></div>
+          </div>
+        </div>
+        <div class="body"></div>
+      </div>
+      <div class="caption"><b>7 · Eyebrow</b> — keeps a label but as a tiny tracked-out caption (not a heavy header); counts become pill chips. Collapse: <span class="tag">top-right</span>.</div>
+    </div>
+
+    <!-- V8 -->
+    <div class="cell">
+      <div class="frame v8">
+        <div class="sb">
+          <div class="brand"><svg viewBox="0 0 24 24"><path d="M12 2.6 20.4 7.3v9.4L12 21.4 3.6 16.7V7.3z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.7" fill="currentColor"/></svg><b>specdex</b></div>
+          <div class="list">
+            <div class="proj active"><span class="dot alive"></span><span class="nm">anyformat-backend</span><span class="ct">3</span></div>
+            <div class="proj"><span class="dot"></span><span class="nm">specdex</span><span class="ct">8</span></div>
+          </div>
+        </div>
+        <button class="fab" title="Collapse"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <div class="body"></div>
+      </div>
+      <div class="caption"><b>8 · Divider fab</b> — a small round button straddles the divider (VS Code-style); active row gets an inset ember edge. Collapse: <span class="tag">circular fab on the seam</span>.</div>
+    </div>
+
+  </div>
+</body>
+</html>

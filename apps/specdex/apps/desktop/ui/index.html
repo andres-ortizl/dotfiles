@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>specdex — fleet</title>
+  <script>
+    // Resolve theme before first paint — no flash. Cycle: system → light → dark.
+    (function () {
+      var s = localStorage.dexTheme || 'system';
+      if (s !== 'light' && s !== 'dark' && s !== 'system') s = 'system';
+      var t = s === 'system'
+        ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+        : s;
+      document.documentElement.dataset.theme = t;
+      document.documentElement.dataset.sidebar =
+        localStorage.dexSidebarCollapsed === '1' ? 'collapsed' : 'open';
+    })();
+  </script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-left">
+      <a class="brand" id="brand-home" href="#" aria-label="Back to fleet">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path class="bm-spoke" d="M12 13.8 12 6.8M12 13.8 18.5 17.2M12 13.8 5.5 17.2"
+                  fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <circle class="bm-node" cx="12" cy="6.8" r="2.1" fill="currentColor"/>
+            <circle class="bm-node" cx="18.5" cy="17.2" r="2.1" fill="currentColor"/>
+            <circle class="bm-node" cx="5.5" cy="17.2" r="2.1" fill="currentColor"/>
+            <circle class="bm-core" cx="12" cy="13.8" r="3" fill="currentColor"/>
+          </svg>
+        </span>
+        <h1 class="brand-name">specdex</h1>
+      </a>
+      <button type="button" class="sb-collapse" id="sb-collapse"
+              aria-label="Collapse sidebar" title="Collapse sidebar">
+        <svg viewBox="0 0 24 24" aria-hidden="true" width="15" height="15" fill="none"
+             stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"
+             stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+    <nav class="view-seg" id="view-seg" aria-label="Views" role="tablist">
+      <button type="button" id="nav-agents" class="seg-btn" role="tab" aria-selected="true">
+        <span class="seg-label">agents</span>
+        <span class="seg-led" aria-hidden="true"></span>
+      </button>
+      <button type="button" id="nav-signals" class="seg-btn" role="tab" aria-selected="false">
+        <span class="seg-label">signals</span>
+        <span class="seg-led" aria-hidden="true"></span>
+      </button>
+    </nav>
+
+    <div class="topbar-right">
+      <button class="theme-toggle" id="theme-toggle" type="button"
+              data-state="system" aria-label="Theme: system" title="Theme: system">
+        <span class="t-track" aria-hidden="true"><span class="t-knob" id="t-knob"></span></span>
+      </button>
+    </div>
+  </header>
+
+  <div class="shell">
+    <aside class="sidebar" id="sidebar" aria-label="Projects">
+      <div class="sb-list" id="sb-list"></div>
+    </aside>
+    <div class="content">
+      <div class="toolbar" id="toolbar" aria-label="Fleet controls">
+        <div id="fleet-controls">
+          <div class="fleet-sort" id="fleet-sort" role="group" aria-label="Sort specs">
+            <button type="button" data-sort="recent">Recent</button>
+            <button type="button" data-sort="state">State</button>
+            <button type="button" data-sort="name">Name</button>
+          </div>
+          <div class="fleet-sort" id="layout-toggle" role="group" aria-label="Layout">
+            <button type="button" data-layout="cards" aria-pressed="false">
+              <svg viewBox="0 0 24 24" aria-hidden="true" width="13" height="13" stroke="currentColor" fill="none" stroke-width="1.8"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>
+              Cards
+            </button>
+            <button type="button" data-layout="list" aria-pressed="false">
+              <svg viewBox="0 0 24 24" aria-hidden="true" width="13" height="13" stroke="currentColor" fill="none" stroke-width="1.8"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01" stroke-linecap="round"/></svg>
+              List
+            </button>
+          </div>
+        </div>
+        <div id="signals-controls" hidden>
+          <div class="fleet-sort" id="signals-scope" role="group" aria-label="Scope filter">
+            <button type="button" data-scope="all" aria-pressed="true">All</button>
+            <button type="button" data-scope="spec" aria-pressed="false">Spec</button>
+            <button type="button" data-scope="project" aria-pressed="false">Project</button>
+            <button type="button" data-scope="skill" aria-pressed="false">Skill</button>
+          </div>
+        </div>
+      </div>
+      <main class="fleet" id="fleet" aria-label="Running specs"></main>
+      <section class="listwrap" id="listwrap" aria-label="Running specs" hidden>
+        <div class="list" id="list" role="table"></div>
+      </section>
+      <main class="detail" id="detail" aria-label="Spec detail" hidden></main>
+      <main class="signals-view" id="signals" aria-label="Signals" hidden></main>
+      <section id="liveteam" class="liveteam-view" aria-label="Live team" hidden></section>
+      <section id="archived" class="archived-view" aria-label="Archived specs" hidden></section>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
