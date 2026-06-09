@@ -1,0 +1,14 @@
+[providers]
+notifier = "slack"
+ci = "none"
+pr_review = "none"
+multiplexer = "zellij"
+
+[phases]
+skip = ["verify"]
+
+[identity]
+github_org = "andres-ortizl"
+
+[terminal]
+program = "ghostty"

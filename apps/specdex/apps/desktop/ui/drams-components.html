@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>drams components — prototype</title>
+<style>
+  /* Throwaway prototype: the two drams pieces (soft toggle + push buttons)
+     rebuilt in specdex's palette, pure CSS, no deps. Soft UI = layered soft
+     shadows + a radial sheen + a transform on toggle/press. */
+
+  :root {
+    --paper:   #f4f4f2;
+    --surface: #ffffff;
+    --ink:     #262420;
+    --ink-muted: #6e6a62;
+    --ink-faint: #a29d92;
+    --rule:    #d9d6cf;
+    --ember:   #e85c18;
+    --accent:  #0a86e8;
+
+    /* soft-UI shadow stack (light) */
+    --lift:  0 1px 2px rgba(40,38,34,.10), 0 4px 10px rgba(40,38,34,.10), 0 10px 22px rgba(40,38,34,.07);
+    --lift-1:0 1px 2px rgba(40,38,34,.10), 0 2px 5px rgba(40,38,34,.08);
+    --sunk:  inset 0 1px 2px rgba(40,38,34,.10), inset 0 -1px 1px rgba(255,255,255,.6);
+
+    --font: "Inter","Inter Variable",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  }
+  :root[data-theme="dark"] {
+    --paper:   #181610;
+    --surface: #211e17;
+    --ink:     #ece7da;
+    --ink-muted: #a39c8c;
+    --ink-faint: #6f695c;
+    --rule:    #36322a;
+    --ember:   #ff6a2c;
+    --accent:  #4fa8ff;
+    --lift:  0 1px 2px rgba(0,0,0,.5), 0 4px 10px rgba(0,0,0,.45), 0 12px 26px rgba(0,0,0,.4);
+    --lift-1:0 1px 2px rgba(0,0,0,.5), 0 2px 6px rgba(0,0,0,.4);
+    --sunk:  inset 0 1px 3px rgba(0,0,0,.55), inset 0 -1px 1px rgba(255,255,255,.04);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh;
+    background: var(--paper); color: var(--ink);
+    font-family: var(--font); letter-spacing: -.01em;
+    -webkit-font-smoothing: antialiased;
+    transition: background .3s, color .3s;
+  }
+
+  .bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 32px; border-bottom: 1px solid var(--rule);
+  }
+  .bar h1 { font-size: 18px; font-weight: 500; letter-spacing: -.03em; margin: 0; }
+  .bar .sub { color: var(--ink-faint); font-size: 13px; }
+
+  .wrap { max-width: 760px; margin: 0 auto; padding: 56px 32px 96px; }
+  .group { margin-bottom: 72px; }
+  .group h2 {
+    font-size: 11px; font-weight: 540; letter-spacing: .09em; text-transform: uppercase;
+    color: var(--ink-faint); margin: 0 0 28px;
+  }
+  .row { display: flex; align-items: center; gap: 48px; flex-wrap: wrap; }
+  .cap { font-size: 12px; color: var(--ink-muted); margin-top: 14px; text-align: center; }
+
+  /* ============ soft toggle (image 1) ============ */
+  .toggle-cell { display: flex; flex-direction: column; align-items: center; }
+  .toggle {
+    display: inline-flex; align-items: center; gap: 16px;
+    background: none; border: 0; padding: 0; cursor: pointer;
+  }
+  .track {
+    position: relative;
+    width: 84px; height: 46px; border-radius: 999px;
+    background: linear-gradient(180deg, #ebeae7, #f3f2ef);
+    box-shadow: var(--sunk);
+    transition: background .32s cubic-bezier(.25,.1,.25,1);
+  }
+  :root[data-theme="dark"] .track { background: linear-gradient(180deg,#15130e,#1d1a14); }
+  .knob {
+    position: absolute; top: 3px; left: 3px;
+    width: 40px; height: 40px; border-radius: 50%;
+    background: radial-gradient(circle at 36% 30%, #ffffff, #efeeeb 72%, #e4e3df);
+    box-shadow: var(--lift);
+    transition: transform .32s cubic-bezier(.34,1.4,.5,1);
+  }
+  :root[data-theme="dark"] .knob {
+    background: radial-gradient(circle at 36% 30%, #3a372f, #2a2720 75%, #211e17);
+  }
+  .dot {
+    width: 11px; height: 11px; border-radius: 50%;
+    background: var(--ink-faint); opacity: .55;
+    transition: background .32s, opacity .32s, box-shadow .32s;
+  }
+  .toggle[aria-pressed="true"] .knob { transform: translateX(38px); }
+  .toggle[aria-pressed="true"] .track {
+    background: linear-gradient(180deg, color-mix(in srgb,var(--ember) 22%,#ebeae7), color-mix(in srgb,var(--ember) 14%,#f3f2ef));
+  }
+  .toggle[aria-pressed="true"] .dot {
+    background: var(--ember); opacity: 1;
+    box-shadow: 0 0 0 4px color-mix(in srgb,var(--ember) 18%,transparent);
+  }
+
+  /* ============ push buttons (image 2) ============ */
+  .btn-cell { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .led {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--ink-faint); opacity: .5;
+    transition: background .2s, opacity .2s, box-shadow .2s;
+  }
+  .pushbtn {
+    width: 64px; height: 64px; border-radius: 50%; border: 0; cursor: pointer;
+    padding: 4px;                         /* the thin bezel ring */
+    background: linear-gradient(180deg, #fbfbfa, #e6e4df);
+    box-shadow: var(--lift);
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  :root[data-theme="dark"] .pushbtn { background: linear-gradient(180deg,#2c2920,#1b1813); }
+  .face {
+    width: 100%; height: 100%; border-radius: 50%;
+    box-shadow: inset 0 1px 1px rgba(255,255,255,.35), inset 0 -2px 4px rgba(0,0,0,.18);
+  }
+  .face.orange { background: radial-gradient(circle at 38% 30%, #f4844a, var(--ember) 58%, #cf4d10); }
+  .face.white  { background: radial-gradient(circle at 38% 30%, #ffffff, #ededea 70%, #dddbd6); }
+  .face.black  { background: radial-gradient(circle at 38% 30%, #4c4942, #2a2720 60%, #1b1813); }
+
+  .pushbtn:active { transform: translateY(2px) scale(.97); box-shadow: var(--lift-1); }
+  .pushbtn.on + .led, .btn-cell.on .led {
+    background: var(--ember); opacity: 1;
+    box-shadow: 0 0 0 4px color-mix(in srgb,var(--ember) 16%,transparent);
+  }
+
+  /* ============ slider (image: sliders) ============ */
+  .slider {
+    -webkit-appearance: none; appearance: none;
+    width: 240px; height: 12px; border-radius: 999px; outline: none;
+    background: linear-gradient(180deg,#ebeae7,#f3f2ef);
+    box-shadow: var(--sunk);
+  }
+  :root[data-theme="dark"] .slider { background: linear-gradient(180deg,#15130e,#1d1a14); }
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 30px; height: 30px; border-radius: 50%; cursor: grab;
+    background: radial-gradient(circle at 36% 30%, #ffffff, #efeeeb 72%, #e4e3df);
+    box-shadow: var(--lift);
+  }
+  .slider::-webkit-slider-thumb:active { cursor: grabbing; }
+  :root[data-theme="dark"] .slider::-webkit-slider-thumb {
+    background: radial-gradient(circle at 36% 30%, #3a372f, #2a2720 75%, #211e17);
+  }
+  .slider::-moz-range-thumb {
+    width: 30px; height: 30px; border: 0; border-radius: 50%; cursor: grab;
+    background: radial-gradient(circle at 36% 30%, #ffffff, #efeeeb 72%, #e4e3df);
+    box-shadow: var(--lift);
+  }
+
+  /* ============ rotary dial (image: dials) ============ */
+  .dial-cell { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+  .dial {
+    width: 88px; height: 88px; border-radius: 50%; border: 0; cursor: pointer;
+    position: relative; padding: 6px;
+    background: linear-gradient(180deg,#fbfbfa,#e6e4df);
+    box-shadow: var(--lift);
+    transition: transform .3s cubic-bezier(.34,1.2,.5,1);
+  }
+  :root[data-theme="dark"] .dial { background: linear-gradient(180deg,#2c2920,#1b1813); }
+  .dial::before {                       /* the dished face */
+    content: ""; position: absolute; inset: 6px; border-radius: 50%;
+    background: radial-gradient(circle at 38% 30%, var(--surface), color-mix(in srgb,var(--ink) 8%,var(--surface)));
+    box-shadow: inset 0 2px 5px rgba(0,0,0,.16);
+  }
+  .dial::after {                        /* the pointer notch */
+    content: ""; position: absolute; left: 50%; top: 11px;
+    width: 4px; height: 16px; border-radius: 2px; margin-left: -2px;
+    background: var(--ember); z-index: 1;
+  }
+
+  /* ============ segmented 3-position switch (theme: sun/auto/moon) ============ */
+  .seg {
+    position: relative; display: inline-flex; padding: 4px; border-radius: 999px;
+    background: linear-gradient(180deg,#ebeae7,#f3f2ef); box-shadow: var(--sunk);
+  }
+  :root[data-theme="dark"] .seg { background: linear-gradient(180deg,#15130e,#1d1a14); }
+  .seg button {
+    position: relative; z-index: 1; width: 46px; height: 38px; border: 0;
+    background: none; cursor: pointer; color: var(--ink-muted);
+    display: grid; place-items: center; font-size: 16px;
+    transition: color .25s;
+  }
+  .seg button[aria-selected="true"] { color: var(--ink); }
+  .seg .seg-knob {
+    position: absolute; top: 4px; left: 4px; width: 46px; height: 38px;
+    border-radius: 999px; z-index: 0;
+    background: radial-gradient(circle at 40% 30%, #ffffff, #efeeeb);
+    box-shadow: var(--lift-1);
+    transition: transform .3s cubic-bezier(.34,1.3,.5,1);
+  }
+  :root[data-theme="dark"] .seg .seg-knob { background: radial-gradient(circle at 40% 30%,#3a372f,#2a2720); }
+  .seg[data-pos="1"] .seg-knob { transform: translateX(46px); }
+  .seg[data-pos="2"] .seg-knob { transform: translateX(92px); }
+
+  .note {
+    margin-top: 64px; padding: 18px 20px; border-radius: 8px;
+    background: var(--surface); box-shadow: var(--lift-1);
+    font-size: 13px; line-height: 1.6; color: var(--ink-muted);
+  }
+  .note b { color: var(--ink); font-weight: 540; }
+</style>
+</head>
+<body>
+  <div class="bar">
+    <h1>drams components <span class="sub">— specdex palette</span></h1>
+    <button class="toggle" id="theme" aria-pressed="false" aria-label="Toggle theme" title="theme">
+      <span class="track"><span class="knob"></span></span>
+      <span class="dot"></span>
+    </button>
+  </div>
+
+  <div class="wrap">
+    <section class="group">
+      <h2>Soft toggle</h2>
+      <div class="row">
+        <div class="toggle-cell">
+          <button class="toggle" aria-pressed="false" aria-label="demo toggle"
+                  onclick="this.setAttribute('aria-pressed', this.getAttribute('aria-pressed')==='true'?'false':'true')">
+            <span class="track"><span class="knob"></span></span>
+            <span class="dot"></span>
+          </button>
+          <span class="cap">click it — knob slides, the LED lights ember</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="group">
+      <h2>Push buttons</h2>
+      <div class="row">
+        <div class="btn-cell" onclick="this.classList.toggle('on')">
+          <span class="led"></span>
+          <button class="pushbtn" aria-label="ember"><span class="face orange"></span></button>
+          <span class="cap">ember</span>
+        </div>
+        <div class="btn-cell" onclick="this.classList.toggle('on')">
+          <span class="led"></span>
+          <button class="pushbtn" aria-label="light"><span class="face white"></span></button>
+          <span class="cap">light</span>
+        </div>
+        <div class="btn-cell" onclick="this.classList.toggle('on')">
+          <span class="led"></span>
+          <button class="pushbtn" aria-label="ink"><span class="face black"></span></button>
+          <span class="cap">ink</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="group">
+      <h2>Slider</h2>
+      <div class="row">
+        <div class="toggle-cell">
+          <input type="range" class="slider" min="0" max="100" value="42" aria-label="demo slider" />
+          <span class="cap">drag the thumb — same raised knob as the toggle</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="group">
+      <h2>Rotary dial</h2>
+      <div class="row">
+        <div class="dial-cell">
+          <button class="dial" aria-label="dial" style="transform: rotate(0deg)"
+                  onclick="this.style.transform='rotate('+(((parseInt(this.dataset.a||'0'))+45)%360)+'deg)'; this.dataset.a=((parseInt(this.dataset.a||'0'))+45)%360;"></button>
+          <span class="cap">click to turn — dished face, ember pointer</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="group">
+      <h2>Segmented switch <span style="color:var(--ink-faint);font-weight:400">— 3-position theme (keeps "system")</span></h2>
+      <div class="row">
+        <div class="toggle-cell">
+          <div class="seg" data-pos="0" role="tablist" aria-label="theme">
+            <span class="seg-knob"></span>
+            <button role="tab" aria-selected="true"  onclick="this.parentElement.dataset.pos=0; sel(this)" title="light">☀</button>
+            <button role="tab" aria-selected="false" onclick="this.parentElement.dataset.pos=1; sel(this)" title="system">○</button>
+            <button role="tab" aria-selected="false" onclick="this.parentElement.dataset.pos=2; sel(this)" title="dark">☾</button>
+          </div>
+          <span class="cap">the alternative: a 2-position switch can't hold "system" — this can</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="note">
+      <b>Zero dependencies.</b> Every piece here is plain CSS — soft layered shadows,
+      a radial-gradient sheen, and a transform on toggle/press. The theme switch in the
+      top-right is the same toggle, wired live. This is the joy the current flat UI
+      dropped. Flip the theme to see both palettes.
+    </div>
+  </div>
+
+  <script>
+    function sel(btn) {
+      for (const b of btn.parentElement.querySelectorAll('button'))
+        b.setAttribute('aria-selected', b === btn ? 'true' : 'false');
+    }
+    const t = document.getElementById('theme');
+    t.addEventListener('click', () => {
+      const on = t.getAttribute('aria-pressed') !== 'true';
+      t.setAttribute('aria-pressed', on ? 'true' : 'false');
+      document.documentElement.dataset.theme = on ? 'dark' : '';
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>view selector — 8 variants</title>
+<style>
+  :root {
+    --bg:#f7f7f7; --surface:#ffffff; --surface-2:#faf9f7;
+    --rule:#d9d6cf; --rule-soft:#ece9e2;
+    --ink:#262420; --ink-muted:#6e6a62; --ink-faint:#a29d92;
+    --accent:#0a86e8; --ember:#e85c18; --ember-soft:#fbe6d9;
+    --well:#e6e4df;
+    --lift:0 1px 2px rgba(40,38,34,.08),0 4px 10px rgba(40,38,34,.07),0 10px 22px rgba(40,38,34,.05);
+    --lift-1:0 1px 2px rgba(40,38,34,.09),0 2px 5px rgba(40,38,34,.07);
+    --press:inset 0 1px 2px rgba(40,38,34,.12),inset 0 -1px 1px rgba(255,255,255,.6);
+    --font:"Inter","Inter Variable",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    --e1:.34,1.3,.5,1;
+  }
+  :root[data-theme="dark"] {
+    --bg:#191610; --surface:#211e17; --surface-2:#1b1812;
+    --rule:#36322a; --rule-soft:#2a261f;
+    --ink:#ece7da; --ink-muted:#a39c8c; --ink-faint:#6f695c;
+    --accent:#4fa8ff; --ember:#ff6a2c; --ember-soft:#34200f;
+    --well:#100e09;
+    --lift:0 1px 2px rgba(0,0,0,.45),0 4px 10px rgba(0,0,0,.4),0 12px 26px rgba(0,0,0,.34);
+    --lift-1:0 1px 2px rgba(0,0,0,.45),0 2px 6px rgba(0,0,0,.38);
+    --press:inset 0 1px 3px rgba(0,0,0,.5),inset 0 -1px 1px rgba(255,255,255,.04);
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:var(--font); -webkit-font-smoothing:antialiased;
+    padding:40px 48px 80px;
+  }
+  header { display:flex; align-items:baseline; gap:16px; margin-bottom:32px; }
+  h1 { font-size:20px; font-weight:600; letter-spacing:-.02em; margin:0; }
+  .sub { color:var(--ink-faint); font-size:13px; }
+  .theme-btn {
+    margin-left:auto; appearance:none; border:1px solid var(--rule); cursor:pointer;
+    background:var(--surface); color:var(--ink-muted); border-radius:8px;
+    padding:6px 12px; font:500 12px var(--font); box-shadow:var(--lift-1);
+  }
+  .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:22px; max-width:980px; }
+  .card {
+    background:var(--surface); border:1px solid var(--rule-soft); border-radius:14px;
+    padding:26px 24px 22px; box-shadow:var(--lift-1);
+    display:flex; flex-direction:column; gap:16px; min-height:150px;
+  }
+  .card .meta { display:flex; flex-direction:column; gap:3px; }
+  .card .name { font-size:13px; font-weight:600; letter-spacing:-.01em; }
+  .card .desc { font-size:11.5px; color:var(--ink-muted); line-height:1.45; }
+  .stage { flex:1; display:flex; align-items:center; }
+
+  /* ============ shared seg primitives ============ */
+  .seg { position:relative; display:inline-flex; }
+  .seg button {
+    appearance:none; border:0; background:none; cursor:pointer;
+    font:450 11px var(--font); letter-spacing:-.01em; color:var(--ink-faint);
+    transition:color .16s;
+  }
+  .seg button[aria-selected="true"] { color:var(--ink); font-weight:540; }
+  .seg button:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+
+  /* ===== V1 — flat segmented pill (LED beside label) ===== */
+  .v1 { --w:74px; padding:4px; border-radius:999px;
+        background:linear-gradient(180deg,#ebeae7,#f3f2ef); box-shadow:var(--press); }
+  :root[data-theme="dark"] .v1 { background:linear-gradient(180deg,#15130e,#1d1a14); }
+  .v1 .knob { position:absolute; z-index:0; top:4px; left:4px; width:var(--w); height:calc(100% - 8px);
+              border-radius:999px; background:radial-gradient(circle at 40% 28%,#fff,#efeeeb);
+              box-shadow:var(--lift-1); transition:transform .28s cubic-bezier(var(--e1)); }
+  :root[data-theme="dark"] .v1 .knob { background:radial-gradient(circle at 40% 28%,#3a372f,#2a2720); }
+  .v1[data-pos="1"] .knob { transform:translateX(var(--w)); }
+  .v1[data-pos="2"] .knob { transform:translateX(calc(var(--w)*2)); }
+  .v1 button { position:relative; z-index:1; width:var(--w); height:30px;
+               display:inline-flex; align-items:center; justify-content:center; gap:7px; }
+  .v1 .led { width:6px; height:6px; border-radius:50%; background:var(--well);
+             box-shadow:inset 0 1px 1px rgba(0,0,0,.2); transition:.2s; flex:none; }
+  .v1 button[aria-selected="true"] .led {
+    background:radial-gradient(circle at 38% 30%,#f4844a,var(--ember) 60%,#cf4d10);
+    box-shadow:0 0 5px color-mix(in srgb,var(--ember) 70%,transparent); }
+
+  /* ===== V2 — dished sockets, LED relocates (labels above) ===== */
+  .v2 { --w:66px; padding:7px 10px 9px; border-radius:13px;
+        background:linear-gradient(180deg,#f4f3f0,#e9e8e3);
+        box-shadow:inset 0 1px 0 #fff,0 4px 0 -1px #cfcdc6,0 10px 15px -8px rgba(0,0,0,.34); }
+  :root[data-theme="dark"] .v2 { background:linear-gradient(180deg,#221f18,#16140f);
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 4px 0 -1px #0b0a07,0 10px 15px -8px rgba(0,0,0,.6); }
+  .v2 button { width:var(--w); display:flex; flex-direction:column; align-items:center; gap:7px; }
+  .v2 .sock { width:22px; height:22px; border-radius:50%;
+              background:radial-gradient(circle at 50% 36%,#e8e7e3,#f3f2ef 72%);
+              box-shadow:inset 0 2px 4px rgba(0,0,0,.2),inset 0 -1px 1px rgba(255,255,255,.8);
+              position:relative; }
+  :root[data-theme="dark"] .v2 .sock { background:radial-gradient(circle at 50% 36%,#2a2820,#1b1914 72%); }
+  .v2 .sock::after { content:""; position:absolute; inset:0; margin:auto; width:7px; height:7px;
+              border-radius:50%; background:var(--well); box-shadow:inset 0 1px 1px rgba(0,0,0,.3);
+              transition:.2s; }
+  .v2 button[aria-selected="true"] .sock::after {
+    background:radial-gradient(circle at 38% 30%,#f4844a,var(--ember) 60%,#cf4d10);
+    box-shadow:0 0 7px color-mix(in srgb,var(--ember) 78%,transparent); }
+
+  /* ===== V3 — sliding raised key over dished sockets (refined, tight) ===== */
+  .v3 { --w:68px; --lh:14px; padding:5px 8px 8px; border-radius:13px;
+        background:linear-gradient(180deg,#f6f5f2,#eae9e4);
+        box-shadow:inset 0 1px 0 #fff,0 3px 0 -1px #cdcbc4,0 9px 14px -8px rgba(0,0,0,.34); }
+  :root[data-theme="dark"] .v3 { background:linear-gradient(180deg,#221f18,#16140f);
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 3px 0 -1px #0b0a07,0 9px 14px -8px rgba(0,0,0,.6); }
+  .v3 button { position:relative; z-index:1; width:var(--w); display:flex; flex-direction:column; align-items:center; }
+  .v3 .lab { height:var(--lh); line-height:var(--lh); }
+  .v3 .sock { width:18px; height:18px; border-radius:50%; margin-top:5px;
+              background:radial-gradient(circle at 50% 36%,#e8e7e3,#f3f2ef 72%);
+              box-shadow:inset 0 2px 3px rgba(0,0,0,.2); }
+  :root[data-theme="dark"] .v3 .sock { background:radial-gradient(circle at 50% 36%,#2a2820,#1b1914 72%); }
+  .v3 .key { position:absolute; z-index:2; top:calc(5px + var(--lh) + 1px); left:8px;
+             width:var(--w); height:24px; border-radius:9px;
+             background:linear-gradient(180deg,#fff,#efeee9 80%,#e6e5e1);
+             box-shadow:inset 0 1px 0 #fff,0 1px 2px rgba(0,0,0,.16),0 5px 9px -4px rgba(0,0,0,.28);
+             display:grid; place-items:center; transition:transform .28s cubic-bezier(var(--e1)); }
+  :root[data-theme="dark"] .v3 .key { background:linear-gradient(180deg,#454238,#302d26); }
+  .v3[data-pos="1"] .key { transform:translateX(var(--w)); }
+  .v3[data-pos="2"] .key { transform:translateX(calc(var(--w)*2)); }
+  .v3 .key i { width:6px; height:6px; border-radius:50%;
+    background:radial-gradient(circle at 38% 30%,#ffa166,var(--ember) 55%,#c4480f);
+    box-shadow:0 0 6px color-mix(in srgb,var(--ember) 75%,transparent); }
+
+  /* ===== V4 — push-button cluster, active pressed-in ===== */
+  .v4 { --w:72px; gap:8px; }
+  .v4 button { width:var(--w); height:42px; border-radius:11px;
+               display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+               background:linear-gradient(180deg,#fff,#efeee9); box-shadow:var(--lift-1); transition:.16s; }
+  :root[data-theme="dark"] .v4 button { background:linear-gradient(180deg,#2c2a22,#211e18); }
+  .v4 .led { width:6px; height:6px; border-radius:50%; background:var(--well);
+             box-shadow:inset 0 1px 1px rgba(0,0,0,.25); }
+  .v4 button[aria-selected="true"] { background:linear-gradient(180deg,#efeee9,#e6e5e0); box-shadow:var(--press); }
+  :root[data-theme="dark"] .v4 button[aria-selected="true"] { background:linear-gradient(180deg,#1a1813,#15130e); }
+  .v4 button[aria-selected="true"] .led {
+    background:radial-gradient(circle at 38% 30%,#f4844a,var(--ember) 60%,#cf4d10);
+    box-shadow:0 0 6px color-mix(in srgb,var(--ember) 75%,transparent); }
+
+  /* ===== V5 — fader: round knob slides along a recessed groove ===== */
+  .v5 { --w:72px; flex-direction:column; gap:8px; }
+  .v5 .labs { display:inline-flex; }
+  .v5 .labs button { width:var(--w); text-align:center; }
+  .v5 .track { position:relative; height:26px; width:calc(var(--w)*3); border-radius:999px;
+               background:linear-gradient(180deg,#e6e5e0,#f1f0ec); box-shadow:var(--press); }
+  :root[data-theme="dark"] .v5 .track { background:linear-gradient(180deg,#15130e,#1d1a14); }
+  .v5 .fad { position:absolute; top:3px; left:3px; width:calc(var(--w) - 6px); height:20px; border-radius:999px;
+             background:radial-gradient(circle at 40% 30%,#fff,#eeede9);
+             box-shadow:var(--lift-1); display:grid; place-items:center;
+             transition:transform .28s cubic-bezier(var(--e1)); }
+  :root[data-theme="dark"] .v5 .fad { background:radial-gradient(circle at 40% 30%,#403d34,#2a2720); }
+  .v5[data-pos="1"] .fad { transform:translateX(var(--w)); }
+  .v5[data-pos="2"] .fad { transform:translateX(calc(var(--w)*2)); }
+  .v5 .fad i { width:6px; height:6px; border-radius:50%;
+    background:radial-gradient(circle at 38% 30%,#ffa166,var(--ember) 55%,#c4480f);
+    box-shadow:0 0 6px color-mix(in srgb,var(--ember) 75%,transparent); }
+
+  /* ===== V6 — minimal text tabs + sliding ember LED underline ===== */
+  .v6 { position:relative; padding-bottom:10px; }
+  .v6 button { width:74px; height:22px; }
+  .v6 .uled { position:absolute; bottom:0; left:0; width:74px; display:grid; place-items:center;
+              transition:transform .26s cubic-bezier(var(--e1)); }
+  .v6 .uled i { width:6px; height:6px; border-radius:50%;
+    background:radial-gradient(circle at 38% 30%,#f4844a,var(--ember) 60%,#cf4d10);
+    box-shadow:0 0 6px color-mix(in srgb,var(--ember) 75%,transparent); }
+  .v6[data-pos="1"] .uled { transform:translateX(74px); }
+  .v6[data-pos="2"] .uled { transform:translateX(148px); }
+
+  /* ===== V7 — pill keys, active recessed ember-soft well ===== */
+  .v7 { --w:74px; gap:4px; padding:4px; border-radius:12px;
+        background:var(--surface-2); box-shadow:var(--press); }
+  .v7 button { width:var(--w); height:32px; border-radius:9px;
+               display:inline-flex; align-items:center; justify-content:center; gap:7px; transition:.16s; }
+  .v7 .led { width:6px; height:6px; border-radius:50%; background:var(--well);
+             box-shadow:inset 0 1px 1px rgba(0,0,0,.22); }
+  .v7 button[aria-selected="true"] { background:var(--ember-soft);
+             box-shadow:inset 0 1px 2px rgba(40,38,34,.14); color:var(--ink); }
+  .v7 button[aria-selected="true"] .led {
+    background:radial-gradient(circle at 38% 30%,#f4844a,var(--ember) 60%,#cf4d10);
+    box-shadow:0 0 5px color-mix(in srgb,var(--ember) 70%,transparent); }
+
+  /* ===== V8 — saturated ember sliding fill (matches the attach button face) ===== */
+  .v8 { --w:76px; padding:4px; border-radius:10px;
+        background:linear-gradient(180deg,#ebeae7,#f3f2ef); box-shadow:var(--press); }
+  :root[data-theme="dark"] .v8 { background:linear-gradient(180deg,#15130e,#1d1a14); }
+  .v8 .fill { position:absolute; z-index:0; top:4px; left:4px; width:var(--w); height:calc(100% - 8px);
+              border-radius:7px; background:linear-gradient(180deg,#f4844a,var(--ember) 58%,#cf4d10);
+              box-shadow:0 1px 3px rgba(207,77,16,.45),inset 0 1px 0 rgba(255,255,255,.35);
+              transition:transform .26s cubic-bezier(var(--e1)); }
+  .v8[data-pos="1"] .fill { transform:translateX(var(--w)); }
+  .v8[data-pos="2"] .fill { transform:translateX(calc(var(--w)*2)); }
+  .v8 button { position:relative; z-index:1; width:var(--w); height:30px;
+               display:inline-flex; align-items:center; justify-content:center; }
+  .v8 button[aria-selected="true"] { color:#fff; font-weight:560; text-shadow:0 1px 1px rgba(120,40,0,.45); }
+
+  /* ============ 3D / piano-piece batch (9–16) ============ */
+
+  /* V9 — extruded piano keys, active sinks */
+  .v9 { --w:68px; gap:6px; padding-bottom:10px; }
+  .v9 button { width:var(--w); height:48px; border-radius:8px 8px 10px 10px;
+    background:linear-gradient(180deg,#ffffff,#f0efea);
+    box-shadow:0 2px 0 #e6e4de,0 4px 0 #dbd9d2,0 6px 0 #cecbc3,0 8px 0 #c1beb5,0 12px 13px -3px rgba(0,0,0,.34),inset 0 1px 0 #fff;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
+    transition:transform .12s ease,box-shadow .12s ease; }
+  :root[data-theme="dark"] .v9 button { background:linear-gradient(180deg,#2e2b23,#211e18);
+    box-shadow:0 2px 0 #1c1a14,0 4px 0 #161410,0 6px 0 #110f0b,0 8px 0 #0c0b08,0 12px 13px -3px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.05); }
+  .v9 .led { width:6px; height:6px; border-radius:50%; background:var(--well); box-shadow:inset 0 1px 1px rgba(0,0,0,.25); }
+  .v9 button[aria-selected="true"] { transform:translateY(6px);
+    box-shadow:0 1px 0 #e6e4de,0 2px 0 #dbd9d2,0 4px 7px -2px rgba(0,0,0,.32),inset 0 1px 0 #fff; }
+  :root[data-theme="dark"] .v9 button[aria-selected="true"] { box-shadow:0 1px 0 #1c1a14,0 2px 0 #161410,0 4px 7px -2px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.05); }
+  .v9 button[aria-selected="true"] .led { background:radial-gradient(circle at 38% 30%,#f4844a,var(--ember) 60%,#cf4d10); box-shadow:0 0 6px color-mix(in srgb,var(--ember) 75%,transparent); }
+
+  /* V10 — isometric tilted block, key lifts in Z */
+  .v10 { --w:62px; --lh:13px; padding:7px 9px 9px; border-radius:12px;
+    transform:perspective(680px) rotateX(25deg); transform-style:preserve-3d; transform-origin:center 78%;
+    background:linear-gradient(180deg,#f5f4f1,#e7e6e1);
+    box-shadow:0 6px 0 -1px #c9c7c0,0 24px 22px -10px rgba(0,0,0,.45); }
+  :root[data-theme="dark"] .v10 { background:linear-gradient(180deg,#221f18,#16140f); box-shadow:0 6px 0 -1px #0b0a07,0 24px 22px -10px rgba(0,0,0,.65); }
+  .v10 button { position:relative; z-index:1; width:var(--w); display:flex; flex-direction:column; align-items:center; }
+  .v10 .lab { height:var(--lh); line-height:var(--lh); font-size:10.5px; }
+  .v10 .sock { width:16px; height:16px; border-radius:50%; margin-top:5px;
+    background:radial-gradient(circle at 50% 36%,#e8e7e3,#f3f2ef 72%); box-shadow:inset 0 2px 3px rgba(0,0,0,.22); }
+  :root[data-theme="dark"] .v10 .sock { background:radial-gradient(circle at 50% 36%,#2a2820,#1b1914 72%); }
+  .v10 .key { position:absolute; z-index:2; top:calc(7px + var(--lh) + 2px); left:9px; width:var(--w); height:22px; border-radius:8px;
+    background:linear-gradient(180deg,#fff,#eeede9); box-shadow:0 2px 4px rgba(0,0,0,.25),inset 0 1px 0 #fff;
+    display:grid; place-items:center; transform:translateZ(16px); transition:transform .3s cubic-bezier(var(--e1)); }
+  :root[data-theme="dark"] .v10 .key { background:linear-gradient(180deg,#454238,#302d26); }
+  .v10[data-pos="1"] .key { transform:translateX(var(--w)) translateZ(16px); }
+  .v10[data-pos="2"] .key { transform:translateX(calc(var(--w)*2)) translateZ(16px); }
+  .v10 .key i { width:6px; height:6px; border-radius:50%; background:radial-gradient(circle at 38% 30%,#ffa166,var(--ember) 55%,#c4480f); box-shadow:0 0 6px color-mix(in srgb,var(--ember) 75%,transparent); }
+
+  /* V11 — chunky 3-layer plastic block (physical object on surface) */
+  .v11 { --w:68px; --lh:14px; padding:6px 10px 8px; border-radius:15px;
+    background:linear-gradient(180deg,#fbfaf8,#ecebe6);
+    box-shadow:0 3px 0 #ded9d1,0 6px 0 #cfccc4,0 9px 0 #bcb9b0,0 18px 22px -8px rgba(0,0,0,.45),inset 0 1px 0 #fff; }
+  :root[data-theme="dark"] .v11 { background:linear-gradient(180deg,#262219,#181610);
+    box-shadow:0 3px 0 #131109,0 6px 0 #0e0c07,0 9px 0 #090803,0 18px 22px -8px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.05); }
+  .v11 button { position:relative; z-index:1; width:var(--w); display:flex; flex-direction:column; align-items:center; }
+  .v11 .lab { height:var(--lh); line-height:var(--lh); }
+  .v11 .sock { width:18px; height:18px; border-radius:50%; margin-top:5px;
+    background:radial-gradient(circle at 50% 36%,#e8e7e3,#f3f2ef 72%); box-shadow:inset 0 2px 4px rgba(0,0,0,.22); position:relative; }
+  .v11 .sock::after { content:""; position:absolute; inset:0; margin:auto; width:4px; height:4px; border-radius:50%; background:var(--well); box-shadow:inset 0 1px 1px rgba(0,0,0,.3); }
+  :root[data-theme="dark"] .v11 .sock { background:radial-gradient(circle at 50% 36%,#2a2820,#1b1914 72%); }
+  .v11 .key { position:absolute; z-index:2; top:calc(6px + var(--lh) + 1px); left:10px; width:var(--w); height:26px; border-radius:9px;
+    background:linear-gradient(180deg,#fff,#efeee9 78%,#e4e3de);
+    box-shadow:0 2px 0 #ddd9d2,0 4px 0 #cfccc4,0 7px 10px -3px rgba(0,0,0,.34),inset 0 1px 0 #fff;
+    display:grid; place-items:center; transition:transform .3s cubic-bezier(var(--e1)); }
+  :root[data-theme="dark"] .v11 .key { background:linear-gradient(180deg,#4a473c,#332f28 78%,#2a2720); box-shadow:0 2px 0 #14120c,0 4px 0 #0e0c08,0 7px 10px -3px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.06); }
+  .v11[data-pos="1"] .key { transform:translateX(var(--w)); }
+  .v11[data-pos="2"] .key { transform:translateX(calc(var(--w)*2)); }
+  .v11 .key i { width:7px; height:7px; border-radius:50%; background:radial-gradient(circle at 38% 30%,#ffa166,var(--ember) 55%,#c4480f); box-shadow:0 0 6px color-mix(in srgb,var(--ember) 75%,transparent); }
+
+  /* V12 — keycaps (trapezoid), active pressed */
+  .v12 { --w:72px; gap:7px; padding-bottom:6px; }
+  .v12 button { width:var(--w); height:44px; clip-path:polygon(14% 0,86% 0,100% 100%,0 100%);
+    background:linear-gradient(180deg,#fff 0%,#f2f1ec 55%,#e3e1db 100%);
+    box-shadow:0 5px 7px -3px rgba(0,0,0,.32),inset 0 2px 0 #fff,inset 0 -3px 4px rgba(0,0,0,.06);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+    transition:transform .12s,box-shadow .12s; }
+  :root[data-theme="dark"] .v12 button { background:linear-gradient(180deg,#322e25 0%,#252119 55%,#1c1913 100%); box-shadow:0 5px 7px -3px rgba(0,0,0,.6),inset 0 2px 0 rgba(255,255,255,.06),inset 0 -3px 4px rgba(0,0,0,.3); }
+  .v12 .led { width:6px; height:6px; border-radius:50%; background:var(--well); box-shadow:inset 0 1px 1px rgba(0,0,0,.25); }
+  .v12 button[aria-selected="true"] { transform:translateY(4px); box-shadow:0 2px 4px -2px rgba(0,0,0,.3),inset 0 2px 0 #fff,inset 0 -2px 5px rgba(0,0,0,.1); }
+  .v12 button[aria-selected="true"] .led { background:radial-gradient(circle at 38% 30%,#f4844a,var(--ember) 60%,#cf4d10); box-shadow:0 0 6px color-mix(in srgb,var(--ember) 75%,transparent); }
+
+  /* V13 — domed round keys */
+  .v13 { --w:70px; gap:4px; }
+  .v13 button { width:var(--w); display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .v13 .lab { font-size:11px; }
+  .v13 .dome { width:30px; height:30px; border-radius:50%;
+    background:radial-gradient(circle at 38% 28%,#ffffff,#eceae5 60%,#dcd9d2);
+    box-shadow:0 3px 5px rgba(0,0,0,.2),0 7px 11px -5px rgba(0,0,0,.3),inset 0 1px 1px #fff; transition:.18s; }
+  :root[data-theme="dark"] .v13 .dome { background:radial-gradient(circle at 38% 28%,#46433a,#2c2920 60%,#221f19); }
+  .v13 button[aria-selected="true"] .dome { transform:translateY(-2px);
+    background:radial-gradient(circle at 38% 28%,#ffb083,#f4844a 45%,var(--ember) 78%,#c4480f);
+    box-shadow:0 4px 7px rgba(207,77,16,.35),0 9px 14px -5px rgba(207,77,16,.4),inset 0 1px 1px rgba(255,255,255,.5); }
+
+  /* V14 — flat tray, thick 3D sliding key (piano piece) */
+  .v14 { --w:70px; --lh:14px; padding:5px 8px 8px; border-radius:12px;
+    background:linear-gradient(180deg,#edece8,#e0dfd9); box-shadow:var(--press); }
+  :root[data-theme="dark"] .v14 { background:linear-gradient(180deg,#16140f,#1d1a14); }
+  .v14 button { position:relative; z-index:1; width:var(--w); display:flex; flex-direction:column; align-items:center; }
+  .v14 .lab { height:var(--lh); line-height:var(--lh); }
+  .v14 .sock { width:6px; height:6px; border-radius:50%; margin-top:9px; background:var(--well); box-shadow:inset 0 1px 1px rgba(0,0,0,.3); }
+  .v14 .key { position:absolute; z-index:2; top:calc(5px + var(--lh) - 1px); left:8px; width:var(--w); height:26px; border-radius:8px;
+    background:linear-gradient(180deg,#fff,#f0efea);
+    box-shadow:0 2px 0 #e2e0da,0 4px 0 #d4d1ca,0 6px 0 #c6c3bb,0 10px 12px -3px rgba(0,0,0,.36),inset 0 1px 0 #fff;
+    display:grid; place-items:center; transition:transform .3s cubic-bezier(var(--e1)); }
+  :root[data-theme="dark"] .v14 .key { background:linear-gradient(180deg,#4a473c,#332f28); box-shadow:0 2px 0 #14120c,0 4px 0 #100e09,0 6px 0 #0b0a06,0 10px 12px -3px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.06); }
+  .v14[data-pos="1"] .key { transform:translateX(var(--w)); }
+  .v14[data-pos="2"] .key { transform:translateX(calc(var(--w)*2)); }
+  .v14 .key i { width:6px; height:6px; border-radius:50%; background:radial-gradient(circle at 38% 30%,#ffa166,var(--ember) 55%,#c4480f); box-shadow:0 0 6px color-mix(in srgb,var(--ember) 75%,transparent); }
+
+  /* V15 — tilted isometric fader */
+  .v15 { --w:64px; flex-direction:column; gap:8px; transform:perspective(720px) rotateX(22deg); transform-style:preserve-3d; transform-origin:center 70%; }
+  .v15 .labs { display:inline-flex; }
+  .v15 .labs button { width:var(--w); text-align:center; font-size:10.5px; }
+  .v15 .track { position:relative; height:24px; width:calc(var(--w)*3); border-radius:999px;
+    background:linear-gradient(180deg,#e4e3de,#efeee9); box-shadow:var(--press),0 5px 0 -1px #cbc9c2,0 16px 16px -8px rgba(0,0,0,.4); }
+  :root[data-theme="dark"] .v15 .track { background:linear-gradient(180deg,#15130e,#1d1a14); box-shadow:var(--press),0 5px 0 -1px #0b0a07,0 16px 16px -8px rgba(0,0,0,.6); }
+  .v15 .fad { position:absolute; top:2px; left:2px; width:calc(var(--w) - 4px); height:20px; border-radius:999px;
+    background:radial-gradient(circle at 40% 28%,#fff,#eeede9); box-shadow:0 2px 4px rgba(0,0,0,.25),inset 0 1px 0 #fff;
+    display:grid; place-items:center; transform:translateZ(14px); transition:transform .3s cubic-bezier(var(--e1)); }
+  :root[data-theme="dark"] .v15 .fad { background:radial-gradient(circle at 40% 28%,#454238,#2c2920); }
+  .v15[data-pos="1"] .fad { transform:translateX(var(--w)) translateZ(14px); }
+  .v15[data-pos="2"] .fad { transform:translateX(calc(var(--w)*2)) translateZ(14px); }
+  .v15 .fad i { width:6px; height:6px; border-radius:50%; background:radial-gradient(circle at 38% 30%,#ffa166,var(--ember) 55%,#c4480f); box-shadow:0 0 6px color-mix(in srgb,var(--ember) 75%,transparent); }
+
+  /* V16 — chunky block, active = ember 3D key */
+  .v16 { --w:70px; --lh:14px; padding:6px 9px 8px; border-radius:14px;
+    background:linear-gradient(180deg,#fbfaf8,#ecebe6);
+    box-shadow:0 3px 0 #ded9d1,0 6px 0 #cfccc4,0 9px 0 #bcb9b0,0 16px 20px -8px rgba(0,0,0,.42),inset 0 1px 0 #fff; }
+  :root[data-theme="dark"] .v16 { background:linear-gradient(180deg,#262219,#181610); box-shadow:0 3px 0 #131109,0 6px 0 #0e0c07,0 9px 0 #090803,0 16px 20px -8px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.05); }
+  .v16 button { position:relative; z-index:1; width:var(--w); display:flex; flex-direction:column; align-items:center; }
+  .v16 .lab { height:var(--lh); line-height:var(--lh); }
+  .v16 .sock { width:18px; height:18px; border-radius:50%; margin-top:5px; background:radial-gradient(circle at 50% 36%,#e8e7e3,#f3f2ef 72%); box-shadow:inset 0 2px 4px rgba(0,0,0,.22); }
+  :root[data-theme="dark"] .v16 .sock { background:radial-gradient(circle at 50% 36%,#2a2820,#1b1914 72%); }
+  .v16 .key { position:absolute; z-index:2; top:calc(6px + var(--lh) + 1px); left:9px; width:var(--w); height:26px; border-radius:9px;
+    background:linear-gradient(180deg,#f4844a,var(--ember) 58%,#cf4d10);
+    box-shadow:0 2px 0 #a83c0c,0 4px 0 #8f3309,0 7px 10px -3px rgba(180,60,10,.5),inset 0 1px 0 rgba(255,255,255,.4);
+    display:grid; place-items:center; transition:transform .3s cubic-bezier(var(--e1)); }
+  .v16[data-pos="1"] .key { transform:translateX(var(--w)); }
+  .v16[data-pos="2"] .key { transform:translateX(calc(var(--w)*2)); }
+  .v16 .key i { width:6px; height:6px; border-radius:50%; background:#fff; box-shadow:0 0 5px rgba(255,255,255,.8),0 0 1px rgba(0,0,0,.2); }
+</style>
+</head>
+<body>
+  <header>
+    <h1>view selector</h1>
+    <span class="sub">8 variants · agents / signals / curator · click to switch</span>
+    <button class="theme-btn" id="theme">dark</button>
+  </header>
+
+  <div class="grid" id="grid"></div>
+
+<script>
+  const VIEWS = ["agents","signals","curator"];
+  const VARIANTS = [
+    { cls:"v1", name:"1 · Flat segmented pill", desc:"Recessed pill, sliding light knob, LED beside the active label. Compact, calm.",
+      tpl:(b)=>`<span class="knob"></span>${b((v)=>`<button data-i="{i}" aria-selected="{sel}"><span>${v}</span><span class="led"></span></button>`)}` },
+    { cls:"v2", name:"2 · Dished sockets", desc:"Hardware housing, three recessed sockets; the LED itself relocates to the live view. No moving key.",
+      tpl:(b)=>`${b((v)=>`<button data-i="{i}" aria-selected="{sel}"><span>${v}</span><span class="sock"></span></button>`)}` },
+    { cls:"v3", name:"3 · Sliding raised key", desc:"Dished sockets with a raised plastic key that slides over the active one, carrying the LED.",
+      tpl:(b)=>`${b((v)=>`<button data-i="{i}" aria-selected="{sel}"><span class="lab">${v}</span><span class="sock"></span></button>`)}<span class="key"><i></i></span>` },
+    { cls:"v4", name:"4 · Push-button cluster", desc:"Three raised keys; the active one presses in (recessed) and lights ember.",
+      tpl:(b)=>`${b((v)=>`<button data-i="{i}" aria-selected="{sel}"><span>${v}</span><span class="led"></span></button>`)}` },
+    { cls:"v5", name:"5 · Fader groove", desc:"A recessed track; a round knob slides between three stops, LED on the knob.",
+      tpl:(b)=>`<span class="labs">${b((v)=>`<button data-i="{i}" aria-selected="{sel}">${v}</button>`)}</span><span class="track"><span class="fad"><i></i></span></span>` },
+    { cls:"v6", name:"6 · Text tabs + LED", desc:"Barely-there: flat text tabs, a small ember LED slides beneath the active one.",
+      tpl:(b)=>`${b((v)=>`<button data-i="{i}" aria-selected="{sel}">${v}</button>`)}<span class="uled"><i></i></span>` },
+    { cls:"v7", name:"7 · Inset ember pills", desc:"Pill keys in a recessed tray; the active pill sinks into an ember-soft well.",
+      tpl:(b)=>`${b((v)=>`<button data-i="{i}" aria-selected="{sel}"><span>${v}</span><span class="led"></span></button>`)}` },
+    { cls:"v8", name:"8 · Ember fill", desc:"Saturated ember key slides under the active view — matches the attach button's face. Boldest.",
+      tpl:(b)=>`<span class="fill"></span>${b((v)=>`<button data-i="{i}" aria-selected="{sel}">${v}</button>`)}` },
+
+    { cls:"v9", name:"9 · Piano keys", desc:"Extruded keys with real thickness; the active key sinks like a pressed piano key.",
+      tpl:(b)=>`${b((v)=>`<button data-i="{i}" aria-selected="{sel}"><span>${v}</span><span class="led"></span></button>`)}` },
+    { cls:"v10", name:"10 · Isometric block", desc:"The whole strip tilted in perspective; the key lifts toward you in 3D. Closest to your render.",
+      tpl:(b)=>`${b((v)=>`<button data-i="{i}" aria-selected="{sel}"><span class="lab">${v}</span><span class="sock"></span></button>`)}<span class="key"><i></i></span>` },
+    { cls:"v11", name:"11 · Chunky 3-layer block", desc:"Stacked plastic body with a thick dark base — a physical object on a surface. Sliding raised key.",
+      tpl:(b)=>`${b((v)=>`<button data-i="{i}" aria-selected="{sel}"><span class="lab">${v}</span><span class="sock"></span></button>`)}<span class="key"><i></i></span>` },
+    { cls:"v12", name:"12 · Keycaps", desc:"Trapezoid keycaps seen slightly from above; the active cap presses down with its LED.",
+      tpl:(b)=>`${b((v)=>`<button data-i="{i}" aria-selected="{sel}"><span>${v}</span><span class="led"></span></button>`)}` },
+    { cls:"v13", name:"13 · Domed keys", desc:"Three convex rubber domes; the active dome lifts and glows ember.",
+      tpl:(b)=>`${b((v)=>`<button data-i="{i}" aria-selected="{sel}"><span class="lab">${v}</span><span class="dome"></span></button>`)}` },
+    { cls:"v14", name:"14 · Thick sliding key", desc:"Minimal tray, but the key is a chunky 3D piece that slides between positions. Piano-block feel.",
+      tpl:(b)=>`${b((v)=>`<button data-i="{i}" aria-selected="{sel}"><span class="lab">${v}</span><span class="sock"></span></button>`)}<span class="key"><i></i></span>` },
+    { cls:"v15", name:"15 · Tilted fader", desc:"Isometric groove; a 3D knob lifts and slides along three stops.",
+      tpl:(b)=>`<span class="labs">${b((v)=>`<button data-i="{i}" aria-selected="{sel}">${v}</button>`)}</span><span class="track"><span class="fad"><i></i></span></span>` },
+    { cls:"v16", name:"16 · Ember 3D key", desc:"Chunky block where the sliding key is a saturated ember 3D piece with a white LED.",
+      tpl:(b)=>`${b((v)=>`<button data-i="{i}" aria-selected="{sel}"><span class="lab">${v}</span><span class="sock"></span></button>`)}<span class="key"><i></i></span>` },
+  ];
+
+  const buildBtns = (fn) => VIEWS.map((v,i)=>fn(v).replaceAll("{i}",i).replaceAll("{sel}", i===0?"true":"false")).join("");
+  const grid = document.getElementById("grid");
+  VARIANTS.forEach(V => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `<div class="meta"><span class="name">${V.name}</span><span class="desc">${V.desc}</span></div>
+      <div class="stage"><nav class="seg ${V.cls}" data-pos="0" role="tablist" aria-label="${V.name}">${V.tpl(buildBtns)}</nav></div>`;
+    grid.appendChild(card);
+  });
+
+  // one interaction handler for all variants
+  grid.addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-i]");
+    if (!btn) return;
+    const seg = btn.closest(".seg");
+    const i = btn.getAttribute("data-i");
+    seg.setAttribute("data-pos", i);
+    seg.querySelectorAll("button[data-i]").forEach(b =>
+      b.setAttribute("aria-selected", b.getAttribute("data-i") === i ? "true" : "false"));
+  });
+
+  const root = document.documentElement, tb = document.getElementById("theme");
+  tb.addEventListener("click", () => {
+    const dark = root.getAttribute("data-theme") === "dark";
+    root.setAttribute("data-theme", dark ? "light" : "dark");
+    tb.textContent = dark ? "dark" : "light";
+  });
+</script>
+</body>
+</html>

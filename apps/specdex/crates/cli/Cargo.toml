@@ -1,0 +1,18 @@
+[package]
+name = "specdex-cli"
+edition.workspace = true
+version.workspace = true
+
+[[bin]]
+name = "dex"
+path = "src/main.rs"
+
+[dependencies]
+specdex-core = { path = "../core" }
+serde_json.workspace = true
+chrono.workspace = true
+anyhow.workspace = true
+clap.workspace = true
+notify.workspace = true
+include_dir = { workspace = true }
+dirs = { workspace = true }

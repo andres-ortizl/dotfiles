@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>specdex — logo options</title>
+<style>
+  :root {
+    --paper:#181610; --surface:#211e17; --surface-2:#1b1812; --sunk:#14120d;
+    --rule-soft:#2a261f; --ink:#ece7da; --ink-muted:#a39c8c; --ink-faint:#6f695c;
+    --ember:#ff6a2c;
+    --font:"Inter","Inter Variable",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+    --lift:0 1px 2px rgba(0,0,0,.45),0 4px 10px rgba(0,0,0,.4),0 12px 26px rgba(0,0,0,.34);
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink); font-family:var(--font);
+         -webkit-font-smoothing:antialiased; padding:40px 32px 64px; }
+  .head { max-width:1180px; margin:0 auto 28px; }
+  .head h1 { font-size:18px; font-weight:560; letter-spacing:-.01em; margin:0 0 6px; }
+  .head p { font-size:13px; color:var(--ink-faint); margin:0; line-height:1.6; max-width:720px; }
+  .toggle { margin-top:14px; display:inline-flex; gap:2px; background:var(--sunk); border-radius:8px; padding:3px; }
+  .toggle button { border:none; background:none; color:var(--ink-faint); font:inherit; font-size:12px;
+                   padding:5px 12px; border-radius:6px; cursor:pointer; }
+  .toggle button.on { background:var(--surface); color:var(--ink); box-shadow:0 1px 2px rgba(0,0,0,.4); }
+
+  .grid { max-width:1180px; margin:0 auto; display:grid; grid-template-columns:repeat(4,1fr); gap:22px; }
+  @media (max-width:1080px){ .grid{ grid-template-columns:repeat(2,1fr); } }
+
+  .card { background:var(--surface-2); border:1px solid var(--rule-soft); border-radius:14px;
+          box-shadow:var(--lift); padding:0; overflow:hidden; display:flex; flex-direction:column; }
+  .lockup { display:flex; align-items:center; gap:12px; padding:30px 22px; }
+  .lockup svg { width:34px; height:34px; flex:none; }
+  .lockup .wm { font-size:23px; font-weight:600; letter-spacing:-.02em; }
+  .sizes { display:flex; align-items:center; gap:18px; padding:14px 22px; background:var(--sunk);
+           border-top:1px solid var(--rule-soft); }
+  .sizes .s24 svg { width:24px; height:24px; }
+  .sizes .s16 svg { width:16px; height:16px; }
+  .sizes .favi { width:26px; height:26px; border-radius:6px; background:var(--surface);
+                 display:grid; place-items:center; box-shadow:0 1px 2px rgba(0,0,0,.4); }
+  .sizes .favi svg { width:16px; height:16px; }
+  .sizes .lbl { font-size:10px; color:var(--ink-faint); margin-left:auto; }
+  .cap { padding:12px 22px 18px; font-size:12px; color:var(--ink-muted); line-height:1.5; }
+  .cap b { color:var(--ink); font-weight:550; }
+</style>
+</head>
+<body>
+  <div class="head">
+    <h1>specdex — logo directions</h1>
+    <p>8 marks built on the drams hex + ember system. Each shows the full lockup, plus 24px / 16px /
+       favicon-chip sizes so you can judge legibility small. Hand-vibed SVG — once you pick a direction
+       I can refine it or feed it to nano-banana for raster/photoreal treatments.</p>
+    <div class="toggle" id="bgToggle">
+      <button class="on" data-bg="dark">Dark</button>
+      <button data-bg="light">Light</button>
+    </div>
+  </div>
+  <div class="grid" id="grid"></div>
+
+<script>
+  const HEX = 'M12 2.6 20.4 7.3v9.4L12 21.4 3.6 16.7V7.3z';
+  const E = '#ff6a2c';
+  const marks = {
+    hexNode: `<path d="${HEX}" fill="none" stroke="${E}" stroke-width="1.6" stroke-linejoin="round"/>
+              <circle cx="12" cy="12" r="2.6" fill="${E}"/>`,
+    orbit: `<path d="${HEX}" fill="none" stroke="${E}" stroke-width="1.3" stroke-linejoin="round" opacity=".8"/>
+            <circle cx="12" cy="12" r="1.9" fill="${E}"/>
+            <circle cx="12" cy="2.6" r="1.7" fill="${E}"/>
+            <circle cx="20.4" cy="16.7" r="1.7" fill="currentColor"/>
+            <circle cx="3.6" cy="16.7" r="1.7" fill="currentColor"/>`,
+    index: `<path d="${HEX}" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" opacity=".55"/>
+            <path d="M8 9.4h8" stroke="${E}" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M8 12.4h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".7"/>
+            <path d="M8 15.4h5.4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".7"/>`,
+    mono: `<path d="${HEX}" fill="none" stroke="${E}" stroke-width="1.6" stroke-linejoin="round"/>
+           <text x="12" y="15.9" text-anchor="middle" font-family="Inter,sans-serif" font-size="11.5" font-weight="700" fill="${E}">S</text>`,
+    graph: `<path d="M12 12 L12 5 M12 12 L18.5 15.4 M12 12 L5.5 15.4" stroke="currentColor" stroke-width="1.2" opacity=".55"/>
+            <circle cx="12" cy="5" r="1.9" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".8"/>
+            <circle cx="18.5" cy="15.4" r="1.9" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".8"/>
+            <circle cx="5.5" cy="15.4" r="1.9" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".8"/>
+            <circle cx="12" cy="12" r="2.8" fill="${E}"/>`,
+    radar: `<path d="${HEX}" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" opacity=".5"/>
+            <path d="M12 7.3 L16.2 9.65 L16.2 14.35 L12 16.7 L7.8 14.35 L7.8 9.65 Z" fill="none" stroke="${E}" stroke-width="1.5" stroke-linejoin="round"/>
+            <circle cx="12" cy="12" r="1.5" fill="${E}"/>`,
+    prompt: `<path d="${HEX}" fill="none" stroke="${E}" stroke-width="1.6" stroke-linejoin="round"/>
+             <path d="M9.6 8.6 L13.4 12 L9.6 15.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>`,
+    grid: `<rect x="4" y="4" width="7" height="7" rx="1.7" fill="${E}"/>
+           <rect x="13" y="4" width="7" height="7" rx="1.7" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".75"/>
+           <rect x="4" y="13" width="7" height="7" rx="1.7" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".75"/>
+           <rect x="13" y="13" width="7" height="7" rx="1.7" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".75"/>`,
+  };
+
+  const VARIANTS = [
+    { k:'hexNode', n:'1 · Hex node', cap:'The current mark, cleaned up — hexagonal spec-node with an ember core. Safest evolution.' },
+    { k:'orbit',   n:'2 · Fleet orbit', cap:'Hub + agents pinned to the hex corners — the running fleet around one spec.' },
+    { k:'index',   n:'3 · Spec index', cap:'A hex framing an index of spec lines. Literal read on <b>spec</b> + <b>dex</b>.' },
+    { k:'mono',    n:'4 · S monogram', cap:'Hexagon with an ember S. Most "brandable" / app-icon friendly.' },
+    { k:'graph',   n:'5 · Agent graph', cap:'Hub-and-spoke constellation — the agent team, no hex. Most distinctive.' },
+    { k:'radar',   n:'6 · Nested hex', cap:'Concentric hexes + core — a watching / scanning feel for the live fleet.' },
+    { k:'prompt',  n:'7 · Prompt hex', cap:'A terminal "›" inside the hex. Reads clearly as a dev tool.' },
+    { k:'grid',    n:'8 · Spec grid', cap:'The fleet grid as the mark, one active cell. Dashboard energy, drops the hex.' },
+  ];
+
+  const svg = (inner, cls) => `<svg viewBox="0 0 24 24" class="${cls||''}" style="color:var(--ink-muted)">${inner}</svg>`;
+
+  document.getElementById('grid').innerHTML = VARIANTS.map(v => `
+    <div class="card">
+      <div class="lockup">${svg(marks[v.k])}<span class="wm">specdex</span></div>
+      <div class="sizes">
+        <span class="s24">${svg(marks[v.k])}</span>
+        <span class="s16">${svg(marks[v.k])}</span>
+        <span class="favi">${svg(marks[v.k])}</span>
+        <span class="lbl">24 · 16 · chip</span>
+      </div>
+      <div class="cap"><b>${v.n}</b> — ${v.cap}</div>
+    </div>
+  `).join('');
+
+  // dark / light preview toggle
+  const T = { dark:{paper:'#181610',surface:'#211e17',surface2:'#1b1812',sunk:'#14120d',rule:'#2a261f',ink:'#ece7da',inkM:'#a39c8c',inkF:'#6f695c',ember:'#ff6a2c'},
+              light:{paper:'#f4f3f0',surface:'#ffffff',surface2:'#faf9f7',sunk:'#f4f3f0',rule:'#ece9e2',ink:'#262420',inkM:'#6e6a62',inkF:'#a29d92',ember:'#e85c18'} };
+  document.getElementById('bgToggle').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    document.querySelectorAll('#bgToggle button').forEach(x=>x.classList.toggle('on', x===b));
+    const t = T[b.dataset.bg], r = document.documentElement.style;
+    r.setProperty('--paper',t.paper); r.setProperty('--surface',t.surface); r.setProperty('--surface-2',t.surface2);
+    r.setProperty('--sunk',t.sunk); r.setProperty('--rule-soft',t.rule); r.setProperty('--ink',t.ink);
+    r.setProperty('--ink-muted',t.inkM); r.setProperty('--ink-faint',t.inkF); r.setProperty('--ember',t.ember);
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>specdex — live-team decision board</title>
+  <script>
+    // Resolve theme before first paint — no flash. Cycle: system → light → dark.
+    (function () {
+      var s = localStorage.docTheme || 'system';
+      if (s !== 'light' && s !== 'dark' && s !== 'system') s = 'system';
+      var t = s === 'system'
+        ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+        : s;
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
+  <style>
+  /* ============================ tokens (mirror of style.css) ============================ */
+  :root {
+    --paper:#f4f4f2; --surface:#ffffff; --surface-2:#faf9f7; --sunk:#f4f3f0;
+    --rule:#d9d6cf; --rule-soft:#ece9e2;
+    --ink:#262420; --ink-muted:#6e6a62; --ink-faint:#a29d92;
+    --accent:#0a86e8; --accent-fg:#ffffff; --accent-soft:#dbeefd;
+    --ember:#e85c18; --ember-soft:#fbe6d9;
+    --alive:#3f9d6b; --alive-soft:#e6f1ea;
+    --idle:#8b8780; --idle-soft:#edebe6;
+    --stale:#b08a3e; --stale-soft:#f5edda;
+    --needs:var(--ember); --needs-soft:var(--ember-soft);
+    --done:#7c7a72; --done-soft:#eceae5;
+
+    --lift:0 1px 2px rgba(40,38,34,.08),0 4px 10px rgba(40,38,34,.07),0 10px 22px rgba(40,38,34,.05);
+    --lift-1:0 1px 2px rgba(40,38,34,.09),0 2px 5px rgba(40,38,34,.07);
+    --lift-hover:0 2px 4px rgba(40,38,34,.10),0 8px 18px rgba(40,38,34,.10),0 18px 40px rgba(40,38,34,.08);
+    --press:inset 0 1px 2px rgba(40,38,34,.12),inset 0 -1px 1px rgba(255,255,255,.6);
+    --well:#e6e4df;
+
+    --font-sans:"Inter","Inter Variable",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+    --font-mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+
+    --s-1:4px; --s-2:8px; --s-3:12px; --s-4:16px; --s-5:24px; --s-6:32px; --s-7:48px; --s-8:64px;
+    --r-card:12px; --r-pill:999px; --r-chip:6px;
+
+    --ease:cubic-bezier(.4,.0,.2,1); --ease-soft:cubic-bezier(.25,.1,.25,1);
+    --dur-fast:140ms; --dur:240ms; --dur-slow:420ms;
+
+    /* zen terminal palette */
+    --term-0:var(--ink-faint); --term-1:#b3524f; --term-2:var(--alive); --term-3:var(--stale);
+    --term-4:var(--accent);    --term-5:#9a6a9a; --term-6:#4f8f8a;       --term-7:var(--ink);
+    --term-8:var(--ink-muted);
+  }
+  :root[data-theme="dark"] {
+    --paper:#181610; --surface:#211e17; --surface-2:#1b1812; --sunk:#14120d;
+    --rule:#36322a; --rule-soft:#2a261f;
+    --ink:#ece7da; --ink-muted:#a39c8c; --ink-faint:#6f695c;
+    --accent:#4fa8ff; --accent-fg:#11151c; --accent-soft:#1c3a59;
+    --ember:#ff6a2c; --ember-soft:#34200f;
+    --alive:#5fc08a; --alive-soft:#1a2a20;
+    --idle:#9a958a; --idle-soft:#26231b;
+    --stale:#d3a85a; --stale-soft:#2f2818;
+    --done:#9b968a; --done-soft:#262219;
+
+    --lift:0 1px 2px rgba(0,0,0,.45),0 4px 10px rgba(0,0,0,.4),0 12px 26px rgba(0,0,0,.34);
+    --lift-1:0 1px 2px rgba(0,0,0,.45),0 2px 6px rgba(0,0,0,.38);
+    --lift-hover:0 2px 5px rgba(0,0,0,.5),0 10px 22px rgba(0,0,0,.45),0 22px 48px rgba(0,0,0,.4);
+    --press:inset 0 1px 3px rgba(0,0,0,.5),inset 0 -1px 1px rgba(255,255,255,.04);
+    --well:#100e09;
+
+    --term-1:#d98a86; --term-5:#c79ac7; --term-6:#7fc0ba;
+  }
+
+  * { box-sizing:border-box; }
+  [hidden] { display:none !important; }
+  html,body { height:100%; }
+  body {
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:var(--font-sans); font-size:14px; line-height:1.5; letter-spacing:-0.006em;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    transition:background var(--dur) var(--ease), color var(--dur) var(--ease);
+  }
+  h1,h2,h3 { margin:0; }
+
+  /* ============================ DRAMS scrollbars (§6b) ============================ */
+  /* Applied globally — soft hardware: thin, no track, a quiet pill thumb. */
+  * { scrollbar-width:thin; scrollbar-color:var(--rule) transparent; }
+  *::-webkit-scrollbar { width:9px; height:9px; }
+  *::-webkit-scrollbar-track { background:transparent; }
+  *::-webkit-scrollbar-thumb {
+    background:var(--rule); border:2px solid transparent;
+    border-radius:var(--r-pill); background-clip:padding-box;
+  }
+  *::-webkit-scrollbar-thumb:hover { background:var(--ink-faint); background-clip:padding-box; }
+  *::-webkit-scrollbar-corner { background:transparent; }
+
+  /* opt-out class to demo the native bars in the comparison only */
+  .native-bars { scrollbar-width:auto; scrollbar-color:auto; }
+  .native-bars::-webkit-scrollbar { width:16px; height:16px; }
+  .native-bars::-webkit-scrollbar-track { background:#e9e7e2; }
+  .native-bars::-webkit-scrollbar-thumb {
+    background:#b9b6ae; border:3px solid #e9e7e2; border-radius:0; background-clip:padding-box;
+  }
+  :root[data-theme="dark"] .native-bars::-webkit-scrollbar-track { background:#2a2820; }
+  :root[data-theme="dark"] .native-bars::-webkit-scrollbar-thumb { background:#4a463c; border-color:#2a2820; }
+
+  /* ============================ topbar (mirror) ============================ */
+  .topbar {
+    display:grid; grid-template-columns:1fr auto 1fr; align-items:center;
+    padding:var(--s-4) var(--s-6); border-bottom:1px solid var(--rule);
+    background:color-mix(in srgb,var(--paper) 82%,transparent);
+    backdrop-filter:saturate(1.05) blur(10px); position:sticky; top:0; z-index:10;
+  }
+  .brand { display:flex; align-items:center; gap:var(--s-2); text-decoration:none; color:inherit; }
+  .brand-mark { display:inline-flex; width:20px; height:20px; margin-right:2px; color:var(--ember);
+    filter:drop-shadow(0 0 4px color-mix(in srgb,var(--ember) 32%,transparent)); }
+  .brand-mark svg { width:100%; height:100%; display:block; }
+  .brand-name { font-size:20px; font-weight:500; letter-spacing:-0.03em; }
+  .topbar-mid { font-size:13px; color:var(--ink-faint); letter-spacing:-0.01em; }
+  .topbar-right { display:flex; align-items:center; gap:var(--s-3); justify-self:end; }
+
+  /* soft theme toggle */
+  .theme-toggle { border:none; background:none; padding:0; cursor:pointer; border-radius:var(--r-pill); }
+  .theme-toggle:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+  .t-track { display:flex; align-items:center; position:relative; width:46px; height:26px;
+    border-radius:var(--r-pill);
+    background:linear-gradient(180deg,var(--track-a,#ebeae7),var(--track-b,#f3f2ef));
+    box-shadow:var(--press); transition:background var(--dur) var(--ease-soft); }
+  .t-knob { position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%;
+    display:grid; place-items:center;
+    background:radial-gradient(circle at 36% 30%,#ffffff,#efeeeb 72%,#e4e3df);
+    box-shadow:var(--lift-1); transition:transform var(--dur) cubic-bezier(.34,1.4,.5,1); color:var(--ink-muted); }
+  .t-knob svg { width:11px; height:11px; stroke:currentColor; fill:none; stroke-width:1.8; }
+  .theme-toggle[data-state="light"] .t-knob { transform:translateX(0); }
+  .theme-toggle[data-state="system"] .t-knob { transform:translateX(10px); }
+  .theme-toggle[data-state="dark"] .t-knob { transform:translateX(20px); }
+  .theme-toggle[data-state="dark"] .t-track {
+    background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 24%,#e9e8e5),color-mix(in srgb,var(--accent) 14%,#f1f0ed)); }
+  :root[data-theme="dark"] .t-track { --track-a:#15130e; --track-b:#1d1a14; }
+  :root[data-theme="dark"] .t-knob { background:radial-gradient(circle at 36% 30%,#45413a,#2f2c24 75%,#232019); }
+
+  /* ============================ decision-board chrome ============================ */
+  .board { max-width:1180px; margin:0 auto; padding:var(--s-6) var(--s-6) var(--s-8); }
+
+  .board-intro { margin-bottom:var(--s-6); max-width:760px; }
+  .board-intro h2 { font-size:22px; font-weight:540; letter-spacing:-0.03em; margin-bottom:var(--s-2); }
+  .board-intro p { color:var(--ink-muted); font-size:14px; line-height:1.6; margin:0 0 var(--s-3); }
+  .board-dl { display:grid; grid-template-columns:auto 1fr; gap:var(--s-2) var(--s-4); margin:0; }
+  .board-dl dt { font-family:var(--font-mono); font-size:12px; color:var(--ink); font-weight:500;
+    white-space:nowrap; padding-top:1px; }
+  .board-dl dd { margin:0; font-size:13px; color:var(--ink-muted); line-height:1.5; }
+  .board-dl .rec { color:var(--ember); font-weight:500; }
+
+  .eyebrow {
+    font-family:var(--font-mono); font-size:11px; font-weight:540; letter-spacing:.06em;
+    text-transform:uppercase; color:var(--ink-muted); margin:var(--s-7) 0 var(--s-2);
+    display:flex; align-items:center; gap:var(--s-3);
+  }
+  .eyebrow::after { content:""; flex:1; height:1px; background:var(--rule-soft); }
+  .eyebrow .pick { color:var(--ember); letter-spacing:.04em; }
+
+  .panel-note { font-size:13px; color:var(--ink-muted); margin:0 0 var(--s-3); max-width:760px; line-height:1.55; }
+
+  /* the bordered "screen" frame each variant sits in, like a mini app window */
+  .screen-frame {
+    background:var(--surface); border-radius:var(--r-card); box-shadow:var(--lift);
+    overflow:hidden; margin-bottom:var(--s-6);
+  }
+  .screen-label {
+    display:flex; align-items:center; gap:var(--s-2);
+    padding:var(--s-2) var(--s-4); border-bottom:1px solid var(--rule-soft);
+    background:var(--surface-2);
+    font-family:var(--font-mono); font-size:11px; color:var(--ink-faint); letter-spacing:-0.01em;
+  }
+  .screen-label .tag {
+    font-weight:540; color:var(--ink); background:var(--sunk);
+    border:1px solid var(--rule-soft); border-radius:var(--r-chip); padding:1px 7px;
+  }
+  .screen-label .recommend {
+    margin-left:auto; color:var(--ember); font-weight:540;
+    display:inline-flex; align-items:center; gap:5px;
+  }
+  .screen-label .recommend::before {
+    content:""; width:6px; height:6px; border-radius:50%;
+    background:radial-gradient(circle at 38% 30%,#f4844a,var(--ember) 60%,#cf4d10);
+    box-shadow:0 0 6px color-mix(in srgb,var(--ember) 70%,transparent);
+  }
+
+  /* ============================ the live-team screen shell ============================ */
+  .lt {
+    --hue:var(--alive); --hue-soft:var(--alive-soft);
+    display:flex; flex-direction:column;
+  }
+  .lt-head {
+    display:flex; align-items:center; gap:var(--s-3); flex-wrap:wrap;
+    padding:var(--s-4) var(--s-5) var(--s-3);
+    border-bottom:1px solid var(--rule-soft);
+  }
+  .d-back {
+    display:inline-flex; align-items:center; gap:5px; font-size:13px; letter-spacing:-0.01em;
+    color:var(--ink-muted); background:none; border:none; padding:4px 0; cursor:pointer;
+    transition:color var(--dur-fast) var(--ease);
+  }
+  .d-back:hover { color:var(--accent); }
+  .d-back:focus-visible { outline:2px solid var(--accent); outline-offset:3px; border-radius:2px; }
+  .d-back svg { width:15px; height:15px; stroke:currentColor; fill:none; }
+  .lt-sep { color:var(--rule); }
+  .lt-title { display:flex; align-items:baseline; gap:7px; font-size:18px; letter-spacing:-0.03em; }
+  .lt-title .pj { color:var(--ink-muted); font-weight:400; font-family:var(--font-mono); font-size:14px; }
+  .lt-title .sl { color:var(--ink-faint); font-weight:400; }
+  .lt-title .nm { color:var(--ink); font-weight:540; }
+  .lt-health {
+    display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:450;
+    letter-spacing:-0.01em; color:var(--hue); background:var(--surface);
+    box-shadow:var(--lift-1), inset 0 0 0 1px color-mix(in srgb,var(--hue) 22%,transparent);
+    padding:4px 10px; border-radius:var(--r-pill);
+  }
+  .lt-dot {
+    width:7px; height:7px; border-radius:var(--r-pill);
+    background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--hue) 38%,#fff),var(--hue));
+    box-shadow:0 0 5px color-mix(in srgb,var(--hue) 60%,transparent);
+    animation:working-pulse 2.8s var(--ease-soft) infinite;
+  }
+  @keyframes working-pulse {
+    0%,100% { box-shadow:0 0 5px color-mix(in srgb,var(--alive) 60%,transparent); }
+    50% { box-shadow:0 0 0 4px color-mix(in srgb,var(--alive) 22%,transparent),0 0 9px color-mix(in srgb,var(--alive) 50%,transparent); }
+  }
+
+  /* ---- per-agent terminal column ---- */
+  .term-col {
+    display:flex; flex-direction:column; min-width:0; min-height:0;
+    background:var(--surface);
+  }
+  .term-strip {
+    display:flex; align-items:center; gap:var(--s-2);
+    padding:var(--s-2) var(--s-3);
+    border-bottom:1px solid var(--rule-soft);
+  }
+  .term-agent {
+    display:inline-flex; align-items:center; gap:7px;
+    font-family:var(--font-mono); font-size:12.5px; font-weight:500; color:var(--ink);
+    letter-spacing:-0.01em;
+  }
+  .agent-pip {
+    width:7px; height:7px; border-radius:var(--r-pill); flex:none;
+    background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--alive) 38%,#fff),var(--alive));
+    box-shadow:0 0 4px color-mix(in srgb,var(--alive) 55%,transparent);
+  }
+  .agent-pip.idle {
+    background:transparent; border:1.5px solid var(--ink-faint); box-shadow:none;
+  }
+  /* quiet "watch" affordance — a small raised push-button */
+  .watch-btn {
+    margin-left:auto; display:inline-flex; align-items:center; gap:6px;
+    font-family:var(--font-mono); font-size:11px; color:var(--ink-muted);
+    background:var(--surface); border:none; box-shadow:var(--lift-1);
+    border-radius:var(--r-chip); padding:4px 9px; cursor:pointer;
+    transition:box-shadow var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+  }
+  .watch-btn:hover { color:var(--ink); box-shadow:var(--lift); transform:translateY(-1px); }
+  .watch-btn:active { box-shadow:var(--press); transform:translateY(1px); }
+  .watch-btn:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  .watch-btn .led {
+    width:6px; height:6px; border-radius:50%; background:var(--well);
+    box-shadow:inset 0 1px 1px rgba(0,0,0,.25);
+  }
+  .watch-btn.on { color:var(--ink); box-shadow:var(--press); }
+  .watch-btn.on .led {
+    background:radial-gradient(circle at 38% 30%,color-mix(in srgb,var(--accent) 45%,#fff),var(--accent));
+    box-shadow:0 0 5px color-mix(in srgb,var(--accent) 65%,transparent);
+  }
+
+  /* ---- the terminal pane (zen palette + drams scrollbars) ---- */
+  .term-pane {
+    margin:0; flex:1 1 auto; min-height:0;
+    font-family:var(--font-mono); font-size:11.5px; line-height:1.5;
+    color:var(--ink-muted); white-space:pre;
+    background:var(--sunk); border:1px solid var(--rule-soft);
+    box-shadow:var(--press); padding:var(--s-2) var(--s-3); overflow:auto;
+  }
+  /* zen ANSI spans */
+  .term-pane .t0 { color:var(--term-0); } .term-pane .t1 { color:var(--term-1); }
+  .term-pane .t2 { color:var(--term-2); } .term-pane .t3 { color:var(--term-3); }
+  .term-pane .t4 { color:var(--term-4); } .term-pane .t5 { color:var(--term-5); }
+  .term-pane .t6 { color:var(--term-6); } .term-pane .t7 { color:var(--term-7); }
+  .term-pane .t8 { color:var(--term-8); }
+  .term-pane .dim { color:var(--ink-faint); }
+  .term-pane .bold { font-weight:600; color:var(--ink); }
+  /* ANSI backgrounds render as a 14% color-mix WASH, never a solid fill */
+  .term-pane .add { color:var(--term-2); background:color-mix(in srgb,var(--term-2) 14%,transparent); }
+  .term-pane .del { color:var(--term-1); background:color-mix(in srgb,var(--term-1) 14%,transparent); }
+  .term-pane .caret { color:var(--term-2); }
+
+  /* the Model/Ctx status footer bar per column */
+  .term-foot {
+    display:flex; align-items:center; gap:var(--s-3); flex-wrap:wrap;
+    padding:var(--s-2) var(--s-3);
+    border-top:1px solid var(--rule-soft); background:var(--surface-2);
+    font-family:var(--font-mono); font-size:11px; color:var(--ink-faint); letter-spacing:-0.01em;
+  }
+  .term-foot .k { color:var(--ink-muted); }
+  .term-foot .v { color:var(--ink); font-variant-numeric:tabular-nums; }
+  .term-foot .auto { margin-left:auto; display:inline-flex; align-items:center; gap:6px; }
+  .term-foot .auto .led {
+    width:5px; height:5px; border-radius:50%;
+    background:radial-gradient(circle at 38% 30%,color-mix(in srgb,var(--alive) 45%,#fff),var(--alive));
+    box-shadow:0 0 5px color-mix(in srgb,var(--alive) 60%,transparent);
+  }
+
+  /* ===== L-A two columns ===== */
+  .lt-cols {
+    display:grid; grid-template-columns:1fr 1fr; gap:0;
+    height:540px; min-height:0;
+  }
+  .lt-cols .term-col + .term-col { border-left:1px solid var(--rule); }
+  .lt-cols .term-pane { border:none; box-shadow:var(--press); border-radius:0; margin:var(--s-2); }
+
+  /* ===== L-B stacked tall ===== */
+  .lt-stack {
+    display:flex; flex-direction:column; gap:var(--s-4);
+    padding:var(--s-4) var(--s-5) var(--s-5);
+    max-height:600px; overflow-y:auto;
+  }
+  .lt-stack .term-col {
+    border:1px solid var(--rule-soft); border-radius:var(--r-card); overflow:hidden;
+    box-shadow:var(--lift-1);
+  }
+  .lt-stack .term-pane { height:260px; flex:none; border:none; border-radius:0; }
+
+  /* ===== L-C focused + switcher ===== */
+  .lt-focus { display:flex; flex-direction:column; height:560px; min-height:0; }
+  .lt-switch-row {
+    display:flex; align-items:center; gap:var(--s-3);
+    padding:var(--s-3) var(--s-5) var(--s-2);
+  }
+  .lt-switch {
+    display:inline-flex; gap:2px; padding:2px;
+    background:var(--sunk); border:1px solid var(--rule-soft); border-radius:var(--r-pill);
+  }
+  .lt-switch button {
+    appearance:none; border:none; background:none; cursor:pointer;
+    display:inline-flex; align-items:center; gap:6px;
+    padding:4px 12px; font-family:var(--font-mono); font-size:12px; font-weight:450;
+    letter-spacing:-0.01em; color:var(--ink-muted); border-radius:var(--r-pill);
+    transition:color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
+  }
+  .lt-switch button:hover { color:var(--ink); }
+  .lt-switch button[aria-pressed="true"] { color:var(--ink); background:var(--surface); box-shadow:var(--lift-1); }
+  .lt-switch button:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  .lt-switch .pip {
+    width:6px; height:6px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--alive) 38%,#fff),var(--alive));
+    box-shadow:0 0 4px color-mix(in srgb,var(--alive) 55%,transparent);
+  }
+  .lt-switch .pip.idle { background:transparent; border:1.5px solid var(--ink-faint); box-shadow:none; }
+  .lt-focus .term-col { flex:1 1 auto; padding:0 var(--s-5) var(--s-5); }
+  .lt-focus .term-pane { border-radius:var(--r-chip); }
+
+  /* ============================ scrollbar comparison ============================ */
+  .compare {
+    display:grid; grid-template-columns:1fr 1fr; gap:var(--s-4);
+    margin-bottom:var(--s-4);
+  }
+  .compare-card {
+    background:var(--surface); border-radius:var(--r-card); box-shadow:var(--lift-1);
+    padding:var(--s-3); display:flex; flex-direction:column; gap:var(--s-2);
+  }
+  .compare-card h3 {
+    font-size:12px; font-family:var(--font-mono); color:var(--ink-muted); font-weight:500;
+    letter-spacing:-0.01em; display:flex; align-items:center; gap:var(--s-2);
+  }
+  .compare-card h3 .badge {
+    font-size:10px; padding:1px 6px; border-radius:var(--r-pill);
+    border:1px solid var(--rule-soft); color:var(--ink-faint);
+  }
+  .compare-card.good h3 .badge { color:var(--ember); border-color:color-mix(in srgb,var(--ember) 40%,transparent); }
+  .compare-box {
+    height:150px; overflow:auto; white-space:pre;
+    font-family:var(--font-mono); font-size:11.5px; line-height:1.5; color:var(--ink-muted);
+    background:var(--sunk); border-radius:var(--r-chip); box-shadow:var(--press);
+    padding:var(--s-2) var(--s-3);
+  }
+
+  /* sidebar + tall-list demo (the "side bars plus scroll bars" callout) */
+  .demo-row { display:grid; grid-template-columns:240px 1fr; gap:var(--s-4); margin-bottom:var(--s-4); }
+  .demo-sidebar {
+    height:300px; overflow-y:auto;
+    background:var(--surface-2); border:1px solid var(--rule); border-radius:var(--r-card);
+    padding:var(--s-3) 0;
+  }
+  .demo-sb-head { font-size:12px; color:var(--ink-faint); padding:0 var(--s-4) var(--s-3); letter-spacing:-0.01em; }
+  .demo-proj {
+    display:flex; align-items:center; gap:var(--s-2); padding:var(--s-2) var(--s-4);
+    font-family:var(--font-mono); font-size:13px; color:var(--ink); cursor:pointer;
+    border-top:1px solid var(--rule-soft);
+    transition:background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+  }
+  .demo-proj:hover { background:var(--surface); color:var(--accent); }
+  .demo-proj .led { width:8px; height:8px; border-radius:50%;
+    background:linear-gradient(180deg,#fbfbfa,#e6e4df); box-shadow:var(--lift-1); flex:none; }
+  :root[data-theme="dark"] .demo-proj .led { background:linear-gradient(180deg,#2c2920,#1b1813); }
+  .demo-proj .ct { margin-left:auto; font-size:11px; color:var(--ink-faint); }
+  .demo-list {
+    height:300px; overflow-y:auto;
+    background:var(--surface); border-radius:var(--r-card); box-shadow:var(--lift-1);
+  }
+  .demo-li {
+    display:flex; align-items:center; gap:var(--s-3); padding:var(--s-3) var(--s-4);
+    border-bottom:1px solid var(--rule-soft); font-size:13px;
+  }
+  .demo-li:last-child { border-bottom:none; }
+  .demo-li .ldot { width:9px; height:9px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--alive) 38%,#fff),var(--alive));
+    box-shadow:0 0 5px color-mix(in srgb,var(--alive) 55%,transparent); flex:none; }
+  .demo-li .nm { font-weight:500; }
+  .demo-li .ph { margin-left:auto; color:var(--ink-faint); font-family:var(--font-mono); font-size:12px; }
+
+  @media (max-width:880px) {
+    .lt-cols { grid-template-columns:1fr; height:auto; }
+    .lt-cols .term-col { height:380px; }
+    .lt-cols .term-col + .term-col { border-left:none; border-top:1px solid var(--rule); }
+    .compare, .demo-row { grid-template-columns:1fr; }
+  }
+  @media (max-width:480px) {
+    .board { padding:var(--s-4) var(--s-4) var(--s-7); }
+    .board-dl { grid-template-columns:1fr; gap:var(--s-1) 0; }
+    .board-dl dd { margin-bottom:var(--s-2); }
+  }
+
+  @media (prefers-reduced-motion:reduce) {
+    *,*::before,*::after { animation-duration:.001ms !important; animation-iteration-count:1 !important;
+      transition-duration:.001ms !important; }
+  }
+
+  /* skip link */
+  .skip {
+    position:absolute; left:var(--s-3); top:-44px; z-index:50;
+    background:var(--surface); color:var(--ink); padding:8px 14px; border-radius:var(--r-chip);
+    box-shadow:var(--lift); transition:top var(--dur-fast) var(--ease);
+  }
+  .skip:focus { top:var(--s-3); }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="specdex">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path class="bm-hex" d="M12 2.6 20.4 7.3v9.4L12 21.4 3.6 16.7V7.3z"
+          fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          <circle cx="12" cy="12" r="2.7" fill="currentColor"/></svg>
+      </span>
+      <h1 class="brand-name">specdex</h1>
+    </a>
+    <span class="topbar-mid">live-team · decision board</span>
+    <div class="topbar-right">
+      <button class="theme-toggle" id="theme-toggle" type="button"
+              data-state="system" aria-label="Theme: system" title="Theme: system">
+        <span class="t-track" aria-hidden="true"><span class="t-knob" id="t-knob"></span></span>
+      </button>
+    </div>
+  </header>
+
+  <main class="board" id="main">
+    <section class="board-intro">
+      <h2>Live-team screen + DRAMS scrollbars</h2>
+      <p>Two related upgrades. Open in light and dark, scroll every pane (vertical
+      <em>and</em> horizontal), and pick a direction. Every terminal below is independently
+      scrollable so the scrollbar treatment is actually visible.</p>
+      <dl class="board-dl">
+        <dt>Scrollbars</dt>
+        <dd>One reusable "soft hardware" bar — thin, no track, a quiet <code>--rule</code>
+          pill that darkens on hover. Replaces the chunky native OS bars on panes,
+          the project sidebar, and tall lists. See the native-vs-DRAMS comparison first.</dd>
+        <dt>L-A</dt>
+        <dd>Two columns — <code>coder | reviewer</code> side by side, each a full-height
+          scrollable terminal with an agent header strip and a Model/Ctx status footer.</dd>
+        <dt>L-B</dt>
+        <dd>Stacked tall — panes stacked vertically, each generously tall, the page
+          scrolling as a whole.</dd>
+        <dt>L-C</dt>
+        <dd>Focused + switcher — one big terminal with a segmented
+          <code>dex-coder / dex-reviewer</code> switch to flip which agent fills the screen.</dd>
+        <dt class="rec">Pick</dt>
+        <dd class="rec">L-A (two-column) for the standard 2-agent team — both agents visible
+          at once, no flipping. Fall back to L-C only if a team ever exceeds two agents.</dd>
+      </dl>
+    </section>
+
+    <!-- ============ DELIVERABLE 1: scrollbars ============ -->
+    <div class="eyebrow">Deliverable 1 — DRAMS scrollbars <span class="pick">· the key ask</span></div>
+    <p class="panel-note">The webview ships native chunky grey bars (left). The DRAMS bar (right)
+    is the same treatment applied everywhere — drag both, hover the thumb to see it darken.</p>
+
+    <div class="compare">
+      <div class="compare-card">
+        <h3>Native <span class="badge">before</span></h3>
+        <div class="compare-box native-bars" id="cmp-native"></div>
+      </div>
+      <div class="compare-card good">
+        <h3>DRAMS <span class="badge">after</span></h3>
+        <div class="compare-box" id="cmp-drams"></div>
+      </div>
+    </div>
+
+    <p class="panel-note">Applied to the left project sidebar and a tall spec list — the
+    "side bars plus scroll bars" the bars used to break.</p>
+    <div class="demo-row">
+      <aside class="demo-sidebar" aria-label="Projects (scroll demo)">
+        <div class="demo-sb-head">Projects</div>
+        <div id="demo-projects"></div>
+      </aside>
+      <div class="demo-list" id="demo-list" aria-label="Specs (scroll demo)"></div>
+    </div>
+
+    <!-- ============ DELIVERABLE 2: live-team layouts ============ -->
+    <div class="eyebrow">Deliverable 2 — live-team screen</div>
+
+    <!-- L-A -->
+    <div class="screen-frame">
+      <div class="screen-label">
+        <span class="tag">L-A</span> two columns · coder | reviewer
+        <span class="recommend">recommended</span>
+      </div>
+      <div class="lt" data-health="alive">
+        <div class="lt-head">
+          <button class="d-back" type="button">
+            <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Back to spec
+          </button>
+          <span class="lt-sep">·</span>
+          <span class="lt-title"><span class="pj">anyformat-backend</span><span class="sl">/</span><span class="nm">parse-cache</span></span>
+          <span class="lt-health"><span class="lt-dot"></span>working</span>
+        </div>
+        <div class="lt-cols">
+          <div class="term-col">
+            <div class="term-strip">
+              <span class="term-agent"><span class="agent-pip"></span>dex-coder</span>
+              <button class="watch-btn on" type="button" aria-pressed="true"><span class="led"></span>watching</button>
+            </div>
+            <pre class="term-pane" id="la-coder"></pre>
+            <div class="term-foot" id="la-coder-foot"></div>
+          </div>
+          <div class="term-col">
+            <div class="term-strip">
+              <span class="term-agent"><span class="agent-pip"></span>dex-reviewer</span>
+              <button class="watch-btn" type="button" aria-pressed="false"><span class="led"></span>watch</button>
+            </div>
+            <pre class="term-pane" id="la-reviewer"></pre>
+            <div class="term-foot" id="la-reviewer-foot"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- L-B -->
+    <div class="screen-frame">
+      <div class="screen-label">
+        <span class="tag">L-B</span> stacked tall · page scrolls as a whole
+      </div>
+      <div class="lt" data-health="alive">
+        <div class="lt-head">
+          <button class="d-back" type="button">
+            <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Back to spec
+          </button>
+          <span class="lt-sep">·</span>
+          <span class="lt-title"><span class="pj">anyformat-backend</span><span class="sl">/</span><span class="nm">parse-cache</span></span>
+          <span class="lt-health"><span class="lt-dot"></span>working</span>
+        </div>
+        <div class="lt-stack">
+          <div class="term-col">
+            <div class="term-strip">
+              <span class="term-agent"><span class="agent-pip"></span>dex-coder</span>
+              <button class="watch-btn on" type="button" aria-pressed="true"><span class="led"></span>watching</button>
+            </div>
+            <pre class="term-pane" id="lb-coder"></pre>
+            <div class="term-foot" id="lb-coder-foot"></div>
+          </div>
+          <div class="term-col">
+            <div class="term-strip">
+              <span class="term-agent"><span class="agent-pip"></span>dex-reviewer</span>
+              <button class="watch-btn" type="button" aria-pressed="false"><span class="led"></span>watch</button>
+            </div>
+            <pre class="term-pane" id="lb-reviewer"></pre>
+            <div class="term-foot" id="lb-reviewer-foot"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- L-C -->
+    <div class="screen-frame">
+      <div class="screen-label">
+        <span class="tag">L-C</span> focused + switcher · one big terminal
+      </div>
+      <div class="lt" data-health="alive">
+        <div class="lt-head">
+          <button class="d-back" type="button">
+            <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Back to spec
+          </button>
+          <span class="lt-sep">·</span>
+          <span class="lt-title"><span class="pj">anyformat-backend</span><span class="sl">/</span><span class="nm">parse-cache</span></span>
+          <span class="lt-health"><span class="lt-dot"></span>working</span>
+        </div>
+        <div class="lt-focus">
+          <div class="lt-switch-row">
+            <div class="lt-switch" role="group" aria-label="Agent">
+              <button type="button" data-agent="coder" aria-pressed="true"><span class="pip"></span>dex-coder</button>
+              <button type="button" data-agent="reviewer" aria-pressed="false"><span class="pip"></span>dex-reviewer</button>
+            </div>
+            <button class="watch-btn on" type="button" aria-pressed="true"><span class="led"></span>watching</button>
+          </div>
+          <div class="term-col">
+            <pre class="term-pane" id="lc-pane"></pre>
+            <div class="term-foot" id="lc-foot"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+  // ============================ 3-state theme toggle ============================
+  (function () {
+    var btn = document.getElementById('theme-toggle');
+    var knob = document.getElementById('t-knob');
+    var ICON = {
+      light: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4" stroke-linecap="round"/></svg>',
+      dark: '<svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4 6.3 6.3 0 0 0 20 14.5Z" stroke-linejoin="round"/></svg>',
+      system: '<svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="12" rx="1.6"/><path d="M9 20h6M12 16.5V20" stroke-linecap="round"/></svg>'
+    };
+    function resolved(state) {
+      return state === 'system'
+        ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+        : state;
+    }
+    function apply(state) {
+      document.documentElement.dataset.theme = resolved(state);
+      btn.dataset.state = state;
+      btn.setAttribute('aria-label', 'Theme: ' + state);
+      btn.title = 'Theme: ' + state;
+      knob.innerHTML = ICON[state];
+      localStorage.docTheme = state;
+    }
+    var state = localStorage.docTheme || 'system';
+    if (['light','dark','system'].indexOf(state) === -1) state = 'system';
+    apply(state);
+    btn.addEventListener('click', function () {
+      var order = ['system','light','dark'];
+      apply(order[(order.indexOf(btn.dataset.state) + 1) % 3]);
+    });
+    matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () {
+      if (btn.dataset.state === 'system') apply('system');
+    });
+  })();
+
+  // ============================ sample terminal content ============================
+  // Tiny ANSI-ish builder: tokens are objects -> spans with the zen palette classes.
+  function L(parts) { return parts; }      // a line = array of [cls, text]
+  function render(lines) {
+    return lines.map(function (line) {
+      return line.map(function (seg) {
+        var cls = seg[0], txt = seg[1];
+        var e = document.createElement('span');
+        if (cls) e.className = cls;
+        e.textContent = txt;
+        return e.outerHTML;
+      }).join('');
+    }).join('\n');
+  }
+
+  // a long line (forces horizontal scroll) reused in both panes
+  var LONG_PATH = 'src/anyformat/backend/cache/parse_cache.py::ParseCache._evict_lru  ——  cold-path candidate, last touched 14m ago, 2.3MB resident, ttl=900s';
+
+  var coderLines = [
+    [['dim','┌─ context ─────────────────────────────────────────────────────────────────────────────']],
+    [['dim','│ repo '],['t8','anyformat-backend'],['dim','  branch '],['t8','spec/parse-cache'],['dim','  spec '],['t8','parse-cache']],
+    [['dim','└───────────────────────────────────────────────────────────────────────────────────────']],
+    [['','']],
+    [['t4','◇ '],['bold','Plan'],['',' — add an LRU eviction pass to ParseCache so resident set stays under the soft cap.']],
+    [['','  reading '],['t6','src/anyformat/backend/cache/parse_cache.py'],['',' (412 lines)']],
+    [['','  reading '],['t6','tests/cache/test_parse_cache.py'],['',' (188 lines)']],
+    [['','']],
+    [['t4','◇ '],['bold','Edit'],['',' parse_cache.py']],
+    [['dim','@@ -118,7 +118,21 @@ class ParseCache:']],
+    [['del','-    def get(self, key: str) -> Entry | None:']],
+    [['del','-        return self._store.get(key)']],
+    [['add','+    def get(self, key: str) -> Entry | None:']],
+    [['add','+        entry = self._store.get(key)']],
+    [['add','+        if entry is not None:']],
+    [['add','+            self._touch(key)        # bump recency for LRU']],
+    [['add','+        return entry']],
+    [['add','+']],
+    [['add','+    def _evict_lru(self, target_bytes: int) -> int:']],
+    [['add','+        freed = 0']],
+    [['add','+        for key in self._recency_order():']],
+    [['add','+            if self._resident <= target_bytes: break']],
+    [['add','+            freed += self._drop(key)']],
+    [['add','+        return freed']],
+    [['','']],
+    [['','  candidate: '],['t8',LONG_PATH]],
+    [['','']],
+    [['t4','◇ '],['bold','Run'],['',' pytest tests/cache/test_parse_cache.py -q']],
+    [['t2','  ........................'],['dim','  24 passed']],
+    [['t3','  ! '],['','1 slow test  (test_evict_under_pressure  1.8s)']],
+    [['','']],
+    [['t2','✓ '],['','eviction pass added; resident set holds at '],['t2','41.2MB'],['',' / 48MB cap.']],
+    [['','']],
+    [['caret','› '],['dim','auto mode on (shift+tab to cycle)']],
+    [['caret','› '],['','wiring _evict_lru into the put() hot path…']],
+    [['caret','› ']],
+  ];
+
+  var reviewerLines = [
+    [['dim','┌─ context ─────────────────────────────────────────────────────────────────────────────']],
+    [['dim','│ reviewing '],['t8','PR 4012'],['dim','  round '],['t8','2'],['dim','  diff '],['t8','+38 −9 across 2 files']],
+    [['dim','└───────────────────────────────────────────────────────────────────────────────────────']],
+    [['','']],
+    [['t4','◇ '],['bold','Read diff'],['',' parse_cache.py, test_parse_cache.py']],
+    [['','']],
+    [['t3','⚑ '],['bold','Concern'],['',' — _evict_lru iterates _recency_order() while _drop() mutates it.']],
+    [['dim','    src/anyformat/backend/cache/parse_cache.py:131  —  mutating during iteration is fragile.']],
+    [['','    suggest snapshotting the keys first:']],
+    [['add','+        for key in list(self._recency_order()):']],
+    [['','']],
+    [['t2','✓ '],['','get() recency bump looks correct; touch() is O(1).']],
+    [['t2','✓ '],['','test coverage for the new path is present.']],
+    [['','']],
+    [['t3','⚑ '],['bold','Nit'],['',' — '],['t8',LONG_PATH]],
+    [['','      could use a debug log line so evictions are observable in prod.']],
+    [['','']],
+    [['t4','◇ '],['bold','Verdict'],['',' — request changes (1 blocker, 1 nit). round 3 expected.']],
+    [['','']],
+    [['','  '],['t3','★★★★'],['dim','★'],['','  4 / 5   structure good, one correctness risk.']],
+    [['','']],
+    [['caret','› '],['dim','auto mode on (shift+tab to cycle)']],
+    [['caret','› '],['','posting review comment to '],['t4','PR 4012'],['','…']],
+    [['caret','› ']],
+  ];
+
+  // pad to guarantee vertical scroll in tighter panes
+  function pad(lines, n) {
+    var out = lines.slice();
+    for (var i = out.length; i < n; i++) out.push([['dim','· ']]);
+    return out;
+  }
+
+  function foot(host, model, ctx, working) {
+    host.innerHTML =
+      '<span class="k">Model</span> <span class="v">' + model + '</span>' +
+      '<span class="k">Ctx&nbsp;Used</span> <span class="v">' + ctx + '</span>' +
+      '<span class="auto"><span class="led"></span>' + (working ? 'auto · working' : 'auto · idle') + '</span>';
+  }
+
+  function fill(id, footId, lines, model, ctx, n) {
+    var pane = document.getElementById(id);
+    if (pane) pane.innerHTML = render(n ? pad(lines, n) : lines);
+    var f = document.getElementById(footId);
+    if (f) foot(f, model, ctx, true);
+  }
+
+  // L-A — full-height columns
+  fill('la-coder', 'la-coder-foot', coderLines, 'Sonnet 4.6', '82.7%', 44);
+  fill('la-reviewer', 'la-reviewer-foot', reviewerLines, 'Sonnet 4.6', '61.4%', 44);
+  // L-B — generously tall stacked
+  fill('lb-coder', 'lb-coder-foot', coderLines, 'Sonnet 4.6', '82.7%', 40);
+  fill('lb-reviewer', 'lb-reviewer-foot', reviewerLines, 'Sonnet 4.6', '61.4%', 40);
+  // L-C — focused, starts on coder
+  var lcState = { coder: { lines: coderLines, ctx: '82.7%' }, reviewer: { lines: reviewerLines, ctx: '61.4%' } };
+  function showFocus(agent) {
+    fill('lc-pane', 'lc-foot', lcState[agent].lines, 'Sonnet 4.6', lcState[agent].ctx, 46);
+  }
+  showFocus('coder');
+
+  // L-C switcher
+  document.querySelectorAll('.lt-switch button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('.lt-switch button').forEach(function (x) { x.setAttribute('aria-pressed', 'false'); });
+      b.setAttribute('aria-pressed', 'true');
+      showFocus(b.dataset.agent);
+    });
+  });
+
+  // watch toggles (cosmetic)
+  document.querySelectorAll('.watch-btn').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var on = b.classList.toggle('on');
+      b.setAttribute('aria-pressed', String(on));
+      var led = b.querySelector('.led');
+      b.childNodes.forEach && b.childNodes.forEach(function () {});
+      b.lastChild.textContent = on ? 'watching' : 'watch';
+    });
+  });
+
+  // ============ scrollbar comparison content ============
+  var cmpLines = [];
+  for (var i = 1; i <= 40; i++) {
+    cmpLines.push('line ' + String(i).padStart(2, '0') + '  ' +
+      (i % 5 === 0 ? '— a deliberately long line so the horizontal scrollbar appears underneath this scroll region too —' : 'parse_cache step ' + i));
+  }
+  document.getElementById('cmp-native').textContent = cmpLines.join('\n');
+  document.getElementById('cmp-drams').textContent = cmpLines.join('\n');
+
+  // ============ sidebar + list demo ============
+  var projects = ['anyformat-backend','anyformat-web','dex-runtime','spec-skill','curator-svc','infra-terraform','docs-site','sandbox-playground','telemetry-pipe','auth-gateway'];
+  document.getElementById('demo-projects').innerHTML = projects.map(function (p, i) {
+    return '<div class="demo-proj"><span class="led"></span>' + p + '<span class="ct">' + ((i * 3 + 2) % 9 + 1) + '</span></div>';
+  }).join('');
+
+  var specs = ['parse-cache','retry-budget','token-meter','flush-on-idle','warm-start','schema-guard','batch-evict','cold-path-probe','ttl-sweep','lru-order','soft-cap','resident-cap','hot-key-bias','drain-hook','spill-to-disk'];
+  var phases = ['build','review','verify','ship','plan'];
+  document.getElementById('demo-list').innerHTML = specs.map(function (s, i) {
+    return '<div class="demo-li"><span class="ldot"></span><span class="nm">' + s + '</span><span class="ph">' + phases[i % phases.length] + '</span></div>';
+  }).join('');
+  </script>
+</body>
+</html>
