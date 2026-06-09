@@ -1,0 +1,14 @@
+# usql named connections — connect with `usql <name>`.
+# Formatting/pset lives in ~/.usqlrc (runs in every session, incl. non-interactive).
+#
+# connections:
+#   pg:
+#     protocol: postgres
+#     username: postgres
+#     password: postgres
+#     hostname: localhost
+#     port: 5432
+#     database: postgres
+#   # or one-line DSN form:
+#   pg_prod: postgres://user:pass@host:5432/dbname?sslmode=require
+connections: {}

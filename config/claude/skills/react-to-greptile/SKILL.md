@@ -112,11 +112,11 @@ Note the short SHA — you'll reference it in Phase 6.
 
 ## Phase 6: Reply to Every Inline Thread
 
-For each Greptile inline comment, post a reply. Use `--silent -q .html_url` so the 5KB POST response doesn't pollute your terminal:
+For each Greptile inline comment, post a reply. Use `-q .html_url` so the 5KB POST response is reduced to just the reply URL (do NOT combine with `--silent` — `gh api` rejects both flags together):
 
 ```bash
 gh api "/repos/<owner>/<repo>/pulls/<number>/comments/<id>/replies" \
-  -X POST --silent -q '.html_url' \
+  -X POST -q '.html_url' \
   -F body="$(cat <<'EOF'
 Fixed in <sha> — <one-line description>.
 EOF
@@ -166,4 +166,4 @@ Re-tagging `@greptile-apps` on the same PR is safe — Greptile is idempotent; i
 - Infer `<owner>/<repo>` from `gh pr view --json url`; don't trust the local remote's slug.
 - Commit SHA references in replies let reviewers (and the next skill run) jump straight to the diff.
 - Prefer one commit over many when Phase 5 runs — keep history clean. But if fixes already landed across earlier commits, cite each by SHA rather than squashing.
-- Use `--silent -q <jq>` on `gh api` POST calls to avoid dumping 5KB response payloads into context.
+- Use `-q <jq>` on `gh api` POST calls to slim the response. `gh api` rejects `--silent` + `-q` together — pick one.

@@ -19,6 +19,8 @@
     ~/.config/btop: config/btop/**
     ~/.config/starship/config.toml: config/starship/config.toml
     ~/.config/bat/bat.conf: config/bat/bat.conf
+    ~/.usqlrc: config/usql/.usqlrc
+    ~/.config/usql/config.yaml: config/usql/config.yaml
     ~/.config/procs/config.toml: config/procs/config.toml
     ~/.config/zed: config/zed/**
     ~/.config/zed/keymap.json: config/zed/keymap_mac.json

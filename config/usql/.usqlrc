@@ -1,0 +1,17 @@
+\set SYNTAX_HL true
+\set SYNTAX_HL_STYLE catppuccin-mocha
+
+\pset border 2
+\pset linestyle unicode
+\pset unicode_border_linestyle double
+\pset unicode_column_linestyle single
+\pset unicode_header_linestyle single
+
+\pset null '(null)'
+\pset footer on
+
+\pset pager always
+
+\timing on
+
+-- \pset numericlocale on   -- thousands separators (también afecta IDs/años)

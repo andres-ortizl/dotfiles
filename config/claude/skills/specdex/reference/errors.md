@@ -8,10 +8,13 @@ When anything needs user intervention, including:
 - Ambiguous requirements the plan didn't clarify
 - Any "Do you want to proceed?" prompt that blocks the autonomous flow
 
-**DM the user immediately with full context:**
+**Notify the user immediately (via `$NOTIFIER` — see Configuration; never hardcode Slack), with full context, and `dex block "<why>"`:**
 
 ```
-mcp__claude_ai_Slack__slack_send_message(channel_id="<slack-user-id>", message=":rotating_light: *[<spec name>]* Blocked — <what happened>\n>*Phase:* <current phase>\n>*Reason:* <why it can't continue>\n>*Resume:* `zellij attach <session-name>`")
+:rotating_light: *[<spec name>]* Blocked — <what happened>
+>*Phase:* <current phase>
+>*Reason:* <why it can't continue>
+>*Resume:* reattach via your multiplexer (zellij attach / tmux attach) <session-name>
 ```
 
 Then:
@@ -24,7 +27,7 @@ Then:
 - **What** went wrong (one line)
 - **Phase** it's stuck in (implementing, reviewing, shipping, greptile)
 - **Why** it can't continue without the user
-- **Resume command** (`zellij attach <session-name>`) so the user can jump straight in
+- **Resume command** (your multiplexer's attach — `zellij attach` / `tmux attach` `<session-name>`) so the user can jump straight in
 
 ## Rules
 
