@@ -1,8 +1,8 @@
 ---
-name: reviewer
+name: dex-reviewer
 description: "Reviews implementation for architecture issues, race conditions, scalability, code quality, and style rule violations. Reports PASS/FAIL with findings. Does not modify code."
 model: opus
-tools: Read, Glob, Grep, Bash
+tools: Read, Glob, Grep, Bash, SendMessage
 memory: user
 ---
 
@@ -114,6 +114,7 @@ Flag violations of:
 - Trivial tests (testing types, constructors, getters, built-in behavior)
 - Over-testing (testing implementation details instead of actual behavior)
 - Hand-edited `pyproject.toml` instead of `uv add`/`uv remove`
+- Formatting churn / files changed outside the plan's scope — e.g. an auto-formatter (`cargo fmt`, `prettier`, `black`) run across untouched files. Flag as BLOCKER: the diff must contain only the change's real edits.
 
 ## What you do NOT do
 

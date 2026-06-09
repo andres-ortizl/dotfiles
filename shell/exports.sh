@@ -64,6 +64,8 @@ export FZF_DEFAULT_OPTS=" \
 
 export EDITOR="micro"
 export VISUAL="micro"
+export USQL_PAGER="pspg"
+export PSPG="-s 22 -X -F -c 1 --no-mouse"
 export "MICRO_TRUECOLOR=1"
 export STARSHIP_CONFIG="$HOME/.config/starship/config.toml"
 export BAT_CONFIG_PATH="$HOME/.config/bat/bat.conf"

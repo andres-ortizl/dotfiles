@@ -18,3 +18,7 @@ alias claude-mem='bun "/Users/andrew/.claude/plugins/marketplaces/thedotmack/plu
 # Added by LM Studio CLI (lms)
 export PATH="$PATH:/Users/andrew/.lmstudio/bin"
 # End of LM Studio CLI section
+
+
+# Added by Antigravity CLI installer
+export PATH="/Users/andrew/.local/bin:$PATH"

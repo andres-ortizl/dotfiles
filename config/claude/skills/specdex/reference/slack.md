@@ -38,7 +38,7 @@ All messages use Slack markdown and emojis for scannability:
 ## Tool call
 
 ```
-mcp__claude_ai_Slack__slack_send_message(channel_id="<slack-user-id>", message="[<spec name>] <status> — <description>")
+notify "[<spec name>] <status> — <description>"
 ```
 
 ## Milestones that require a DM

@@ -1,3 +1,7 @@
+if [[ -z "$ZELLIJ" && "$TERM_PROGRAM" == "ghostty" && $- == *i* ]]; then
+  exec zellij attach -c default
+fi
+
 zmodload zsh/zprof
 setopt HIST_IGNORE_ALL_DUPS
 bindkey -e
@@ -50,7 +54,12 @@ alias claude-mem='bun "/Users/andrew/.claude/plugins/marketplaces/thedotmack/plu
 export PATH="$PATH:/Users/andrew/.lmstudio/bin"
 # End of LM Studio CLI section
 
-if [[ -z "$ZELLIJ" && "$TERM_PROGRAM" == "ghostty" && $- == *i* ]]; then
-  exec zellij attach -c default
+# lean-ctx shell hook — begin
+if [ -f "/Users/andrew/.config/lean-ctx/shell-hook.zsh" ]; then
+  zsh-defer source "/Users/andrew/.config/lean-ctx/shell-hook.zsh"
 fi
+# lean-ctx shell hook — end
 
+
+# Added by Antigravity CLI installer
+export PATH="/Users/andrew/.local/bin:$PATH"
