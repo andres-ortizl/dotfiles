@@ -145,7 +145,11 @@ enum Cmd {
         op: LessonsOp,
     },
     /// List every spec in the fleet with derived health
-    Ls,
+    Ls {
+        /// Emit the fleet as JSON (the same shape `dex watch` streams)
+        #[arg(long)]
+        json: bool,
+    },
     /// Stream the fleet snapshot as JSON, re-emitting on every registry change
     Watch,
     /// Inspect merged effective config
@@ -259,7 +263,7 @@ enum LessonsOp {
 fn main() -> Result<()> {
     let cli = Cli::parse();
     match cli.cmd {
-        Cmd::Ls => return ls(),
+        Cmd::Ls { json } => return ls(json),
         Cmd::Watch => return watch(),
         Cmd::Config { ref op } => return config_cmd(op),
         Cmd::Install { ref update } => return install(*update),
@@ -556,7 +560,7 @@ fn build_payload(cmd: Cmd) -> Result<Payload> {
             let validated_scope = scope.map(|s| parse_scope(&s)).transpose()?;
             Payload::Note { level: parse_level(&level)?, topic, text, scope: validated_scope }
         }
-        Cmd::Ls | Cmd::Watch | Cmd::Config { .. } | Cmd::Ports { .. } | Cmd::Story { .. } | Cmd::Install { .. } | Cmd::Notes { .. } | Cmd::Lessons { .. } => {
+        Cmd::Ls { .. } | Cmd::Watch | Cmd::Config { .. } | Cmd::Ports { .. } | Cmd::Story { .. } | Cmd::Install { .. } | Cmd::Notes { .. } | Cmd::Lessons { .. } => {
             unreachable!("handled before payload build")
         }
     })
@@ -564,21 +568,30 @@ fn build_payload(cmd: Cmd) -> Result<Payload> {
 
 const STALE_SECS: i64 = 15 * 60;
 
-fn ls() -> Result<()> {
+fn ls(json: bool) -> Result<()> {
+    if json {
+        return print_fleet_json();
+    }
     let rows = fleet_snapshot(load_all()?, Utc::now(), STALE_SECS);
     if rows.is_empty() {
         println!("No specs with state.json yet — run `dex …` from the /spec skill.");
         return Ok(());
     }
-    println!("{:<22} {:<28} {:<10} {:<10} PR", "PROJECT", "SPEC", "PHASE", "HEALTH");
+    println!("{:<22} {:<28} {:<10} {:<10} {:<8} PR", "PROJECT", "SPEC", "PHASE", "HEALTH", "STORIES");
     for r in rows {
         let pr = r.pr.map(|n| format!("#{n}")).unwrap_or_default();
+        let stories = if r.stories_total > 0 {
+            format!("{}/{}", r.stories_done, r.stories_total)
+        } else {
+            String::new()
+        };
         println!(
-            "{:<22} {:<28} {:<10} {:<10} {}",
+            "{:<22} {:<28} {:<10} {:<10} {:<8} {}",
             trunc(&r.project, 22),
             trunc(&r.name, 28),
             r.phase,
             r.health,
+            stories,
             pr
         );
     }
