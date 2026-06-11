@@ -72,6 +72,19 @@ User describes feature
       COMPLETE
 ```
 
+## Operating doctrine — keep moving, log, escalate only one-way doors
+
+An autonomous run exists to *finish*. Default to motion: the lead and every teammate **act on their own judgment** — pick the recommended/idiomatic practice, make a reasonable assumption, take the obvious path — instead of pausing to ask. **Don't interrupt the user** ("the Lord Sith", the final authority) for anything you can decide yourself.
+
+**The one test for stopping a decision is reversibility:** *how hard is it to switch to another approach after the feature ships?*
+
+- **Two-way door** — cheap to reverse later (naming, internal structure, a swappable library, a default you could flip). **Decide it yourself and log it. Never stop for these.**
+- **One-way door** — expensive or impossible to undo once shipped (a public API/SDK shape, a DB schema or migration, a persisted data format others depend on, deleting or overwriting something irreplaceable, a security/permission boundary, any locked-in external contract). **This is the only class that warrants stopping:** the lead `notify`s the user with the specific choice + a recommendation, and waits.
+
+**Log every consequential decision — this is the trade for not asking.** The lead writes `logbook.md`; teammates record via `dex note` + their report file. Each entry carries **what** you decided or assumed, **why** (the reasoning / recommended practice / assumption you're running on), **how** you did it, and **reversibility** — the cost of switching later, the key metric (`cheap` / `moderate` / `expensive`). If writing that last field reveals `expensive`, that's the tell it was a one-way door: stop and ask instead of baking it in.
+
+This governs *choices*. Being genuinely **stuck** — tests you can't get green, a review that fails its round ceiling, missing access — is a different thing and still stops the run (those paths are spelled out per phase). Teammates never DM the user directly: surface a one-way-door decision to the **lead**, who is the only one who escalates to the Lord Sith.
+
 ## Modes
 
 `/specdex` follows the git/gh grammar: **mode = bare verb, modifier = `--flag`, operand = positional.**
@@ -401,7 +414,7 @@ Both roles are **real Claude Code teammates spawned through the [agent-teams](ht
 > - Report **files** (`coder-report.md`, `review-round-<N>.md`) stay as the durable fallback record, but SendMessage is now the primary, immediate channel — don't poll idle-notifications-then-read-file as the main path.
 
 **Per-story coder brief.** Each story's fresh coder gets the worktree rule above plus this contract in its spawn prompt:
-> "Implement ONLY the one Build Story I give you, TDD (RED → GREEN), parallelizing independent chunks via sub-agents. Run the affected tests. Commit just this story — `git -C <worktree> commit` message `feat(<spec-name>/<id>): <title>`. `SendMessage` me (the lead) AND the reviewer a short report — what you built, the exact test commands + pass/fail counts, the commit sha, deviations, unverified items — and append it to `~/.spec/<project-name>/<spec-name>/coder-report.md`. Record via `dex` `dex test --passed … --failed …` (do **not** emit `dex story done` — the lead marks completion after review passes). Then STAY ALIVE for this story's review: the reviewer may `SendMessage` you findings — fix, re-run tests, commit `fix(<spec-name>/<id>): <what>`, message both me and the reviewer, stay alive. Do NOT emit `dex review` or `dex story done` — verdicts are the reviewer's job, completion is the lead's. Shut down only when I tell you this story passed."
+> "Implement ONLY the one Build Story I give you, TDD (RED → GREEN), parallelizing independent chunks via sub-agents. Follow the **Operating doctrine**: make reversible (two-way-door) calls yourself and `dex note` your reasoning — don't stall on me for those; but `SendMessage` me any genuine one-way-door decision (irreversible API/schema/data-format/security choice) before you bake it in. Run the affected tests. Commit just this story — `git -C <worktree> commit` message `feat(<spec-name>/<id>): <title>`. `SendMessage` me (the lead) AND the reviewer a short report — what you built, the exact test commands + pass/fail counts, the commit sha, deviations, unverified items — and append it to `~/.spec/<project-name>/<spec-name>/coder-report.md`. Record via `dex` `dex test --passed … --failed …` (do **not** emit `dex story done` — the lead marks completion after review passes). Then STAY ALIVE for this story's review: the reviewer may `SendMessage` you findings — fix, re-run tests, commit `fix(<spec-name>/<id>): <what>`, message both me and the reviewer, stay alive. Do NOT emit `dex review` or `dex story done` — verdicts are the reviewer's job, completion is the lead's. Shut down only when I tell you this story passed."
 
 **ENTERING AUTONOMOUS MODE.** On `dex phase build`: **launch** the persistent `reviewer` teammate once (agent type `dex-reviewer` — see *Launching the team* above), then record it with `dex agent spawn reviewer`; register the stories (`dex story add --id <id> --title "<name>" --summary "<summary>"` for each `## Build Stories` entry), then DM the user:
 1. `notify ":hammer_and_wrench: *[<spec name>]* Build started — per-story loop. You can detach now (`Ctrl+O, D`). Next DM on review FAILs, blocks, or the final-review pass."`
@@ -435,7 +448,7 @@ REVIEWER  ─ review the diff + run the tests
    - **(d) Ceiling.** Capped at **3 verdicts** (≤ 2 coder fix-iterations). If round 3 still isn't a pass, the lead stops: block + notify + halt — see the blocked template below. Earlier passed stories are already committed, so resume restarts from this one.
 4. **On a passing verdict — the LEAD marks completion** (only the lead ends a story): confirm the passing `dex review` landed, emit **`dex story done <id> --commit <sha>`** (head sha — the single completion signal, so the fleet view and `dex story next` advance only after review passed), shut the coder down (shutdown request to the `coder` teammate → then `dex agent idle coder`), and advance via `dex story next`. Notify on the first story, then only on review FAILs/blocks — don't DM every passing story.
 
-Within a story the coder follows `/tdd` discipline (vertical slicing, public-interface-only, integration-first, no horizontal batching). **If a coder reports a plan issue** mid-loop, DM the user and wait — every passed story is already committed, so the loop resumes from the next one once unblocked.
+Within a story the coder follows `/tdd` discipline (vertical slicing, public-interface-only, integration-first, no horizontal batching). **If a coder surfaces a plan issue** mid-loop, apply the Operating doctrine: a reversible call → pick the recommended path, log it, keep going; a one-way-door decision → DM the user and wait — every passed story is already committed, so the loop resumes from the next one once unblocked.
 
 ### Final integration review
 
