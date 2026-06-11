@@ -102,9 +102,9 @@ Both roles are spawned through the **[agent-teams](https://code.claude.com/docs/
 
 **Permissions are inherited, not per-teammate.** Teammates start with **the lead's** permission mode (fixed at spawn). So the loop requires the **lead** to run in bypass (`claude --dangerously-skip-permissions`, which the resume command already uses); every teammate then inherits it. If a first-launch approval prompt appears, dismiss it. **Preconditions:** `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` and Claude Code ≥ 2.1.32 — agent teams are experimental and OFF by default. If a spawn produces no live teammate, you're in solo-fallback: surface it, don't quietly work alone.
 
-**MANDATORY — pin the worktree in EVERY spawn prompt.** Spawned teammates inherit cwd = the repo root (the MAIN checkout), not your worktree, so a relative-path edit silently lands on `main`. Every spawn prompt MUST carry the absolute worktree path and this rule:
+**MANDATORY — every teammate enters the worktree first.** Spawned teammates are *separate* sessions that start at the repo root (the MAIN checkout), not your worktree. Every spawn prompt MUST carry the absolute worktree path and this rule:
 
-> "Your worktree is `<absolute-worktree-path>` — the ONLY valid root. Pass it explicitly to every file and git operation (`git -C <absolute-worktree-path> …`), never rely on cwd, never edit by relative path. Before you start and before you report, run `git -C <absolute-worktree-path> status` and confirm the MAIN checkout is clean."
+> "Your worktree is `<absolute-worktree-path>`. Your session starts at the repo root, NOT there — so **as your FIRST action run `EnterWorktree(path="<absolute-worktree-path>")`** to switch your session into it. After that, bare `git` and relative paths resolve to your branch; confirm with `git status` that you're on `specdex-<spec-name>` before you start. Any sub-agent you spawn also starts at the root — give it the same path and tell it to `EnterWorktree(path=…)` first too. (`git -C <absolute-worktree-path> …` also works from anywhere if you need to be explicit.)"
 
 **Communication — two planes.** Both teammates have `SendMessage` (full mesh): use it to cut roundtrips (reviewer messages the coder findings directly, no lead relay) — that's the fast lane. The **event log is the visibility plane**: every consequential message also records a matching `dex` event. Peers coordinate fix-rounds directly; **only the lead** decides PASS→ship, max-rounds→escalate, blocked→DM.
 
@@ -217,7 +217,7 @@ Check whether cwd is already a worktree (`git rev-parse --is-inside-work-tree &&
 EnterWorktree(name="specdex-<spec-name>")
 ```
 
-This makes a branch + dir at `.claude/worktrees/specdex-<spec-name>`. The `specdex-` prefix keeps cleanup from touching other tools' worktrees and lets the UI find the spec's `.dex.toml`.
+This makes a branch + dir at `.claude/worktrees/specdex-<spec-name>` **and switches your (the lead's) cwd into it** — you work here directly for the rest of the run, no `cd` juggling. The `specdex-` prefix keeps cleanup from touching other tools' worktrees and lets the UI find the spec's `.dex.toml`. (Teammates are *separate* sessions that start back at the repo root — they enter the worktree themselves; see *Launching the team*.)
 
 **REQUIRED — register the spec now that the branch + worktree exist.** Until this runs the spec has no `events.jsonl`/`state.json` and is invisible (see *Events*):
 
