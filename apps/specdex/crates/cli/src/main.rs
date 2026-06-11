@@ -216,7 +216,7 @@ enum StoryOp {
     },
     /// List the spec's stories with status
     Ls,
-    /// Print the next pending story (`<id> <title>`); empty + exit 1 when none remain
+    /// Print the next un-built story (`<id> <title>`); empty + exit 1 when all are done
     Next,
 }
 
@@ -327,6 +327,8 @@ fn port_is_free(port: u16) -> bool {
 fn story_cmd(project: &str, name: &str, op: StoryOp, actor: Option<&str>) -> Result<()> {
     match op {
         StoryOp::Add { id, title } => {
+            // Best-effort duplicate guard — a racing concurrent add could slip past it,
+            // but apply() is idempotent on id, so the snapshot stays correct regardless.
             if let Some(st) = load_state(project, name)? {
                 if st.stories.iter().any(|s| s.id == id) {
                     return Err(anyhow!("story {id:?} already registered"));
@@ -362,7 +364,7 @@ fn story_cmd(project: &str, name: &str, op: StoryOp, actor: Option<&str>) -> Res
         StoryOp::Next => {
             let st = load_state(project, name)?
                 .ok_or_else(|| anyhow!("no state for {project}/{name}"))?;
-            match st.next_pending_story() {
+            match st.next_unbuilt_story() {
                 Some(s) => {
                     println!("{} {}", s.id, s.title);
                     Ok(())

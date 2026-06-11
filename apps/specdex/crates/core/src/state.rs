@@ -196,26 +196,24 @@ impl SpecState {
     }
 
     fn set_story(&mut self, id: &str, status: StoryStatus, commit: Option<String>, now: DateTime<Utc>) {
+        // Only an explicit `story.added` creates a story; a start/done for an unknown id
+        // is dropped here (the CLI rejects it at the boundary), matching how `note`
+        // tolerates unknown shapes — no ghost stories with empty titles on replay.
         if let Some(s) = self.stories.iter_mut().find(|s| s.id == id) {
             s.status = status;
             if commit.is_some() {
                 s.commit = commit;
             }
             s.since = now;
-        } else {
-            self.stories.push(StorySnapshot {
-                id: id.to_string(),
-                title: String::new(),
-                status,
-                commit,
-                since: now,
-            });
         }
     }
 
-    /// The first still-pending story, in registration order — drives `dex story next`.
-    pub fn next_pending_story(&self) -> Option<&StorySnapshot> {
-        self.stories.iter().find(|s| s.status == StoryStatus::Pending)
+    /// The first story not yet `Done`, in registration order — the next one to
+    /// (re)dispatch. Drives `dex story next`; `None` only when every story is done.
+    /// An in-progress (`Active`) story counts as un-built, so a run resumed mid-story
+    /// re-surfaces it rather than skipping straight to "complete".
+    pub fn next_unbuilt_story(&self) -> Option<&StorySnapshot> {
+        self.stories.iter().find(|s| s.status != StoryStatus::Done)
     }
 
     /// Liveness, derived rather than stored. `stale_after_secs` is how long a
@@ -341,15 +339,24 @@ mod tests {
         // re-adding the same id is idempotent — no duplicate
         s.apply(&Payload::StoryAdd { id: "S1".into(), title: "a".into() }, now);
         assert_eq!(s.stories.len(), 2);
-        assert_eq!(s.next_pending_story().unwrap().id, "S1");
+        assert_eq!(s.next_unbuilt_story().unwrap().id, "S1");
+
+        // an in-progress (Active) story is still "unbuilt" — next re-surfaces it
+        s.apply(&Payload::StoryStart { id: "S1".into() }, now);
+        assert_eq!(s.stories[0].status, StoryStatus::Active);
+        assert_eq!(s.next_unbuilt_story().unwrap().id, "S1");
 
         s.apply(&Payload::StoryDone { id: "S1".into(), commit: Some("sha1".into()) }, now);
         assert_eq!(s.stories[0].status, StoryStatus::Done);
         assert_eq!(s.stories[0].commit.as_deref(), Some("sha1"));
-        assert_eq!(s.next_pending_story().unwrap().id, "S2");
+        assert_eq!(s.next_unbuilt_story().unwrap().id, "S2");
 
         s.apply(&Payload::StoryDone { id: "S2".into(), commit: None }, now);
-        assert!(s.next_pending_story().is_none());
+        assert!(s.next_unbuilt_story().is_none());
+
+        // start/done on an unregistered id is ignored at the state layer (no ghost story)
+        s.apply(&Payload::StoryStart { id: "S9".into() }, now);
+        assert_eq!(s.stories.len(), 2);
     }
 
     #[test]
