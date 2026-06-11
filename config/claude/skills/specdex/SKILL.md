@@ -30,20 +30,20 @@ User describes feature
         │ plan approved
         ▼
 ┌─ IMPLEMENT (autonomous) ─┐
-│  Story-by-story loop      │
-│  TDD: RED → GREEN         │
-│  Parallelizes independent │
-│  chunks via sub-agents    │
-│  STAYS ALIVE for feedback │
+│  Per-story loop:          │
+│  fresh coder per story    │
+│  impl→test→commit→        │
+│  per-story review,        │
+│  fix-loop (max 3)→next    │
 └───────┬───────────────────┘
-        │ all stories built
+        │ all built+reviewed
         ▼
-┌─ REVIEW (autonomous) ────┐
-│  Reviewer checks code     │
-│  PASS → continue          │
-│  FAIL → send findings to  │
-│  coder via SendMessage    │
-│  Loop until PASS (max 3)  │
+┌─ FINAL REVIEW (auto) ────┐
+│  Persistent reviewer:     │
+│  do the stories           │
+│  compose? integration     │
+│  gaps the diffs missed?   │
+│  PASS → ship              │
 └───────┬───────────────────┘
         │ PASS
         ▼
@@ -81,6 +81,7 @@ User describes feature
 | `/specdex <feature description>` | default — plan → implement → review → ship → verify |
 | `/specdex collaborate <feature>` | human-driven session: registers + badges in the fleet, skips the team/PR automation (see Collaborate) |
 | `/specdex resume` | re-attach to the most recent non-terminal spec for this project |
+| `/specdex supervise` | external watchdog: resume stale build-phase specs with un-built stories (run on a schedule) |
 | `/specdex accept` | accept a COMPLETE spec → cleanup |
 | `/specdex --auto-approve <plan-path>` | modifier on default mode (non-interactive) |
 
@@ -133,7 +134,8 @@ install binds:
 | Story started / done | `dex story start <id>` / `dex story done <id> --commit <sha>` |
 | Coder spawned / idle | `dex agent spawn coder --id <id>` / `dex agent idle coder` |
 | Coder green | `dex test --passed <P> --failed <F> --cmd "<cmd>"` |
-| Review starts | `dex phase review` then `dex agent spawn reviewer` |
+| Reviewer spawned (once, at build start) | `dex agent spawn reviewer` |
+| Final integration review | `dex phase review` |
 | Each verdict | `dex review --round <N> --verdict pass\|fail\|notes --blockers <b> --issues <i>` |
 | Shipping | `dex phase ship` |
 | PR created / state | `dex pr --number <N> --url <url> [--state merged\|closed]` |
@@ -154,6 +156,30 @@ Re-attach to the most recent non-terminal spec for this project and continue fro
 - **Phase `build`:** read the `## Build Stories` list from `spec.md` and find which are already built — the durable signal is git history: story `<id>` is done iff a `feat(<spec-name>/<id>):` commit exists on the branch. Run `git -C <worktree> log --oneline --fixed-strings --grep "feat(<spec-name>/"` (`--fixed-strings` so the literal `(` isn't treated as a regex), collect the built `<id>`s from those subjects, and the first Build Story not in that set is the next un-built one (`dex story next` returns it directly once the CLI is wired). **Spawn a FRESH coder** (clean context) and run the Build loop from that story. The fresh coder is the whole point — resume exists because the previous context may be dead or rotted.
 - **Phase `review` / `ship` / `verify`:** re-enter that phase's loop below (re-spawn the reviewer if needed, re-poll CI / bot review). Committed work and recorded gate results are the source of truth.
 - **No non-terminal spec found:** tell the user there's nothing to resume and list recent specs (`dex ls`).
+
+## Mode: supervise (`/specdex supervise`)
+
+The autonomous loop lives inside the lead session. If that session dies (crash, context
+exhaustion, a closed multiplexer), nothing restarts it — the spec just goes stale mid-build.
+`supervise` is the **external engine** that fixes that: a stateless watchdog meant to run on a
+schedule (`/schedule` cron, or `/loop 10m /specdex supervise`), independent of any lead.
+
+Each run:
+1. `dex ls --json` — the whole fleet as JSON (each row carries `phase`, `health`,
+   `stories_done`, `stories_total`).
+2. Pick **resume candidates**: rows where `phase == "build"` AND `health == "stale"` AND
+   `stories_done < stories_total`. Skip terminal/healthy specs, anything `blocked`
+   (`needs-you` is the human's, never auto-resumed), and specs with no story breakdown
+   (`stories_total == 0` — can't be safely resumed headlessly).
+3. For each candidate, **resume from durable state**: re-attach its multiplexer session
+   (`spec-<spec-name>`) and run `/specdex resume`, which spawns a FRESH coder on the next
+   un-built story (`dex story next`). One resume per candidate per run — the `stale` health
+   threshold is the guard against double-spawning a lead for a merely-slow spec.
+4. `notify` once per spec resumed (`:recycle: *[<spec>]* resumed — was stale at <done>/<total>
+   stories, fresh coder on <next id>`) and `dex note` it so the action shows in the feed.
+
+The supervisor only ever RESUMES — it never plans, ships, or decides. It is the restart
+engine; the lead is still the brain.
 
 ## Mode: collaborate (`/specdex collaborate <feature>`)
 
@@ -344,14 +370,14 @@ Rules:
 
 **Only after the user explicitly approves the plan, proceed to Build.**
 
-## Build — Create Team & Implement (Autonomous)
+## Build & Review — per-story loop (Autonomous)
 
-Create a team with two teammates, both with `mode: "bypassPermissions"` so they can run autonomously without blocking on approval prompts:
+The feature is built **and reviewed one Build Story at a time**. You (the lead) are the continuity holder across all stories and the sole authority on termination. Two roles, both `mode: "bypassPermissions"`:
 
-- **coder** — uses the `dex-coder` agent definition. Implements the approved plan. Mode: `bypassPermissions`. Spawn prompt must include: `export DEX_ACTOR=coder` (alongside `DEX_SPEC`).
-- **reviewer** — uses the `dex-reviewer` agent definition. Reviews the coder's work. Mode: `bypassPermissions`. Spawn prompt must include: `export DEX_ACTOR=reviewer` (alongside `DEX_SPEC`).
+- **reviewer** — `dex-reviewer` agent, spawned **ONCE** and kept alive for the whole feature. It reviews each story's diff in turn (small, focused diffs) and accumulates cross-story consistency; spawning once also pays the first-launch approval gate only once. Spawn prompt includes `export DEX_ACTOR=reviewer`.
+- **coder** — `dex-coder` agent, spawned **FRESH for each story** (clean context — the implementation is the rot-prone part, so a resumed or crashed story gets a brand-new coder, never a poisoned one). Spawn prompt includes `export DEX_ACTOR=coder`.
 
-**MANDATORY — pin the worktree in BOTH spawn prompts.** Spawned teammates inherit cwd = the repo root (the MAIN checkout), not your worktree, so a relative-path edit silently lands on `main` instead of the branch. Every spawn prompt MUST carry the absolute worktree path and this rule:
+**MANDATORY — pin the worktree in EVERY spawn prompt** (the reviewer's, and every per-story coder's). Spawned teammates inherit cwd = the repo root (the MAIN checkout), not your worktree, so a relative-path edit silently lands on `main` instead of the branch. Every spawn prompt MUST carry the absolute worktree path and this rule:
 
 > "Your worktree is `<absolute-worktree-path>`. It is the ONLY valid root: pass it explicitly to every file and git operation (`git -C <absolute-worktree-path> …`), never rely on cwd, never edit by relative path — sub-agents resolve relative paths to the repo root, which is the MAIN checkout, not this worktree. Before you start and again before you report, run `git -C <absolute-worktree-path> status` and confirm the MAIN checkout is clean."
 
@@ -361,58 +387,39 @@ Create a team with two teammates, both with `mode: "bypassPermissions"` so they 
 > - **You stay the authority on phase transitions and termination.** Peers coordinate fix-rounds directly, but only YOU decide PASS→ship, max-rounds-hit→escalate, and blocked→DM. Peers iterate; lead decides. This is what prevents an endless coder↔reviewer ping-pong with no one calling it.
 > - Report **files** (`coder-report.md`, `review-round-<N>.md`) stay as the durable fallback record, but SendMessage is now the primary, immediate channel — don't poll idle-notifications-then-read-file as the main path.
 
-**IMPORTANT: Coder lifecycle management.**
-The coder is a **persistent teammate for the whole feature** — it receives Build Stories one at a time and must NOT shut down between them. Include this instruction in its spawn prompt:
-> "You implement the feature one Build Story at a time. For EACH story I send you: (1) implement it TDD (RED → GREEN), parallelizing independent chunks via sub-agents; (2) run the affected tests; (3) commit just that story's changes — `git -C <worktree> commit` with message `feat(<spec-name>/<id>): <title>`; (4) `SendMessage` me (the lead) a short report — what you built, the exact test commands + pass/fail counts, the commit sha, deviations, unverified items — and append it to `~/.spec/<project-name>/<spec-name>/coder-report.md`; (5) record via `dex` (`dex test --passed … --failed …`, then `dex story done <id> --commit <sha>`). Then DO NOT shut down — wait for the next story. After the LAST story, `SendMessage` me \"all stories complete — staying alive for review\", then stay alive: the reviewer may `SendMessage` you findings directly — when it does, fix, re-run tests, commit `fix(<spec-name>/<id>): <what>`, message both me and the reviewer, append the new report, and stay alive again."
+**Per-story coder brief.** Each story's fresh coder gets the worktree rule above plus this contract in its spawn prompt:
+> "Implement ONLY the one Build Story I give you, TDD (RED → GREEN), parallelizing independent chunks via sub-agents. Run the affected tests. Commit just this story — `git -C <worktree> commit` message `feat(<spec-name>/<id>): <title>`. `SendMessage` me (the lead) AND the reviewer a short report — what you built, the exact test commands + pass/fail counts, the commit sha, deviations, unverified items — and append it to `~/.spec/<project-name>/<spec-name>/coder-report.md`. Record via `dex` (`dex test --passed … --failed …`, then `dex story done <id> --commit <sha>`). Then STAY ALIVE for this story's review: the reviewer may `SendMessage` you findings — fix, re-run tests, commit `fix(<spec-name>/<id>): <what>`, message both me and the reviewer, stay alive. Shut down only when I tell you this story passed."
 
-The coder must stay alive across every story and through the review loop. Only tell it to shut down after review passes.
-
-**ENTERING AUTONOMOUS MODE:** Before sending work to the coder, DM the user:
-1. `notify ":hammer_and_wrench: *[<spec name>]* Implementation started — you can detach now (`Ctrl+O, D`). Next DM when tests pass."`
+**ENTERING AUTONOMOUS MODE.** On `dex phase build`: spawn the persistent reviewer once (`dex agent spawn reviewer`), register the stories (`dex story add --id <id> --title "<title>"` for each `## Build Stories` entry), then DM the user:
+1. `notify ":hammer_and_wrench: *[<spec name>]* Build started — per-story loop. You can detach now (`Ctrl+O, D`). Next DM at review milestones."`
 2. Log in `~/.spec/<project-name>/<spec-name>/logbook.md`
 
-**The build loop (lead-driven).** Implement the `## Build Stories` one at a time — each lands as its own commit, which is what makes the run resumable. On `dex phase build`, register the stories up front (`dex story add --id <id> --title "<title>"` for each), then loop:
+**The per-story loop (lead-driven).** Loop over `dex story next` (`<id> <title>`; until it exits empty / exit 1):
 
-1. **Pick the next un-built story** — the first `## Build Stories` entry with no `feat(<spec-name>/<id>):` commit on the branch yet. List built ids with `git -C <worktree> log --oneline --fixed-strings --grep "feat(<spec-name>/"` (`--fixed-strings` so the literal `(` isn't parsed as a regex — it otherwise fatals under `grep.patternType=extended/perl`), read the `<id>` out of each `feat(<spec-name>/<id>):` subject, and pick the first Build Story whose id isn't in that set. Once the `dex story` CLI is wired, `dex story next` returns this directly.
-2. `dex story start <id>`, then `SendMessage` the coder **that one story** — its id, title, the Acceptance Criteria it covers, and the relevant files. One story at a time, never the whole plan at once.
-3. When the coder reports back: confirm its tests are green AND the `feat(<spec-name>/<id>)` commit landed (`git -C <worktree> log --oneline`) AND it emitted `dex story done`. If not green or no commit, tell the coder to finish that story — do NOT advance.
-4. Move to the next story. When every story has its commit, the build is complete → proceed to Review.
+1. `dex story start <id>`.
+2. **Spawn a FRESH coder for THIS story** (clean context). Dismiss its first-launch approval gate (check the pane within ~60s). Brief it with the worktree rule + the per-story coder brief above + this story's id, title, the Acceptance Criteria it covers, and the relevant files. One story only — never the whole plan.
+3. **Per-story review (mesh).** When the coder reports green + the `feat(<spec-name>/<id>)` commit landed (`git -C <worktree> log --oneline -1`) + it emitted `dex story done`, the persistent reviewer reviews THAT story's diff (`git -C <worktree> show <sha>` + the touched files & their callers), runs the affected tests, and `SendMessage`s a verdict to the lead AND the coder — writing `~/.spec/<project-name>/<spec-name>/review-<id>-<round>.md` (first line `VERDICT: PASS | PASS WITH NOTES | FAIL`, then `[BLOCKER|ISSUE|NIT] file:line — problem — fix`) and recording `dex review --round <N> --verdict …`.
+   - **FAIL / PASS WITH NOTES with ISSUEs:** the reviewer `SendMessage`s findings straight to the story-coder (peer mesh, no lead relay); the coder fixes, re-tests, commits `fix(<spec-name>/<id>): <what>`, messages both; the reviewer re-reviews. Up to **3 rounds per story** (the lead counts from the verdict events and is the sole authority on giving up).
+   - **3 rounds still failing (lead decides):** block + notify + stop — see the blocked template below.
+4. **On PASS:** confirm `dex story done <id>` landed, tell THIS story's coder to shut down (`dex agent idle coder`), and move to the next story. Notify on the first story, then only on review FAILs/blocks — don't DM every passing story.
 
-Within a story the coder still parallelizes independent chunks via sub-agents and follows `/tdd` discipline (vertical slicing, public-interface-only, integration-first, no horizontal batching).
+Within a story the coder follows `/tdd` discipline (vertical slicing, public-interface-only, integration-first, no horizontal batching). **If a coder reports a plan issue** mid-loop, DM the user and wait — every passed story is already committed, so the loop resumes from the next one once unblocked.
 
-**If the coder reports a plan issue** mid-loop, DM the user and wait for guidance — every story committed so far is safe in git, so the loop resumes from the next one once unblocked.
+### Final integration review
 
-**TRANSITION → Review:** When the build loop completes (every Build Story has its `feat(<spec-name>/<id>):` commit and the coder's "all stories complete" message has landed), confirm the last story's tests are green (its per-story report + `coder-report.md`). If not green, SendMessage the coder to finish; don't advance. Once green, do these in order before ANY other work:
-1. `notify ":white_check_mark: *[<spec name>]* Implementation complete — tests passing, moving to review"`
-2. Log in `~/.spec/<project-name>/<spec-name>/logbook.md`
-3. Then proceed to Review
+When `dex story next` exits empty (every story built + reviewed), `dex phase review` and have the **persistent reviewer** do ONE light pass for **cross-story coherence** — do the stories compose, are there integration gaps the per-story diffs couldn't see? It does NOT re-review each story's diff. Verdict + findings via the same `dex review` mechanism, written to `review-final.md`; same 3-round fix ceiling if it surfaces blockers (route fixes to a fresh coder, since the per-story coders have shut down).
 
-## Review (Autonomous)
-
-Spawn the reviewer **as a persistent teammate** (it stays alive across all rounds so it has a live inbox for the coder to message — do NOT re-spawn it per round). Its spawn prompt MUST name the verdict file AND the peer protocol below. The reviewer:
-1. Reads all changed files + callers
-2. Checks architecture, correctness, style; runs the affected test suites
-3. `SendMessage`s its verdict to the lead AND writes `~/.spec/<project-name>/<spec-name>/review-round-<N>.md` — first line `VERDICT: PASS | PASS WITH NOTES | FAIL`, then findings (`[BLOCKER|ISSUE|NIT] file:line — problem — fix`) — and records it via `dex review --round <N> --verdict …`.
-
-### Review loop (coder ↔ reviewer, peer mesh):
-
-The fix-iteration happens **peer-to-peer** to cut the lead-relay roundtrip. The lead does NOT relay findings — it observes (via the verdict messages + the event log) and stays the authority on termination.
-
-**If FAIL or PASS WITH NOTES with ISSUEs**, the reviewer (per its spawn prompt) directly:
-1. `SendMessage`s its findings to the **coder** teammate, AND writes them to `~/.spec/<project-name>/<spec-name>/fix-request-<N>.md` as the durable record
-2. The coder fixes, re-runs tests, `SendMessage`s the reviewer "done" (and the lead), emits the new test result, stays alive
-3. The reviewer re-reviews (same live agent, new `review-round-<N+1>.md`), emits the new verdict
-4. The lead counts rounds from the verdict events. Repeat up to 3 rounds.
-5. If still failing after 3 rounds (lead decides):
-   1. `notify ":rotating_light: *[<spec name>]* Blocked — review failed after 3 rounds\n>*Phase:* review\n>*Reason:* <summary of unresolved findings>\n>*Resume:* `reattach via your multiplexer (zellij attach / tmux attach) <session-name>`"`
-   2. Log in `~/.spec/<project-name>/<spec-name>/logbook.md`
-   3. Stop and wait
-
-**TRANSITION → Ship:** When reviewer reports PASS, do these in order before ANY other work:
-1. `notify ":tada: *[<spec name>]* Review passed — shipping PR"`
-2. Tell the coder AND the reviewer they can shut down (both are persistent teammates), and record `dex agent idle coder` / `dex agent idle reviewer`
+**TRANSITION → Ship:** When the final integration review is PASS, do these in order before ANY other work:
+1. `notify ":tada: *[<spec name>]* All stories built + reviewed — shipping PR"`
+2. Tell the reviewer to shut down (`dex agent idle reviewer`)
 3. Log in `~/.spec/<project-name>/<spec-name>/logbook.md`
 4. Then proceed to Ship
+
+**Blocked template** (a per-story 3-round failure OR a final-review block):
+```
+notify ":rotating_light: *[<spec name>]* Blocked — <story <id> | final review> failed after 3 rounds\n>*Phase:* build\n>*Reason:* <summary of unresolved findings>\n>*Resume:* `reattach via your multiplexer (zellij attach / tmux attach) <session-name>`"
+```
+then `dex block "<why>"`, log in the logbook, and stop.
 
 ## Ship (Autonomous)
 
