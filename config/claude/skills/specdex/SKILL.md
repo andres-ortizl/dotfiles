@@ -130,7 +130,7 @@ install binds:
 | Setup — ports | `eval "$(dex ports alloc)"` |
 | Plan | `dex phase plan` |
 | Implement starts | `dex phase build` |
-| Stories registered | `dex story add --id <id> --title "<title>"` (one per Build Story, at plan→build) |
+| Stories registered | `dex story add --id <id> --title "<name>" --summary "<summary>"` (one per Build Story, at plan→build) |
 | Story started / done | `dex story start <id>` / `dex story done <id> --commit <sha>` |
 | Coder spawned / idle | `dex agent spawn coder --id <id>` / `dex agent idle coder` |
 | Coder green | `dex test --passed <P> --failed <F> --cmd "<cmd>"` |
@@ -361,9 +361,11 @@ Decompose the approved plan into an ordered `## Build Stories` list in `spec.md`
 ```markdown
 ## Build Stories
 
-- S1: <imperative title> — satisfies AC #1, #2
-- S2: <title> — satisfies AC #3
+- S1 — **<imperative name>**: <one-line summary of what it does> _(satisfies AC #1, #2)_
+- S2 — **<imperative name>**: <one-line summary> _(satisfies AC #3)_
 ```
+
+Each story carries three things: the `S1..SN` **id** (the stable key, kept for commits and resume), a short imperative **name** (≤ ~6 words — it doubles as the commit subject `feat(<spec-name>/<id>): <name>`), and a **one-line summary** describing what it does. `dex story ls` renders them as a clean `1..N` numbered list with the summary underneath.
 
 Rules:
 - Each story must be **independently committable** and small enough to finish in one focused coder pass. Order them so each builds on the last.
@@ -393,7 +395,7 @@ The feature is built **and reviewed one Build Story at a time**. You (the lead) 
 **Per-story coder brief.** Each story's fresh coder gets the worktree rule above plus this contract in its spawn prompt:
 > "Implement ONLY the one Build Story I give you, TDD (RED → GREEN), parallelizing independent chunks via sub-agents. Run the affected tests. Commit just this story — `git -C <worktree> commit` message `feat(<spec-name>/<id>): <title>`. `SendMessage` me (the lead) AND the reviewer a short report — what you built, the exact test commands + pass/fail counts, the commit sha, deviations, unverified items — and append it to `~/.spec/<project-name>/<spec-name>/coder-report.md`. Record via `dex` (`dex test --passed … --failed …`, then `dex story done <id> --commit <sha>`). Then STAY ALIVE for this story's review: the reviewer may `SendMessage` you findings — fix, re-run tests, commit `fix(<spec-name>/<id>): <what>`, message both me and the reviewer, stay alive. Do NOT emit `dex review` — recording verdicts is the reviewer's job. Shut down only when I tell you this story passed."
 
-**ENTERING AUTONOMOUS MODE.** On `dex phase build`: spawn the persistent reviewer once (`dex agent spawn reviewer`; dismiss its first-launch gate too, like any teammate), register the stories (`dex story add --id <id> --title "<title>"` for each `## Build Stories` entry), then DM the user:
+**ENTERING AUTONOMOUS MODE.** On `dex phase build`: spawn the persistent reviewer once (`dex agent spawn reviewer`; dismiss its first-launch gate too, like any teammate), register the stories (`dex story add --id <id> --title "<name>" --summary "<summary>"` for each `## Build Stories` entry), then DM the user:
 1. `notify ":hammer_and_wrench: *[<spec name>]* Build started — per-story loop. You can detach now (`Ctrl+O, D`). Next DM on review FAILs, blocks, or the final-review pass."`
 2. Log in `~/.spec/<project-name>/<spec-name>/logbook.md`
 

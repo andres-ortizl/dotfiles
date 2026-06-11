@@ -121,8 +121,8 @@ mod tests {
     fn story_progress_counts_done_over_total() {
         let now = Utc::now();
         let mut s = SpecState::new("p".into(), "f".into(), now);
-        s.apply(&Payload::StoryAdd { id: "S1".into(), title: "a".into() }, now);
-        s.apply(&Payload::StoryAdd { id: "S2".into(), title: "b".into() }, now);
+        s.apply(&Payload::StoryAdd { id: "S1".into(), title: "a".into(), summary: None }, now);
+        s.apply(&Payload::StoryAdd { id: "S2".into(), title: "b".into(), summary: None }, now);
         s.apply(&Payload::StoryDone { id: "S1".into(), commit: None }, now);
         let rows = fleet_snapshot(vec![s], now, 900);
         assert_eq!(rows[0].stories_total, 2);
