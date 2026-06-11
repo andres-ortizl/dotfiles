@@ -235,7 +235,7 @@ pub enum Payload {
     Gate { provider: GateProvider, name: Option<String>, result: GateResult, score: Option<u8> },
     Pr { number: u64, url: String, state: PrState },
     Note { level: NoteLevel, topic: String, text: String, scope: Option<String> },
-    StoryAdd { id: String, title: String },
+    StoryAdd { id: String, title: String, summary: Option<String> },
     StoryStart { id: String },
     StoryDone { id: String, commit: Option<String> },
 }
@@ -318,7 +318,13 @@ impl Payload {
                 }
                 m
             }
-            Payload::StoryAdd { id, title } => json!({ "id": id, "title": title }),
+            Payload::StoryAdd { id, title, summary } => {
+                let mut m = json!({ "id": id, "title": title });
+                if let Some(s) = summary {
+                    m["summary"] = json!(s);
+                }
+                m
+            }
             Payload::StoryStart { id } => json!({ "id": id }),
             Payload::StoryDone { id, commit } => {
                 let mut m = json!({ "id": id });
@@ -465,10 +471,18 @@ mod tests {
 
     #[test]
     fn story_payloads_kind_subject_data() {
-        let add = Payload::StoryAdd { id: "S1".into(), title: "migration".into() };
+        let add = Payload::StoryAdd {
+            id: "S1".into(),
+            title: "migration".into(),
+            summary: Some("move the format pipelines".into()),
+        };
         assert_eq!(add.kind(), "story.added");
         assert_eq!(add.subject().as_deref(), Some("S1"));
         assert_eq!(add.data()["title"], "migration");
+        assert_eq!(add.data()["summary"], "move the format pipelines");
+
+        let add_no_summary = Payload::StoryAdd { id: "S2".into(), title: "wiring".into(), summary: None };
+        assert!(add_no_summary.data()["summary"].is_null());
 
         let done = Payload::StoryDone { id: "S1".into(), commit: Some("abc".into()) };
         assert_eq!(done.kind(), "story.done");

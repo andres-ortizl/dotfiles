@@ -21,6 +21,8 @@ pub struct AgentSnapshot {
 pub struct StorySnapshot {
     pub id: String,
     pub title: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub summary: Option<String>,
     pub status: StoryStatus,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub commit: Option<String>,
@@ -165,11 +167,12 @@ impl SpecState {
                 self.pr = Some(PrRef { number: *number, url: url.clone(), state: *state });
             }
             Payload::Note { .. } => {} // notes are append-only telemetry; no state fold
-            Payload::StoryAdd { id, title } => {
+            Payload::StoryAdd { id, title, summary } => {
                 if !self.stories.iter().any(|s| &s.id == id) {
                     self.stories.push(StorySnapshot {
                         id: id.clone(),
                         title: title.clone(),
+                        summary: summary.clone(),
                         status: StoryStatus::Pending,
                         commit: None,
                         since: now,
@@ -334,11 +337,12 @@ mod tests {
     fn story_lifecycle_derives_status_and_next() {
         let now = Utc::now();
         let mut s = SpecState::new("p".into(), "f".into(), now);
-        s.apply(&Payload::StoryAdd { id: "S1".into(), title: "a".into() }, now);
-        s.apply(&Payload::StoryAdd { id: "S2".into(), title: "b".into() }, now);
+        s.apply(&Payload::StoryAdd { id: "S1".into(), title: "a".into(), summary: Some("alpha summary".into()) }, now);
+        s.apply(&Payload::StoryAdd { id: "S2".into(), title: "b".into(), summary: None }, now);
         // re-adding the same id is idempotent — no duplicate
-        s.apply(&Payload::StoryAdd { id: "S1".into(), title: "a".into() }, now);
+        s.apply(&Payload::StoryAdd { id: "S1".into(), title: "a".into(), summary: Some("alpha summary".into()) }, now);
         assert_eq!(s.stories.len(), 2);
+        assert_eq!(s.stories[0].summary.as_deref(), Some("alpha summary"));
         assert_eq!(s.next_unbuilt_story().unwrap().id, "S1");
 
         // an in-progress (Active) story is still "unbuilt" — next re-surfaces it

@@ -207,8 +207,12 @@ enum StoryOp {
     Add {
         #[arg(long)]
         id: String,
+        /// Short imperative name — also the commit subject
         #[arg(long)]
         title: String,
+        /// One-line summary of what the story does
+        #[arg(long)]
+        summary: Option<String>,
     },
     /// Mark a story in progress
     Start { id: String },
@@ -330,7 +334,7 @@ fn port_is_free(port: u16) -> bool {
 
 fn story_cmd(project: &str, name: &str, op: StoryOp, actor: Option<&str>) -> Result<()> {
     match op {
-        StoryOp::Add { id, title } => {
+        StoryOp::Add { id, title, summary } => {
             // Best-effort duplicate guard — a racing concurrent add could slip past it,
             // but apply() is idempotent on id, so the snapshot stays correct regardless.
             if let Some(st) = load_state(project, name)? {
@@ -338,7 +342,7 @@ fn story_cmd(project: &str, name: &str, op: StoryOp, actor: Option<&str>) -> Res
                     return Err(anyhow!("story {id:?} already registered"));
                 }
             }
-            let state = emit(project, name, Payload::StoryAdd { id: id.clone(), title }, actor)?;
+            let state = emit(project, name, Payload::StoryAdd { id: id.clone(), title, summary }, actor)?;
             println!("story {id} registered ({} total)", state.stories.len());
             Ok(())
         }
@@ -356,12 +360,18 @@ fn story_cmd(project: &str, name: &str, op: StoryOp, actor: Option<&str>) -> Res
             let st = load_state(project, name)?
                 .ok_or_else(|| anyhow!("no state for {project}/{name}"))?;
             if st.stories.is_empty() {
-                println!("No stories registered — add them with `dex story add --id S1 --title …`.");
+                println!(
+                    "No stories registered — add them with `dex story add --id S1 --title … --summary …`."
+                );
                 return Ok(());
             }
-            for s in &st.stories {
+            // Lead with a 1..N ordinal (the S1.. id stays the stable key behind it).
+            for (i, s) in st.stories.iter().enumerate() {
                 let commit = s.commit.as_deref().map(|c| format!("  {c}")).unwrap_or_default();
-                println!("{:<6} {:<8} {}{}", s.id, s.status.as_str(), s.title, commit);
+                println!("{:>2}. {:<8} {}{}", i + 1, s.status.as_str(), s.title, commit);
+                if let Some(summary) = &s.summary {
+                    println!("    {summary}");
+                }
             }
             Ok(())
         }
