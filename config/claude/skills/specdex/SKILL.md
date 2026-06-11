@@ -30,7 +30,7 @@ User describes feature
         │ plan approved
         ▼
 ┌─ IMPLEMENT (autonomous) ─┐
-│  Coder implements plan    │
+│  Story-by-story loop      │
 │  TDD: RED → GREEN         │
 │  Parallelizes independent │
 │  chunks via sub-agents    │
@@ -129,6 +129,8 @@ install binds:
 | Setup — ports | `eval "$(dex ports alloc)"` |
 | Plan | `dex phase plan` |
 | Implement starts | `dex phase build` |
+| Stories registered | `dex story add --id <id> --title "<title>"` (one per Build Story, at plan→build) |
+| Story started / done | `dex story start <id>` / `dex story done <id> --commit <sha>` |
 | Coder spawned / idle | `dex agent spawn coder --id <id>` / `dex agent idle coder` |
 | Coder green | `dex test --passed <P> --failed <F> --cmd "<cmd>"` |
 | Review starts | `dex phase review` then `dex agent spawn reviewer` |
@@ -144,6 +146,14 @@ install binds:
 **Retrieve (consume, don't own):** at Plan, pull prior lessons/gotchas scoped to the touched
 files — `dex memory find "<feature> + <paths>"` — and fold them in before writing the plan.
 The read side is the whole point of the brain; the skill consumes it, never curates.
+
+## Mode: resume (`/specdex resume`)
+
+Re-attach to the most recent non-terminal spec for this project and continue from **durable state, not a remembered context**. Read the spec's phase (`dex ls` / its `state.json`), then:
+
+- **Phase `build`:** read the `## Build Stories` list from `spec.md` and find which are already built — the durable signal is git history: story `<id>` is done iff a `feat(<spec-name>/<id>):` commit exists on the branch (`git -C <worktree> log --oneline --grep "feat(<spec-name>/"`; `dex story next` once the CLI is wired). **Spawn a FRESH coder** (clean context) and run the Build loop from the next un-built story. The fresh coder is the whole point — resume exists because the previous context may be dead or rotted.
+- **Phase `review` / `ship` / `verify`:** re-enter that phase's loop below (re-spawn the reviewer if needed, re-poll CI / bot review). Committed work and recorded gate results are the source of truth.
+- **No non-terminal spec found:** tell the user there's nothing to resume and list recent specs (`dex ls`).
 
 ## Mode: collaborate (`/specdex collaborate <feature>`)
 
@@ -315,6 +325,23 @@ Rules:
 - Include happy path AND at least one edge case
 - If the user doesn't provide criteria, the planner proposes them and gets approval
 
+### Build stories (required)
+
+Decompose the approved plan into an ordered `## Build Stories` list in `spec.md` — the unit of work the Build loop implements and commits one at a time. This is what makes a run **resumable**: each story lands as its own commit, so a crashed or re-attached run picks up at the next un-built story instead of re-running the whole feature in one rotting context.
+
+```markdown
+## Build Stories
+
+- S1: <imperative title> — satisfies AC #1, #2
+- S2: <title> — satisfies AC #3
+```
+
+Rules:
+- Each story must be **independently committable** and small enough to finish in one focused coder pass. Order them so each builds on the last.
+- Every story maps to one or more Acceptance Criteria; together the stories must cover all of them.
+- **Don't over-decompose.** A genuinely small feature is a single story `S1` — forcing a breakdown is the same over-engineering the planning constraints forbid. Split only when the feature has several independent slices or won't fit one comfortable context.
+- The list is **authored once** at plan time and stays static; live per-story status lives in git (the per-story commits) / `dex story`, not in this list — don't rewrite it mid-run.
+
 **Only after the user explicitly approves the plan, proceed to Build.**
 
 ## Build — Create Team & Implement (Autonomous)
@@ -335,23 +362,25 @@ Create a team with two teammates, both with `mode: "bypassPermissions"` so they 
 > - Report **files** (`coder-report.md`, `review-round-<N>.md`) stay as the durable fallback record, but SendMessage is now the primary, immediate channel — don't poll idle-notifications-then-read-file as the main path.
 
 **IMPORTANT: Coder lifecycle management.**
-When sending the plan to the coder, include this instruction:
-> "When you finish implementation: (1) `SendMessage` me (the lead) your completion report — per-section summary + the exact test commands you ran with pass/fail counts + deviations + unverified items; (2) also WRITE the same report to `~/.spec/<project-name>/<spec-name>/coder-report.md` as the durable record; (3) record via `dex` (`dex test --passed … --failed …`, then `dex agent idle coder`). Then DO NOT shut down: stay alive and wait. The reviewer may `SendMessage` you findings directly — when it does, apply the fixes, re-run tests, message both me and the reviewer that you're done, overwrite `coder-report.md`, emit the new test result, and stay alive again."
+The coder is a **persistent teammate for the whole feature** — it receives Build Stories one at a time and must NOT shut down between them. Include this instruction in its spawn prompt:
+> "You implement the feature one Build Story at a time. For EACH story I send you: (1) implement it TDD (RED → GREEN), parallelizing independent chunks via sub-agents; (2) run the affected tests; (3) commit just that story's changes — `git -C <worktree> commit` with message `feat(<spec-name>/<story-id>): <title>`; (4) `SendMessage` me (the lead) a short report — what you built, the exact test commands + pass/fail counts, the commit sha, deviations, unverified items — and append it to `~/.spec/<project-name>/<spec-name>/coder-report.md`; (5) record via `dex` (`dex test --passed … --failed …`, then `dex story done <story-id> --commit <sha>`). Then DO NOT shut down — wait for the next story. After the last story, stay alive for review: the reviewer may `SendMessage` you findings directly — when it does, fix, re-run tests, commit `fix(<spec-name>/<story-id>): <what>`, message both me and the reviewer, append the new report, and stay alive again."
 
-The coder must stay alive through the review loop. Only tell it to shut down after review passes.
+The coder must stay alive across every story and through the review loop. Only tell it to shut down after review passes.
 
 **ENTERING AUTONOMOUS MODE:** Before sending work to the coder, DM the user:
 1. `notify ":hammer_and_wrench: *[<spec name>]* Implementation started — you can detach now (`Ctrl+O, D`). Next DM when tests pass."`
 2. Log in `~/.spec/<project-name>/<spec-name>/logbook.md`
 
-Send the approved plan to the coder. The coder:
-1. Reads all relevant files
-2. Implements each step using TDD (RED → GREEN) — see `/tdd` for the discipline (vertical slicing, public-interface-only, integration-first, no horizontal batching)
-3. Parallelizes independent chunks via sub-agents
-4. Runs the full test suite
-5. `SendMessage`s its completion report to the lead (and writes `coder-report.md` as the durable copy) — BUT STAYS ALIVE
+**The build loop (lead-driven).** Implement the `## Build Stories` one at a time — each lands as its own commit, which is what makes the run resumable. On `dex phase build`, register the stories up front (`dex story add --id <id> --title "<title>"` for each), then loop:
 
-**If the coder reports a plan issue**, DM the user and wait for guidance.
+1. **Pick the next un-built story** — the first `## Build Stories` entry with no `feat(<spec-name>/<id>):` commit on the branch yet (`git -C <worktree> log --oneline --grep "feat(<spec-name>/"`). Once the `dex story` CLI is wired, `dex story next` returns this directly.
+2. `dex story start <id>`, then `SendMessage` the coder **that one story** — its id, title, the Acceptance Criteria it covers, and the relevant files. One story at a time, never the whole plan at once.
+3. When the coder reports back: confirm its tests are green AND the `feat(<spec-name>/<id>)` commit landed (`git -C <worktree> log --oneline`) AND it emitted `dex story done`. If not green or no commit, tell the coder to finish that story — do NOT advance.
+4. Move to the next story. When every story has its commit, the build is complete → proceed to Review.
+
+Within a story the coder still parallelizes independent chunks via sub-agents and follows `/tdd` discipline (vertical slicing, public-interface-only, integration-first, no horizontal batching).
+
+**If the coder reports a plan issue** mid-loop, DM the user and wait for guidance — every story committed so far is safe in git, so the loop resumes from the next one once unblocked.
 
 **TRANSITION → Review:** When the coder SendMessages its completion report (the idle/completion notification is your cue to check the message + `coder-report.md`), confirm tests are green. If not green, SendMessage the coder to finish; don't advance. Once green, do these in order before ANY other work:
 1. `notify ":white_check_mark: *[<spec name>]* Implementation complete — tests passing, moving to review"`
@@ -387,10 +416,9 @@ The fix-iteration happens **peer-to-peer** to cut the lead-relay roundtrip. The 
 
 ## Ship (Autonomous)
 
-Use the `/pr` skill to:
-1. Group changes into logical commits
-2. Push to a feature branch
-3. Create a PR targeting `dev`
+The Build loop already committed each story (`feat(<spec-name>/<id>): …`), so the branch history *is* the per-story commits and the working tree is clean. Use the `/pr` skill to:
+1. Push the branch (its commit step is a no-op when nothing is staged; any stray uncommitted changes it still groups into logical commits)
+2. Create a PR targeting `dev`
 
 **TRANSITION → Verify:** When PR is created, do these in order before ANY other work:
 1. `notify ":link: *[<spec name>]* PR created — <PR URL>, watching CI"`
