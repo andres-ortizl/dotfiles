@@ -7,11 +7,14 @@ use include_dir::{include_dir, Dir};
 use notify::{RecursiveMode, Watcher};
 use specdex_core::{
     emit, fleet_snapshot, get_dotted, load_all, load_effective, load_lesson, load_lessons,
-    paths, pick_offset, save_lesson, schema, validate, validate_score, Anchor, GateProvider,
-    GateResult, Lesson, NoteLevel, Payload, Phase, PrState, Role, SpecMode, Verdict,
+    load_state, paths, pick_offset, save_lesson, schema, validate, validate_score, Anchor,
+    GateProvider, GateResult, Lesson, NoteLevel, Payload, Phase, PrState, Role, SpecMode, Verdict,
 };
 
-static SKILL_DIR: Dir = include_dir!("$CARGO_MANIFEST_DIR/../../skill");
+// The skill source + agents moved into the dotfiles tree (config/claude/{skills/specdex,agents}).
+// From this crate (apps/specdex/crates/cli) the dotfiles root is four levels up.
+static SKILL_DIR: Dir = include_dir!("$CARGO_MANIFEST_DIR/../../../../config/claude/skills/specdex");
+static AGENTS_DIR: Dir = include_dir!("$CARGO_MANIFEST_DIR/../../../../config/claude/agents");
 
 /// Resource-verb CLI. The target spec is ambient: set `DEX_SPEC=<project>/<name>`
 /// once (or pass `-s`). Every write is an event; state is derived.
@@ -64,6 +67,11 @@ enum Cmd {
     Agent {
         #[command(subcommand)]
         op: AgentOp,
+    },
+    /// Build-story progress within the build phase (add|start|done|ls|next)
+    Story {
+        #[command(subcommand)]
+        op: StoryOp,
     },
     /// Record a test run
     Test {
@@ -190,6 +198,29 @@ enum AgentOp {
 }
 
 #[derive(Subcommand)]
+enum StoryOp {
+    /// Register a build story (emits story.added)
+    Add {
+        #[arg(long)]
+        id: String,
+        #[arg(long)]
+        title: String,
+    },
+    /// Mark a story in progress
+    Start { id: String },
+    /// Mark a story complete (optionally record its commit sha)
+    Done {
+        id: String,
+        #[arg(long)]
+        commit: Option<String>,
+    },
+    /// List the spec's stories with status
+    Ls,
+    /// Print the next pending story (`<id> <title>`); empty + exit 1 when none remain
+    Next,
+}
+
+#[derive(Subcommand)]
 enum LessonsOp {
     /// List lessons for a project
     List {
@@ -248,6 +279,9 @@ fn main() -> Result<()> {
     if let Cmd::Ports { op } = cli.cmd {
         return ports_cmd(&project, &name, op, actor);
     }
+    if let Cmd::Story { op } = cli.cmd {
+        return story_cmd(&project, &name, op, actor);
+    }
     let payload = build_payload(cli.cmd)?;
     let state = emit(&project, &name, payload, actor)?;
     println!("{spec} → {}", state.phase.as_str());
@@ -288,6 +322,66 @@ fn used_offsets(self_project: &str, self_name: &str) -> Result<Vec<u16>> {
 
 fn port_is_free(port: u16) -> bool {
     std::net::TcpListener::bind(("127.0.0.1", port)).is_ok()
+}
+
+fn story_cmd(project: &str, name: &str, op: StoryOp, actor: Option<&str>) -> Result<()> {
+    match op {
+        StoryOp::Add { id, title } => {
+            if let Some(st) = load_state(project, name)? {
+                if st.stories.iter().any(|s| s.id == id) {
+                    return Err(anyhow!("story {id:?} already registered"));
+                }
+            }
+            let state = emit(project, name, Payload::StoryAdd { id: id.clone(), title }, actor)?;
+            println!("story {id} registered ({} total)", state.stories.len());
+            Ok(())
+        }
+        StoryOp::Start { id } => {
+            require_story(project, name, &id)?;
+            emit(project, name, Payload::StoryStart { id }, actor)?;
+            Ok(())
+        }
+        StoryOp::Done { id, commit } => {
+            require_story(project, name, &id)?;
+            emit(project, name, Payload::StoryDone { id, commit }, actor)?;
+            Ok(())
+        }
+        StoryOp::Ls => {
+            let st = load_state(project, name)?
+                .ok_or_else(|| anyhow!("no state for {project}/{name}"))?;
+            if st.stories.is_empty() {
+                println!("No stories registered — add them with `dex story add --id S1 --title …`.");
+                return Ok(());
+            }
+            for s in &st.stories {
+                let commit = s.commit.as_deref().map(|c| format!("  {c}")).unwrap_or_default();
+                println!("{:<6} {:<8} {}{}", s.id, s.status.as_str(), s.title, commit);
+            }
+            Ok(())
+        }
+        StoryOp::Next => {
+            let st = load_state(project, name)?
+                .ok_or_else(|| anyhow!("no state for {project}/{name}"))?;
+            match st.next_pending_story() {
+                Some(s) => {
+                    println!("{} {}", s.id, s.title);
+                    Ok(())
+                }
+                None => std::process::exit(1),
+            }
+        }
+    }
+}
+
+/// Reject a `start`/`done` on a story id that was never registered (`dex story add`).
+fn require_story(project: &str, name: &str, id: &str) -> Result<()> {
+    let st = load_state(project, name)?.ok_or_else(|| {
+        anyhow!("no state for {project}/{name} — register stories with `dex story add` first")
+    })?;
+    if !st.stories.iter().any(|s| s.id == id) {
+        return Err(anyhow!("unknown story id {id:?} — add it with `dex story add` first"));
+    }
+    Ok(())
 }
 
 const DEX_TOML_TEMPLATE: &str = r#"# .dex.toml — specdex project config. See `dex config schema`.
@@ -362,10 +456,12 @@ fn install(update: bool) -> Result<()> {
     let agents_dir = home.join(".claude").join("agents");
     std::fs::create_dir_all(&agents_dir)?;
 
-    let embedded_agents = SKILL_DIR.get_dir("agents").ok_or_else(|| anyhow!("embedded skill/agents/ not found"))?;
     let mut agents_written = 0usize;
-    for file in embedded_agents.files() {
+    for file in AGENTS_DIR.files() {
         let filename = file.path().file_name().unwrap_or_default();
+        if !filename.to_string_lossy().starts_with("dex-") {
+            continue; // ship only specdex's own agents, not other dotfiles agents
+        }
         let dest = agents_dir.join(filename);
         std::fs::write(&dest, file.contents())?;
         println!("  wrote {}", dest.display());
@@ -458,7 +554,7 @@ fn build_payload(cmd: Cmd) -> Result<Payload> {
             let validated_scope = scope.map(|s| parse_scope(&s)).transpose()?;
             Payload::Note { level: parse_level(&level)?, topic, text, scope: validated_scope }
         }
-        Cmd::Ls | Cmd::Watch | Cmd::Config { .. } | Cmd::Ports { .. } | Cmd::Install { .. } | Cmd::Notes { .. } | Cmd::Lessons { .. } => {
+        Cmd::Ls | Cmd::Watch | Cmd::Config { .. } | Cmd::Ports { .. } | Cmd::Story { .. } | Cmd::Install { .. } | Cmd::Notes { .. } | Cmd::Lessons { .. } => {
             unreachable!("handled before payload build")
         }
     })

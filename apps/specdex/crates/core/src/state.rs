@@ -6,7 +6,7 @@ use std::collections::BTreeMap;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
-use crate::event::{Payload, Phase, PrState, SpecMode};
+use crate::event::{Payload, Phase, PrState, SpecMode, StoryStatus};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AgentSnapshot {
@@ -14,6 +14,16 @@ pub struct AgentSnapshot {
     pub active: bool,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub agent_id: Option<String>,
+    pub since: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct StorySnapshot {
+    pub id: String,
+    pub title: String,
+    pub status: StoryStatus,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub commit: Option<String>,
     pub since: DateTime<Utc>,
 }
 
@@ -68,6 +78,8 @@ pub struct SpecState {
     pub last_gate: Option<GateSummary>,
     #[serde(default)]
     pub agents: Vec<AgentSnapshot>,
+    #[serde(default)]
+    pub stories: Vec<StorySnapshot>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -93,6 +105,7 @@ impl SpecState {
             last_test: None,
             last_gate: None,
             agents: Vec::new(),
+            stories: Vec::new(),
             created_at: now,
             updated_at: now,
             last_heartbeat: None,
@@ -152,6 +165,21 @@ impl SpecState {
                 self.pr = Some(PrRef { number: *number, url: url.clone(), state: *state });
             }
             Payload::Note { .. } => {} // notes are append-only telemetry; no state fold
+            Payload::StoryAdd { id, title } => {
+                if !self.stories.iter().any(|s| &s.id == id) {
+                    self.stories.push(StorySnapshot {
+                        id: id.clone(),
+                        title: title.clone(),
+                        status: StoryStatus::Pending,
+                        commit: None,
+                        since: now,
+                    });
+                }
+            }
+            Payload::StoryStart { id } => self.set_story(id, StoryStatus::Active, None, now),
+            Payload::StoryDone { id, commit } => {
+                self.set_story(id, StoryStatus::Done, commit.clone(), now)
+            }
         }
     }
 
@@ -165,6 +193,29 @@ impl SpecState {
         } else {
             self.agents.push(AgentSnapshot { role: role.to_string(), active, agent_id, since: now });
         }
+    }
+
+    fn set_story(&mut self, id: &str, status: StoryStatus, commit: Option<String>, now: DateTime<Utc>) {
+        if let Some(s) = self.stories.iter_mut().find(|s| s.id == id) {
+            s.status = status;
+            if commit.is_some() {
+                s.commit = commit;
+            }
+            s.since = now;
+        } else {
+            self.stories.push(StorySnapshot {
+                id: id.to_string(),
+                title: String::new(),
+                status,
+                commit,
+                since: now,
+            });
+        }
+    }
+
+    /// The first still-pending story, in registration order — drives `dex story next`.
+    pub fn next_pending_story(&self) -> Option<&StorySnapshot> {
+        self.stories.iter().find(|s| s.status == StoryStatus::Pending)
     }
 
     /// Liveness, derived rather than stored. `stale_after_secs` is how long a
@@ -279,5 +330,32 @@ mod tests {
         );
         let json = serde_json::to_string(&s).unwrap();
         assert!(json.contains("\"session_id\":\"xyz\""));
+    }
+
+    #[test]
+    fn story_lifecycle_derives_status_and_next() {
+        let now = Utc::now();
+        let mut s = SpecState::new("p".into(), "f".into(), now);
+        s.apply(&Payload::StoryAdd { id: "S1".into(), title: "a".into() }, now);
+        s.apply(&Payload::StoryAdd { id: "S2".into(), title: "b".into() }, now);
+        // re-adding the same id is idempotent — no duplicate
+        s.apply(&Payload::StoryAdd { id: "S1".into(), title: "a".into() }, now);
+        assert_eq!(s.stories.len(), 2);
+        assert_eq!(s.next_pending_story().unwrap().id, "S1");
+
+        s.apply(&Payload::StoryDone { id: "S1".into(), commit: Some("sha1".into()) }, now);
+        assert_eq!(s.stories[0].status, StoryStatus::Done);
+        assert_eq!(s.stories[0].commit.as_deref(), Some("sha1"));
+        assert_eq!(s.next_pending_story().unwrap().id, "S2");
+
+        s.apply(&Payload::StoryDone { id: "S2".into(), commit: None }, now);
+        assert!(s.next_pending_story().is_none());
+    }
+
+    #[test]
+    fn state_json_backward_compat_missing_stories() {
+        let json = r#"{"project":"p","name":"f","phase":"build","mode":"autonomous","created_at":"2024-01-01T00:00:00Z","updated_at":"2024-01-01T00:00:00Z","agents":[]}"#;
+        let s: SpecState = serde_json::from_str(json).expect("old state.json should parse");
+        assert!(s.stories.is_empty());
     }
 }

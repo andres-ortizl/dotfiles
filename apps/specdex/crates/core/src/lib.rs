@@ -17,7 +17,7 @@ pub use config::{
 };
 pub use event::{
     validate_score, Event, GateProvider, GateResult, NoteLevel, Payload, Phase, PrState, Role,
-    SpecMode, Verdict,
+    SpecMode, StoryStatus, Verdict,
 };
 pub use curator::{list_curator_reports, load_curator_report, CuratorReport};
 pub use lessons::{load_all_lessons, load_lesson, load_lessons, save_lesson, Anchor, Lesson};
@@ -28,7 +28,7 @@ pub use swarm::{
     watch_team_argv, PaneContent, TeamPanesResult,
 };
 pub use terminal::attach_argv;
-pub use state::{AgentSnapshot, GateSummary, Health, PrRef, SpecState, TestSummary};
+pub use state::{AgentSnapshot, GateSummary, Health, PrRef, SpecState, StorySnapshot, TestSummary};
 pub use view::{fleet_snapshot, AgentView, FleetRow};
 
 use std::fs::{self, OpenOptions};
