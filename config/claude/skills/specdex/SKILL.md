@@ -401,20 +401,39 @@ Both roles are **real Claude Code teammates spawned through the [agent-teams](ht
 > - Report **files** (`coder-report.md`, `review-round-<N>.md`) stay as the durable fallback record, but SendMessage is now the primary, immediate channel — don't poll idle-notifications-then-read-file as the main path.
 
 **Per-story coder brief.** Each story's fresh coder gets the worktree rule above plus this contract in its spawn prompt:
-> "Implement ONLY the one Build Story I give you, TDD (RED → GREEN), parallelizing independent chunks via sub-agents. Run the affected tests. Commit just this story — `git -C <worktree> commit` message `feat(<spec-name>/<id>): <title>`. `SendMessage` me (the lead) AND the reviewer a short report — what you built, the exact test commands + pass/fail counts, the commit sha, deviations, unverified items — and append it to `~/.spec/<project-name>/<spec-name>/coder-report.md`. Record via `dex` (`dex test --passed … --failed …`, then `dex story done <id> --commit <sha>`). Then STAY ALIVE for this story's review: the reviewer may `SendMessage` you findings — fix, re-run tests, commit `fix(<spec-name>/<id>): <what>`, message both me and the reviewer, stay alive. Do NOT emit `dex review` — recording verdicts is the reviewer's job. Shut down only when I tell you this story passed."
+> "Implement ONLY the one Build Story I give you, TDD (RED → GREEN), parallelizing independent chunks via sub-agents. Run the affected tests. Commit just this story — `git -C <worktree> commit` message `feat(<spec-name>/<id>): <title>`. `SendMessage` me (the lead) AND the reviewer a short report — what you built, the exact test commands + pass/fail counts, the commit sha, deviations, unverified items — and append it to `~/.spec/<project-name>/<spec-name>/coder-report.md`. Record via `dex` `dex test --passed … --failed …` (do **not** emit `dex story done` — the lead marks completion after review passes). Then STAY ALIVE for this story's review: the reviewer may `SendMessage` you findings — fix, re-run tests, commit `fix(<spec-name>/<id>): <what>`, message both me and the reviewer, stay alive. Do NOT emit `dex review` or `dex story done` — verdicts are the reviewer's job, completion is the lead's. Shut down only when I tell you this story passed."
 
 **ENTERING AUTONOMOUS MODE.** On `dex phase build`: **launch** the persistent `reviewer` teammate once (agent type `dex-reviewer` — see *Launching the team* above), then record it with `dex agent spawn reviewer`; register the stories (`dex story add --id <id> --title "<name>" --summary "<summary>"` for each `## Build Stories` entry), then DM the user:
 1. `notify ":hammer_and_wrench: *[<spec name>]* Build started — per-story loop. You can detach now (`Ctrl+O, D`). Next DM on review FAILs, blocks, or the final-review pass."`
 2. Log in `~/.spec/<project-name>/<spec-name>/logbook.md`
 
-**The per-story loop (lead-driven).** Loop over `dex story next` (`<id> <title>`; until it exits empty / exit 1):
+**The per-story loop (lead-driven).** Loop over `dex story next` (`<id> <title>`; until it exits empty / exit 1) — one story at a time, each a self-contained coder⇄reviewer cycle that only the lead can end.
+
+**The cycle at a glance:**
+
+```
+LEAD      ─ launch a FRESH coder, brief it on THIS story only
+CODER     ─ implement (TDD) → commit feat(<spec>/<id>)
+            └ ping "green @ <sha>, tests P/F"   →  lead + reviewer
+REVIEWER  ─ review the diff + run the tests
+            └ ping a VERDICT                     →  lead + coder
+                 ├ PASS → LEAD marks `dex story done`, retires the coder → next story
+                 └ FAIL → CODER fix → commit fix(<spec>/<id>) → ping again → reviewer re-reviews
+                          (≤ 3 review rounds; still failing → LEAD blocks + stops)
+```
+
+**Concrete steps:**
 
 1. `dex story start <id>`.
 2. **Launch a FRESH `coder` teammate for THIS story** (agent type `dex-coder`, clean context — see *Launching the team* above), then record `dex agent spawn coder --id <id>`. If a first-launch approval prompt appears, dismiss it. Brief it with the worktree rule + the per-story coder brief above + this story's id, title, the Acceptance Criteria it covers, and the relevant files. One story only — never the whole plan.
-3. **Per-story review (mesh).** When the coder reports green + the `feat(<spec-name>/<id>)` commit landed (`git -C <worktree> log --oneline -1`) + it emitted `dex story done`, the persistent reviewer reviews THAT story's diff (`git -C <worktree> show <sha>` + the touched files & their callers), runs the affected tests, and `SendMessage`s a verdict to the lead AND the coder — writing `~/.spec/<project-name>/<spec-name>/review-<id>-<round>.md` (first line `VERDICT: PASS | PASS WITH NOTES | FAIL`, then `[BLOCKER|ISSUE|NIT] file:line — problem — fix`) and recording `dex review --round <N> --verdict …`.
-   - **FAIL / PASS WITH NOTES with ISSUEs:** the reviewer `SendMessage`s findings straight to the story-coder (peer mesh, no lead relay); the coder fixes, re-tests, commits `fix(<spec-name>/<id>): <what>`, messages both; the reviewer re-reviews. Up to **3 rounds per story** (the lead counts from the verdict events and is the sole authority on giving up).
-   - **3 rounds still failing (lead decides):** block + notify + stop — see the blocked template below.
-4. **On PASS:** confirm `dex story done <id>` landed, tell THIS story's coder to shut down (`dex agent idle coder`), and move to the next story. Notify on the first story, then only on review FAILs/blocks — don't DM every passing story.
+3. **Review loop (mesh, ≤ 3 rounds).** The coder stays alive throughout; the lead watches the `dex review` verdict events and is the only one who ends the loop. Each **round N** (1, 2, 3):
+   - **(a) Coder → lead + reviewer.** Once the round's commit has landed (`feat(<spec-name>/<id>)` on round 1, `fix(<spec-name>/<id>)` after — confirm with `git -C <worktree> log --oneline -1`), `SendMessage` "`<id>` green @ `<sha>`, tests P/F" and record `dex test --passed … --failed …`. The coder does **not** emit `dex story done`.
+   - **(b) Reviewer reviews round N.** Reads `git -C <worktree> show <sha>` + the touched files & their callers, runs the affected tests, writes `~/.spec/<project-name>/<spec-name>/review-<id>-<N>.md` (first line `VERDICT: PASS | PASS WITH NOTES | FAIL`, then one `[BLOCKER|ISSUE|NIT] file:line — problem — fix` per finding), records `dex review --round <N> --verdict …`, and `SendMessage`s the verdict to **both** the lead and the coder.
+   - **(c) Branch on the verdict.**
+     - **PASS**, or **PASS WITH NOTES whose remaining items are only NITs** → story complete; go to step 4. (Nits never trigger another round; the lead may ask the coder to sweep them first.)
+     - **FAIL**, or **PASS WITH NOTES with any BLOCKER/ISSUE** → the coder (already holding round N's findings) fixes, re-runs the affected tests, commits `fix(<spec-name>/<id>): <what>`, and loops back to round N+1. Peer-to-peer — no lead relay.
+   - **(d) Ceiling.** Capped at **3 verdicts** (≤ 2 coder fix-iterations). If round 3 still isn't a pass, the lead stops: block + notify + halt — see the blocked template below. Earlier passed stories are already committed, so resume restarts from this one.
+4. **On a passing verdict — the LEAD marks completion** (only the lead ends a story): confirm the passing `dex review` landed, emit **`dex story done <id> --commit <sha>`** (head sha — the single completion signal, so the fleet view and `dex story next` advance only after review passed), shut the coder down (shutdown request to the `coder` teammate → then `dex agent idle coder`), and advance via `dex story next`. Notify on the first story, then only on review FAILs/blocks — don't DM every passing story.
 
 Within a story the coder follows `/tdd` discipline (vertical slicing, public-interface-only, integration-first, no horizontal batching). **If a coder reports a plan issue** mid-loop, DM the user and wait — every passed story is already committed, so the loop resumes from the next one once unblocked.
 
