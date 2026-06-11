@@ -4,6 +4,7 @@
 use chrono::{DateTime, Utc};
 use serde::Serialize;
 
+use crate::event::StoryStatus;
 use crate::state::SpecState;
 
 #[derive(Debug, Clone, Serialize)]
@@ -26,6 +27,11 @@ pub struct FleetRow {
     pub review_round: u32,
     pub review_score: Option<u8>,
     pub offset: Option<u16>,
+    /// Build-story progress within the build phase (done / total). 0/0 when the
+    /// spec uses no story breakdown. The supervisor reads `done < total` (with a
+    /// stale `build` phase) to decide a spec needs resuming; the desktop renders it.
+    pub stories_done: usize,
+    pub stories_total: usize,
     /// RFC3339 timestamp of the last event — the frontend uses this to decide
     /// whether the life-dot should *breathe* (recent activity) or sit calm. Motion
     /// = real liveness, NOT the health label.
@@ -42,6 +48,8 @@ pub fn fleet_snapshot(specs: Vec<SpecState>, now: DateTime<Utc>, stale_secs: i64
             let mode = s.mode.as_str().to_string();
             let pr = s.pr.as_ref().map(|p| p.number);
             let pr_state = s.pr.as_ref().map(|p| p.state.as_str().to_string());
+            let stories_total = s.stories.len();
+            let stories_done = s.stories.iter().filter(|st| st.status == StoryStatus::Done).count();
             // A terminal spec has no live agents. `active` is sticky — set on
             // AgentSpawn, cleared only by an AgentIdle a finishing loop often
             // omits — so a done spec would otherwise still report green workers.
@@ -64,6 +72,8 @@ pub fn fleet_snapshot(specs: Vec<SpecState>, now: DateTime<Utc>, stale_secs: i64
                 review_round: s.review_round,
                 review_score: s.review_score,
                 offset: s.offset,
+                stories_done,
+                stories_total,
                 updated_at: s.updated_at.to_rfc3339(),
             }
         })
@@ -105,6 +115,18 @@ mod tests {
             rows[0].agents.iter().all(|a| !a.active),
             "a terminal spec must report no live agents"
         );
+    }
+
+    #[test]
+    fn story_progress_counts_done_over_total() {
+        let now = Utc::now();
+        let mut s = SpecState::new("p".into(), "f".into(), now);
+        s.apply(&Payload::StoryAdd { id: "S1".into(), title: "a".into() }, now);
+        s.apply(&Payload::StoryAdd { id: "S2".into(), title: "b".into() }, now);
+        s.apply(&Payload::StoryDone { id: "S1".into(), commit: None }, now);
+        let rows = fleet_snapshot(vec![s], now, 900);
+        assert_eq!(rows[0].stories_total, 2);
+        assert_eq!(rows[0].stories_done, 1);
     }
 
     #[test]
