@@ -175,6 +175,27 @@ pub enum NoteLevel {
     Error,
 }
 
+/// Status of a build story — a sub-unit of the `build` phase. Stories are an
+/// ordered, durably-tracked work breakdown so the build loop is resumable at
+/// story granularity (the next pending story, not the whole feature).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum StoryStatus {
+    Pending,
+    Active,
+    Done,
+}
+
+impl StoryStatus {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            StoryStatus::Pending => "pending",
+            StoryStatus::Active => "active",
+            StoryStatus::Done => "done",
+        }
+    }
+}
+
 /// Greptile-style review scores are 0–5. Returns `None` on an out-of-range value.
 pub fn validate_score(s: u8) -> Option<u8> {
     (s <= 5).then_some(s)
@@ -214,6 +235,9 @@ pub enum Payload {
     Gate { provider: GateProvider, name: Option<String>, result: GateResult, score: Option<u8> },
     Pr { number: u64, url: String, state: PrState },
     Note { level: NoteLevel, topic: String, text: String, scope: Option<String> },
+    StoryAdd { id: String, title: String },
+    StoryStart { id: String },
+    StoryDone { id: String, commit: Option<String> },
 }
 
 impl Payload {
@@ -232,6 +256,9 @@ impl Payload {
             Payload::Gate { .. } => "gate.status",
             Payload::Pr { .. } => "pr.created",
             Payload::Note { .. } => "note",
+            Payload::StoryAdd { .. } => "story.added",
+            Payload::StoryStart { .. } => "story.started",
+            Payload::StoryDone { .. } => "story.done",
         }
     }
 
@@ -241,6 +268,9 @@ impl Payload {
                 Some(role.as_str().to_string())
             }
             Payload::Gate { provider, .. } => Some(provider.as_str().to_string()),
+            Payload::StoryAdd { id, .. } | Payload::StoryStart { id } | Payload::StoryDone { id, .. } => {
+                Some(id.clone())
+            }
             _ => None,
         }
     }
@@ -285,6 +315,15 @@ impl Payload {
                 let mut m = json!({ "level": level, "topic": topic, "text": text });
                 if let Some(s) = scope {
                     m["scope"] = json!(s);
+                }
+                m
+            }
+            Payload::StoryAdd { id, title } => json!({ "id": id, "title": title }),
+            Payload::StoryStart { id } => json!({ "id": id }),
+            Payload::StoryDone { id, commit } => {
+                let mut m = json!({ "id": id });
+                if let Some(c) = commit {
+                    m["commit"] = json!(c);
                 }
                 m
             }
@@ -422,5 +461,20 @@ mod tests {
         let ev: Event = serde_json::from_str(line).expect("old note should parse");
         assert_eq!(ev.kind, "note");
         assert!(ev.data["scope"].is_null());
+    }
+
+    #[test]
+    fn story_payloads_kind_subject_data() {
+        let add = Payload::StoryAdd { id: "S1".into(), title: "migration".into() };
+        assert_eq!(add.kind(), "story.added");
+        assert_eq!(add.subject().as_deref(), Some("S1"));
+        assert_eq!(add.data()["title"], "migration");
+
+        let done = Payload::StoryDone { id: "S1".into(), commit: Some("abc".into()) };
+        assert_eq!(done.kind(), "story.done");
+        assert_eq!(done.data()["commit"], "abc");
+
+        let done_no_commit = Payload::StoryDone { id: "S2".into(), commit: None };
+        assert!(done_no_commit.data()["commit"].is_null());
     }
 }
