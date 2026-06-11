@@ -260,7 +260,11 @@ If `$DEX_NOTIFY_WEBHOOK` is unset, `notify` is a no-op — just continue silentl
 - `<spec-name>`: convert the feature description to a short kebab-case slug (e.g., "auth-middleware", "snake-game")
 - `<project-name>`: the basename of the current project directory (e.g., "anyformat-backend", "spec-dashboard")
 
-These are used everywhere.
+These are used everywhere. **Set the ambient spec now** so every later `dex` command targets it without `-s`:
+
+```bash
+export DEX_SPEC=<project-name>/<spec-name>
+```
 
 ### 2. Create spec directory
 
@@ -295,6 +299,14 @@ EnterWorktree(name="specdex-<spec-name>")
 ```
 
 This creates a new branch and working directory at `.claude/worktrees/specdex-<spec-name>`. All implementation happens here — the main working tree is untouched. The **`specdex-` prefix** makes specdex's worktrees identifiable (`git worktree list | grep '/specdex-'`) so cleanup never touches Conductor/other-tool worktrees, and the UI locates a spec's `.dex.toml` via its recorded worktree path.
+
+**REQUIRED — register the spec in the event substrate now that the branch + worktree exist.** Until this runs, the spec has NO `events.jsonl`/`state.json`, so `resume`, `supervise`, the fleet view, and `dex story next` are ALL blind to it — a spec that has `spec.md` + `logbook.md` but no `events.jsonl` was never registered and is invisible:
+
+```bash
+dex init --branch specdex-<spec-name> --worktree <worktree-path> --session "$CLAUDE_CODE_SESSION_ID"
+```
+
+(Reusing an existing worktree from above? Pass that branch + path instead.) This is the spec's first event; every phase/story/test/review below appends to the same log.
 
 ### 4. Copy environment
 
@@ -332,7 +344,7 @@ This mode exists so automated orchestrators can dispatch spec loops without requ
 
 The lead IS the planner. Do NOT create a planner teammate.
 
-1. Enter plan mode (EnterPlanMode)
+1. Enter plan mode (EnterPlanMode); record `dex phase plan`
 2. Explore the codebase — read relevant files, understand existing patterns. **Pull prior memory** scoped to the files you'll touch (`dex memory find "<feature> + <paths>"`, injected — no-op if absent) and fold relevant lessons/gotchas into the plan before writing it
 3. Produce a plan for the user to review
 4. Iterate with the user until they approve
@@ -437,7 +449,7 @@ REVIEWER  ─ review the diff + run the tests
 
 **Concrete steps:**
 
-1. `dex story start <id>`.
+1. `dex story start <id>` + `dex beat` (heartbeat — keeps the spec reading `alive` to the supervisor/fleet through a long story; emit one each loop iteration).
 2. **Launch a FRESH `coder` teammate for THIS story** (agent type `dex-coder`, clean context — see *Launching the team* above), then record `dex agent spawn coder --id <id>`. If a first-launch approval prompt appears, dismiss it. Brief it with the worktree rule + the per-story coder brief above + this story's id, title, the Acceptance Criteria it covers, and the relevant files. One story only — never the whole plan.
 3. **Review loop (mesh, ≤ 3 rounds).** The coder stays alive throughout; the lead watches the `dex review` verdict events and is the only one who ends the loop. Each **round N** (1, 2, 3):
    - **(a) Coder → lead + reviewer.** Once the round's commit has landed (`feat(<spec-name>/<id>)` on round 1, `fix(<spec-name>/<id>)` after — confirm with `git -C <worktree> log --oneline -1`), `SendMessage` "`<id>` green @ `<sha>`, tests P/F" and record `dex test --passed … --failed …`. The coder does **not** emit `dex story done`.
@@ -468,14 +480,15 @@ then `dex block "<why>"`, log in the logbook, and stop.
 
 ## Ship (Autonomous)
 
-The Build loop already committed each story (`feat(<spec-name>/<id>): …`), so the branch history *is* the per-story commits and the working tree is clean. Use the `/pr` skill to:
+On entry, `dex phase ship`. The Build loop already committed each story (`feat(<spec-name>/<id>): …`), so the branch history *is* the per-story commits and the working tree is clean. Use the `/pr` skill to:
 1. Push the branch (its commit step is a no-op when nothing is staged). If `/pr` finds uncommitted changes here, treat it as a bug — a story commit missed something — and investigate before pushing.
 2. Create a PR targeting `dev`
 
 **TRANSITION → Verify:** When PR is created, do these in order before ANY other work:
-1. `notify ":link: *[<spec name>]* PR created — <PR URL>, watching CI"`
-2. Log in `~/.spec/<project-name>/<spec-name>/logbook.md`
-3. Then proceed to Verify
+1. `dex pr --number <N> --url <PR URL>` — records the spec↔PR link in `state.pr` for the fleet view.
+2. `notify ":link: *[<spec name>]* PR created — <PR URL>, watching CI"`
+3. Log in `~/.spec/<project-name>/<spec-name>/logbook.md`
+4. Then proceed to Verify
 
 ## Verify — CI + bot review (Autonomous)
 
