@@ -463,7 +463,7 @@ See **`reference/slack.md`** for the message format / emoji table.
 
 # dex CLI — what & when
 
-`dex` is the telemetry substrate (events → derived state the fleet + resume read). Set `DEX_SPEC` once at setup and `DEX_ACTOR` per agent (lead/coder/reviewer — records WHO). This whole section is **scoped and removable**: every `dex` call is a harmless no-op if the binary is absent, so dropping this table decouples the skill from the substrate.
+`dex` is the telemetry substrate (events → derived state the fleet + resume read). Set `DEX_SPEC` once at setup and `DEX_ACTOR` per agent (lead/coder/reviewer — records WHO). This whole section is **scoped and removable**: every `dex` call is a harmless no-op if the binary is absent, so dropping this table decouples the skill from the substrate. The table below is the *when*; for the complete spec of every verb, flag, and enum, see **`reference/dex-cli.md`**.
 
 | When (milestone) | Command |
 |---|---|
