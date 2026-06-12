@@ -106,6 +106,13 @@ Both roles are spawned through the **[agent-teams](https://code.claude.com/docs/
 
 > "Your worktree is `<absolute-worktree-path>`. Your session starts at the repo root, NOT there — so **as your FIRST action run `EnterWorktree(path="<absolute-worktree-path>")`** to switch your session into it. After that, bare `git` and relative paths resolve to your branch; confirm with `git status` that you're on `specdex-<spec-name>` before you start. Any sub-agent you spawn also starts at the root — give it the same path and tell it to `EnterWorktree(path=…)` first too. (`git -C <absolute-worktree-path> …` also works from anywhere if you need to be explicit.)"
 
+**Each spawn prompt also sets the teammate's `dex` identity.** Teammates are *separate* sessions and do NOT inherit your shell, so without these every `dex` call they make (`dex test`, `dex review`, `dex note`) has no ambient spec and records nowhere:
+
+```bash
+export DEX_SPEC=<project-name>/<spec-name>     # which spec they record to (same as yours)
+export DEX_ACTOR=coder                          # or `reviewer` — records WHO emitted each event
+```
+
 **Communication — two planes.** Both teammates have `SendMessage` (full mesh): use it to cut roundtrips (reviewer messages the coder findings directly, no lead relay) — that's the fast lane. The **event log is the visibility plane**: every consequential message also records a matching `dex` event. Peers coordinate fix-rounds directly; **only the lead** decides PASS→ship, max-rounds→escalate, blocked→DM.
 
 ## The per-story cycle (the coder⇄reviewer pin-pon)
