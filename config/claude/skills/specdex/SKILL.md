@@ -30,7 +30,7 @@ User describes feature
         ▼
 ┌─ BUILD (autonomous) ──────┐
 │  per-story loop:           │
-│  fresh coder per story →   │
+│  fresh coder+reviewer →    │
 │  impl → test → commit →    │
 │  per-story review →        │
 │  fix-loop (≤3) → next      │
@@ -38,7 +38,7 @@ User describes feature
         │ all stories built + reviewed
         ▼
 ┌─ FINAL REVIEW (auto) ─────┐
-│  persistent reviewer:      │
+│  fresh reviewer:           │
 │  do the stories compose?   │
 │  integration gaps? PASS    │
 └───────┬────────────────────┘
@@ -88,7 +88,7 @@ A **fresh teammate per story** (clean context — the implementation is the rot-
 
 ## Reviewer (`dex-reviewer` agent type)
 
-**One persistent teammate** for the whole feature. Reviews each story's diff in turn, runs the affected tests, issues a VERDICT with severity-tagged findings, re-reviews fixes, and does the final integration pass. Never marks a story done.
+**A fresh teammate per story** (clean context — same reason as the coder: reviewing piles up diffs, fix-rounds, and tool output that rot just as fast, and the holistic final pass should not run on the most-polluted context in the run). Reviews ONE story's diff, runs the affected tests, issues a VERDICT with severity-tagged findings, and re-reviews that story's fixes across the round loop — then retires alongside the coder when the story passes. The final cross-story integration pass gets its own fresh reviewer. Never marks a story done.
 
 Both coder and reviewer are **real Claude Code teammates** (own context window, addressable via `SendMessage`), launched through the agent-teams feature — see *The loop & rules → Launching the team*.
 
@@ -96,7 +96,12 @@ Both coder and reviewer are **real Claude Code teammates** (own context window, 
 
 ## Launching the team — the ACTUAL mechanism (do not skip)
 
-Both roles are spawned through the **[agent-teams](https://code.claude.com/docs/en/agent-teams) feature** — not subagents, and **not** `dex` events. You actually launch them: create an agent team and spawn a **named** teammate referencing the agent type — *"spawn a teammate named `reviewer` using the `dex-reviewer` agent type"*, and per story *"spawn a teammate named `coder` using the `dex-coder` agent type"* — handing each its full brief as the spawn prompt.
+Both roles are real **[agent-teams](https://code.claude.com/docs/en/agent-teams) teammates** — not subagents, not `dex` events. Standing them up is **two explicit tool calls**, and skipping the first silently downgrades you to tool-less solo subagents:
+
+1. **`TeamCreate` once, at Build entry** — `TeamCreate(team_name="specdex-<spec-name>", description="<feature>")`. This creates the team's mailbox + `members` registry and is **the step that makes peers real.** Without it the spawns below are plain background subagents with **no `SendMessage` tool at all** — coder and reviewer can't message each other *or* ping you mid-task, and the entire two-plane protocol silently no-ops (this is exactly the "no team of agents" failure).
+2. **Spawn each teammate INTO that team** — pass `team_name="specdex-<spec-name>"` on every `Agent` spawn. Per story you launch BOTH: *"spawn a teammate named `coder` using the `dex-coder` agent type, team_name `specdex-<spec-name>`"* and the same for `reviewer`/`dex-reviewer` — handing each its full brief as the spawn prompt. A bare named spawn without `team_name` is NOT a teammate.
+
+**Verify you got a teammate, not a subagent** (the solo-fallback tell): a real teammate's spawn result shows `agentId: <name>@specdex-<spec-name>` and *"will receive instructions via mailbox."* A bare UUID `agentId` plus *"you will be notified when it completes"* means you skipped `TeamCreate` or omitted `team_name` — stop, surface it, `TeamCreate`, and re-spawn. Don't quietly work alone.
 
 > **Launching a teammate ≠ `dex agent spawn`.** Launching creates a working Claude instance. `dex agent spawn coder|reviewer` is **only an event record** for the fleet view / audit trail — it launches nothing. Always launch the teammate FIRST, then `dex agent spawn …` to record it. If you're implementing a story yourself instead of through a `coder` teammate, you skipped the launch — stop and spawn it. (This is the single most common failure of this loop.)
 
@@ -120,17 +125,17 @@ export DEX_ACTOR=coder                          # or `reviewer` — records WHO 
 The feature is built and reviewed **one story at a time**, each a self-contained cycle only the lead can end.
 
 ```
-LEAD      ─ launch a FRESH coder, brief it on THIS story only
+LEAD      ─ launch a FRESH coder + reviewer into the team, brief each on THIS story
 CODER     ─ implement (TDD) → commit feat(<spec>/<id>)
             └ ping "green @ <sha>, tests P/F"   →  lead + reviewer
 REVIEWER  ─ review the diff + run the tests
             └ ping a VERDICT                     →  lead + coder
-                 ├ PASS → LEAD marks `dex story done`, retires the coder → next story
+                 ├ PASS → LEAD marks `dex story done`, retires coder + reviewer → next
                  └ FAIL → CODER fix → commit fix(<spec>/<id>) → ping again → reviewer re-reviews
                           (≤ 3 review rounds; still failing → LEAD blocks + stops)
 ```
 
-**The review loop (mesh, ≤ 3 rounds).** The coder stays alive throughout; the lead watches the `dex review` verdicts and is the only one who ends the loop. Each **round N** (1, 2, 3):
+**The review loop (mesh, ≤ 3 rounds).** The coder and reviewer both stay alive across this story's rounds; the lead watches the `dex review` verdicts and is the only one who ends the loop. Each **round N** (1, 2, 3):
 
 - **(a) Coder → lead + reviewer.** Once the round's commit has landed (`feat(<spec>/<id>)` on round 1, `fix(<spec>/<id>)` after — confirm with `git -C <worktree> log --oneline -1`), `SendMessage` "`<id>` green @ `<sha>`, tests P/F" and record `dex test --passed … --failed …`. The coder does **not** emit `dex story done`.
 - **(b) Reviewer reviews round N.** Reads `git -C <worktree> show <sha>` + the touched files & their callers, runs the affected tests, writes `~/.spec/<project>/<spec>/review-<id>-<N>.md` (first line `VERDICT: PASS | PASS WITH NOTES | FAIL`, then one `[BLOCKER|ISSUE|NIT] file:line — problem — fix` per finding), records `dex review --round <N> --verdict …`, and `SendMessage`s the verdict to **both** the lead and the coder.
@@ -139,7 +144,7 @@ REVIEWER  ─ review the diff + run the tests
   - **FAIL**, or **PASS WITH NOTES with any BLOCKER/ISSUE** → the coder (already holding round N's findings) fixes, re-runs the affected tests, commits `fix(<spec>/<id>): <what>`, and loops to round N+1. Peer-to-peer — no lead relay.
 - **(d) Ceiling.** ≤ **3 verdicts** (≤ 2 coder fix-iterations). If round 3 still isn't a pass, the lead stops: block + notify + halt. Earlier passed stories are already committed, so resume restarts from this one.
 
-**On a passing verdict the LEAD marks completion** (only the lead ends a story): confirm the passing `dex review` landed, emit `dex story done <id> --commit <sha>` (head sha — the single completion signal, so the fleet view and `dex story next` advance only after review passed), shut the coder down (shutdown request → then `dex agent idle coder`), and advance via `dex story next`.
+**On a passing verdict the LEAD marks completion** (only the lead ends a story): confirm the passing `dex review` landed, emit `dex story done <id> --commit <sha>` (head sha — the single completion signal, so the fleet view and `dex story next` advance only after review passed), shut the coder and reviewer down (a shutdown request to each → then `dex agent idle coder` / `dex agent idle reviewer`), and advance via `dex story next`.
 
 **Coder brief** (each story's fresh coder gets the worktree rule above plus this in its spawn prompt):
 > "Implement ONLY the one Build Story I give you, TDD (RED → GREEN), parallelizing independent chunks via sub-agents. Follow the **Escalation & severity** rules: make reversible (two-way-door) calls yourself and `dex note` your reasoning — don't stall on me for those; but `SendMessage` me any genuine one-way-door decision (irreversible API/schema/data-format/security choice) before you bake it in. Run the affected tests. Commit just this story — `git -C <worktree> commit` message `feat(<spec>/<id>): <name>`. `SendMessage` me (the lead) AND the reviewer a short report (what you built, exact test commands + pass/fail counts, the commit sha, deviations, unverified items) and append it to `~/.spec/<project>/<spec>/coder-report.md`. Record `dex test --passed … --failed …` (do NOT emit `dex story done` — completion is the lead's after review passes). Then STAY ALIVE for this story's review: the reviewer may `SendMessage` findings — fix, re-run tests, commit `fix(<spec>/<id>): <what>`, message both, stay alive. Do NOT emit `dex review` or `dex story done`. Shut down only when I tell you this story passed."
@@ -317,7 +322,7 @@ Decompose the approved plan into an ordered `## Build Stories` list in `spec.md`
 
 The autonomous heart — runs the per-story cycle (*The loop & rules → The per-story cycle*).
 
-**Enter.** `dex phase build`. **Launch the persistent `reviewer` teammate once** (agent type `dex-reviewer` — see *Launching the team*), then record it with `dex agent spawn reviewer`. **Register the stories** (`dex story add --id <id> --title "<name>" --summary "<summary>"` for each `## Build Stories` entry). Then notify build-started and tell the user they can detach:
+**Enter.** `dex phase build`. **`TeamCreate(team_name="specdex-<spec-name>")` once** to stand up the real team (see *Launching the team*) — the per-story coder + reviewer spawn INTO it; confirm it returned a team (not a no-op) before proceeding. **Register the stories** (`dex story add --id <id> --title "<name>" --summary "<summary>"` for each `## Build Stories` entry). Then notify build-started and tell the user they can detach:
 
 ```
 notify ":hammer_and_wrench: *[<spec name>]* Build started — per-story loop. You can detach now (Ctrl+O, D). Next DM on review FAILs, blocks, or the final-review pass."
@@ -326,15 +331,15 @@ notify ":hammer_and_wrench: *[<spec name>]* Build started — per-story loop. Yo
 **Run the loop.** Loop over `dex story next` (`<id> <title>`; until empty/exit 1):
 
 1. `dex story start <id>` + `dex beat` (heartbeat — keeps the spec reading `alive`; emit one each iteration).
-2. **Launch a FRESH `coder` teammate for THIS story** (agent type `dex-coder` — see *Launching the team*), then `dex agent spawn coder --id <id>`. Brief it with the worktree rule + the coder brief + this story's id/name/AC/files. One story only.
+2. **Launch a FRESH `coder` AND a FRESH `reviewer` for THIS story**, both INTO the team via `team_name="specdex-<spec-name>"` (agent types `dex-coder` / `dex-reviewer` — see *Launching the team*), then `dex agent spawn coder --id <id>` and `dex agent spawn reviewer --id <id>`. Brief each with the worktree rule + its brief + this story's id/name/AC/files. One story only.
 3. Run the **review loop** for the story (the (a)–(d) protocol in *The per-story cycle*).
 4. On a passing verdict, the **lead** marks `dex story done`, retires the coder, advances.
 
 ## Final integration review
 
-When `dex story next` is empty (every story built + reviewed), `dex phase review` and have the **persistent reviewer** do ONE light pass for **cross-story coherence** — do the stories compose, are there integration gaps the per-story diffs couldn't see? It does NOT re-review each diff. Same `dex review` mechanism, written to `review-final.md`; same 3-round ceiling — route fixes to a **fresh coder** (per-story coders have shut down), committing `fix(<spec>/integration): <what>`.
+When `dex story next` is empty (every story built + reviewed), `dex phase review` and **spawn a fresh `reviewer`** into the team for ONE light pass for **cross-story coherence** — do the stories compose, are there integration gaps the per-story diffs couldn't see? It does NOT re-review each diff; it reads the composed code, not any per-story memory (which is why a fresh instance is the right call). Same `dex review` mechanism, written to `review-final.md`; same 3-round ceiling — route fixes to a **fresh coder** (also spawned into the team), committing `fix(<spec>/integration): <what>`.
 
-**On PASS → Ship**, in order: `notify ":tada: *[<spec name>]* All stories built + reviewed — shipping PR"` → tell the reviewer to shut down (`dex agent idle reviewer`) → log → proceed to Ship.
+**On PASS → Ship**, in order: `notify ":tada: *[<spec name>]* All stories built + reviewed — shipping PR"` → shut the final reviewer (and any integration coder) down — shutdown request → `dex agent idle reviewer` — **but leave the team itself up** for Ship/Verify (CI/bot fixes may need a fresh coder; `TeamDelete` happens at Acceptance) → log → proceed to Ship.
 
 **Blocked** (a per-story 3-round failure OR a final-review block):
 ```
@@ -403,7 +408,8 @@ The spec is **accepted** when the work is approved — the user says so ("accept
    ```bash
    COMPOSE_PROJECT_NAME=spec-<spec-name> docker compose down -v 2>/dev/null || true
    ```
-3. `notify ":broom: *[<spec name>]* Accepted — docker down, ports freed. PR ready to merge."`
+3. Tear down the build team: shut down any teammate still alive (shutdown request), then `TeamDelete` (removes `~/.claude/teams/specdex-<spec-name>/`).
+4. `notify ":broom: *[<spec name>]* Accepted — docker down, ports freed. PR ready to merge."`
 
 The worktree + branch stay (merging is manual) — no worktree cleanup.
 
@@ -425,8 +431,8 @@ A **human-driven** session you still want visible in the fleet — you and the u
 
 Re-attach to the most recent non-terminal spec for this project and continue from **durable state, not a remembered context**. Read the phase (`dex ls` / `state.json`), then:
 
-- **`build`:** find which stories are built from git (`git -C <worktree> log --oneline --fixed-strings --grep "feat(<spec>/"`); the first Build Story not in that set is next (`dex story next`). **Launch a FRESH coder** and run the per-story loop from there — the fresh coder is the whole point.
-- **`review` / `ship` / `verify`:** re-enter that phase (re-launch the reviewer if needed, re-poll CI/bot). Committed work + recorded gates are the truth.
+- **`build`:** find which stories are built from git (`git -C <worktree> log --oneline --fixed-strings --grep "feat(<spec>/"`); the first Build Story not in that set is next (`dex story next`). Ensure the team exists — `TeamCreate(team_name="specdex-<spec-name>")` if `~/.claude/teams/specdex-<spec-name>/` is absent, else reuse it — then **launch a FRESH coder + reviewer into it** and run the per-story loop from there (fresh teammates reading durable state are the whole point).
+- **`review` / `ship` / `verify`:** re-enter that phase (ensure the team exists per the `build` rule and re-spawn a reviewer into it if one is needed, re-poll CI/bot). Committed work + recorded gates are the truth.
 - **None found:** tell the user there's nothing to resume; list recent specs (`dex ls`).
 
 # Notifications
@@ -475,7 +481,7 @@ See **`reference/slack.md`** for the message format / emoji table.
 | Story started / done | `dex story start <id>` / `dex story done <id> --commit <sha>` (done = lead, on pass) |
 | Next un-built story | `dex story next` |
 | Heartbeat (each loop/poll) | `dex beat` |
-| Coder/reviewer launched·idle | `dex agent spawn coder --id <id>` / `dex agent spawn reviewer` / `dex agent idle <role>` |
+| Coder/reviewer launched·idle | `dex agent spawn coder --id <id>` / `dex agent spawn reviewer --id <id>` / `dex agent idle <role>` |
 | Coder green | `dex test --passed <P> --failed <F> --cmd "<cmd>"` |
 | Each review verdict | `dex review --round <N> --verdict pass\|fail\|notes --blockers <b> --issues <i>` |
 | Final integration review | `dex phase review` |
