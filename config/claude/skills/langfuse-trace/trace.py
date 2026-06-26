@@ -37,16 +37,7 @@ CACHE_DIR = Path("/tmp/langfuse-traces")
 CACHE_TTL_SECONDS = 3600
 
 
-def fetch_trace(trace_id: str, refresh: bool = False) -> dict:
-    CACHE_DIR.mkdir(parents=True, exist_ok=True)
-    cache = CACHE_DIR / f"{trace_id}.json"
-    if cache.exists() and not refresh:
-        if time.time() - cache.stat().st_mtime < CACHE_TTL_SECONDS:
-            try:
-                return json.loads(cache.read_text())
-            except json.JSONDecodeError:
-                pass  # corrupted cache — re-fetch
-
+def _creds() -> tuple[str, str, str]:
     pub = os.environ.get("LANGFUSE_PUBLIC_KEY") or os.environ.get("LANGFUSE_TRACING_PUBLIC_KEY")
     sec = os.environ.get("LANGFUSE_SECRET_KEY") or os.environ.get("LANGFUSE_TRACING_SECRET_KEY")
     host = os.environ.get("LANGFUSE_HOST", "https://langfuse.anyformat.ai").rstrip("/")
@@ -55,22 +46,42 @@ def fetch_trace(trace_id: str, refresh: bool = False) -> dict:
             "Missing credentials. Set LANGFUSE_PUBLIC_KEY/LANGFUSE_SECRET_KEY, "
             "or LANGFUSE_TRACING_PUBLIC_KEY/LANGFUSE_TRACING_SECRET_KEY (anyformat).",
         )
+    return pub, sec, host
 
-    url = f"{host}/api/public/traces/{trace_id}"
+
+def _get(path: str, cache_key: str, kind: str, refresh: bool) -> dict:
+    """Cached GET against the Langfuse public API. `path` is appended to the host."""
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    cache = CACHE_DIR / f"{cache_key}.json"
+    if cache.exists() and not refresh and time.time() - cache.stat().st_mtime < CACHE_TTL_SECONDS:
+        try:
+            return json.loads(cache.read_text())
+        except json.JSONDecodeError:
+            pass  # corrupted cache — re-fetch
+    pub, sec, host = _creds()
     try:
-        resp = httpx.get(url, auth=(pub, sec), timeout=30.0)
+        resp = httpx.get(f"{host}{path}", auth=(pub, sec), timeout=30.0)
     except httpx.HTTPError as e:
         sys.exit(f"Fetch failed ({type(e).__name__}): {e}")
     if resp.status_code == 404:
-        sys.exit(f"Trace {trace_id!r} not found at {host}.")
+        sys.exit(f"{kind} not found at {host}.")
     if resp.status_code in (401, 403):
-        sys.exit(f"Auth rejected by {host} ({resp.status_code}). Check LANGFUSE_PUBLIC_KEY / LANGFUSE_SECRET_KEY.")
+        sys.exit(f"Auth rejected by {host} ({resp.status_code}). Check the Langfuse keys.")
     if resp.status_code >= 400:
         sys.exit(f"Fetch failed: HTTP {resp.status_code} — {resp.text[:300]}")
+    data = resp.json()
+    cache.write_text(json.dumps(data))
+    return data
+
+
+def fetch_trace(trace_id: str, refresh: bool = False) -> dict:
+    data = _get(f"/api/public/traces/{trace_id}", trace_id, f"Trace {trace_id!r}", refresh)
     # Mirror the legacy CLI's `{body: ...}` envelope so cached files are interchangeable.
-    payload = {"body": resp.json()}
-    cache.write_text(json.dumps(payload))
-    return payload
+    return data if "body" in data else {"body": data}
+
+
+def fetch_session(session_id: str, refresh: bool = False) -> dict:
+    return _get(f"/api/public/sessions/{session_id}", f"session-{session_id}", f"Session {session_id!r}", refresh)
 
 
 def build_indices(obs: list[dict]) -> tuple[dict, dict, dict]:
@@ -122,6 +133,49 @@ def _short_id(oid: str) -> str:
     return oid[:8] if oid else "?"
 
 
+# Keys that carry no diagnostic signal and bloat the output. The big one for
+# gemini-via-litellm traces is the tool-call `id` (a call_…__thought__<blob>
+# string that embeds the model's thinking tokens), plus the langchain message
+# envelope (`additional_kwargs`, `response_metadata`, the message `id`).
+_NOISE_KEYS = {
+    "additional_kwargs", "response_metadata", "usage_metadata", "metadata",
+    "invalid_tool_calls", "tool_call_id", "id", "index", "created_at",
+}
+
+
+def _strip_noise(obj: Any) -> Any:
+    """Recursively drop noise keys and empty values from a payload so message /
+    tool-call rendering shows content, not envelope. Applied to rendered I/O
+    only — never to the observation objects the tree walk relies on."""
+    if isinstance(obj, dict):
+        out: dict = {}
+        for k, v in obj.items():
+            if k in _NOISE_KEYS:
+                continue
+            v = _strip_noise(v)
+            if v in (None, {}, [], ""):
+                continue
+            out[k] = v
+        return out
+    if isinstance(obj, list):
+        return [_strip_noise(v) for v in obj]
+    return obj
+
+
+def _tool_calls_of(msg: dict) -> list[dict]:
+    """langchain/OpenAI carry tool calls in a separate ``tool_calls`` key (each
+    {name, args, id}); Anthropic inlines them as ``tool_use`` content blocks.
+    Return a uniform [{name, args}] from the langchain shape."""
+    tcs = msg.get("tool_calls")
+    if not isinstance(tcs, list):
+        return []
+    out = []
+    for tc in tcs:
+        if isinstance(tc, dict) and tc.get("name"):
+            out.append({"name": tc["name"], "args": tc.get("args", {})})
+    return out
+
+
 def render_generation(
     o: dict,
     *,
@@ -151,11 +205,16 @@ def render_generation(
                     lines.append(f"  [SYSTEM] ({len(text)} chars, truncated):")
                     lines.append(_indent(text[:1500] + ("…" if len(text) > 1500 else ""), 4))
                 continue
+            # Text content — langchain sends a plain string; Anthropic a list of
+            # typed blocks. A "tool" role string IS a tool result.
             if isinstance(content, str):
-                if content.strip():
-                    lines.append(f"  [{role}]: {content[:output_max]}")
-                continue
-            if isinstance(content, list):
+                t = content.strip()
+                if t:
+                    is_result = msg.get("role") == "tool"
+                    cap = tool_result_max if is_result else output_max
+                    suffix = "…" if len(t) > cap else ""
+                    lines.append(f"  [{role}] {'tool_result' if is_result else 'text'}: {t[:cap]}{suffix}")
+            elif isinstance(content, list):
                 for block in content:
                     if not isinstance(block, dict):
                         continue
@@ -169,7 +228,7 @@ def render_generation(
                         if bid in seen_tools:
                             continue
                         seen_tools.add(bid)
-                        ti = json.dumps(block.get("input", {}))
+                        ti = json.dumps(_strip_noise(block.get("input", {})))
                         suffix = "…" if len(ti) > tool_input_max else ""
                         lines.append(f"  [{role}] tool_call {block.get('name')}: {ti[:tool_input_max]}{suffix}")
                     elif btype == "tool_result":
@@ -177,6 +236,12 @@ def render_generation(
                         if text.strip():
                             suffix = "…" if len(text) > tool_result_max else ""
                             lines.append(f"  [{role}] tool_result: {text[:tool_result_max]}{suffix}")
+            # langchain/OpenAI carry tool calls in a separate key — render them
+            # too (the gemini tool-call id is dropped as noise).
+            for tc in _tool_calls_of(msg):
+                ti = json.dumps(_strip_noise(tc["args"]))
+                suffix = "…" if len(ti) > tool_input_max else ""
+                lines.append(f"  [{role}] tool_call {tc['name']}: {ti[:tool_input_max]}{suffix}")
 
     if isinstance(out, dict):
         c = out.get("content", "")
@@ -201,6 +266,7 @@ def render_span_io(o: dict, output_max: int) -> list[str]:
     for label, val in (("IN", o.get("input")), ("OUT", o.get("output"))):
         if val is None:
             continue
+        val = _strip_noise(val)
         if isinstance(val, list):
             # Treat as message list (rare for SPAN type)
             try:
@@ -449,9 +515,73 @@ def cmd_raw(d: dict, obs: list[dict], args: argparse.Namespace) -> None:
     print(json.dumps(target, indent=2))
 
 
+def _messages_of(payload: Any) -> list[dict]:
+    if isinstance(payload, dict) and isinstance(payload.get("messages"), list):
+        return [m for m in payload["messages"] if isinstance(m, dict)]
+    if isinstance(payload, list):
+        return [m for m in payload if isinstance(m, dict)]
+    return []
+
+
+def _role(msg: dict) -> str:
+    return (msg.get("role") or msg.get("type") or "?").lower()
+
+
+def _join_text(msgs: list[dict], roles: tuple[str, ...]) -> str:
+    parts = [t for m in msgs if _role(m) in roles and (t := _flatten(m.get("content")).strip())]
+    return " / ".join(parts)
+
+
+def _last_text(msgs: list[dict], roles: tuple[str, ...]) -> str:
+    for m in reversed(msgs):
+        if _role(m) in roles and (t := _flatten(m.get("content")).strip()):
+            return t
+    return ""
+
+
+def _turn_tools(tail: list[dict]) -> list[str]:
+    tools: list[str] = []
+    for m in tail:
+        tools += [tc["name"] for tc in _tool_calls_of(m)]
+        c = m.get("content")
+        if isinstance(c, list):
+            tools += [b["name"] for b in c if isinstance(b, dict) and b.get("type") == "tool_use" and b.get("name")]
+    return tools
+
+
+def cmd_session(session: dict, args: argparse.Namespace) -> None:
+    """Conversation transcript across a session's traces (one per turn). Uses each
+    trace's top-level input/output, so it needs no per-trace fetch."""
+    traces = sorted(session.get("traces", []), key=lambda t: t.get("timestamp") or t.get("createdAt") or "")
+    print(f"Session:  {session.get('id')}")
+    print(f"Turns:    {len(traces)}")
+    if traces:
+        print(f"User:     {traces[0].get('userId') or '—'}    Env: {traces[0].get('environment') or '—'}")
+    print()
+    for i, t in enumerate(traces, 1):
+        out_msgs = _messages_of(t.get("output"))
+        last_human = max((j for j, m in enumerate(out_msgs) if _role(m) in ("human", "user")), default=-1)
+        tail = out_msgs[last_human + 1:]
+        user = _join_text(_messages_of(t.get("input")), ("human", "user"))
+        if not user and last_human >= 0:
+            user = _flatten(out_msgs[last_human].get("content")).strip()
+        tools = _turn_tools(tail)
+        final = _last_text(tail, ("ai", "assistant"))
+        ts = (t.get("timestamp") or "")[:19].replace("T", " ")
+        print(f"── Turn {i} · {ts} · [{_short_id(t.get('id', ''))}] ──")
+        if user:
+            print(f"  USER:  {user[:args.output_max]}")
+        if tools:
+            print(f"  TOOLS: {' → '.join(tools)}")
+        if final:
+            print(f"  ANNIE: {final[:args.output_max]}")
+        print()
+    print("Drill one turn:  trace.py <trace-id-above> overview   (then drill/compare as usual)")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("trace_id", help="Trace ID or full URL (last path segment is taken)")
+    parser.add_argument("trace_id", help="Trace OR session ID, or full URL (a .../sessions/<id> URL → transcript)")
     parser.add_argument("--refresh", action="store_true", help="Bypass /tmp cache")
     parser.add_argument("--truncate-system", action="store_true", help="Truncate system prompts (off by default)")
     parser.add_argument("--tool-input-max", type=int, default=2500)
@@ -471,16 +601,22 @@ def main() -> None:
     p_cmp.add_argument("span_b", help="id-prefix or unique name")
     p_raw = sub.add_parser("raw", help="Dump one span as full JSON")
     p_raw.add_argument("span_id", help="id-prefix or unique name")
+    sub.add_parser("session", help="Conversation transcript across all traces in a session")
 
     args = parser.parse_args()
 
-    # Accept either a bare ID or a URL — take the last path segment
-    tid = args.trace_id.rstrip("/").rsplit("/", 1)[-1]
+    # Accept a bare ID or a URL — take the last path segment.
+    ident = args.trace_id.rstrip("/").rsplit("/", 1)[-1]
 
-    outer = fetch_trace(tid, refresh=args.refresh)
+    # A `.../sessions/<id>` URL, or the `session` subcommand, → conversation
+    # transcript across the session's traces.
+    if args.cmd == "session" or "/sessions/" in args.trace_id:
+        cmd_session(fetch_session(ident, refresh=args.refresh), args)
+        return
+
+    outer = fetch_trace(ident, refresh=args.refresh)
     d = outer.get("body", outer)
     obs = sorted(d.get("observations", []), key=lambda o: o.get("startTime", ""))
-
     handlers = {
         "overview": cmd_overview,
         "drill": cmd_drill,

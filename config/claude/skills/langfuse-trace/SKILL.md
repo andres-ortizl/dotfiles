@@ -1,6 +1,6 @@
 ---
 name: langfuse-trace
-description: "Fetches and debugs a Langfuse trace by ID or URL. Renders a span-tree overview with auto-suggested drill targets, then drills into a chosen section to surface system prompts, tool calls, and tool results. Supports comparing two spans side-by-side. Use when the user provides a Langfuse trace ID or URL, mentions a langfuse.* link, or asks to debug, inspect, or compare spans in an LLM trace. Defaults to anyformat credentials (LANGFUSE_TRACING_*) and host (langfuse.anyformat.ai); other hosts work if LANGFUSE_HOST and LANGFUSE_PUBLIC_KEY/LANGFUSE_SECRET_KEY are set."
+description: "Fetches and debugs a Langfuse trace OR session by ID or URL. A `.../sessions/<id>` URL renders a turn-by-turn conversation transcript (USER → TOOLS → ANNIE) across all the session's traces. A trace renders a span-tree overview with auto-suggested drill targets, then drills into a chosen section to surface system prompts, tool calls, and tool results. Renders both Anthropic block-style and langchain `tool_calls`-key messages, and strips noise (tool-call ids — incl. the giant gemini `__thought__` ids — plus `additional_kwargs`/`response_metadata`/message ids). Supports comparing two spans side-by-side. Use when the user provides a Langfuse trace/session ID or URL, mentions a langfuse.* link, or asks to debug, inspect, diagnose, or compare an LLM trace or conversation. Defaults to anyformat credentials (LANGFUSE_TRACING_*) and host (langfuse.anyformat.ai); other hosts work if LANGFUSE_HOST and LANGFUSE_PUBLIC_KEY/LANGFUSE_SECRET_KEY are set."
 ---
 
 # Debug a Langfuse Trace
@@ -23,6 +23,7 @@ For follow-up drills in the same session, prefer `SendMessage` to the existing s
 ## Subcommands of `trace.py`
 
 ```
+trace.py <session_url|id> session            # conversation transcript across a session's turns
 trace.py <trace_id> overview                 # span tree, errors, suggested drills
 trace.py <trace_id> drill <pattern>          # full message history; pattern = name substring or id-prefix
 trace.py <trace_id> drill ""                 # everything (warn user — large output)
@@ -30,7 +31,9 @@ trace.py <trace_id> compare <a> <b>          # side-by-side metadata + messages 
 trace.py <trace_id> raw <span_id>            # full JSON of one span, no truncation
 ```
 
-Pass the trace ID as a bare ID OR as a full URL — the last path segment is taken either way.
+Pass the ID as a bare ID OR a full URL — the last path segment is taken either way. **A `.../sessions/<id>` URL auto-routes to the session transcript** regardless of the subcommand given. The `session` transcript prints each turn's trace id — drill an individual turn with `trace.py <that-trace-id> overview`.
+
+**Noise is stripped automatically** in `drill`/`compare`/`session`: tool-call ids (including the multi-KB gemini `call_…__thought__<blob>` ids), `additional_kwargs`, `response_metadata`, `usage_metadata`, and per-message ids. Tool calls sent in the langchain `tool_calls` key (not as Anthropic content blocks) are rendered too — they were previously invisible.
 
 ### Useful flags
 
@@ -52,7 +55,8 @@ This rule exists because the most common failure mode is a subagent silently sum
 
 ## When to use which subcommand
 
-- **Default starting point:** `overview`. Always.
+- **User gives a `/sessions/` URL or asks to diagnose a whole conversation/chat** → `session` first. It's the conversation transcript (one block per turn: USER → TOOLS → ANNIE). Pick the suspicious turn from it, then drill that turn's trace id.
+- **Default starting point for a single trace:** `overview`. Always.
 - **"Why did span X behave that way?"** → `drill <id-prefix-of-X>`. Use the id-prefix instead of the name when names repeat (e.g. multiple workers).
 - **"Why did A do one thing and B do another?"** → `compare <A> <B>`. Pre-aligns metadata and shows both message histories.
 - **"I need every byte of span X"** → `raw <id>`. Returns the full JSON observation with no truncation.
@@ -71,6 +75,7 @@ If the script exits with a credentials error, tell the user which env var is mis
 
 So you know what to expect without reading the script:
 
+- **`session`** — header (session id, turn count, user, env), then one block per turn in time order: `── Turn N · <time> · [trace-id8] ──` with `USER:`, `TOOLS:` (names, ` → `-joined), `ANNIE:` (final reply). Uses each trace's top-level input/output, so no per-trace fetch. Drill a turn via its printed trace id.
 - **`overview`** — header (id, name, latency, cost, env, URL), errors block (if any), span tree with id-prefixes and per-node latency/tokens/cost, "Suggested next drills" (errors first, then spans >30% of total latency), and a list of drill targets.
 - **`drill`** — per matching span: `━━━ [id8] TYPE name path latency ━━━` header, then either GENERATION message history (system, user, assistant text, `tool_call`, `tool_result`, `→OUT`) or non-GENERATION `IN:` / `OUT:` blocks.
 - **`compare`** — two-column metadata table with `≠` markers on differing fields, then each span rendered as in `drill`.
