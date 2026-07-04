@@ -22,3 +22,9 @@ export PATH="$PATH:/Users/andrew/.lmstudio/bin"
 
 # Added by Antigravity CLI installer
 export PATH="/Users/andrew/.local/bin:$PATH"
+
+# >>> lean-ctx agent aliases >>>
+alias claude='LEAN_CTX_AGENT=1 BASH_ENV="$HOME/.bashenv" claude'
+alias codex='LEAN_CTX_AGENT=1 BASH_ENV="$HOME/.bashenv" codex'
+alias gemini='LEAN_CTX_AGENT=1 BASH_ENV="$HOME/.bashenv" gemini'
+# <<< lean-ctx agent aliases <<<

@@ -44,6 +44,7 @@ When a task takes more than 2 back-and-forths:
 - When modifying existing code, read and understand existing data structures before assuming they lack fields. Always inspect current implementations before proposing rewrites.
 - Follow EXISTING code style, formatting, conventions
 - Do NOT introduce new libraries without explicit approval
+- Avoid `_`-prefixed "private" names (functions, methods, module-level globals, classes) — default to plain public names. Only use a leading underscore when there's a specific, defensible reason: a genuine name collision, or keeping a verbatim port byte-for-byte aligned with its source module. Don't reflexively privatize helpers or constants.
 
 ## Code Intelligence
 

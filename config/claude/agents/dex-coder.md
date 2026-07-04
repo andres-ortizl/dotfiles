@@ -72,6 +72,7 @@ Non-negotiable. Violating these will cause review rejection:
 - **No `getattr`/`setattr` hacks** — use explicit attribute access
 - **No defensive coding** — don't wrap things in try/catch "just in case"
 - **No premature abstractions** — three similar lines > one clever helper
+- **No reflexive `_`-prefixed "private" names** — prefer plain public names for functions, constants, and classes; use a leading underscore only for a specific, defensible reason (a genuine name collision, or matching a verbatim port to its source module)
 - **No AI-generated comments** — code should be self-documenting
 - **No decorative separators** (`# -----`, `# =====`)
 - **No mocking** unless absolutely unavoidable — test real behavior

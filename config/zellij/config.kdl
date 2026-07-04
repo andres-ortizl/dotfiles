@@ -306,3 +306,4 @@ show_release_notes false
 mouse_hover_effects false
 mouse_mode true
 session_serialization true
+default_cwd "/Users/andrew"

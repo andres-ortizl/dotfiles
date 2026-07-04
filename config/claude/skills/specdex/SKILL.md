@@ -23,17 +23,17 @@ User describes feature
         ▼
 ┌─ PLAN (interactive) ──────┐
 │  Lead enters plan mode     │
-│  iterate with user until   │
-│  approved → spec.md        │
+│  iterate w/ user → spec.md │
+│  librarian → context.md    │
 └───────┬────────────────────┘
         │ plan approved
         ▼
 ┌─ BUILD (autonomous) ──────┐
-│  per-story loop:           │
-│  fresh coder+reviewer →    │
-│  impl → test → commit →    │
-│  per-story review →        │
-│  fix-loop (≤3) → next      │
+│  per-epic standing pair:   │
+│  each story → impl → test  │
+│  → commit → review gate →  │
+│  fix-loop (≤3) → next story│
+│  recycle pair at epic end  │
 └───────┬────────────────────┘
         │ all stories built + reviewed
         ▼
@@ -80,32 +80,47 @@ WEBHOOK="$DEX_NOTIFY_WEBHOOK"        # set in env; keep OUT of committed files
 
 ## Lead (you — the main session)
 
-The continuity holder and the **sole authority** on phase transitions, escalation, and termination. You: plan with the user, launch + brief the team, drive the per-story loop, decide PASS→ship, mark stories done, run the ship/verify loop, and are the **only one who notifies the user**. You do **not** implement stories yourself — if you're writing story code, you skipped launching a coder.
+The continuity holder and the **sole authority** on phase transitions, escalation, and termination. You: plan with the user, launch + brief the team, drive the per-epic loop (briefing the standing pair story by story), decide PASS→ship, mark stories done, run the ship/verify loop, and are the **only one who notifies the user**. You do **not** implement stories yourself — if you're writing story code, you skipped launching a coder.
 
 ## Coder (`dex-coder` agent type)
 
-A **fresh teammate per story** (clean context — the implementation is the rot-prone part). Implements ONE story TDD, commits `feat(<spec>/<id>)`, reports green, then stays alive to fix that story's review findings. Never decides verdicts, never marks completion.
+**One standing teammate per *epic*** (not per story) — launched once and kept alive across all the epic's stories, so it never re-orients between them. Implements the epic's stories ONE AT A TIME, TDD, each its own commit `feat(<spec>/<id>)`; reports green per story and stays alive to fix that story's review findings. On launch it **reads `context.md`** instead of cold-reading the codebase. The lead recycles it (a fresh instance) only at an **epic boundary** or on a **context-bloat** signal. Never decides verdicts, never marks completion.
 
 ## Reviewer (`dex-reviewer` agent type)
 
-**A fresh teammate per story** (clean context — same reason as the coder: reviewing piles up diffs, fix-rounds, and tool output that rot just as fast, and the holistic final pass should not run on the most-polluted context in the run). Reviews ONE story's diff, runs the affected tests, issues a VERDICT with severity-tagged findings, and re-reviews that story's fixes across the round loop — then retires alongside the coder when the story passes. The final cross-story integration pass gets its own fresh reviewer. Never marks a story done.
+**The coder's standing partner for the epic** — launched alongside it and kept alive across the epic's stories. The **per-story review gate stays**: it reviews EACH story's diff as it lands (the rot-prone part is caught here), runs the affected tests, issues a VERDICT with severity-tagged findings, and re-reviews that story's fixes across the round loop. Reads `context.md` on launch. Recycled with the coder at an epic boundary or on bloat. The final cross-story integration pass still gets its **own fresh reviewer** (clean context for the holistic read). Never marks a story done.
 
-Both coder and reviewer are **real Claude Code teammates** (own context window, addressable via `SendMessage`), launched through the agent-teams feature — see *The loop & rules → Launching the team*.
+## Librarian (an `Explore` agent — plan-time only)
+
+A read-only agent the lead spawns **once during Plan** to dig through the codebase and write **`context.md`**, the feature's shared onboarding doc (subsystem map, key files by symbol, conventions, decisions — see *The shared context doc*). It does the exploration the lead would otherwise re-explain in every spawn brief. It runs once, writes no code, and exits; thereafter `context.md` stays current via one-line per-story deltas (the coder appends its own).
+
+Coder and reviewer are **real Claude Code teammates** (own context window, addressable via `SendMessage`) — spawned per the harness-appropriate mechanism in *The loop & rules → Launching the team*. The librarian is a plain read-only subagent, not a team member.
 
 # The loop & rules
 
 ## Launching the team — the ACTUAL mechanism (do not skip)
 
-Both roles are real **[agent-teams](https://code.claude.com/docs/en/agent-teams) teammates** — not subagents, not `dex` events. Standing them up is **two explicit tool calls**, and skipping the first silently downgrades you to tool-less solo subagents:
+Both roles are real **teammates** — own context window, addressable via `SendMessage` — not one-shot subagents and not `dex` events. **The exact spawn mechanism depends on the harness; detect which one you're in FIRST, because the wrong assumption is what silently downgrades you to working solo.**
 
-1. **`TeamCreate` once, at Build entry** — `TeamCreate(team_name="specdex-<spec-name>", description="<feature>")`. This creates the team's mailbox + `members` registry and is **the step that makes peers real.** Without it the spawns below are plain background subagents with **no `SendMessage` tool at all** — coder and reviewer can't message each other *or* ping you mid-task, and the entire two-plane protocol silently no-ops (this is exactly the "no team of agents" failure).
-2. **Spawn each teammate INTO that team** — pass `team_name="specdex-<spec-name>"` on every `Agent` spawn. Per story you launch BOTH: *"spawn a teammate named `coder` using the `dex-coder` agent type, team_name `specdex-<spec-name>`"* and the same for `reviewer`/`dex-reviewer` — handing each its full brief as the spawn prompt. A bare named spawn without `team_name` is NOT a teammate.
+**Step 0 — detect the harness (one ToolSearch).** Search for `TeamCreate`. Two cases:
 
-**Verify you got a teammate, not a subagent** (the solo-fallback tell): a real teammate's spawn result shows `agentId: <name>@specdex-<spec-name>` and *"will receive instructions via mailbox."* A bare UUID `agentId` plus *"you will be notified when it completes"* means you skipped `TeamCreate` or omitted `team_name` — stop, surface it, `TeamCreate`, and re-spawn. Don't quietly work alone.
+- **`TeamCreate` exists** → *explicit-team harness*. Stand the team up in two calls: (1) `TeamCreate(team_name="specdex-<spec-name>", description="<feature>")` once at Build entry, then (2) spawn each teammate INTO it by passing `team_name="specdex-<spec-name>"` on every `Agent` spawn. Here a real teammate's spawn result shows `agentId: <name>@specdex-<spec-name>` + *"will receive instructions via mailbox"*; a bare UUID means you omitted `team_name` — re-spawn.
+- **`TeamCreate` is absent** (ToolSearch finds none, and `Agent`'s `team_name` param reads *"Deprecated; ignored — single implicit team"*) → *implicit-team harness* (the current default). **There is no TeamCreate step and there is nothing to "fix" — skip it.** The session already has one implicit team. You make teammates real simply by spawning **named, backgrounded** agents:
+
+  ```
+  Agent(name="coder",    subagent_type="dex-coder",    run_in_background=true, prompt=<brief>)
+  Agent(name="reviewer", subagent_type="dex-reviewer", run_in_background=true, prompt=<brief>)
+  ```
+
+  `SendMessage` is **theirs by virtue of the agent type** — `dex-coder` and `dex-reviewer` both declare `SendMessage` in their own tool lists, so they can message each other and ping you (`SendMessage(to:"main")`) regardless of any team-creation call. `team_name` is accepted-but-ignored; passing it is harmless, relying on it as the "make-real" step is the bug. Address a live teammate by its **name**: `SendMessage(to:"coder", …)`.
+
+**Verify you actually got a teammate — behaviorally, not by signature.** In the implicit-team harness a backgrounded spawn returning a bare UUID `agentId` + *"you will be notified when it completes"* is the **normal, correct result** — NOT the solo-fallback alarm it is in the explicit-team harness. Confirm the teammate is real by *using the channel*: `SendMessage(to:"coder", …)` and get a reply, or receive its `SendMessage(to:"main")` report. The real solo-fallback tell is universal and behavioral: **if you find yourself implementing a story's code yourself instead of through the `coder` teammate, you skipped the spawn** — stop and spawn it.
+
+**Per-story names collide with shutdown.** You reuse the names `coder`/`reviewer` every story, but if the prior story's teammate is still terminating when you spawn the next pair, the system auto-suffixes the new one (`reviewer-2`, …). **Read the actual name from the spawn result and brief the coder with it** (e.g. "your reviewer is `reviewer-2`"). The loop stays robust regardless because the lead always nudges the reviewer directly with the green sha (lead-relay) — but a stale name makes the coder's peer-ping land on a dead teammate.
 
 > **Launching a teammate ≠ `dex agent spawn`.** Launching creates a working Claude instance. `dex agent spawn coder|reviewer` is **only an event record** for the fleet view / audit trail — it launches nothing. Always launch the teammate FIRST, then `dex agent spawn …` to record it. If you're implementing a story yourself instead of through a `coder` teammate, you skipped the launch — stop and spawn it. (This is the single most common failure of this loop.)
 
-**Permissions are inherited, not per-teammate.** Teammates start with **the lead's** permission mode (fixed at spawn). So the loop requires the **lead** to run in bypass (`claude --dangerously-skip-permissions`, which the resume command already uses); every teammate then inherits it. If a first-launch approval prompt appears, dismiss it. **Preconditions:** `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` and Claude Code ≥ 2.1.32 — agent teams are experimental and OFF by default. If a spawn produces no live teammate, you're in solo-fallback: surface it, don't quietly work alone.
+**Permissions are inherited, not per-teammate.** Teammates start with **the lead's** permission mode (fixed at spawn). So the loop requires the **lead** to run in bypass (`claude --dangerously-skip-permissions`, which the resume command already uses); every teammate then inherits it. If a first-launch approval prompt appears, dismiss it. **Preconditions apply only to the explicit-team harness:** `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` and Claude Code ≥ 2.1.32 (agent teams are experimental and OFF by default there). In the implicit-team harness neither is needed — named backgrounded `Agent` spawns are the baseline capability. In *either* case the universal check is behavioral: if a spawn produces no teammate you can `SendMessage`, or you catch yourself coding a story by hand, you're in solo-fallback — surface it, don't quietly work alone.
 
 **MANDATORY — every teammate enters the worktree first.** Spawned teammates are *separate* sessions that start at the repo root (the MAIN checkout), not your worktree. Every spawn prompt MUST carry the absolute worktree path and this rule:
 
@@ -120,19 +135,21 @@ export DEX_ACTOR=coder                          # or `reviewer` — records WHO 
 
 **Communication — two planes.** Both teammates have `SendMessage` (full mesh): use it to cut roundtrips (reviewer messages the coder findings directly, no lead relay) — that's the fast lane. The **event log is the visibility plane**: every consequential message also records a matching `dex` event. Peers coordinate fix-rounds directly; **only the lead** decides PASS→ship, max-rounds→escalate, blocked→DM.
 
-## The per-story cycle (the coder⇄reviewer pin-pon)
+## The per-epic cycle (the standing coder⇄reviewer pair)
 
-The feature is built and reviewed **one story at a time**, each a self-contained cycle only the lead can end.
+A feature is built in **epics** (default: one epic = the whole feature; see *Epics*). Within an epic the **same** coder+reviewer pair works the stories **one at a time** — each its own commit + its own review gate. The pair is launched ONCE per epic and **persists across the epic's stories** (no teardown/respawn between them). Only the lead ends a story or an epic.
 
 ```
-LEAD      ─ launch a FRESH coder + reviewer into the team, brief each on THIS story
-CODER     ─ implement (TDD) → commit feat(<spec>/<id>)
+LEAD      ─ once per EPIC: launch the standing coder + reviewer (they read context.md)
+            then, for EACH story in the epic, brief the SAME standing coder on THAT story
+CODER     ─ implement (TDD) → commit feat(<spec>/<id>) → append a context.md delta
             └ ping "green @ <sha>, tests P/F"   →  lead + reviewer
-REVIEWER  ─ review the diff + run the tests
+REVIEWER  ─ review THIS story's diff + run the tests
             └ ping a VERDICT                     →  lead + coder
-                 ├ PASS → LEAD marks `dex story done`, retires coder + reviewer → next
+                 ├ PASS → LEAD marks `dex story done` → brief SAME pair on next story
                  └ FAIL → CODER fix → commit fix(<spec>/<id>) → ping again → reviewer re-reviews
                           (≤ 3 review rounds; still failing → LEAD blocks + stops)
+LEAD      ─ at the epic's last story (or on context bloat): recycle the pair → next epic
 ```
 
 **The review loop (mesh, ≤ 3 rounds).** The coder and reviewer both stay alive across this story's rounds; the lead watches the `dex review` verdicts and is the only one who ends the loop. Each **round N** (1, 2, 3):
@@ -144,10 +161,10 @@ REVIEWER  ─ review the diff + run the tests
   - **FAIL**, or **PASS WITH NOTES with any BLOCKER/ISSUE** → the coder (already holding round N's findings) fixes, re-runs the affected tests, commits `fix(<spec>/<id>): <what>`, and loops to round N+1. Peer-to-peer — no lead relay.
 - **(d) Ceiling.** ≤ **3 verdicts** (≤ 2 coder fix-iterations). If round 3 still isn't a pass, the lead stops: block + notify + halt. Earlier passed stories are already committed, so resume restarts from this one.
 
-**On a passing verdict the LEAD marks completion** (only the lead ends a story): confirm the passing `dex review` landed, emit `dex story done <id> --commit <sha>` (head sha — the single completion signal, so the fleet view and `dex story next` advance only after review passed), shut the coder and reviewer down (a shutdown request to each → then `dex agent idle coder` / `dex agent idle reviewer`), and advance via `dex story next`.
+**On a passing verdict the LEAD marks completion** (only the lead ends a story): confirm the passing `dex review` landed, emit `dex story done <id> --commit <sha>` (head sha — the single completion signal, so the fleet view and `dex story next` advance only after review passed), then **brief the SAME standing pair on the next story** (`dex story next`) — do NOT shut them down between stories. Shut the pair down (a shutdown request to each → then `dex agent idle coder` / `dex agent idle reviewer`) only at the **epic boundary**, or to **recycle on context bloat** (then launch a fresh pair, which reloads `context.md`).
 
-**Coder brief** (each story's fresh coder gets the worktree rule above plus this in its spawn prompt):
-> "Implement ONLY the one Build Story I give you, TDD (RED → GREEN), parallelizing independent chunks via sub-agents. Follow the **Escalation & severity** rules: make reversible (two-way-door) calls yourself and `dex note` your reasoning — don't stall on me for those; but `SendMessage` me any genuine one-way-door decision (irreversible API/schema/data-format/security choice) before you bake it in. Run the affected tests. Commit just this story — `git -C <worktree> commit` message `feat(<spec>/<id>): <name>`. `SendMessage` me (the lead) AND the reviewer a short report (what you built, exact test commands + pass/fail counts, the commit sha, deviations, unverified items) and append it to `~/.spec/<project>/<spec>/coder-report.md`. Record `dex test --passed … --failed …` (do NOT emit `dex story done` — completion is the lead's after review passes). Then STAY ALIVE for this story's review: the reviewer may `SendMessage` findings — fix, re-run tests, commit `fix(<spec>/<id>): <what>`, message both, stay alive. Do NOT emit `dex review` or `dex story done`. Shut down only when I tell you this story passed."
+**Coder brief** (the epic's standing coder gets the worktree rule above once at launch; for each story the lead hands it the story's id/name/AC/files plus this standing brief):
+> "First, **read `~/.spec/<project>/<spec>/context.md`** for the map — it tells you where things are and the load-bearing facts; still open the real file before you edit it (the map orients, it doesn't replace reading). Implement ONLY the one Build Story I give you, TDD (RED → GREEN), parallelizing independent chunks via sub-agents. Follow the **Escalation & severity** rules: make reversible (two-way-door) calls yourself and `dex note` your reasoning — don't stall on me for those; but `SendMessage` me any genuine one-way-door decision (irreversible API/schema/data-format/security choice) before you bake it in. Run the affected tests. Commit just this story — `git -C <worktree> commit` message `feat(<spec>/<id>): <name>`. `SendMessage` me (the lead) AND the reviewer a short report (what you built, exact test commands + pass/fail counts, the commit sha, deviations, unverified items), append it to `~/.spec/<project>/<spec>/coder-report.md`, and **append a one-line delta `- <id>: <what changed, by symbol>` to the *Story deltas* section of `~/.spec/<project>/<spec>/context.md`** so the next teammate sees it. Record `dex test --passed … --failed …` (do NOT emit `dex story done` — completion is the lead's after review passes). Then STAY ALIVE: the reviewer may `SendMessage` findings — fix, re-run tests, commit `fix(<spec>/<id>): <what>`, message both, stay alive. After a story passes I'll hand you the next one — keep your context; don't shut down. Do NOT emit `dex review` or `dex story done`. Shut down only when I tell you the epic is done."
 
 ## Stories
 
@@ -157,6 +174,24 @@ Stories are the unit of the build loop and what makes a run **resumable** — ea
 - **Completion = review-passed**, marked by the lead (`dex story done`) — never the coder, never at first commit.
 - **Authored once** at plan time and static; live status lives in git + `dex story`, not in the spec.md list.
 - **Resume** keys off git history (`feat(<spec>/<id>)` commits exist) and `dex story next` (first non-Done).
+
+## Epics — the teammate-lifecycle unit
+
+Stories are the unit of *work* (commit, AC, resume); an **epic** is the unit of *teammate lifecycle*. An epic is a batch of related stories worked by one standing coder+reviewer pair, so a pair fits **many stories** instead of being torn down and respawned each one (the spawn/teardown + re-orientation churn was the dominant cost on small features).
+
+- **Default: the whole feature is ONE epic** — one pair start-to-finish, with the per-story review gate inside. Don't add epics for a normal-sized feature.
+- **Split into multiple epics only for a large feature** (a clean seam like backend/frontend, or more than ~6 stories): group the stories at plan time, each epic gets its own pair. A natural split is also wherever a single pair's context would otherwise bloat.
+- **Recycle = teardown + fresh pair** at an epic boundary, or mid-epic if a pair's context is bloating. The fresh pair reloads `context.md`, so recycling is cheap.
+- Epics change **nothing** about stories: same ids, same `feat(<spec>/<id>)` commits, same resume keying, same per-story review gate. Stories stay still.
+
+## The shared context doc (`context.md`)
+
+`~/.spec/<project>/<spec>/context.md` is the feature's **onboarding doc** — what a fresh teammate reads instead of cold-reading the codebase. It exists so the map is written ONCE rather than re-explained in every spawn brief.
+
+- **Written once, at Plan, by the librarian** (see *Roles*): a curated digest — **Map** (subsystem boundaries + load-bearing facts/invariants), **Key files** (by *symbol*, never line numbers — they rot within a story), **Conventions** (test commands, style), **Decisions**, and an initially-empty **Story deltas** section.
+- **Read on every teammate launch.** Each spawn brief opens with "read `context.md` first", so the brief shrinks to the story-specific 3–5 lines. It replaces *discovery*, not *verification*: a teammate still opens the real file before editing it.
+- **Kept current by one-line deltas** — the coder appends `- <id>: <what changed, by symbol>` to *Story deltas* when a story lands (no agent re-run). So the next teammate, any recycled/fresh pair, the final reviewer, and resume all see current status.
+- It is **not** the logbook. `logbook.md` is the chronological *why*-trail (decisions + reversibility); `context.md` is the *where/what* map. Don't merge them. It pays off most when a *fresh* teammate appears: epic recycle, the final integration reviewer, resume-after-crash.
 
 ## Escalation & severity
 
@@ -169,7 +204,7 @@ The run exists to *finish*. **Default to motion:** the lead and every teammate a
 
 **Log every consequential decision** — the trade for not asking. Lead → `logbook.md`; teammates → `dex note` + their report. Each entry: **what** / **why** / **how** / **reversibility** (`cheap` / `moderate` / `expensive`). If that last field comes out `expensive`, that's the tell it was a one-way door — stop and ask.
 
-**Review finding severity** (drives the per-story loop's branch):
+**Review finding severity** (drives the per-story review loop's branch):
 
 | Severity | Meaning | Effect |
 |---|---|---|
@@ -213,7 +248,7 @@ notify ":rocket: *[<spec name>]* Spec started — setting up workspace"
 
 ## 2. Create spec directory
 
-All specs live at `~/.spec/<project-name>/<spec-name>/` (the single cross-project registry). Holds `spec.md` (approved plan), `logbook.md` (timeline), `env.md` (ports/project record).
+All specs live at `~/.spec/<project-name>/<spec-name>/` (the single cross-project registry). Holds `spec.md` (approved plan), `context.md` (shared onboarding map, written by the librarian at Plan — see *The shared context doc*), `logbook.md` (timeline), `env.md` (ports/project record).
 
 ```bash
 mkdir -p ~/.spec/<project-name>/<spec-name>
@@ -267,7 +302,8 @@ The lead **is** the planner. Do NOT create a planner teammate.
 4. Iterate with the user until they approve.
 5. Exit plan mode (`ExitPlanMode`).
 6. Save the approved plan to `~/.spec/<project>/<spec>/spec.md`.
-7. Log approval in the logbook.
+7. **Spawn the librarian** (an `Explore` agent) to write `~/.spec/<project>/<spec>/context.md` from the codebase + the approved plan — the map every teammate will load (see *The shared context doc*). You already seeded most of this during step 2's exploration; the librarian curates it into the doc (Map / Key files by symbol / Conventions / Decisions / empty Story deltas) so it isn't re-derived per spawn.
+8. Log approval in the logbook.
 
 ## Auto-approve mode (`--auto-approve <plan-path>`)
 
@@ -315,25 +351,30 @@ Decompose the approved plan into an ordered `## Build Stories` list in `spec.md`
 - Each story **independently committable** and small enough for one focused coder pass; order so each builds on the last.
 - Every story maps to ≥1 Acceptance Criterion; together they cover all.
 - **Don't over-decompose** — a genuinely small feature is a single story `S1`.
+- **Group into epics only if the feature is large** (see *Epics*): annotate the list with `### Epic A — <name>` / `### Epic B — <name>` headings. Default is a single implicit epic — no annotation, one standing pair for the whole feature.
 
 **Only after the user explicitly approves the plan, proceed to Build.**
 
 # Build
 
-The autonomous heart — runs the per-story cycle (*The loop & rules → The per-story cycle*).
+The autonomous heart — runs the per-epic cycle (*The loop & rules → The per-epic cycle*).
 
-**Enter.** `dex phase build`. **`TeamCreate(team_name="specdex-<spec-name>")` once** to stand up the real team (see *Launching the team*) — the per-story coder + reviewer spawn INTO it; confirm it returned a team (not a no-op) before proceeding. **Register the stories** (`dex story add --id <id> --title "<name>" --summary "<summary>"` for each `## Build Stories` entry). Then notify build-started and tell the user they can detach:
+**Enter.** `dex phase build`. **Stand up the team per *Launching the team* (Step 0 first)** — in the explicit-team harness that's `TeamCreate(team_name="specdex-<spec-name>")` once and confirm it returned a team (not a no-op); in the implicit-team harness there's no TeamCreate step, you go straight to spawning the named backgrounded pair. The epic's standing coder + reviewer come up either way. **Register the stories** (`dex story add --id <id> --title "<name>" --summary "<summary>"` for each `## Build Stories` entry). Then notify build-started and tell the user they can detach:
 
 ```
-notify ":hammer_and_wrench: *[<spec name>]* Build started — per-story loop. You can detach now (Ctrl+O, D). Next DM on review FAILs, blocks, or the final-review pass."
+notify ":hammer_and_wrench: *[<spec name>]* Build started — standing-pair loop. You can detach now (Ctrl+O, D). Next DM on review FAILs, blocks, or the final-review pass."
 ```
 
-**Run the loop.** Loop over `dex story next` (`<id> <title>`; until empty/exit 1):
+**Run the loop — per epic, per story.** For each **epic** (default: one epic = the whole feature; see *Epics*):
 
-1. `dex story start <id>` + `dex beat` (heartbeat — keeps the spec reading `alive`; emit one each iteration).
-2. **Launch a FRESH `coder` AND a FRESH `reviewer` for THIS story**, both INTO the team via `team_name="specdex-<spec-name>"` (agent types `dex-coder` / `dex-reviewer` — see *Launching the team*), then `dex agent spawn coder --id <id>` and `dex agent spawn reviewer --id <id>`. Brief each with the worktree rule + its brief + this story's id/name/AC/files. One story only.
-3. Run the **review loop** for the story (the (a)–(d) protocol in *The per-story cycle*).
-4. On a passing verdict, the **lead** marks `dex story done`, retires the coder, advances.
+1. **Launch the epic's standing pair ONCE** — a `coder` AND a `reviewer` INTO the team via `team_name="specdex-<spec-name>"` (agent types `dex-coder` / `dex-reviewer` — see *Launching the team*). Brief each with the worktree rule + "read `context.md` first" + its standing role brief. Record `dex agent spawn coder` / `dex agent spawn reviewer`.
+2. **Loop the epic's stories** via `dex story next` (until the epic's stories are done):
+   - `dex story start <id>` + `dex beat` (heartbeat — emit one each iteration).
+   - **Brief the SAME standing coder** on THIS story (id/name/AC/files) — do NOT respawn between stories.
+   - Run the **review loop** for the story (the (a)–(d) protocol in *The per-epic cycle*); the standing reviewer reviews this story's diff.
+   - On a passing verdict the **lead** marks `dex story done` and briefs the SAME pair on the next story.
+   - If a pair's context bloats mid-epic, recycle it (teardown → fresh pair, which reloads `context.md`).
+3. **At the epic boundary**, retire the pair (shutdown request → `dex agent idle coder` / `dex agent idle reviewer`) and move to the next epic (its own fresh pair). For a single-epic feature, this teardown coincides with all stories being done.
 
 ## Final integration review
 
@@ -385,7 +426,11 @@ Ignore `IN_PROGRESS` (keep polling), `SKIPPED`/`NEUTRAL` non-blocking, and unrel
 
 ## Bot review
 
-Wait for Greptile to comment (`gh pr view <number> --comments`), then use `$REVIEW_REACTOR` to read feedback, fix locally, push, reply to every thread, re-trigger. Record each round `dex gate --provider review --result <pass|fail> --score <0-5>`.
+Wait for Greptile to comment (`gh pr view <number> --comments`), read its findings, then **fix and re-trigger**. Record each round `dex gate --provider review --result <success|failure> --score <0-5>`.
+
+- **The lead handles bot rounds directly** for small/mechanical findings (the bot hands you the exact fix) — edit, push, reply, re-trigger, no coder spawn. This is the fast path for the majority of findings; by Verify the build is done, so the lead's context isn't being preserved for fresh story work.
+- **Spawn a fresh coder ONLY for a story-sized finding** — a real defect needing design judgment or a multi-file change (a behavior bug, a new abstraction, a security/data-shape issue). Brief it with the finding + "read `context.md` first".
+- Use `$REVIEW_REACTOR` to reply to every thread + push the fix; **re-trigger with a PR comment containing `@greptile review`** — an `@greptile-apps` mention does NOT trigger a re-review, and there is NO auto-re-review on push. Then poll for a NEW summary comment whose *Last reviewed commit* matches your pushed sha (the count of Greptile summary comments increments) before reading the new score.
 
 **Every round MUST notify — no silent rounds** (it's the user's scoreboard): (a) verdict arrives (round N, score X/5, findings, next action), and (b) fixup pushed (round N fixes `<sha>`, what changed, re-triggering). A round the coder can't fix → (a), then `dex block "<why>"` and escalate.
 
@@ -408,7 +453,7 @@ The spec is **accepted** when the work is approved — the user says so ("accept
    ```bash
    COMPOSE_PROJECT_NAME=spec-<spec-name> docker compose down -v 2>/dev/null || true
    ```
-3. Tear down the build team: shut down any teammate still alive (shutdown request), then `TeamDelete` (removes `~/.claude/teams/specdex-<spec-name>/`).
+3. Tear down the build team: shut down any teammate still alive (shutdown request). In the explicit-team harness also `TeamDelete` (removes `~/.claude/teams/specdex-<spec-name>/`); in the implicit-team harness there's no team object to delete — shutting the teammates down is the whole teardown.
 4. `notify ":broom: *[<spec name>]* Accepted — docker down, ports freed. PR ready to merge."`
 
 The worktree + branch stay (merging is manual) — no worktree cleanup.
@@ -431,7 +476,7 @@ A **human-driven** session you still want visible in the fleet — you and the u
 
 Re-attach to the most recent non-terminal spec for this project and continue from **durable state, not a remembered context**. Read the phase (`dex ls` / `state.json`), then:
 
-- **`build`:** find which stories are built from git (`git -C <worktree> log --oneline --fixed-strings --grep "feat(<spec>/"`); the first Build Story not in that set is next (`dex story next`). Ensure the team exists — `TeamCreate(team_name="specdex-<spec-name>")` if `~/.claude/teams/specdex-<spec-name>/` is absent, else reuse it — then **launch a FRESH coder + reviewer into it** and run the per-story loop from there (fresh teammates reading durable state are the whole point).
+- **`build`:** find which stories are built from git (`git -C <worktree> log --oneline --fixed-strings --grep "feat(<spec>/"`); the first Build Story not in that set is next (`dex story next`). Ensure the team exists per *Launching the team* (Step 0 detect) — explicit-team harness: `TeamCreate(team_name="specdex-<spec-name>")` if `~/.claude/teams/specdex-<spec-name>/` is absent, else reuse it; implicit-team harness: no check needed, the implicit team is always present — then **launch a fresh standing pair for the current epic** and run the per-epic loop from the next un-built story. The fresh pair reads `context.md` to re-orient — durable state + the map, not remembered context, is the whole point.
 - **`review` / `ship` / `verify`:** re-enter that phase (ensure the team exists per the `build` rule and re-spawn a reviewer into it if one is needed, re-poll CI/bot). Committed work + recorded gates are the truth.
 - **None found:** tell the user there's nothing to resume; list recent specs (`dex ls`).
 
