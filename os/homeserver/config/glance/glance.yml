@@ -1,0 +1,82 @@
+pages:
+  - name: Home
+    columns:
+      - size: small
+        widgets:
+          - type: clock
+            hour-format: 24h
+
+          - type: weather
+            location: Madrid, Spain
+            units: metric
+            hour-format: 24h
+
+          - type: dns-stats
+            service: pihole-v6
+            url: http://pihole.${DOMAIN}
+            password: ${PIHOLE_PASSWORD}
+
+      - size: full
+        widgets:
+          - type: monitor
+            cache: 1m
+            title: Media & Files
+            sites:
+              - title: Immich
+                url: http://immich.${DOMAIN}
+                icon: di:immich
+              - title: qBittorrent
+                url: http://qbittorrent.${DOMAIN}
+                icon: di:qbittorrent
+              - title: Copyparty
+                url: http://files.${DOMAIN}
+                icon: di:copyparty
+
+          - type: monitor
+            cache: 1m
+            title: Apps
+            sites:
+              - title: Open WebUI
+                url: http://chat.${DOMAIN}
+                icon: di:open-webui
+              - title: Excalidraw
+                url: http://excalidraw.${DOMAIN}
+                icon: di:excalidraw
+
+          - type: monitor
+            cache: 1m
+            title: Infrastructure
+            sites:
+              - title: Pi-hole
+                url: http://pihole.${DOMAIN}/admin/
+                icon: di:pi-hole
+              - title: Traefik
+                url: http://traefik.${DOMAIN}
+                icon: di:traefik
+              - title: Dockhand
+                url: http://docker.${DOMAIN}
+                icon: mdi:docker
+              - title: Dozzle
+                url: http://logs.${DOMAIN}
+                icon: di:dozzle
+              - title: Uptime Kuma
+                url: http://uptime.${DOMAIN}
+                icon: di:uptime-kuma
+
+          - type: rss
+            title: News
+            style: horizontal-cards
+            cache: 3h
+            limit: 12
+            collapse-after: 6
+            feeds:
+              - url: https://hnrss.org/frontpage
+                title: Hacker News
+              - url: https://selfh.st/rss/
+                title: selfh.st
+              - url: https://www.reddit.com/r/selfhosted/.rss
+                title: r/selfhosted
+              - url: https://feeds.arstechnica.com/arstechnica/index
+                title: Ars Technica
+              - url: https://www.theverge.com/rss/index.xml
+                title: The Verge

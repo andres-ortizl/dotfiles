@@ -113,6 +113,7 @@ Flag violations of:
 - `getattr`/`setattr` hacks
 - Defensive try/catch without specific exception need
 - Premature abstractions for one-time operations
+- Reflexive `_`-prefixed "private" names (functions, constants, classes) with no specific justification — prefer public names; a leading underscore needs a real reason (name collision, or verbatim-port fidelity). Treat as a NIT unless it actively obscures the API.
 - AI-generated comments or decorative separators
 - Mocking in tests when real behavior could be tested
 - Trivial tests (testing types, constructors, getters, built-in behavior)

@@ -4,6 +4,9 @@
   "diff_view_style": "split",
   "minimum_split_diff_width": 0,
   "agent_servers": {
+    "claude-acp": {
+      "type": "registry"
+    },
     "factory-droid": {
       "type": "registry"
     },

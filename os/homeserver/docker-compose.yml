@@ -16,8 +16,6 @@ volumes:
   model-cache:
   immich-db:
   immich-redis:
-  dokploy-postgres:
-  dokploy-redis:
 
 services:
   # Traefik Reverse Proxy
@@ -51,37 +49,28 @@ services:
       - "traefik.http.routers.dashboard-secure.tls=true"
       - "traefik.http.routers.dashboard-secure.service=api@internal"
 
-  # Homepage Dashboard
-  dashy:
-    image: lissy93/dashy:latest
-    container_name: dashy
+  # Glance Dashboard
+  glance:
+    image: glanceapp/glance:latest
+    container_name: glance
     restart: unless-stopped
     environment:
-      - NODE_ENV=production
-      - UID=${PUID:-1000}
-      - GID=${PGID:-1000}
-      - VUE_APP_WEATHER_API_KEY=${WEATHER_API_KEY:-}
-      - VUE_APP_PIHOLE_API_KEY=${PIHOLE_PASSWORD:-admin}
-      - VUE_APP_RSS_API_KEY=${RSS_API_KEY:-}
+      - TZ=${TZ:-Europe/Madrid}
+      - DOMAIN=${DOMAIN:-localhost}
+      - PIHOLE_PASSWORD=${PIHOLE_PASSWORD:-admin}
     volumes:
-      - ./config/dashy/conf.yml:/app/user-data/conf.yml
+      - ./config/glance:/app/config:ro
     networks:
       - traefik
-    healthcheck:
-      test: ["CMD", "node", "/app/services/healthcheck"]
-      interval: 1m30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
     labels:
       - "traefik.enable=true"
       - "com.centurylinklabs.watchtower.enable=true"
-      - "traefik.http.routers.dashy.rule=Host(`home.${DOMAIN:-localhost}`) || Host(`${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.dashy.entrypoints=web"
-      - "traefik.http.routers.dashy-secure.rule=Host(`home.${DOMAIN:-localhost}`) || Host(`${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.dashy-secure.entrypoints=websecure"
-      - "traefik.http.routers.dashy-secure.tls=true"
-      - "traefik.http.services.dashy.loadbalancer.server.port=8080"
+      - "traefik.http.routers.glance.rule=Host(`home.${DOMAIN:-localhost}`) || Host(`${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.glance.entrypoints=web"
+      - "traefik.http.routers.glance-secure.rule=Host(`home.${DOMAIN:-localhost}`) || Host(`${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.glance-secure.entrypoints=websecure"
+      - "traefik.http.routers.glance-secure.tls=true"
+      - "traefik.http.services.glance.loadbalancer.server.port=8080"
 
   # Dockhand - Docker Management UI
   dockhand:
@@ -143,93 +132,6 @@ services:
     networks:
       - traefik
       - pihole_network
-
-  # Sync Service - Configuration Sync UI
-  sync-service:
-    build: ./config/sync-service
-    container_name: sync-service
-    restart: unless-stopped
-    environment:
-      - TZ=${TZ:-Europe/Madrid}
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ../../../dotfiles:/dotfiles
-      - ./data/sync-service:/app/data
-    networks:
-      - traefik
-    labels:
-      - "traefik.enable=true"
-      - "com.centurylinklabs.watchtower.enable=true"
-      - "traefik.http.routers.sync-service.rule=Host(`sync.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.sync-service.entrypoints=web"
-      - "traefik.http.routers.sync-service-secure.rule=Host(`sync.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.sync-service-secure.entrypoints=websecure"
-      - "traefik.http.routers.sync-service-secure.tls=true"
-      - "traefik.http.services.sync-service.loadbalancer.server.port=8000"
-
-  # PostgreSQL for Dokploy
-  dokploy-postgres:
-    image: postgres:15-alpine
-    container_name: dokploy-postgres
-    restart: unless-stopped
-    environment:
-      - POSTGRES_USER=dokploy
-      - POSTGRES_PASSWORD=${DOKPLOY_DB_PASSWORD:-dokploy_password_123}
-      - POSTGRES_DB=dokploy
-    volumes:
-      - dokploy-postgres:/var/lib/postgresql/data
-    networks:
-      - traefik
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U dokploy"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-  # Redis for Dokploy
-  dokploy-redis:
-    image: redis:7-alpine
-    container_name: dokploy-redis
-    restart: unless-stopped
-    volumes:
-      - dokploy-redis:/data
-    networks:
-      - traefik
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-  # Dokploy - Self-hosted PaaS
-  dokploy:
-    image: dokploy/dokploy:latest
-    container_name: dokploy
-    restart: unless-stopped
-    depends_on:
-      dokploy-postgres:
-        condition: service_healthy
-      dokploy-redis:
-        condition: service_healthy
-    environment:
-      - DATABASE_URL=postgresql://dokploy:${DOKPLOY_DB_PASSWORD:-dokploy_password_123}@dokploy-postgres:5432/dokploy
-      - REDIS_URL=redis://dokploy-redis:6379
-      - SECRET_KEY=${DOKPLOY_SECRET_KEY:-change-this-to-a-random-secret-key}
-      - TZ=${TZ:-Europe/Madrid}
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ./data/dokploy:/app/data
-    networks:
-      - traefik
-    labels:
-      - "traefik.enable=true"
-      - "com.centurylinklabs.watchtower.enable=true"
-      - "traefik.http.routers.dokploy.rule=Host(`deploy.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.dokploy.entrypoints=web"
-      - "traefik.http.routers.dokploy-secure.rule=Host(`deploy.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.dokploy-secure.entrypoints=websecure"
-      - "traefik.http.routers.dokploy-secure.tls=true"
-      - "traefik.http.services.dokploy.loadbalancer.server.port=3000"
 
   # Pi-hole DNS Server
   pihole:
@@ -322,7 +224,7 @@ services:
 
   # Immich Photo Management
   immich-server:
-    image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
+    image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-v3.0.1}
     container_name: immich_server
     restart: unless-stopped
     volumes:
@@ -341,7 +243,6 @@ services:
       - traefik
     labels:
       - "traefik.enable=true"
-      - "com.centurylinklabs.watchtower.enable=true"
       - "traefik.http.routers.immich.rule=Host(`immich.${DOMAIN:-localhost}`)"
       - "traefik.http.routers.immich.entrypoints=web"
       - "traefik.http.routers.immich-secure.rule=Host(`immich.${DOMAIN:-localhost}`)"
@@ -353,7 +254,7 @@ services:
 
   # Immich Machine Learning
   immich-machine-learning:
-    image: ghcr.io/immich-app/immich-machine-learning:release
+    image: ghcr.io/immich-app/immich-machine-learning:${IMMICH_VERSION:-v3.0.1}
     container_name: immich_machine_learning
     restart: unless-stopped
     volumes:
@@ -476,101 +377,6 @@ services:
       - "traefik.http.routers.dozzle-secure.tls=true"
       - "traefik.http.services.dozzle.loadbalancer.server.port=8080"
 
-  # Memos - Note-taking Service
-  memos:
-    image: neosmemo/memos:stable
-    container_name: memos
-    restart: unless-stopped
-    environment:
-      - TZ=${TZ:-Europe/Madrid}
-    volumes:
-      - ./data/memos:/var/opt/memos
-    networks:
-      - traefik
-    labels:
-      - "traefik.enable=true"
-      - "com.centurylinklabs.watchtower.enable=true"
-      - "traefik.http.routers.memos.rule=Host(`memos.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.memos.entrypoints=web"
-      - "traefik.http.routers.memos-secure.rule=Host(`memos.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.memos-secure.entrypoints=websecure"
-      - "traefik.http.routers.memos-secure.tls=true"
-      - "traefik.http.services.memos.loadbalancer.server.port=5230"
-
-  # Cobalt - Web-based Media Downloader
-  cobalt:
-    image: dennysubke/cobalt:11.5
-    container_name: cobalt
-    restart: unless-stopped
-    init: true
-    read_only: false
-    entrypoint: /entrypoint.sh
-    environment:
-      - API_URL=http://download-api.${DOMAIN:-localhost}/
-      - WEB_API_URL=http://download-api.${DOMAIN:-localhost}/
-    volumes:
-      - ./config/cobalt/entrypoint.sh:/entrypoint.sh:ro
-    networks:
-      - traefik
-    labels:
-      - "traefik.enable=true"
-      - "com.centurylinklabs.watchtower.enable=true"
-      - "traefik.http.routers.cobalt-web.rule=Host(`download.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.cobalt-web.entrypoints=web"
-      - "traefik.http.routers.cobalt-web.service=cobalt-web"
-      - "traefik.http.routers.cobalt-web-secure.rule=Host(`download.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.cobalt-web-secure.entrypoints=websecure"
-      - "traefik.http.routers.cobalt-web-secure.tls=true"
-      - "traefik.http.routers.cobalt-web-secure.service=cobalt-web"
-      - "traefik.http.services.cobalt-web.loadbalancer.server.port=9001"
-      - "traefik.http.routers.cobalt-api.rule=Host(`download-api.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.cobalt-api.entrypoints=web"
-      - "traefik.http.routers.cobalt-api.service=cobalt-api"
-      - "traefik.http.routers.cobalt-api-secure.rule=Host(`download-api.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.cobalt-api-secure.entrypoints=websecure"
-      - "traefik.http.routers.cobalt-api-secure.tls=true"
-      - "traefik.http.routers.cobalt-api-secure.service=cobalt-api"
-      - "traefik.http.services.cobalt-api.loadbalancer.server.port=9000"
-
-  # Picoclaw - AI Agent (Launcher + WebUI + Gateway)
-  picoclaw:
-    image: docker.io/sipeed/picoclaw:launcher
-    container_name: picoclaw
-    restart: unless-stopped
-    environment:
-      - PICOCLAW_GATEWAY_HOST=0.0.0.0
-      - TZ=${TZ:-Europe/Madrid}
-    volumes:
-      - ./config/picoclaw:/root/.picoclaw
-      - ./data/picoclaw:/root/.picoclaw/workspace
-    networks:
-      - traefik
-    healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:18800/"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
-    labels:
-      - "traefik.enable=true"
-      - "com.centurylinklabs.watchtower.enable=true"
-      - "traefik.http.routers.picoclaw.rule=Host(`picoclaw.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.picoclaw.entrypoints=web"
-      - "traefik.http.routers.picoclaw.service=picoclaw"
-      - "traefik.http.routers.picoclaw-secure.rule=Host(`picoclaw.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.picoclaw-secure.entrypoints=websecure"
-      - "traefik.http.routers.picoclaw-secure.tls=true"
-      - "traefik.http.routers.picoclaw-secure.service=picoclaw"
-      - "traefik.http.services.picoclaw.loadbalancer.server.port=18800"
-      - "traefik.http.routers.picoclaw-api.rule=Host(`picoclaw-api.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.picoclaw-api.entrypoints=web"
-      - "traefik.http.routers.picoclaw-api.service=picoclaw-api"
-      - "traefik.http.routers.picoclaw-api-secure.rule=Host(`picoclaw-api.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.picoclaw-api-secure.entrypoints=websecure"
-      - "traefik.http.routers.picoclaw-api-secure.tls=true"
-      - "traefik.http.routers.picoclaw-api-secure.service=picoclaw-api"
-      - "traefik.http.services.picoclaw-api.loadbalancer.server.port=18790"
-
   # Copyparty - File Server with Web UI
   copyparty:
     image: copyparty/min:latest
@@ -593,43 +399,3 @@ services:
       - "traefik.http.routers.copyparty-secure.entrypoints=websecure"
       - "traefik.http.routers.copyparty-secure.tls=true"
       - "traefik.http.services.copyparty.loadbalancer.server.port=3923"
-
-  # MinIO Object Storage
-  minio:
-    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
-    container_name: minio
-    restart: unless-stopped
-    command: server /data --console-address ":9001"
-    environment:
-      - MINIO_ROOT_USER=${MINIO_ROOT_USER:-minioadmin}
-      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-minioadmin}
-      - TZ=${TZ:-Europe/Madrid}
-    volumes:
-      - ./data/minio:/data
-    networks:
-      - traefik
-    healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    labels:
-      - "traefik.enable=true"
-      - "com.centurylinklabs.watchtower.enable=true"
-      - "traefik.docker.network=traefik"
-      - "traefik.http.routers.minio-console.rule=Host(`minio.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.minio-console.entrypoints=web"
-      - "traefik.http.routers.minio-console.service=minio-console"
-      - "traefik.http.routers.minio-console-secure.rule=Host(`minio.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.minio-console-secure.entrypoints=websecure"
-      - "traefik.http.routers.minio-console-secure.tls=true"
-      - "traefik.http.routers.minio-console-secure.service=minio-console"
-      - "traefik.http.services.minio-console.loadbalancer.server.port=9001"
-      - "traefik.http.routers.minio-api.rule=Host(`s3.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.minio-api.entrypoints=web"
-      - "traefik.http.routers.minio-api.service=minio-api"
-      - "traefik.http.routers.minio-api-secure.rule=Host(`s3.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.minio-api-secure.entrypoints=websecure"
-      - "traefik.http.routers.minio-api-secure.tls=true"
-      - "traefik.http.routers.minio-api-secure.service=minio-api"
-      - "traefik.http.services.minio-api.loadbalancer.server.port=9000"
