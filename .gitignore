@@ -39,6 +39,8 @@ tmp
 # Homeserver Services
 # Environment files with sensitive data
 os/homeserver/.env
+os/homeserver/data/
+os/homeserver/backups/
 os/homeserver/config/picoclaw/config.json
 os/homeserver/config/picoclaw/.security.yml
 

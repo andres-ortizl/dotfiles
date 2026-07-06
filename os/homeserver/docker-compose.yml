@@ -399,3 +399,60 @@ services:
       - "traefik.http.routers.copyparty-secure.entrypoints=websecure"
       - "traefik.http.routers.copyparty-secure.tls=true"
       - "traefik.http.services.copyparty.loadbalancer.server.port=3923"
+
+  # Backrest - Restic Backup UI
+  backrest:
+    image: garethgeorge/backrest:latest
+    container_name: backrest
+    restart: unless-stopped
+    environment:
+      - BACKREST_DATA=/data
+      - BACKREST_CONFIG=/config/config.json
+      - XDG_CACHE_HOME=/cache
+      - TZ=${TZ:-Europe/Madrid}
+    volumes:
+      - ./data/backrest/data:/data
+      - ./data/backrest/config:/config
+      - ./data/backrest/cache:/cache
+      - ./backups:/repos
+      - ./data:/userdata:ro
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "traefik.http.routers.backrest.rule=Host(`backup.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.backrest.entrypoints=web"
+      - "traefik.http.routers.backrest-secure.rule=Host(`backup.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.backrest-secure.entrypoints=websecure"
+      - "traefik.http.routers.backrest-secure.tls=true"
+      - "traefik.http.services.backrest.loadbalancer.server.port=9898"
+
+  # Hermes Agent - Self-hosted AI Agent (Nous Research)
+  hermes:
+    image: nousresearch/hermes-agent:latest
+    container_name: hermes
+    restart: unless-stopped
+    command: gateway run
+    shm_size: 1g
+    environment:
+      - TZ=${TZ:-Europe/Madrid}
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - HERMES_DASHBOARD=1
+      - HERMES_DASHBOARD_BASIC_AUTH_USERNAME=${HERMES_DASHBOARD_USER:-andrew}
+      - HERMES_DASHBOARD_BASIC_AUTH_PASSWORD=${HERMES_DASHBOARD_PASSWORD:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+    volumes:
+      - ./data/hermes:/opt/data
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.hermes.rule=Host(`hermes.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.hermes.entrypoints=web"
+      - "traefik.http.routers.hermes-secure.rule=Host(`hermes.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.hermes-secure.entrypoints=websecure"
+      - "traefik.http.routers.hermes-secure.tls=true"
+      - "traefik.http.services.hermes.loadbalancer.server.port=9119"

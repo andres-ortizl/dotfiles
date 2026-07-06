@@ -13,7 +13,7 @@ pages:
 
           - type: dns-stats
             service: pihole-v6
-            url: http://pihole.${DOMAIN}
+            url: http://pihole
             password: ${PIHOLE_PASSWORD}
 
       - size: full
@@ -24,12 +24,16 @@ pages:
             sites:
               - title: Immich
                 url: http://immich.${DOMAIN}
+                check-url: http://immich-server:2283
                 icon: di:immich
               - title: qBittorrent
                 url: http://qbittorrent.${DOMAIN}
+                check-url: http://qbittorrent:8080
+                alt-status-codes: [401]
                 icon: di:qbittorrent
               - title: Copyparty
                 url: http://files.${DOMAIN}
+                check-url: http://copyparty:3923
                 icon: di:copyparty
 
           - type: monitor
@@ -38,10 +42,17 @@ pages:
             sites:
               - title: Open WebUI
                 url: http://chat.${DOMAIN}
+                check-url: http://openwebui:8080
                 icon: di:open-webui
               - title: Excalidraw
                 url: http://excalidraw.${DOMAIN}
+                check-url: http://excalidraw:80
                 icon: di:excalidraw
+              - title: Hermes
+                url: http://hermes.${DOMAIN}
+                check-url: http://hermes:9119
+                alt-status-codes: [401]
+                icon: mdi:robot-outline
 
           - type: monitor
             cache: 1m
@@ -49,19 +60,28 @@ pages:
             sites:
               - title: Pi-hole
                 url: http://pihole.${DOMAIN}/admin/
+                check-url: http://pihole/admin/
                 icon: di:pi-hole
               - title: Traefik
                 url: http://traefik.${DOMAIN}
+                check-url: http://traefik:8080/dashboard/
                 icon: di:traefik
               - title: Dockhand
                 url: http://docker.${DOMAIN}
+                check-url: http://dockhand:3000
                 icon: mdi:docker
               - title: Dozzle
                 url: http://logs.${DOMAIN}
+                check-url: http://dozzle:8080
                 icon: di:dozzle
               - title: Uptime Kuma
                 url: http://uptime.${DOMAIN}
+                check-url: http://uptime-kuma:3001
                 icon: di:uptime-kuma
+              - title: Backrest
+                url: http://backup.${DOMAIN}
+                check-url: http://backrest:9898
+                icon: di:backrest
 
           - type: rss
             title: News
