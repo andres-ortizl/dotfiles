@@ -414,7 +414,7 @@ services:
       - ./data/backrest/data:/data
       - ./data/backrest/config:/config
       - ./data/backrest/cache:/cache
-      - ./backups:/repos
+      - /volume2/backups:/repos
       - ./data:/userdata:ro
     networks:
       - traefik
