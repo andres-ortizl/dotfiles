@@ -184,6 +184,7 @@
     }
   },
   "collaboration_panel": {
+    "dock": "left",
     "button": true
   },
   "notification_panel": {
