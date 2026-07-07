@@ -48,11 +48,6 @@ pages:
                 url: http://excalidraw.${DOMAIN}
                 check-url: http://excalidraw:80
                 icon: di:excalidraw
-              - title: Hermes
-                url: http://hermes.${DOMAIN}
-                check-url: http://hermes:9119
-                alt-status-codes: [401]
-                icon: mdi:robot-outline
 
           - type: monitor
             cache: 1m
