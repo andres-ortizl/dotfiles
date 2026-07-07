@@ -377,28 +377,29 @@ services:
       - "traefik.http.routers.dozzle-secure.tls=true"
       - "traefik.http.services.dozzle.loadbalancer.server.port=8080"
 
-  # Copyparty - File Server with Web UI
-  copyparty:
-    image: copyparty/min:latest
-    container_name: copyparty
+  # FileBrowser Quantum - File Server Web UI
+  filebrowser:
+    image: gtstef/filebrowser:stable
+    container_name: filebrowser
+    user: filebrowser
     restart: unless-stopped
     environment:
       - TZ=${TZ:-Europe/Madrid}
     volumes:
-      - ./config/copyparty/config/copyparty.conf:/cfg/config.conf:ro
-      - ./data/copyparty:/cfg/hists
-      - ${DATA_ROOT:-./data/shared}:/data
+      - ./data/filebrowser:/home/filebrowser/data
+      - ./config/filebrowser/config.yaml:/home/filebrowser/data/config.yaml:ro
+      - ${DATA_ROOT:-./data/shared}:/folder
     networks:
       - traefik
     labels:
       - "traefik.enable=true"
       - "com.centurylinklabs.watchtower.enable=true"
-      - "traefik.http.routers.copyparty.rule=Host(`files.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.copyparty.entrypoints=web"
-      - "traefik.http.routers.copyparty-secure.rule=Host(`files.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.copyparty-secure.entrypoints=websecure"
-      - "traefik.http.routers.copyparty-secure.tls=true"
-      - "traefik.http.services.copyparty.loadbalancer.server.port=3923"
+      - "traefik.http.routers.filebrowser.rule=Host(`files.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.filebrowser.entrypoints=web"
+      - "traefik.http.routers.filebrowser-secure.rule=Host(`files.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.filebrowser-secure.entrypoints=websecure"
+      - "traefik.http.routers.filebrowser-secure.tls=true"
+      - "traefik.http.services.filebrowser.loadbalancer.server.port=80"
 
   # Backrest - Restic Backup UI
   backrest:

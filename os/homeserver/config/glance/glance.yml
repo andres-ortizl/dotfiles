@@ -31,10 +31,10 @@ pages:
                 check-url: http://qbittorrent:8080
                 alt-status-codes: [401]
                 icon: di:qbittorrent
-              - title: Copyparty
+              - title: File Browser
                 url: http://files.${DOMAIN}
-                check-url: http://copyparty:3923
-                icon: di:copyparty
+                check-url: http://filebrowser:80
+                icon: di:filebrowser
 
           - type: monitor
             cache: 1m
