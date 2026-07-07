@@ -145,7 +145,9 @@ Post a single PR-level comment. Include:
 
 ```bash
 gh pr comment <number> --repo <owner>/<repo> --body "$(cat <<'EOF'
-@greptile-apps All feedback addressed. Please re-review each inline thread — resolve the ones that are fixed, comment on any that are not, and re-score.
+@greptile review
+
+All feedback addressed. Please re-review each inline thread — resolve the ones that are fixed, comment on any that are not, and re-score.
 
 Summary-only items resolved:
 - <summary finding 1> — fixed in <sha>
@@ -154,7 +156,7 @@ EOF
 )"
 ```
 
-Re-tagging `@greptile-apps` on the same PR is safe — Greptile is idempotent; it starts a new review, not a duplicate one.
+Re-trigger with a comment containing `@greptile review` — a bare `@greptile-apps` mention does NOT start a review. Re-tagging on the same PR is safe — Greptile is idempotent; it starts a new review, not a duplicate one.
 
 ---
 

@@ -102,7 +102,7 @@ When a task takes more than 2 back-and-forths:
 - Explain trade-offs when multiple approaches exist
 
 <!-- lean-ctx -->
-<!-- lean-ctx-claude-v2 -->
+<!-- lean-ctx-claude-v3 -->
 ## lean-ctx — Context Runtime
 
 Always prefer lean-ctx MCP tools over native equivalents:
@@ -113,7 +113,6 @@ Always prefer lean-ctx MCP tools over native equivalents:
 - Native Edit/StrReplace stay unchanged. If Edit requires Read and Read is unavailable, use `ctx_edit(path, old_string, new_string)` instead.
 - Write, Delete, Glob — use normally.
 
-Full rules: @rules/lean-ctx.md
-
-Verify setup: run `/mcp` to check lean-ctx is connected, `/memory` to confirm this file loaded.
+Read modes: full (edit), map (overview), signatures (API), diff (post-edit), lines:N-M (range), auto.
+Details live in the `lean-ctx` skill (loads on demand — keep this file lean).
 <!-- /lean-ctx -->
