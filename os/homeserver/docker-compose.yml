@@ -23,6 +23,8 @@ services:
     image: traefik:v3.5.4
     container_name: traefik
     restart: unless-stopped
+    environment:
+      - DOMAIN=${DOMAIN:-localhost}
     ports:
       - "80:80" # HTTP
       - "443:443" # HTTPS
@@ -32,13 +34,18 @@ services:
       - --api.insecure=true
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
+      - --providers.file.directory=/etc/traefik/dynamic
+      - --providers.file.watch=true
       - --entrypoints.websecure.transport.respondingTimeouts.readTimeout=0
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./config/traefik/dynamic:/etc/traefik/dynamic:ro
     networks:
       - traefik
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.dashboard.rule=Host(`traefik.${DOMAIN:-localhost}`)"
@@ -428,3 +435,21 @@ services:
       - "traefik.http.routers.backrest-secure.entrypoints=websecure"
       - "traefik.http.routers.backrest-secure.tls=true"
       - "traefik.http.services.backrest.loadbalancer.server.port=9898"
+
+  # Home Assistant - Smart Home Hub
+  # Host network is required for local device auto-discovery (mDNS/zeroconf,
+  # Chromecast, HomeKit). Because host-networked containers can't be on the
+  # traefik bridge, Traefik routes to it via the file provider instead of
+  # labels (see config/traefik/dynamic/homeassistant.yml).
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:stable
+    container_name: homeassistant
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ./config/homeassistant:/config
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - TZ=${TZ:-Europe/Madrid}
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
