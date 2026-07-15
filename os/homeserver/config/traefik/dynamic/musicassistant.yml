@@ -1,25 +1,25 @@
-# Routes Traefik to Home Assistant, which runs on network_mode: host and so
+# Routes Traefik to Music Assistant, which runs on network_mode: host and so
 # can't be discovered via container labels. Traefik dials back to the host's
-# port 8123 through host.docker.internal (mapped via extra_hosts in compose).
+# port 8095 through host.docker.internal (mapped via extra_hosts in compose).
 #
 # NOTE: Traefik's file provider does NOT expand ${VAR}. It renders files as Go
 # templates, so the domain is read from the traefik container's env via
 # {{ env "DOMAIN" }} (passed in docker-compose.yml, defaulting to localhost).
 http:
   routers:
-    homeassistant:
-      rule: 'Host(`ha.{{ env "DOMAIN" }}`)'
+    musicassistant:
+      rule: 'Host(`ha-music.{{ env "DOMAIN" }}`)'
       entrypoints:
         - web
-      service: homeassistant
-    homeassistant-secure:
-      rule: 'Host(`ha.{{ env "DOMAIN" }}`)'
+      service: musicassistant
+    musicassistant-secure:
+      rule: 'Host(`ha-music.{{ env "DOMAIN" }}`)'
       entrypoints:
         - websecure
       tls: {}
-      service: homeassistant
+      service: musicassistant
   services:
-    homeassistant:
+    musicassistant:
       loadBalancer:
         servers:
-          - url: "http://host.docker.internal:8123"
+          - url: "http://host.docker.internal:8095"

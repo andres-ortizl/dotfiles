@@ -69,6 +69,8 @@ services:
       - ./config/glance:/app/config:ro
     networks:
       - traefik
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     labels:
       - "traefik.enable=true"
       - "com.centurylinklabs.watchtower.enable=true"
@@ -449,6 +451,76 @@ services:
     volumes:
       - ./config/homeassistant:/config
       - /etc/localtime:/etc/localtime:ro
+    environment:
+      - TZ=${TZ:-Europe/Madrid}
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  # Mosquitto MQTT Broker (message bus for Node-RED, ESPHome, Home Assistant)
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: mosquitto
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ:-Europe/Madrid}
+    volumes:
+      - ./config/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - ./data/mosquitto/data:/mosquitto/data
+      - ./data/mosquitto/log:/mosquitto/log
+    ports:
+      - "1883:1883"
+    networks:
+      - traefik
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  # Node-RED - Visual Automation Flows
+  node-red:
+    image: nodered/node-red:latest
+    container_name: node-red
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ:-Europe/Madrid}
+    volumes:
+      - ./data/node-red:/data
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "traefik.http.routers.node-red.rule=Host(`ha-flows.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.node-red.entrypoints=web"
+      - "traefik.http.routers.node-red-secure.rule=Host(`ha-flows.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.node-red-secure.entrypoints=websecure"
+      - "traefik.http.routers.node-red-secure.tls=true"
+      - "traefik.http.services.node-red.loadbalancer.server.port=1880"
+
+  # ESPHome - Manage ESP32/ESP8266 devices
+  # Host network for device discovery + OTA. Traefik routes via the file
+  # provider instead of labels (see config/traefik/dynamic/esphome.yml).
+  esphome:
+    image: ghcr.io/esphome/esphome:latest
+    container_name: esphome
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ./config/esphome:/config
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - TZ=${TZ:-Europe/Madrid}
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  # Music Assistant - Whole-home audio
+  # Host network for player discovery + streaming. Traefik routes via the file
+  # provider instead of labels (see config/traefik/dynamic/musicassistant.yml).
+  music-assistant:
+    image: ghcr.io/music-assistant/server:latest
+    container_name: music-assistant
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ./data/music-assistant:/data
     environment:
       - TZ=${TZ:-Europe/Madrid}
     labels:

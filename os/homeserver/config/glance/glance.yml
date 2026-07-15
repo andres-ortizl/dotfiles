@@ -78,6 +78,27 @@ pages:
                 check-url: http://backrest:9898
                 icon: di:backrest
 
+          - type: monitor
+            cache: 1m
+            title: Smart Home
+            sites:
+              - title: Home Assistant
+                url: http://ha.${DOMAIN}
+                check-url: http://host.docker.internal:8123
+                icon: di:home-assistant
+              - title: ESPHome
+                url: http://ha-esphome.${DOMAIN}
+                check-url: http://host.docker.internal:6052
+                icon: di:esphome
+              - title: Music Assistant
+                url: http://ha-music.${DOMAIN}
+                check-url: http://host.docker.internal:8095
+                icon: di:music-assistant
+              - title: Node-RED
+                url: http://ha-flows.${DOMAIN}
+                check-url: http://node-red:1880
+                icon: di:node-red
+
           - type: rss
             title: News
             style: horizontal-cards

@@ -1,0 +1,25 @@
+# Routes Traefik to ESPHome, which runs on network_mode: host and so can't be
+# discovered via container labels. Traefik dials back to the host's port 6052
+# through host.docker.internal (mapped via extra_hosts in docker-compose.yml).
+#
+# NOTE: Traefik's file provider does NOT expand ${VAR}. It renders files as Go
+# templates, so the domain is read from the traefik container's env via
+# {{ env "DOMAIN" }} (passed in docker-compose.yml, defaulting to localhost).
+http:
+  routers:
+    esphome:
+      rule: 'Host(`ha-esphome.{{ env "DOMAIN" }}`)'
+      entrypoints:
+        - web
+      service: esphome
+    esphome-secure:
+      rule: 'Host(`ha-esphome.{{ env "DOMAIN" }}`)'
+      entrypoints:
+        - websecure
+      tls: {}
+      service: esphome
+  services:
+    esphome:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:6052"
