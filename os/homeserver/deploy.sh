@@ -12,6 +12,13 @@ sops_run() {
   fi
 }
 
+if [ ! -f .env.sops ]; then
+  [ -f .env ] || { echo "neither .env.sops nor .env exists; nothing to deploy from" >&2; exit 1; }
+  echo "bootstrapping: encrypting .env -> .env.sops"
+  sops_run -e --input-type dotenv --output-type dotenv .env > .env.sops
+  git add .env.sops && git commit -m "homeserver: encrypted env" && git push
+fi
+
 sops_run -d --input-type dotenv --output-type dotenv .env.sops > .env
 chmod 600 .env
 docker compose up -d "$@"
