@@ -2,26 +2,20 @@
 set -eu
 cd "$(dirname "$0")"
 
-sops_run() {
-  if command -v sops >/dev/null 2>&1; then
-    sops "$@"
-  else
-    docker run --rm -u "$(id -u):$(id -g)" -v "$PWD:/work" -w /work \
-      -v "$HOME/.config/sops/age/keys.txt:/keys.txt:ro" -e SOPS_AGE_KEY_FILE=/keys.txt \
-      ghcr.io/getsops/sops:v3.13.2 "$@"
-  fi
-}
-
-if [ ! -f .env.sops ]; then
-  [ -s .env ] || { echo "no .env.sops, and .env is missing or empty; refusing to bootstrap" >&2; exit 1; }
-  echo "bootstrapping: encrypting .env -> .env.sops"
-  sops_run -e --input-type dotenv --output-type dotenv .env > .env.sops.tmp
-  grep -q '^sops_' .env.sops.tmp || { echo "encryption produced no sops metadata; aborting" >&2; rm -f .env.sops.tmp; exit 1; }
-  mv .env.sops.tmp .env.sops
-  git add .env.sops && git commit -m "homeserver: encrypted env" && git push
+# Dummy values let the openbao service start before .env exists (compose
+# interpolates the whole file even for a single service).
+if [ -s .env ]; then
+  docker compose up -d openbao
+else
+  PIHOLE_PASSWORD=bootstrap DB_PASSWORD=bootstrap docker compose up -d openbao
 fi
+./vault-unseal.sh
 
-sops_run -d --input-type dotenv --output-type dotenv .env.sops > .env.tmp
+docker exec -e BAO_ADDR=http://127.0.0.1:8200 -e BAO_TOKEN="$(cat ./data/openbao-auth/token)" openbao \
+  bao kv get -field=dotenv secret/homeserver > .env.tmp
 chmod 600 .env.tmp
 mv .env.tmp .env
+
 docker compose up -d "$@"
+rm -f .env
+./vault-unseal.sh
