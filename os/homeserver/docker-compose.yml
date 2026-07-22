@@ -64,7 +64,7 @@ services:
     environment:
       - TZ=${TZ:-Europe/Madrid}
       - DOMAIN=${DOMAIN:-localhost}
-      - PIHOLE_PASSWORD=${PIHOLE_PASSWORD:?set in vault secret/homeserver}
+      - PIHOLE_PASSWORD=${PIHOLE_PASSWORD:?set in .env}
     volumes:
       - ./config/glance:/app/config:ro
     networks:
@@ -149,7 +149,7 @@ services:
     restart: unless-stopped
     environment:
       - TZ=${TZ:-Europe/Madrid}
-      - WEBPASSWORD=${PIHOLE_PASSWORD:?set in vault secret/homeserver}
+      - WEBPASSWORD=${PIHOLE_PASSWORD:?set in .env}
       - PIHOLE_DNS_=${PIHOLE_DNS:-1.1.1.1;1.0.0.1}
       - DNSMASQ_LISTENING=all
       - DNSSEC=true
@@ -293,7 +293,7 @@ services:
     container_name: immich_postgres
     restart: unless-stopped
     environment:
-      POSTGRES_PASSWORD: ${DB_PASSWORD:?set in vault secret/homeserver}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?set in .env}
       POSTGRES_USER: ${DB_USERNAME:-postgres}
       POSTGRES_DB: ${DB_DATABASE_NAME:-immich}
       POSTGRES_INITDB_ARGS: "--data-checksums"
@@ -536,13 +536,13 @@ services:
       - USER_UID=${PUID:-1000}
       - USER_GID=${PGID:-1000}
       - FORGEJO__server__DOMAIN=git.${DOMAIN:-localhost}
-      - FORGEJO__server__ROOT_URL=https://git.${DOMAIN:-localhost}/
+      - FORGEJO__server__ROOT_URL=http://git.${DOMAIN:-localhost}/
       - FORGEJO__server__SSH_DOMAIN=git.${DOMAIN:-localhost}
       - FORGEJO__server__SSH_PORT=222
       - FORGEJO__database__DB_TYPE=sqlite3
       - FORGEJO__security__INSTALL_LOCK=true
       - FORGEJO__service__DISABLE_REGISTRATION=true
-      - FORGEJO__migrations__ALLOWED_DOMAINS=github.com
+      - FORGEJO__migrations__ALLOWED_DOMAINS=github.com,*.github.com
     volumes:
       - ./data/forgejo:/data
       - /etc/localtime:/etc/localtime:ro
@@ -559,27 +559,3 @@ services:
       - "traefik.http.routers.forgejo-secure.entrypoints=websecure"
       - "traefik.http.routers.forgejo-secure.tls=true"
       - "traefik.http.services.forgejo.loadbalancer.server.port=3000"
-
-  # OpenBao - Secrets Vault (Vault fork). Web UI at vault.<domain>, single
-  # userpass login. deploy.sh unseals it and renders .env from secret/homeserver.
-  openbao:
-    image: ghcr.io/openbao/openbao:2
-    container_name: openbao
-    restart: unless-stopped
-    user: "${PUID:-1000}:${PGID:-1000}"
-    command: server
-    environment:
-      - TZ=${TZ:-Europe/Madrid}
-    volumes:
-      - ./config/openbao:/openbao/config:ro
-      - ./data/openbao:/openbao/data
-    networks:
-      - traefik
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.openbao.rule=Host(`vault.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.openbao.entrypoints=web"
-      - "traefik.http.routers.openbao-secure.rule=Host(`vault.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.openbao-secure.entrypoints=websecure"
-      - "traefik.http.routers.openbao-secure.tls=true"
-      - "traefik.http.services.openbao.loadbalancer.server.port=8200"
