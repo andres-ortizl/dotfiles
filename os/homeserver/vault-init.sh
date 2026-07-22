@@ -11,7 +11,9 @@ bao() {
   docker exec -i -e BAO_ADDR=http://127.0.0.1:8200 ${BAO_TOKEN:+-e BAO_TOKEN=$BAO_TOKEN} openbao bao "$@"
 }
 
-mkdir -p data/openbao-auth
+# Pre-create so the openbao container (running as our uid) can write; docker
+# would otherwise create it root-owned.
+mkdir -p data/openbao data/openbao-auth
 docker compose up -d openbao
 sleep 3
 

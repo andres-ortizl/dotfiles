@@ -566,6 +566,7 @@ services:
     image: ghcr.io/openbao/openbao:2
     container_name: openbao
     restart: unless-stopped
+    user: "${PUID:-1000}:${PGID:-1000}"
     command: server
     environment:
       - TZ=${TZ:-Europe/Madrid}
