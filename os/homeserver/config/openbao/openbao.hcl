@@ -4,7 +4,8 @@ api_addr      = "http://openbao:8200"
 cluster_addr  = "http://openbao:8201"
 
 storage "raft" {
-  path = "/openbao/data"
+  path    = "/openbao/data"
+  node_id = "openbao"
 }
 
 listener "tcp" {
