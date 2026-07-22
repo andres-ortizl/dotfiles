@@ -2,8 +2,11 @@
 set -eu
 cd "$(dirname "$0")"
 
-# Dummy values let the openbao service start before .env exists (compose
-# interpolates the whole file even for a single service).
+# Pre-create so the openbao container (running as our uid) can write; docker
+# would otherwise create it root-owned. Dummy values let the openbao service
+# start before .env exists (compose interpolates the whole file even for a
+# single service).
+mkdir -p data/openbao data/openbao-auth
 if [ -s .env ]; then
   docker compose up -d openbao
 else
