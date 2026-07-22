@@ -64,7 +64,7 @@ services:
     environment:
       - TZ=${TZ:-Europe/Madrid}
       - DOMAIN=${DOMAIN:-localhost}
-      - PIHOLE_PASSWORD=${PIHOLE_PASSWORD:-admin}
+      - PIHOLE_PASSWORD=${PIHOLE_PASSWORD:?set via sops .env}
     volumes:
       - ./config/glance:/app/config:ro
     networks:
@@ -149,7 +149,7 @@ services:
     restart: unless-stopped
     environment:
       - TZ=${TZ:-Europe/Madrid}
-      - WEBPASSWORD=${PIHOLE_PASSWORD:-admin}
+      - WEBPASSWORD=${PIHOLE_PASSWORD:?set via sops .env}
       - PIHOLE_DNS_=${PIHOLE_DNS:-1.1.1.1;1.0.0.1}
       - DNSMASQ_LISTENING=all
       - DNSSEC=true
@@ -293,7 +293,7 @@ services:
     container_name: immich_postgres
     restart: unless-stopped
     environment:
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?set via sops .env}
       POSTGRES_USER: ${DB_USERNAME:-postgres}
       POSTGRES_DB: ${DB_DATABASE_NAME:-immich}
       POSTGRES_INITDB_ARGS: "--data-checksums"
