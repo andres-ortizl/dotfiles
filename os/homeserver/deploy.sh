@@ -13,12 +13,15 @@ sops_run() {
 }
 
 if [ ! -f .env.sops ]; then
-  [ -f .env ] || { echo "neither .env.sops nor .env exists; nothing to deploy from" >&2; exit 1; }
+  [ -s .env ] || { echo "no .env.sops, and .env is missing or empty; refusing to bootstrap" >&2; exit 1; }
   echo "bootstrapping: encrypting .env -> .env.sops"
-  sops_run -e --input-type dotenv --output-type dotenv .env > .env.sops
+  sops_run -e --input-type dotenv --output-type dotenv .env > .env.sops.tmp
+  grep -q '^sops_' .env.sops.tmp || { echo "encryption produced no sops metadata; aborting" >&2; rm -f .env.sops.tmp; exit 1; }
+  mv .env.sops.tmp .env.sops
   git add .env.sops && git commit -m "homeserver: encrypted env" && git push
 fi
 
-sops_run -d --input-type dotenv --output-type dotenv .env.sops > .env
-chmod 600 .env
+sops_run -d --input-type dotenv --output-type dotenv .env.sops > .env.tmp
+chmod 600 .env.tmp
+mv .env.tmp .env
 docker compose up -d "$@"
