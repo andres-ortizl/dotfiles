@@ -1,24 +1,5 @@
 #!/bin/sh
 set -eu
 cd "$(dirname "$0")"
-
-# Pre-create so the openbao container (running as our uid) can write; docker
-# would otherwise create it root-owned. Dummy values let the openbao service
-# start before .env exists (compose interpolates the whole file even for a
-# single service).
-mkdir -p data/openbao data/openbao-auth
-if [ -s .env ]; then
-  docker compose up -d openbao
-else
-  PIHOLE_PASSWORD=bootstrap DB_PASSWORD=bootstrap docker compose up -d openbao
-fi
-./vault-unseal.sh
-
-docker exec -e BAO_ADDR=http://127.0.0.1:8200 -e BAO_TOKEN="$(cat ./data/openbao-auth/token)" openbao \
-  bao kv get -field=dotenv secret/homeserver > .env.tmp
-chmod 600 .env.tmp
-mv .env.tmp .env
-
+[ -s .env ] || { echo ".env missing or empty; run ./recover-env.sh or restore it from the Bitwarden note" >&2; exit 1; }
 docker compose up -d "$@"
-rm -f .env
-./vault-unseal.sh
