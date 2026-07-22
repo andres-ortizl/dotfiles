@@ -525,3 +525,37 @@ services:
       - TZ=${TZ:-Europe/Madrid}
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
+
+  # Forgejo - Self-hosted Git (GitHub private repos migration)
+  forgejo:
+    image: codeberg.org/forgejo/forgejo:12
+    container_name: forgejo
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ:-Europe/Madrid}
+      - USER_UID=${PUID:-1000}
+      - USER_GID=${PGID:-1000}
+      - FORGEJO__server__DOMAIN=git.${DOMAIN:-localhost}
+      - FORGEJO__server__ROOT_URL=https://git.${DOMAIN:-localhost}/
+      - FORGEJO__server__SSH_DOMAIN=git.${DOMAIN:-localhost}
+      - FORGEJO__server__SSH_PORT=222
+      - FORGEJO__database__DB_TYPE=sqlite3
+      - FORGEJO__security__INSTALL_LOCK=true
+      - FORGEJO__service__DISABLE_REGISTRATION=true
+      - FORGEJO__migrations__ALLOWED_DOMAINS=github.com
+    volumes:
+      - ./data/forgejo:/data
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "222:22"
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "traefik.http.routers.forgejo.rule=Host(`git.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.forgejo.entrypoints=web"
+      - "traefik.http.routers.forgejo-secure.rule=Host(`git.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.forgejo-secure.entrypoints=websecure"
+      - "traefik.http.routers.forgejo-secure.tls=true"
+      - "traefik.http.services.forgejo.loadbalancer.server.port=3000"
