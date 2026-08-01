@@ -1,7 +1,5 @@
 #!/bin/sh
 
-if [[ $(pgrep -c -f "ghostty --class=scratchpad.ghostty") -eq 0 ]]; then
-  ghostty --class=scratchpad.ghostty
-else
-  pkill -f "ghostty --class=scratchpad.ghostty"
+if ! pkill -f "ghostty --class=scratchpad.ghostty" 2>/dev/null; then
+    ghostty --class=scratchpad.ghostty
 fi

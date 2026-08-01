@@ -12,16 +12,30 @@ export SWWW_TRANSITION_BEZIER=.4,0.02,0.21,0.99 # bezier curve to use for the tr
 GREEN='\033[0;32m'
 NC='\033[0m'
 
-# if swww is not started, start it
-if ! pgrep -x "swww" >/dev/null; then
-  swww-daemon &
-  # Wait for swww-daemon to start (max 2s)
-  for i in {1..20}; do
-    if pgrep -x "swww" >/dev/null; then
-      break
-    fi
-    sleep 0.1
-  done
+# Support both swww and awww binaries.
+if command -v swww >/dev/null 2>&1; then
+    WALL_BIN="swww"
+    WALL_DAEMON="swww-daemon"
+    WALL_PROC="swww"
+elif command -v awww >/dev/null 2>&1; then
+    WALL_BIN="awww"
+    WALL_DAEMON="awww-daemon"
+    WALL_PROC="awww-daemon"
+else
+    echo "[ERROR] Neither swww nor awww is installed."
+    exit 1
+fi
+
+# If wallpaper daemon is not started, start it.
+if ! pgrep -x "$WALL_PROC" >/dev/null; then
+    "$WALL_DAEMON" &
+    # Wait for daemon to start (max 2s)
+    for i in {1..20}; do
+        if pgrep -x "$WALL_PROC" >/dev/null; then
+            break
+        fi
+        sleep 0.1
+    done
 fi
 
 var=$(cat ~/.config/hypr/store/wallpaper)
@@ -61,4 +75,4 @@ fi
 # Set wallpaper
 
 printf "$GREEN[INFO]$NC Setting wallpaper to $var (${wallpapers[$(($var - 1))]})\n"
-swww img $HOME/.config/wallpaper/${wallpapers[$(($var - 1))]} -o DP-3
+"$WALL_BIN" img "$HOME/.config/wallpaper/${wallpapers[$(($var - 1))]}" -o DP-3

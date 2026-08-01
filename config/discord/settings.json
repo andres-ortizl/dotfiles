@@ -12,5 +12,6 @@
   },
   "chromiumSwitches": {},
   "enableHardwareAcceleration": true,
-  "offloadAdmControls": true
+  "offloadAdmControls": true,
+  "openH264Enabled": true
 }

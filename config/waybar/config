@@ -17,6 +17,7 @@
       "cpu",
       "temperature",
       "custom/gpu",
+      "custom/disk-temp",
       "memory",
       "network",
       "pulseaudio",
@@ -55,7 +56,7 @@
     },
     "cpu": {
       "interval": 5,
-      "format": "󰻠{usage:>2}%",
+      "format": "󰻠 {usage}%",
       "on-click": "ghostty -e btop"
     },
     "custom/gpu": {
@@ -146,9 +147,16 @@
       "interval": 15,
       "format": "󰋊 {percentage_used:>2}%"
     },
+    "custom/disk-temp": {
+      "exec": "~/.config/waybar/scripts/disk_temp.sh",
+      "format": "{text}",
+      "interval": 10,
+      "on-click": "ghostty -e watch -n 2 nvme smart-log /dev/nvme1n1",
+      "return-type": "json"
+    },
     "custom/power-menu": {
       "format": "⏻",
-      "on-click": ".config/wlogout/init.sh"
+      "on-click": "$HOME/.config/wlogout/init.sh"
     },
     "custom/notification": {
       "exec": "~/.config/waybar/scripts/notification.sh",

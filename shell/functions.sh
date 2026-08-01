@@ -419,7 +419,7 @@ function claude() {
   fi
   export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
   export CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1
-  EDITOR=nvim VISUAL=nvim /Users/andrew/.local/bin/claude "$@"
+  EDITOR=nvim VISUAL=nvim "$HOME/.local/bin/claude" "$@"
 }
 
 function droid() {

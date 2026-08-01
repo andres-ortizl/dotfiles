@@ -1,4 +1,4 @@
-#!/bin/python
+#!/usr/bin/env python3
 
 """
 In the case of I²C/SMBus devices, these rules also cause the loading of the

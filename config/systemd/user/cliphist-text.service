@@ -1,0 +1,8 @@
+[Unit]
+Description=Cliphist text watcher
+PartOf=hyprland-session.target
+
+[Service]
+ExecStart=/usr/bin/wl-paste --type text --watch cliphist store
+Restart=always
+RestartSec=1

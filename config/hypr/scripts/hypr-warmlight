@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+# hypr-warmlight
+# Aplica luz cálida en el escritorio (según horario) y la retira cuando
+# una ventana pasa a fullscreen (juegos), restaurándola al salir.
+# Se comunica con Hyprland vía decoration:screen_shader (hyprshade ya no
+# funciona en Hyprland 0.56 porque su "eval" requiere el config manager Lua).
+
+BLUE_LIGHT="/usr/share/hyprshade/shaders/blue-light-filter.glsl"
+VIBRANCE="/usr/share/hyprshade/shaders/vibrance.glsl"
+EMPTY="[[EMPTY]]"
+SOCKET="$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock"
+
+on()  { hyprctl keyword decoration:screen_shader "$1" >/dev/null 2>&1; }
+off() { hyprctl keyword decoration:screen_shader "$EMPTY" >/dev/null 2>&1; }
+
+# ¿Hay alguna ventana en fullscreen?
+any_fullscreen() {
+  hyprctl -j clients 2>/dev/null | python3 -c '
+import json, sys
+try:
+    d = json.load(sys.stdin)
+except Exception:
+    sys.exit(1)
+for c in d:
+    if c.get("fullscreenClient") or c.get("fullscreen"):
+        sys.exit(0)
+sys.exit(1)
+'
+}
+
+# Shader objetivo según horario (19:00-06:00 -> azul cálido, resto -> vibrance)
+target_shader() {
+  local h
+  h=$(date +%H)
+  if (( 10#$h >= 19 || 10#$h < 6 )); then
+    echo "$BLUE_LIGHT"
+  else
+    echo "$VIBRANCE"
+  fi
+}
+
+apply_state() {
+  if any_fullscreen; then
+    off
+  else
+    on "$(target_shader)"
+  fi
+}
+
+apply_state
+
+socat -U - UNIX-CONNECT:"$SOCKET" 2>/dev/null | while read -r line; do
+  case "${line%%>*}" in
+    fullscreen|openwindow|closewindow|activewindowv2|changefloatingmode)
+      apply_state
+      ;;
+  esac
+done

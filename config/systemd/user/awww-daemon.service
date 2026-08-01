@@ -1,0 +1,10 @@
+[Unit]
+Description=awww wallpaper daemon
+PartOf=hyprland-session.target
+
+[Service]
+Type=exec
+ExecStart=/usr/bin/awww-daemon
+ExecStartPost=/bin/bash -c 'sleep 0.5 && /usr/bin/awww img %h/.config/wallpaper/futuristic_city.png'
+Restart=on-failure
+RestartSec=2

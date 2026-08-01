@@ -3,7 +3,9 @@ setopt HIST_IGNORE_ALL_DUPS
 bindkey -e
 
 
-export DOTFILES=/home/andres/code/dotfiles/
+if [[ -z "$DOTFILES" ]] && [[ -d "$HOME/code/dotfiles" ]]; then
+  export DOTFILES="$HOME/code/dotfiles"
+fi
 WORDCHARS=${WORDCHARS//[\/]}
 ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets)
 ZIM_HOME=${ZDOTDIR:-${HOME}}/.zim
@@ -37,3 +39,11 @@ autoload -Uz compinit
 zstyle ':completion:*' menu select
 fpath+=~/.zfunc
 export PATH=$HOME/.local/bin:$PATH
+
+
+
+
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:$HOME/.lmstudio/bin"
+# End of LM Studio CLI section

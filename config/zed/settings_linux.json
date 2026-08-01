@@ -163,6 +163,7 @@
     }
   },
   "collaboration_panel": {
+    "dock": "left",
     "button": true
   },
   "notification_panel": {
@@ -252,8 +253,8 @@
     "button": true,
     "default_width": 640,
     "default_model": {
-      "provider": "copilot_chat",
-      "model": "gemini-2.5-pro"
+      "provider": "amazon-bedrock",
+      "model": "claude-sonnet-4-5"
     },
     "always_allow_tool_actions": true,
     "model_parameters": []

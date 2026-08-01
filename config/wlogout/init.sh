@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Generate blurred background if missing
+if [ ! -f /tmp/shot_blurred.png ]; then
+    grim -o "$(hyprctl monitors -j | jq -r '.[0].name')" /tmp/shot.png
+    magick /tmp/shot.png -blur 0x8 /tmp/shot_blurred.png
+    rm /tmp/shot.png
+fi
+
 wlogout --layout "$HOME/.config/wlogout/layout" \
   --css "$HOME/.config/wlogout/style.css" \
   --buttons-per-row 3 \

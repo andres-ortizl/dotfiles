@@ -1,0 +1,8 @@
+[Unit]
+Description=Fan curve controller
+PartOf=hyprland-session.target
+
+[Service]
+ExecStart=/usr/bin/env python3 %h/.config/hypr/scripts/fan-curve.py
+Restart=always
+RestartSec=5

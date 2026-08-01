@@ -18,8 +18,9 @@
     ~/.config/btop: config/btop/**
     ~/.config/dunst/dunstrc: config/dunst/dunstrc
     ~/.config/hypr: config/hypr/**
-    ~/.config/picom: config/picom/**
+    ~/.config/systemd/user: config/systemd/user/**
     ~/.config/rofi: config/rofi/**
+    ~/.config/nvim: config/nvim/**
     ~/.config/wallpaper: config/wallpaper/**
     ~/.config/waybar: config/waybar/**
     ~/.config/starship/config.toml: config/starship/config.toml

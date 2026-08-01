@@ -251,18 +251,12 @@ Some apps have OS-specific configs. Check the dotbot configuration files to see 
 
 ### Arch Linux
 ```bash
-# Core tools
-paru -S zsh git neovim lsd bat starship
-
-# Hyprland setup
-paru -S hyprland-git waybar-git rofi dunst \
-        wl-clipboard grim slurp hyprlock swww
-
-# Applications
-paru -S ghostty zed zen-browser btop
-
-# Fonts
-paru -S ttf-cascadia-code-nerd nerd-fonts-jetbrains-mono
+# Layered manifests live under os/archlinux/packages/
+# `legacy.list` is archival; use the first three for normal installs.
+# Example installs:
+paru -S --needed - < os/archlinux/packages/base.list
+paru -S --needed - < os/archlinux/packages/hypr-desktop.list
+paru -S --needed - < os/archlinux/packages/optional.list
 ```
 
 ### macOS

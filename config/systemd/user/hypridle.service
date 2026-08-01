@@ -1,0 +1,8 @@
+[Unit]
+Description=Hypridle session daemon
+PartOf=hyprland-session.target
+
+[Service]
+ExecStart=/usr/bin/hypridle
+Restart=on-failure
+RestartSec=2

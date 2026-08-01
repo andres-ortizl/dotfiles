@@ -1,0 +1,11 @@
+[Unit]
+Description=Restart Waybar when its config changes
+PartOf=hyprland-session.target
+
+[Path]
+PathChanged=%h/.config/waybar/config
+PathChanged=%h/.config/waybar/style.css
+Unit=waybar-restart.service
+
+[Install]
+WantedBy=hyprland-session.target

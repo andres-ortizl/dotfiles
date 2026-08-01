@@ -1,0 +1,8 @@
+[Unit]
+Description=Collect desktop notification metadata
+PartOf=hyprland-session.target
+
+[Service]
+ExecStart=/usr/bin/bash %h/.config/waybar/scripts/getnotification.sh
+Restart=always
+RestartSec=1

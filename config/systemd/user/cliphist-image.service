@@ -1,0 +1,8 @@
+[Unit]
+Description=Cliphist image watcher
+PartOf=hyprland-session.target
+
+[Service]
+ExecStart=/usr/bin/wl-paste --type image --watch cliphist store
+Restart=always
+RestartSec=1

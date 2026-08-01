@@ -3,15 +3,8 @@
 default_timeout=3
 store_dir="$HOME/.config/waybar/store"
 notif_file="$store_dir/lastnotif"
-lockdir="$store_dir/getnotification.lock"
 
 mkdir -p "$store_dir"
-
-# Start metadata collector if it's not already running.
-if ! pgrep -f "getnotification.sh$" >/dev/null && [ ! -d "$lockdir" ]; then
-  "$HOME/.config/waybar/scripts/getnotification.sh" >/dev/null 2>&1 &
-  sleep 0.2
-fi
 
 emit() {
   local text="$1"

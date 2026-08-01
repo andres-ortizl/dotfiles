@@ -1,8 +1,12 @@
 return {
   {
     "3rd/image.nvim",
+    cond = function()
+      return vim.fn.executable("luarocks") == 1 and vim.fn.executable("magick") == 1
+    end,
     opts = {
       backend = "kitty",
+      processor = "magick_cli",
       integrations = {
         markdown = {
           enabled = true,

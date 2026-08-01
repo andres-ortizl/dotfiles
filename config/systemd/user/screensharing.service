@@ -1,0 +1,7 @@
+[Unit]
+Description=Refresh xdg-desktop-portal for Hyprland
+PartOf=hyprland-session.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/bash %h/.config/hypr/scripts/screensharing

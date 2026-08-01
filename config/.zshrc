@@ -62,7 +62,9 @@ source ${ZIM_HOME}/init.zsh
 #[ -f /usr/share/fzf/completion.zsh ] && source /usr/share/fzf/completion.zsh
 #[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-export DOTFILES=/home/andres/code/dotfiles/
+if [[ -z "$DOTFILES" ]] && [[ -d "$HOME/code/dotfiles" ]]; then
+  export DOTFILES="$HOME/code/dotfiles"
+fi
 source $DOTFILES/shell/main.sh
 
 

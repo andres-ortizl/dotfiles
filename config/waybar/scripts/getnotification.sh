@@ -7,17 +7,6 @@ GREY='\e[0;90m'
 mkdir -p ~/.config/waybar/store
 
 notif_file=~/.config/waybar/store/lastnotif
-lockdir=~/.config/waybar/store/getnotification.lock
-
-# Use mkdir for atomic locking (mkdir is atomic on most filesystems)
-if ! mkdir "$lockdir" 2>/dev/null; then
-  # Lock directory already exists, another instance is running
-  echo "getnotification.sh is already running. Exiting." >&2
-  exit 0
-fi
-
-# Clean up lock directory on exit
-trap "rmdir '$lockdir' 2>/dev/null" EXIT INT TERM
 
 echo "timestamp: 1
 icon:

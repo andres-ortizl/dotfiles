@@ -29,7 +29,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     "/opt/homebrew/opt/make/libexec/gnubin"
     "/opt/homebrew/opt/libpq/bin"
     "/opt/homebrew/opt/openjdk/bin"
-    "/Users/andrew/.local/bin"
+    "$HOME/.local/bin"
     "/sbin"
   )
 fi
@@ -51,7 +51,7 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     "/usr/bin"
     "/usr/sbin"
     "/sbin"
-    "/home/andrew/.local/share/JetBrains/Toolbox/scripts"
+    "$HOME/.local/share/JetBrains/Toolbox/scripts"
     "$HOME/.bun/bin"
   )
 fi

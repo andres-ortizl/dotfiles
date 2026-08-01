@@ -1,7 +1,7 @@
 /*****----- Configuration -----*****/
 configuration {
 	/* Available modes */
-	modi: "window,run,ssh,combi,drun,filebrowser";
+	modi: "window,run,ssh,combi,drun,filebrowser,emoji,calc";
 
 	/* Combi mode settings */
 	combi-modi: "window,drun,run";
