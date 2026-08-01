@@ -77,6 +77,10 @@ pages:
                 url: http://backup.${DOMAIN}
                 check-url: http://backrest:9898
                 icon: di:backrest
+              - title: UGREEN NAS
+                url: http://192.168.1.33:9999/desktop/#/
+                check-url: http://192.168.1.33:9999
+                icon: mdi:nas
 
           - type: monitor
             cache: 1m
