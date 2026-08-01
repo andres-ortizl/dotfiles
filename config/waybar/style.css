@@ -10,18 +10,11 @@
 #clock,
 #custom-notification,
 #custom-power-menu,
-#custom-gpu,
-#custom-disk-temp,
-#memory,
-#temperature,
-#cpu,
-#disk,
-#network,
+#custom-control-center,
+#custom-tray,
 #custom-spotify,
 #pulseaudio,
-#window,
-#bluetooth,
-#tray {
+#window {
     padding: 5px 15px;
     border-radius: 12px;
     background: @black-900;
@@ -32,19 +25,15 @@
 }
 
 #window {
+    min-width: 360px;
     background-color: transparent;
     box-shadow: none;
 }
 
-#cpu:hover,
-#memory:hover,
-#temperature:hover,
-#custom-gpu:hover,
-#custom-disk-temp:hover,
-#network:hover,
 #pulseaudio:hover,
-#bluetooth:hover,
 #clock:hover,
+#custom-control-center:hover,
+#custom-tray:hover,
 #custom-power-menu:hover,
 #custom-notification:hover {
     background: linear-gradient(135deg, @black-900, @purple-800);
@@ -76,7 +65,7 @@ window * {
     background-color: @black-900;
     border-radius: 12px;
     margin-left: 10px;
-    min-width: 50px;
+    min-width: 42px;
     transition: all 0.3s ease;
 }
 
@@ -87,7 +76,7 @@ window * {
 
 
 #workspaces button.active {
-    min-width: 50px;
+    min-width: 52px;
     box-shadow: @black-300 2px 2px 5px 2px;
     background: @purple-600;
     background-size: 400% 400%;
@@ -117,9 +106,14 @@ window * {
 
 
 
-#tray menu {
-    background-color: @black-900;
-    opacity: 0.95;
+#custom-control-center {
+    padding-left: 13px;
+    padding-right: 13px;
+}
+
+#custom-tray {
+    padding-left: 13px;
+    padding-right: 13px;
 }
 
 #pulseaudio.muted {

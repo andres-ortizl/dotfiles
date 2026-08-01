@@ -3,6 +3,7 @@
     "output": "DP-3",
     "layer": "top",
     "height": 60,
+    "fixed-center": true,
     "spacing": 1,
     "margin": "10 10 0 10",
     "reload_style_on_change": true,
@@ -13,18 +14,12 @@
       "hyprland/window"
     ],
     "modules-right": [
-      "tray",
-      "cpu",
-      "temperature",
-      "custom/gpu",
-      "custom/disk-temp",
-      "memory",
-      "network",
       "pulseaudio",
-      "bluetooth",
       "clock",
-      "custom/power-menu",
-      "custom/notification"
+      "custom/notification",
+      "custom/tray",
+      "custom/control-center",
+      "custom/power-menu"
     ],
     "hyprland/workspaces": {
       "on-click": "activate",
@@ -48,76 +43,23 @@
       "show-special": false
     },
     "hyprland/window": {
-      "format": "{}"
+      "format": "{}",
+      "max-length": 48
     },
-    "tray": {
-      "icon-size": 21,
-      "spacing": 5
+    "custom/control-center": {
+      "format": "󰒓",
+      "tooltip-format": "Control center",
+      "on-click": "qs -c control-center ipc call controlCenter toggle"
     },
-    "cpu": {
-      "interval": 5,
-      "format": "󰻠 {usage}%",
-      "on-click": "ghostty -e btop"
-    },
-    "custom/gpu": {
-      "exec": "~/.config/waybar/scripts/nvidia_temp.sh",
-      "format": "{text}",
-      "interval": 5,
-      "on-click": "ghostty -e watch -n 1 nvidia-smi",
-      "return-type": "json"
-    },
-    "temperature": {
-      "hwmon-path": "/sys/class/hwmon/hwmon2/temp1_input",
-      "critical-threshold": 80,
-      "interval": 5,
-      "format": "{icon} {temperatureC:>2}°C",
-      "format-icons": ["", "", ""],
-      "on-click": "ghostty -e btop"
-    },
-    "bluetooth": {
-      "format": "{icon}",
-      "format-icons": {
-        "connected": "",
-        "disconnected": "󰂲",
-        "disabled": "󰂲"
-      },
-      "on-click": "blueman-manager",
-      "on-right-click": "bluetoothctl power off",
-      "format-disabled": "󰂲",
-      "format-off": "󰂲",
-      "format-on": "󰂯",
-      "format-connected": "",
-      "format-no-controller": "󰂲",
-      "interval": 30
+    "custom/tray": {
+      "format": "󰀻",
+      "tooltip-format": "System tray",
+      "on-click": "qs -c control-center ipc call tray toggle"
     },
     "clock": {
-      "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
       "format-alt": " {:%a %b %d}",
       "format": " {:%I:%M %p}",
-      "today-format": "<span color='#ff6699'><b><u>{}</u></b></span>",
-      "format-calendar": "<span color='#ecc6d9'><b>{}</b></span>",
-      "format-calendar-weeks": "<span color='#99ffdd'><b>W{:%U}</b></span>",
-      "format-calendar-weekdays": "<span color='#ffcc66'><b>{}</b></span>",
-      "on-scroll": {
-        "calendar": 1
-      }
-    },
-    "memory": {
-      "interval": 30,
-      "format": " {used:0.1f}G / {total:0.1f}G",
-      "on-click": "ghostty -e btop",
       "tooltip": false
-    },
-    "network": {
-      "interval": 2,
-      "format-wifi": "  {bandwidthTotalBytes:>10}",
-      "format-ethernet": " {bandwidthTotalBytes:>10}",
-      "tooltip-format-ethernet": "󰈀 {ipaddr}",
-      "tooltip-format-wifi": "  {essid} ({signalStrength}%)",
-      "tooltip-format": "󰤯 {ifname} via {gwaddr}",
-      "format-linked": "󰀦 {ifname} (No IP)",
-      "format-disconnected": "󰀦 Disconnected",
-      "format-alt": "{ifname}: {ipaddr}/{cidr}"
     },
     "pulseaudio": {
       "format": "{icon} {volume}%",
@@ -142,17 +84,6 @@
       "on-scroll-down": "pactl set-sink-volume @DEFAULT_SINK@ -5%",
       "scroll-step": 5,
       "smooth-scrolling-threshold": 1
-    },
-    "disk": {
-      "interval": 15,
-      "format": "󰋊 {percentage_used:>2}%"
-    },
-    "custom/disk-temp": {
-      "exec": "~/.config/waybar/scripts/disk_temp.sh",
-      "format": "{text}",
-      "interval": 10,
-      "on-click": "ghostty -e watch -n 2 nvme smart-log /dev/nvme1n1",
-      "return-type": "json"
     },
     "custom/power-menu": {
       "format": "⏻",

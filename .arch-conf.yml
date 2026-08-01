@@ -21,6 +21,7 @@
     ~/.config/systemd/user: config/systemd/user/**
     ~/.config/rofi: config/rofi/**
     ~/.config/nvim: config/nvim/**
+    ~/.config/quickshell: config/quickshell/**
     ~/.config/wallpaper: config/wallpaper/**
     ~/.config/waybar: config/waybar/**
     ~/.config/starship/config.toml: config/starship/config.toml

@@ -1,0 +1,8 @@
+[Unit]
+Description=Quickshell control center
+PartOf=hyprland-session.target
+
+[Service]
+ExecStart=/usr/bin/qs --no-duplicate -c control-center
+Restart=on-failure
+RestartSec=2
