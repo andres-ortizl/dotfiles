@@ -25,7 +25,7 @@ check_secret() {
 }
 
 check_single_resolver_owner() {
-  [ "$(grep -Ec 'tls\.certresolver=cloudflare' "$1")" -eq 1 ]
+  [ "$(grep -Ec 'certResolver: cloudflare' "$1")" -eq 1 ]
 }
 
 validate_acme_input() {
@@ -47,17 +47,18 @@ grep -Fq 'ACME_CA_SERVER:-https://acme-staging-v02.api.letsencrypt.org/directory
 grep -Fq 'dnschallenge.provider=cloudflare' "$compose" || fail 'Cloudflare DNS challenge is missing'
 grep -Fq 'dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53' "$compose" || fail 'explicit DNS resolvers are missing'
 
-resolver_count=$(grep -Ec 'tls\.certresolver=cloudflare' "$compose")
+dynamic="$homeserver_dir/config/traefik/dynamic/services.yml"
+resolver_count=$(grep -Ec 'certResolver: cloudflare' "$dynamic")
 [ "$resolver_count" -eq 1 ] || fail 'ACME resolver is not owned by exactly one router'
 secret_service_count=$(awk '/^  [A-Za-z0-9_-]+:$/ { service=$1 } /    secrets:$/ { print service }' "$compose" | grep -Ec '^traefik:$')
 [ "$secret_service_count" -eq 1 ] || fail 'Cloudflare secret is mounted outside Traefik'
-apex_main="traefik.http.routers.glance-secure.tls.domains[0].main=\${DOMAIN:?set DOMAIN=n33lab.com}"
-apex_san="traefik.http.routers.glance-secure.tls.domains[0].sans=*.\${DOMAIN:?set DOMAIN=n33lab.com}"
-grep -Fq "$apex_main" "$compose" \
+apex_main="main: '{{ env \"DOMAIN\" }}'"
+apex_san="sans: ['*.{{ env \"DOMAIN\" }}']"
+grep -Fq "$apex_main" "$dynamic" \
   || fail 'apex ACME main domain is missing'
-grep -Fq "$apex_san" "$compose" \
+grep -Fq "$apex_san" "$dynamic" \
   || fail 'wildcard ACME SAN is missing'
-if grep -Eq 'routers\.(dashboard|dockhand|pihole|qbittorrent|immich|openwebui|excalidraw|gatus|dozzle|filebrowser|backrest|node-red|forgejo)-secure\..*certresolver=' "$compose"; then
+if grep -Eq 'certResolver:|certresolver=' "$dynamic" | grep -v 'certResolver: cloudflare'; then
   fail 'non-apex router owns an ACME resolver'
 fi
 
@@ -72,7 +73,9 @@ fi
 mkdir -p "$root/secrets" "$root/config/traefik/dynamic" "$root/config/glance" "$root/data/traefik/letsencrypt"
 printf '%s\n' 'fixture-token-not-real' >"$root/secrets/cloudflare_dns_api_token"
 chmod 600 "$root/secrets/cloudflare_dns_api_token"
-touch "$root/secrets/immich-server.env" "$root/secrets/immich-ml.env" "$root/secrets/gatus.env"
+touch "$root/secrets/immich-server.env" "$root/secrets/immich-ml.env" "$root/secrets/gatus.env" "$root/secrets/traefik-users"
+printf '%s\n' 'ESPHOME_USERNAME=fixture' 'ESPHOME_PASSWORD=fixture' 'ESPHOME_TRUSTED_DOMAINS=example.test' >"$root/secrets/esphome.env"
+cp "$dynamic" "$root/config/traefik/dynamic/services.yml"
 cp "$compose" "$root/docker-compose.yml"
 cat >"$root/.env" <<'EOF'
 DOMAIN=example.test
@@ -125,9 +128,9 @@ EOF
 docker compose --project-directory "$root" --env-file "$root/production.env" -f "$root/docker-compose.yml" config --quiet >/dev/null 2>&1 \
   || fail 'production switch fixture does not validate'
 
-sed 's/tls\.certresolver=cloudflare/tls.certresolver=cloudflare\n      - "traefik.http.routers.dashboard-secure.tls.certresolver=cloudflare"/' "$compose" >"$root/duplicate-compose.yml"
-[ "$(grep -Ec 'tls\.certresolver=cloudflare' "$root/duplicate-compose.yml")" -eq 2 ] || fail 'duplicate resolver fixture was not created'
-expect_fail check_single_resolver_owner "$root/duplicate-compose.yml"
+printf '%s\n' '        certResolver: cloudflare' >>"$root/config/traefik/dynamic/services.yml"
+[ "$(grep -Ec 'certResolver: cloudflare' "$root/config/traefik/dynamic/services.yml")" -eq 2 ] || fail 'duplicate resolver fixture was not created'
+expect_fail check_single_resolver_owner "$root/config/traefik/dynamic/services.yml"
 
 [ "$(stat -c '%a' "$root/secrets/cloudflare_dns_api_token")" = 600 ] || fail 'fixture secret is not mode 600'
 [ "$(stat -c '%u' "$root/secrets/cloudflare_dns_api_token")" = "$(id -u)" ] || fail 'fixture secret owner is incorrect'

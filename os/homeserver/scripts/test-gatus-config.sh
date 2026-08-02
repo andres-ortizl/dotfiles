@@ -6,6 +6,7 @@ scripts_dir=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 homeserver_dir=$(dirname "$scripts_dir")
 compose="$homeserver_dir/docker-compose.yml"
 config="$homeserver_dir/config/gatus/config.yaml"
+dynamic="$homeserver_dir/config/traefik/dynamic/services.yml"
 glance="$homeserver_dir/config/glance/glance.yml"
 matrix="$scripts_dir/hostname-matrix.tsv"
 verifier="$scripts_dir/verify-hostname-matrix.sh"
@@ -53,10 +54,11 @@ awk '
   active { print }
 ' "$compose" >"$root/gatus-service"
 for required in 'image: ghcr.io/twin/gatus@sha256:c5f210d095fa78e6efaa20ffeb14803f2ba4f10615e16a6d12087697149617f0' './config/gatus:/config:ro' \
-  './data/gatus:/var/lib/gatus' './secrets/gatus.env' 'host.docker.internal:host-gateway' \
-  'traefik.http.routers.gatus.rule=Host(' 'traefik.http.services.gatus.loadbalancer.server.port=8080'; do
+  './data/gatus:/var/lib/gatus' './secrets/gatus.env' 'host.docker.internal:host-gateway'; do
   grep -Fq "$required" "$root/gatus-service" || fail "Gatus Compose contract is missing: $required"
 done
+grep -Fq "Host(\`uptime.{{ env \"DOMAIN\" }}\`)" "$dynamic" || fail 'Gatus file-provider route is missing'
+grep -Fq 'url: http://gatus:8080' "$dynamic" || fail 'Gatus file-provider service is missing'
 grep -Fq '/var/run/docker.sock' "$root/gatus-service" && fail 'Gatus has Docker socket access'
 grep -Fq './data/uptime-kuma' "$compose" && fail 'new Compose references old Kuma data'
 assert_safe_migration "$compose" "$homeserver_dir/../../.gitignore" "$homeserver_dir/UPDATE_IMAGES.md" \
@@ -129,7 +131,7 @@ grep -Fq 'check-url: http://gatus:8080' "$glance" || fail 'Glance Gatus check UR
 grep -Fq 'icon: di:gatus' "$glance" || fail 'Glance Gatus icon is missing'
 grep -Fq 'uptime.n33lab.com	http	gatus	gatus:8080	none' "$matrix" \
   || fail 'hostname matrix does not map Gatus'
-grep -Fq 'verify_compose_route uptime.n33lab.com gatus gatus:8080' "$verifier" \
+grep -Fq '"uptime.n33lab.com gatus gatus:8080"' "$verifier" \
   || fail 'hostname verifier does not map Gatus'
 
 grep -Fq 'gatus.env' "$homeserver_dir/.env.example" || fail 'tracked attachment documentation omits gatus.env'
