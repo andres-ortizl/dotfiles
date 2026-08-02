@@ -1,8 +1,14 @@
 http:
   middlewares:
-    admin-auth:
-      basicAuth:
-        usersFile: /run/secrets/traefik-users
+    authelia:
+      forwardAuth:
+        address: http://authelia:9091/api/authz/forward-auth
+        trustForwardHeader: true
+        authResponseHeaders:
+          - Remote-User
+          - Remote-Groups
+          - Remote-Name
+          - Remote-Email
     https-redirect:
       redirectScheme:
         scheme: https
@@ -17,7 +23,7 @@ http:
       rule: 'Host(`{{ env "DOMAIN" }}`)'
       entryPoints: [websecure]
       service: glance
-      middlewares: [admin-auth]
+      middlewares: [authelia]
       tls:
         certResolver: cloudflare
         domains:
@@ -27,13 +33,13 @@ http:
       rule: 'Host(`traefik.{{ env "DOMAIN" }}`)'
       entryPoints: [websecure]
       service: api@internal
-      middlewares: [admin-auth]
+      middlewares: [authelia]
       tls: {}
     dockhand:
       rule: 'Host(`docker.{{ env "DOMAIN" }}`)'
       entryPoints: [websecure]
       service: dockhand
-      middlewares: [admin-auth]
+      middlewares: [authelia]
       tls: {}
     pihole:
       rule: 'Host(`pihole.{{ env "DOMAIN" }}`)'
@@ -64,13 +70,13 @@ http:
       rule: 'Host(`uptime.{{ env "DOMAIN" }}`)'
       entryPoints: [websecure]
       service: gatus
-      middlewares: [admin-auth]
+      middlewares: [authelia]
       tls: {}
     dozzle:
       rule: 'Host(`logs.{{ env "DOMAIN" }}`)'
       entryPoints: [websecure]
       service: dozzle
-      middlewares: [admin-auth]
+      middlewares: [authelia]
       tls: {}
     filebrowser:
       rule: 'Host(`files.{{ env "DOMAIN" }}`)'
@@ -81,17 +87,23 @@ http:
       rule: 'Host(`backup.{{ env "DOMAIN" }}`)'
       entryPoints: [websecure]
       service: backrest
+      middlewares: [authelia]
       tls: {}
     node-red:
       rule: 'Host(`ha-flows.{{ env "DOMAIN" }}`)'
       entryPoints: [websecure]
       service: node-red
-      middlewares: [admin-auth]
+      middlewares: [authelia]
       tls: {}
     forgejo:
       rule: 'Host(`git.{{ env "DOMAIN" }}`)'
       entryPoints: [websecure]
       service: forgejo
+      tls: {}
+    auth:
+      rule: 'Host(`auth.{{ env "DOMAIN" }}`)'
+      entryPoints: [websecure]
+      service: authelia
       tls: {}
   services:
     glance: { loadBalancer: { servers: [{ url: http://glance:8080 }] } }
@@ -107,6 +119,7 @@ http:
     backrest: { loadBalancer: { servers: [{ url: http://backrest:9898 }] } }
     node-red: { loadBalancer: { servers: [{ url: http://node-red:1880 }] } }
     forgejo: { loadBalancer: { servers: [{ url: http://forgejo:3000 }] } }
+    authelia: { loadBalancer: { servers: [{ url: http://authelia:9091 }] } }
 tcp:
   routers:
     mqtt:
