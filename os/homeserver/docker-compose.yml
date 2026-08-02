@@ -35,10 +35,8 @@ services:
     ports:
       - "80:80" # HTTP
       - "443:443" # HTTPS
-      - "9090:8080" # Traefik dashboard on port 9090
     command:
       - --api.dashboard=true
-      - --api.insecure=true
       - --providers.docker=false
       - --providers.file.directory=/etc/traefik/dynamic
       - --providers.file.watch=true
@@ -46,8 +44,8 @@ services:
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
       - --certificatesresolvers.cloudflare.acme.email=${ACME_EMAIL:?set ACME_EMAIL}
-      - --certificatesresolvers.cloudflare.acme.storage=${ACME_STORAGE:-/letsencrypt/acme-staging.json}
-      - --certificatesresolvers.cloudflare.acme.caserver=${ACME_CA_SERVER:-https://acme-staging-v02.api.letsencrypt.org/directory}
+      - --certificatesresolvers.cloudflare.acme.storage=${ACME_STORAGE:-/letsencrypt/acme.json}
+      - --certificatesresolvers.cloudflare.acme.caserver=${ACME_CA_SERVER:-https://acme-v02.api.letsencrypt.org/directory}
       - --certificatesresolvers.cloudflare.acme.dnschallenge.provider=cloudflare
       - --certificatesresolvers.cloudflare.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53
     volumes:
@@ -129,7 +127,6 @@ services:
     ports:
       - "192.168.1.33:53:53/tcp"
       - "192.168.1.33:53:53/udp"
-      - "3333:80"
     dns:
       - 127.0.0.1
       - 1.1.1.1
@@ -143,7 +140,7 @@ services:
       - "homepage.group=Network"
       - "homepage.name=Pi-hole"
       - "homepage.icon=pihole.png"
-      - "homepage.href=http://pihole.${DOMAIN:?set DOMAIN=n33lab.com}:3333/admin"
+      - "homepage.href=https://pihole.${DOMAIN:?set DOMAIN=n33lab.com}/admin"
       - "homepage.description=Network-wide ad blocking and DNS"
       - "homepage.weight=1"
       - "homepage.widget.type=pihole"

@@ -42,8 +42,8 @@ grep -Fq 'cloudflare_dns_api_token:' "$compose" || fail 'Compose secret is missi
 grep -Fq 'file: ./secrets/cloudflare_dns_api_token' "$compose" || fail 'Compose secret source is wrong'
 grep -Fq 'CF_DNS_API_TOKEN_FILE=/run/secrets/cloudflare_dns_api_token' "$compose" || fail 'Traefik token file environment is missing'
 grep -Fq './data/traefik/letsencrypt:/letsencrypt' "$compose" || fail 'ACME storage is not persistent'
-grep -Fq 'ACME_STORAGE:-/letsencrypt/acme-staging.json' "$compose" || fail 'staging storage default is missing'
-grep -Fq 'ACME_CA_SERVER:-https://acme-staging-v02.api.letsencrypt.org/directory' "$compose" || fail 'staging CA default is missing'
+grep -Fq 'ACME_STORAGE:-/letsencrypt/acme.json' "$compose" || fail 'production storage default is missing'
+grep -Fq 'ACME_CA_SERVER:-https://acme-v02.api.letsencrypt.org/directory' "$compose" || fail 'production CA default is missing'
 grep -Fq 'dnschallenge.provider=cloudflare' "$compose" || fail 'Cloudflare DNS challenge is missing'
 grep -Fq 'dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53' "$compose" || fail 'explicit DNS resolvers are missing'
 
@@ -63,9 +63,9 @@ if grep -Eq 'certResolver:|certresolver=' "$dynamic" | grep -v 'certResolver: cl
 fi
 
 grep -Fq 'ACME_EMAIL=' "$env_example" || fail 'ACME_EMAIL is undocumented'
-grep -Fq 'ACME_CA_SERVER=https://acme-staging-v02.api.letsencrypt.org/directory' "$env_example" \
-  || fail 'staging CA is not documented'
-grep -Fq 'ACME_STORAGE=/letsencrypt/acme-staging.json' "$env_example" || fail 'staging storage is not documented'
+grep -Fq 'ACME_CA_SERVER=https://acme-v02.api.letsencrypt.org/directory' "$env_example" \
+  || fail 'production CA is not documented'
+grep -Fq 'ACME_STORAGE=/letsencrypt/acme.json' "$env_example" || fail 'production storage is not documented'
 if grep -Eq 'CF_DNS_API_TOKEN=|cloudflare_dns_api_token=[^[:space:]#]' "$compose" "$env_example"; then
   fail 'Cloudflare token value is injected into tracked configuration'
 fi
