@@ -1,7 +1,7 @@
 n33lab.com	http	glance	glance:8080	80,443=traefik
-traefik.n33lab.com	http	dashboard	api@internal	9090=retained
+traefik.n33lab.com	http	dashboard	api@internal	9090=disabled
 docker.n33lab.com	http	dockhand	dockhand:3000	none
-pihole.n33lab.com	http	pihole	pihole:80	3333=retained;53/tcp,53/udp=dns
+pihole.n33lab.com	http	pihole	pihole:80	53/tcp,53/udp=dns
 qbittorrent.n33lab.com	http	qbittorrent	qbittorrent:8080	6881/tcp,6881/udp=bittorrent
 immich.n33lab.com	http	immich	immich-server:2283	none
 chat.n33lab.com	http	openwebui	openwebui:8080	none

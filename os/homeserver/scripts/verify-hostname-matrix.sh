@@ -50,9 +50,9 @@ done
 
 expected_matrix=$(cat <<'EOF'
 n33lab.com	http	glance	glance:8080	80,443=traefik
-traefik.n33lab.com	http	dashboard	api@internal	9090=retained
+traefik.n33lab.com	http	dashboard	api@internal	9090=disabled
 docker.n33lab.com	http	dockhand	dockhand:3000	none
-pihole.n33lab.com	http	pihole	pihole:80	3333=retained;53/tcp,53/udp=dns
+pihole.n33lab.com	http	pihole	pihole:80	53/tcp,53/udp=dns
 qbittorrent.n33lab.com	http	qbittorrent	qbittorrent:8080	6881/tcp,6881/udp=bittorrent
 immich.n33lab.com	http	immich	immich-server:2283	none
 chat.n33lab.com	http	openwebui	openwebui:8080	none
@@ -130,19 +130,22 @@ if grep -E 'traefik\.(enable|http)' "$compose" >/dev/null; then
 fi
 
 for prefix in immich qbittorrent files chat excalidraw pihole traefik docker logs uptime backup ha ha-esphome ha-music ha-flows; do
-  count_fixed 1 "url: http://$prefix.\${DOMAIN}" "$glance"
+  count_fixed 1 "url: https://$prefix.\${DOMAIN}" "$glance"
 done
-count_fixed 1 "homepage.href=http://pihole.${dollar}{DOMAIN:?set DOMAIN=n33lab.com}:3333/admin" "$compose"
+count_fixed 1 "homepage.href=https://pihole.${dollar}{DOMAIN:?set DOMAIN=n33lab.com}/admin" "$compose"
 count_fixed 1 "FORGEJO__server__DOMAIN=git.${dollar}{DOMAIN:?set DOMAIN=n33lab.com}" "$compose"
 count_fixed 1 "FORGEJO__server__ROOT_URL=https://git.${dollar}{DOMAIN:?set DOMAIN=n33lab.com}/" "$compose"
 count_fixed 1 "FORGEJO__server__SSH_DOMAIN=git.${dollar}{DOMAIN:?set DOMAIN=n33lab.com}" "$compose"
 count_fixed 1 "FORGEJO_URL=${dollar}{1:-https://git.n33lab.com}" "$migration"
 
-for published_port in '"80:80"' '"443:443"' '"9090:8080"' \
-  '"192.168.1.33:53:53/tcp"' '"192.168.1.33:53:53/udp"' '"3333:80"' \
+for published_port in '"80:80"' '"443:443"' \
+  '"192.168.1.33:53:53/tcp"' '"192.168.1.33:53:53/udp"' \
   '"6881:6881"' '"6881:6881/udp"' '"1883:1883"' '"222:22"'; do
   count_fixed 1 "$published_port" "$compose"
 done
+if grep -Eq '"(9090:8080|3333:80)"|api\.insecure' "$compose"; then
+  fail 'retired direct administration ports or insecure API remain'
+fi
 
 "$image_pins" "$compose" >/dev/null
 [ "$(grep -c '^[[:space:]]*ports:$' "$compose")" -eq 5 ] || fail 'unexpected direct-port publication block'
