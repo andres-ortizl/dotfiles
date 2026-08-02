@@ -7,7 +7,7 @@
 #   FORGEJO_TOKEN: Forgejo web UI -> Settings -> Applications -> Generate Token
 set -eu
 
-FORGEJO_URL=${1:-http://git.lab.lan}
+FORGEJO_URL=${1:-https://git.n33lab.com}
 FORGEJO_USER=${2:-andrew}
 : "${FORGEJO_TOKEN:?Forgejo token (Settings -> Applications)}"
 : "${GITHUB_TOKEN:?GitHub token (gh auth token)}"
