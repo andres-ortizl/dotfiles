@@ -290,15 +290,23 @@ services:
     container_name: dozzle
     restart: unless-stopped
     environment:
-      - DOZZLE_REMOTE_AGENT=dozzle-agent:7007
+      - DOZZLE_REMOTE_HOST=tcp://docker-socket-proxy:2375
     networks:
       - traefik
       - dozzle_agent
-  dozzle-agent:
-    image: amir20/dozzle@sha256:1c1060cfb5402093c4e0f03f3534d7deaffeb0a6f6dd034e7c5f244603f35fb3
-    container_name: dozzle-agent
+  docker-socket-proxy:
+    image: tecnativa/docker-socket-proxy@sha256:753044cb0851ce53ab44c2504872ff02ae37be9c294fa8abea3754074e61eab4
+    container_name: docker-socket-proxy
     restart: unless-stopped
-    command: agent
+    read_only: true
+    tmpfs:
+      - /run
+      - /tmp
+    environment:
+      - CONTAINERS=1
+      - INFO=1
+      - EVENTS=1
+      - POST=0
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
