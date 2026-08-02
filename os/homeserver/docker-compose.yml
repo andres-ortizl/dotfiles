@@ -22,6 +22,10 @@ secrets:
     file: ./secrets/cloudflare_dns_api_token
   traefik_users:
     file: ./secrets/traefik-users
+  mqtt-passwd:
+    file: ./secrets/mqtt-passwd
+  mqtt-acl:
+    file: ./secrets/mqtt-acl
 
 services:
   # Traefik Reverse Proxy
@@ -35,6 +39,7 @@ services:
     ports:
       - "80:80" # HTTP
       - "443:443" # HTTPS
+      - "192.168.1.33:8883:8883"
     command:
       - --api.dashboard=true
       - --providers.docker=false
@@ -43,6 +48,7 @@ services:
       - --entrypoints.websecure.transport.respondingTimeouts.readTimeout=0
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
+      - --entrypoints.mqtts.address=:8883
       - --certificatesresolvers.cloudflare.acme.email=${ACME_EMAIL:?set ACME_EMAIL}
       - --certificatesresolvers.cloudflare.acme.storage=${ACME_STORAGE:-/letsencrypt/acme.json}
       - --certificatesresolvers.cloudflare.acme.caserver=${ACME_CA_SERVER:-https://acme-v02.api.letsencrypt.org/directory}
@@ -343,8 +349,9 @@ services:
       - ./config/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
       - ./data/mosquitto/data:/mosquitto/data
       - ./data/mosquitto/log:/mosquitto/log
-    ports:
-      - "1883:1883"
+    secrets:
+      - mqtt-passwd
+      - mqtt-acl
     networks:
       - traefik
   # Node-RED - Visual Automation Flows

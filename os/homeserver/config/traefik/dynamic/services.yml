@@ -104,3 +104,15 @@ http:
     backrest: { loadBalancer: { servers: [{ url: http://backrest:9898 }] } }
     node-red: { loadBalancer: { servers: [{ url: http://node-red:1880 }] } }
     forgejo: { loadBalancer: { servers: [{ url: http://forgejo:3000 }] } }
+tcp:
+  routers:
+    mqtt:
+      entryPoints: [mqtts]
+      rule: 'HostSNI(`mqtt.{{ env "DOMAIN" }}`)'
+      service: mqtt
+      tls: {}
+  services:
+    mqtt:
+      loadBalancer:
+        servers:
+          - address: mosquitto:1883
