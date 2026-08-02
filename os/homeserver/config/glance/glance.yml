@@ -105,24 +105,6 @@ pages:
                 check-url: http://node-red:1880
                 icon: di:node-red
 
-          - type: rss
-            title: News
-            style: horizontal-cards
-            cache: 3h
-            limit: 12
-            collapse-after: 6
-            feeds:
-              - url: https://hnrss.org/frontpage
-                title: Hacker News
-              - url: https://selfh.st/rss/
-                title: selfh.st
-              - url: https://www.reddit.com/r/selfhosted/.rss
-                title: r/selfhosted
-              - url: https://feeds.arstechnica.com/arstechnica/index
-                title: Ars Technica
-              - url: https://www.theverge.com/rss/index.xml
-                title: The Verge
-
   - name: Briefing
     columns:
       - size: full
