@@ -75,7 +75,8 @@ os/homeserver/media/series/*
 os/homeserver/openwebui/data/*
 !os/homeserver/openwebui/data/.gitkeep
 
-# Pi-hole DNS server (keep config lists, ignore runtime data)
+# Pi-hole DNS server runtime data
+os/homeserver/config/pihole/etc-pihole/
 os/homeserver/pihole/etc-pihole/*
 !os/homeserver/pihole/etc-pihole/.gitkeep
 os/homeserver/pihole/etc-dnsmasq.d/*
