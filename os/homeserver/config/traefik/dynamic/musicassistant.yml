@@ -7,11 +7,6 @@
 # {{ env "DOMAIN" }} (required and passed in docker-compose.yml).
 http:
   routers:
-    musicassistant:
-      rule: 'Host(`ha-music.{{ env "DOMAIN" }}`)'
-      entrypoints:
-        - web
-      service: musicassistant
     musicassistant-secure:
       rule: 'Host(`ha-music.{{ env "DOMAIN" }}`)'
       entrypoints:

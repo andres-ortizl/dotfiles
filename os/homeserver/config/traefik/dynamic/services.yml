@@ -1,0 +1,106 @@
+http:
+  middlewares:
+    admin-auth:
+      basicAuth:
+        usersFile: /run/secrets/traefik-users
+    https-redirect:
+      redirectScheme:
+        scheme: https
+        permanent: true
+  routers:
+    http-redirect:
+      entryPoints: [web]
+      rule: HostRegexp(`^.+$`)
+      middlewares: [https-redirect]
+      service: noop@internal
+    glance:
+      rule: 'Host(`{{ env "DOMAIN" }}`)'
+      entryPoints: [websecure]
+      service: glance
+      tls:
+        certResolver: cloudflare
+        domains:
+          - main: '{{ env "DOMAIN" }}'
+            sans: ['*.{{ env "DOMAIN" }}']
+    dashboard:
+      rule: 'Host(`traefik.{{ env "DOMAIN" }}`)'
+      entryPoints: [websecure]
+      service: api@internal
+      middlewares: [admin-auth]
+      tls: {}
+    dockhand:
+      rule: 'Host(`docker.{{ env "DOMAIN" }}`)'
+      entryPoints: [websecure]
+      service: dockhand
+      middlewares: [admin-auth]
+      tls: {}
+    pihole:
+      rule: 'Host(`pihole.{{ env "DOMAIN" }}`)'
+      entryPoints: [websecure]
+      service: pihole
+      tls: {}
+    qbittorrent:
+      rule: 'Host(`qbittorrent.{{ env "DOMAIN" }}`)'
+      entryPoints: [websecure]
+      service: qbittorrent
+      tls: {}
+    immich:
+      rule: 'Host(`immich.{{ env "DOMAIN" }}`)'
+      entryPoints: [websecure]
+      service: immich
+      tls: {}
+    openwebui:
+      rule: 'Host(`chat.{{ env "DOMAIN" }}`)'
+      entryPoints: [websecure]
+      service: openwebui
+      tls: {}
+    excalidraw:
+      rule: 'Host(`excalidraw.{{ env "DOMAIN" }}`)'
+      entryPoints: [websecure]
+      service: excalidraw
+      tls: {}
+    gatus:
+      rule: 'Host(`uptime.{{ env "DOMAIN" }}`)'
+      entryPoints: [websecure]
+      service: gatus
+      tls: {}
+    dozzle:
+      rule: 'Host(`logs.{{ env "DOMAIN" }}`)'
+      entryPoints: [websecure]
+      service: dozzle
+      middlewares: [admin-auth]
+      tls: {}
+    filebrowser:
+      rule: 'Host(`files.{{ env "DOMAIN" }}`)'
+      entryPoints: [websecure]
+      service: filebrowser
+      tls: {}
+    backrest:
+      rule: 'Host(`backup.{{ env "DOMAIN" }}`)'
+      entryPoints: [websecure]
+      service: backrest
+      tls: {}
+    node-red:
+      rule: 'Host(`ha-flows.{{ env "DOMAIN" }}`)'
+      entryPoints: [websecure]
+      service: node-red
+      tls: {}
+    forgejo:
+      rule: 'Host(`git.{{ env "DOMAIN" }}`)'
+      entryPoints: [websecure]
+      service: forgejo
+      tls: {}
+  services:
+    glance: { loadBalancer: { servers: [{ url: http://glance:8080 }] } }
+    dockhand: { loadBalancer: { servers: [{ url: http://dockhand:3000 }] } }
+    pihole: { loadBalancer: { servers: [{ url: http://pihole:80 }] } }
+    qbittorrent: { loadBalancer: { servers: [{ url: http://qbittorrent:8080 }] } }
+    immich: { loadBalancer: { servers: [{ url: http://immich-server:2283 }] } }
+    openwebui: { loadBalancer: { servers: [{ url: http://openwebui:8080 }] } }
+    excalidraw: { loadBalancer: { servers: [{ url: http://excalidraw:80 }] } }
+    gatus: { loadBalancer: { servers: [{ url: http://gatus:8080 }] } }
+    dozzle: { loadBalancer: { servers: [{ url: http://dozzle:8080 }] } }
+    filebrowser: { loadBalancer: { servers: [{ url: http://filebrowser:80 }] } }
+    backrest: { loadBalancer: { servers: [{ url: http://backrest:9898 }] } }
+    node-red: { loadBalancer: { servers: [{ url: http://node-red:1880 }] } }
+    forgejo: { loadBalancer: { servers: [{ url: http://forgejo:3000 }] } }

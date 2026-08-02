@@ -7,11 +7,6 @@
 # {{ env "DOMAIN" }} (required and passed in docker-compose.yml).
 http:
   routers:
-    esphome:
-      rule: 'Host(`ha-esphome.{{ env "DOMAIN" }}`)'
-      entrypoints:
-        - web
-      service: esphome
     esphome-secure:
       rule: 'Host(`ha-esphome.{{ env "DOMAIN" }}`)'
       entrypoints:

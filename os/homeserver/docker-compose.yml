@@ -20,6 +20,8 @@ volumes:
 secrets:
   cloudflare_dns_api_token:
     file: ./secrets/cloudflare_dns_api_token
+  traefik_users:
+    file: ./secrets/traefik-users
 
 services:
   # Traefik Reverse Proxy
@@ -37,8 +39,7 @@ services:
     command:
       - --api.dashboard=true
       - --api.insecure=true
-      - --providers.docker=true
-      - --providers.docker.exposedbydefault=false
+      - --providers.docker=false
       - --providers.file.directory=/etc/traefik/dynamic
       - --providers.file.watch=true
       - --entrypoints.websecure.transport.respondingTimeouts.readTimeout=0
@@ -50,25 +51,16 @@ services:
       - --certificatesresolvers.cloudflare.acme.dnschallenge.provider=cloudflare
       - --certificatesresolvers.cloudflare.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./config/traefik/dynamic:/etc/traefik/dynamic:ro
       - ./data/traefik/letsencrypt:/letsencrypt
     secrets:
       - cloudflare_dns_api_token
+      - source: traefik_users
+        target: traefik-users
     networks:
       - traefik
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.dashboard.rule=Host(`traefik.${DOMAIN:?set DOMAIN=n33lab.com}`)"
-      - "traefik.http.routers.dashboard.entrypoints=web"
-      - "traefik.http.routers.dashboard.service=api@internal"
-      - "traefik.http.routers.dashboard-secure.rule=Host(`traefik.${DOMAIN:?set DOMAIN=n33lab.com}`)"
-      - "traefik.http.routers.dashboard-secure.entrypoints=websecure"
-      - "traefik.http.routers.dashboard-secure.tls=true"
-      - "traefik.http.routers.dashboard-secure.service=api@internal"
-
   # Glance Dashboard
   glance:
     image: glanceapp/glance@sha256:32ab73d80f2b8b5fb0735b0431deb36b93fbb6b2fb43592449b0178c8b83e350
@@ -84,18 +76,6 @@ services:
       - traefik
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.glance.rule=Host(`${DOMAIN:?set DOMAIN=n33lab.com}`)"
-      - "traefik.http.routers.glance.entrypoints=web"
-      - "traefik.http.routers.glance-secure.rule=Host(`${DOMAIN:?set DOMAIN=n33lab.com}`)"
-      - "traefik.http.routers.glance-secure.entrypoints=websecure"
-      - "traefik.http.routers.glance-secure.tls=true"
-      - "traefik.http.routers.glance-secure.tls.certresolver=cloudflare"
-      - "traefik.http.routers.glance-secure.tls.domains[0].main=${DOMAIN:?set DOMAIN=n33lab.com}"
-      - "traefik.http.routers.glance-secure.tls.domains[0].sans=*.${DOMAIN:?set DOMAIN=n33lab.com}"
-      - "traefik.http.services.glance.loadbalancer.server.port=8080"
-
   # Dockhand - Docker Management UI
   dockhand:
     image: fnsys/dockhand@sha256:29d4183d8aef2cc7fbc50750fa11434ec331e044647288ae47fe15260e68a44c
@@ -108,15 +88,6 @@ services:
       - ./data/dockhand:/data
     networks:
       - traefik
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.dockhand.rule=Host(`docker.${DOMAIN:?set DOMAIN=n33lab.com}`)"
-      - "traefik.http.routers.dockhand.entrypoints=web"
-      - "traefik.http.routers.dockhand-secure.rule=Host(`docker.${DOMAIN:?set DOMAIN=n33lab.com}`)"
-      - "traefik.http.routers.dockhand-secure.entrypoints=websecure"
-      - "traefik.http.routers.dockhand-secure.tls=true"
-      - "traefik.http.services.dockhand.loadbalancer.server.port=3000"
-
   # Tailscale - VPN Access
   tailscale:
     image: tailscale/tailscale@sha256:25cde9ad76020b0e29229136d0c38b5962e9a0e1774ffac9b0df68e4a37d6cf0
@@ -169,13 +140,6 @@ services:
       pihole_network:
         ipv4_address: "172.31.0.100"
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.pihole.rule=Host(`pihole.${DOMAIN:?set DOMAIN=n33lab.com}`)"
-      - "traefik.http.routers.pihole.entrypoints=web"
-      - "traefik.http.routers.pihole-secure.rule=Host(`pihole.${DOMAIN:?set DOMAIN=n33lab.com}`)"
-      - "traefik.http.routers.pihole-secure.entrypoints=websecure"
-      - "traefik.http.routers.pihole-secure.tls=true"
-      - "traefik.http.services.pihole.loadbalancer.server.port=80"
       - "homepage.group=Network"
       - "homepage.name=Pi-hole"
       - "homepage.icon=pihole.png"
@@ -214,17 +178,6 @@ services:
       - "6881:6881/udp"
     networks:
       - traefik
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.qbittorrent.rule=Host(`qbittorrent.${DOMAIN:?set DOMAIN=n33lab.com}`)"
-      - "traefik.http.routers.qbittorrent.entrypoints=web"
-      - "traefik.http.routers.qbittorrent.service=qbittorrent"
-      - "traefik.http.routers.qbittorrent-secure.rule=Host(`qbittorrent.${DOMAIN:?set DOMAIN=n33lab.com}`)"
-      - "traefik.http.routers.qbittorrent-secure.entrypoints=websecure"
-      - "traefik.http.routers.qbittorrent-secure.tls=true"
-      - "traefik.http.routers.qbittorrent-secure.service=qbittorrent"
-      - "traefik.http.services.qbittorrent.loadbalancer.server.port=8080"
-
   # Immich Photo Management
   immich-server:
     image: ghcr.io/immich-app/immich-server@sha256:46dedfc5848f7313bd6b584ea9f2648057430307aad6de56de968f6710a72cae
@@ -244,14 +197,6 @@ services:
       - database
     networks:
       - traefik
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.immich.rule=Host(`immich.${DOMAIN:?set DOMAIN=n33lab.com}`)"
-      - "traefik.http.routers.immich.entrypoints=web"
-      - "traefik.http.routers.immich-secure.rule=Host(`immich.${DOMAIN:?set DOMAIN=n33lab.com}`)"
-      - "traefik.http.routers.immich-secure.entrypoints=websecure"
-      - "traefik.http.routers.immich-secure.tls=true"
-      - "traefik.http.services.immich.loadbalancer.server.port=2283"
     healthcheck:
       disable: false
 
@@ -308,14 +253,6 @@ services:
       - ./data/openwebui:/app/backend/data
     networks:
       - traefik
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.openwebui.rule=Host(`chat.${DOMAIN:?set DOMAIN=n33lab.com}`)"
-      - "traefik.http.routers.openwebui.entrypoints=web"
-      - "traefik.http.routers.openwebui-secure.rule=Host(`chat.${DOMAIN:?set DOMAIN=n33lab.com}`)"
-      - "traefik.http.routers.openwebui-secure.entrypoints=websecure"
-      - "traefik.http.routers.openwebui-secure.tls=true"
-      - "traefik.http.services.openwebui.loadbalancer.server.port=8080"
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -328,15 +265,6 @@ services:
       - TZ=${TZ:-Europe/Madrid}
     networks:
       - traefik
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.excalidraw.rule=Host(`excalidraw.${DOMAIN:?set DOMAIN=n33lab.com}`)"
-      - "traefik.http.routers.excalidraw.entrypoints=web"
-      - "traefik.http.routers.excalidraw-secure.rule=Host(`excalidraw.${DOMAIN:?set DOMAIN=n33lab.com}`)"
-      - "traefik.http.routers.excalidraw-secure.entrypoints=websecure"
-      - "traefik.http.routers.excalidraw-secure.tls=true"
-      - "traefik.http.services.excalidraw.loadbalancer.server.port=80"
-
   # Gatus Monitoring
   gatus:
     image: ghcr.io/twin/gatus@sha256:c5f210d095fa78e6efaa20ffeb14803f2ba4f10615e16a6d12087697149617f0
@@ -351,15 +279,6 @@ services:
       - traefik
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.gatus.rule=Host(`uptime.${DOMAIN:?set DOMAIN=n33lab.com}`)"
-      - "traefik.http.routers.gatus.entrypoints=web"
-      - "traefik.http.routers.gatus-secure.rule=Host(`uptime.${DOMAIN:?set DOMAIN=n33lab.com}`)"
-      - "traefik.http.routers.gatus-secure.entrypoints=websecure"
-      - "traefik.http.routers.gatus-secure.tls=true"
-      - "traefik.http.services.gatus.loadbalancer.server.port=8080"
-
   # Dozzle - Real-time Log Viewer
   dozzle:
     image: amir20/dozzle@sha256:1c1060cfb5402093c4e0f03f3534d7deaffeb0a6f6dd034e7c5f244603f35fb3
@@ -369,15 +288,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - traefik
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.dozzle.rule=Host(`logs.${DOMAIN:?set DOMAIN=n33lab.com}`)"
-      - "traefik.http.routers.dozzle.entrypoints=web"
-      - "traefik.http.routers.dozzle-secure.rule=Host(`logs.${DOMAIN:?set DOMAIN=n33lab.com}`)"
-      - "traefik.http.routers.dozzle-secure.entrypoints=websecure"
-      - "traefik.http.routers.dozzle-secure.tls=true"
-      - "traefik.http.services.dozzle.loadbalancer.server.port=8080"
-
   # FileBrowser Quantum - File Server Web UI
   filebrowser:
     image: gtstef/filebrowser@sha256:fc213590ebc090cb8205125cd3ecdfa9066b9ed4a0b53fe2570972d6a3379e73
@@ -392,15 +302,6 @@ services:
       - ${DATA_ROOT:-./data/shared}:/folder
     networks:
       - traefik
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.filebrowser.rule=Host(`files.${DOMAIN:?set DOMAIN=n33lab.com}`)"
-      - "traefik.http.routers.filebrowser.entrypoints=web"
-      - "traefik.http.routers.filebrowser-secure.rule=Host(`files.${DOMAIN:?set DOMAIN=n33lab.com}`)"
-      - "traefik.http.routers.filebrowser-secure.entrypoints=websecure"
-      - "traefik.http.routers.filebrowser-secure.tls=true"
-      - "traefik.http.services.filebrowser.loadbalancer.server.port=80"
-
   # Backrest - Restic Backup UI
   backrest:
     image: garethgeorge/backrest@sha256:b852979754281026230cc69fb11428e6d57c9a97784ab4a444ffc7934c53a215
@@ -419,15 +320,6 @@ services:
       - ./data:/userdata:ro
     networks:
       - traefik
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.backrest.rule=Host(`backup.${DOMAIN:?set DOMAIN=n33lab.com}`)"
-      - "traefik.http.routers.backrest.entrypoints=web"
-      - "traefik.http.routers.backrest-secure.rule=Host(`backup.${DOMAIN:?set DOMAIN=n33lab.com}`)"
-      - "traefik.http.routers.backrest-secure.entrypoints=websecure"
-      - "traefik.http.routers.backrest-secure.tls=true"
-      - "traefik.http.services.backrest.loadbalancer.server.port=9898"
-
   # Home Assistant - Smart Home Hub
   # Host network is required for local device auto-discovery (mDNS/zeroconf,
   # Chromecast, HomeKit). Because host-networked containers can't be on the
@@ -469,15 +361,6 @@ services:
       - ./data/node-red:/data
     networks:
       - traefik
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.node-red.rule=Host(`ha-flows.${DOMAIN:?set DOMAIN=n33lab.com}`)"
-      - "traefik.http.routers.node-red.entrypoints=web"
-      - "traefik.http.routers.node-red-secure.rule=Host(`ha-flows.${DOMAIN:?set DOMAIN=n33lab.com}`)"
-      - "traefik.http.routers.node-red-secure.entrypoints=websecure"
-      - "traefik.http.routers.node-red-secure.tls=true"
-      - "traefik.http.services.node-red.loadbalancer.server.port=1880"
-
   # ESPHome - Manage ESP32/ESP8266 devices
   # Host network for device discovery + OTA. Traefik routes via the file
   # provider instead of labels (see config/traefik/dynamic/esphome.yml).
@@ -491,6 +374,8 @@ services:
       - /etc/localtime:/etc/localtime:ro
     environment:
       - TZ=${TZ:-Europe/Madrid}
+    env_file:
+      - ./secrets/esphome.env
   # Music Assistant - Whole-home audio
   # Host network for player discovery + streaming. Traefik routes via the file
   # provider instead of labels (see config/traefik/dynamic/musicassistant.yml).
@@ -529,11 +414,3 @@ services:
       - "222:22"
     networks:
       - traefik
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.forgejo.rule=Host(`git.${DOMAIN:?set DOMAIN=n33lab.com}`)"
-      - "traefik.http.routers.forgejo.entrypoints=web"
-      - "traefik.http.routers.forgejo-secure.rule=Host(`git.${DOMAIN:?set DOMAIN=n33lab.com}`)"
-      - "traefik.http.routers.forgejo-secure.entrypoints=websecure"
-      - "traefik.http.routers.forgejo-secure.tls=true"
-      - "traefik.http.services.forgejo.loadbalancer.server.port=3000"
