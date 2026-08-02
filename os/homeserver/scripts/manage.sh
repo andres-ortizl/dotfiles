@@ -43,7 +43,13 @@ check_pins() {
   images_file=$temporary_dir/images
   compose config --images >"$images_file" || fail 'unable to enumerate Compose images'
   [ "$(wc -l <"$services_file")" -eq "$(wc -l <"$images_file")" ] || fail 'every service must define one image'
-  awk 'NF != 1 || $1 !~ /^[A-Za-z0-9][A-Za-z0-9._:/-]*@sha256:[0-9a-f]{64}$/ { exit 1 }' "$images_file" \
+  awk '
+    NF != 1 { exit 1 }
+    {
+      count=split($1, parts, "@sha256:")
+      if (count != 2 || parts[1] !~ /^[A-Za-z0-9][A-Za-z0-9._:/-]*$/ || parts[2] !~ /^[0-9a-f]+$/ || length(parts[2]) != 64) exit 1
+    }
+  ' "$images_file" \
     || fail 'every service image must be exactly digest-pinned'
 }
 
@@ -99,7 +105,7 @@ lock_images() {
     repository=$(repo_name "$configured")
     run_bounded docker image inspect --format '{{range .RepoDigests}}{{println .}}{{end}}' "$configured" >"$temporary_dir/digests" || fail 'unable to inspect RepoDigests'
     awk -v repository="$repository" '
-      $0 ~ /^[A-Za-z0-9][A-Za-z0-9._/:+-]*@sha256:[0-9a-f]{64}$/ { name=$0; sub(/@sha256:.*/, "", name); sub(/^docker.io\//, "", name); sub(/^index.docker.io\//, "", name); if (name == repository) print $0 }
+      $0 ~ /^[A-Za-z0-9][A-Za-z0-9._/:+-]*@sha256:[0-9a-f]+$/ { digest=$0; sub(/^.*@sha256:/, "", digest); if (length(digest) != 64) next; name=$0; sub(/@sha256:.*/, "", name); sub(/^docker.io\//, "", name); sub(/^index.docker.io\//, "", name); if (name == repository) print $0 }
     ' "$temporary_dir/digests" | sort -u >"$temporary_dir/matches"
     [ "$(wc -l <"$temporary_dir/matches")" -eq 1 ] || fail 'matching RepoDigest is missing or ambiguous'
     repo_digest=$(cat "$temporary_dir/matches")
