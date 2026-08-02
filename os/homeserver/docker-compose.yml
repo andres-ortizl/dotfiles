@@ -17,6 +17,10 @@ volumes:
   immich-db:
   immich-redis:
 
+secrets:
+  cloudflare_dns_api_token:
+    file: ./secrets/cloudflare_dns_api_token
+
 services:
   # Traefik Reverse Proxy
   traefik:
@@ -25,6 +29,7 @@ services:
     restart: unless-stopped
     environment:
       - DOMAIN=${DOMAIN:?set DOMAIN=n33lab.com}
+      - CF_DNS_API_TOKEN_FILE=/run/secrets/cloudflare_dns_api_token
     ports:
       - "80:80" # HTTP
       - "443:443" # HTTPS
@@ -39,9 +44,17 @@ services:
       - --entrypoints.websecure.transport.respondingTimeouts.readTimeout=0
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
+      - --certificatesresolvers.cloudflare.acme.email=${ACME_EMAIL:?set ACME_EMAIL}
+      - --certificatesresolvers.cloudflare.acme.storage=${ACME_STORAGE:-/letsencrypt/acme-staging.json}
+      - --certificatesresolvers.cloudflare.acme.caserver=${ACME_CA_SERVER:-https://acme-staging-v02.api.letsencrypt.org/directory}
+      - --certificatesresolvers.cloudflare.acme.dnschallenge.provider=cloudflare
+      - --certificatesresolvers.cloudflare.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./config/traefik/dynamic:/etc/traefik/dynamic:ro
+      - ./data/traefik/letsencrypt:/letsencrypt
+    secrets:
+      - cloudflare_dns_api_token
     networks:
       - traefik
     extra_hosts:
@@ -78,6 +91,9 @@ services:
       - "traefik.http.routers.glance-secure.rule=Host(`${DOMAIN:?set DOMAIN=n33lab.com}`)"
       - "traefik.http.routers.glance-secure.entrypoints=websecure"
       - "traefik.http.routers.glance-secure.tls=true"
+      - "traefik.http.routers.glance-secure.tls.certresolver=cloudflare"
+      - "traefik.http.routers.glance-secure.tls.domains[0].main=${DOMAIN:?set DOMAIN=n33lab.com}"
+      - "traefik.http.routers.glance-secure.tls.domains[0].sans=*.${DOMAIN:?set DOMAIN=n33lab.com}"
       - "traefik.http.services.glance.loadbalancer.server.port=8080"
 
   # Dockhand - Docker Management UI
