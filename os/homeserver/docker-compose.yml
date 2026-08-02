@@ -149,19 +149,18 @@ services:
     restart: unless-stopped
     environment:
       - TZ=${TZ:-Europe/Madrid}
-      - WEBPASSWORD=${PIHOLE_PASSWORD:?set in .env}
-      - PIHOLE_DNS_=${PIHOLE_DNS:-1.1.1.1;1.0.0.1}
-      - DNSMASQ_LISTENING=all
-      - DNSSEC=true
-      - WEBTHEME=default-dark
-      - VIRTUAL_HOST=pihole.${DOMAIN:-localhost}
-      - PIHOLE_DOMAIN=${DOMAIN:-localhost}
+      - FTLCONF_webserver_api_password=${PIHOLE_PASSWORD:?set in .env}
+      - FTLCONF_dns_upstreams=${PIHOLE_DNS:-1.1.1.1;1.0.0.1}
+      - FTLCONF_dns_listeningMode=ALL
+      - FTLCONF_dns_dnssec=true
+      - FTLCONF_webserver_interface_theme=default-dark
+      - FTLCONF_webserver_domain=pihole.${DOMAIN:?set DOMAIN=n33lab.com}
+      - FTLCONF_misc_dnsmasq_lines=address=/n33lab.com/192.168.1.33
     volumes:
       - ./config/pihole/etc-pihole:/etc/pihole
-      - ./config/pihole/etc-dnsmasq.d:/etc/dnsmasq.d
     ports:
-      - "53:53/tcp"
-      - "53:53/udp"
+      - "192.168.1.33:53:53/tcp"
+      - "192.168.1.33:53:53/udp"
       - "3333:80"
     dns:
       - 127.0.0.1
