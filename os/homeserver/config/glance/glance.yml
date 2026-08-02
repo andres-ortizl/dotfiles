@@ -23,16 +23,16 @@ pages:
             title: Media & Files
             sites:
               - title: Immich
-                url: http://immich.${DOMAIN}
+                url: https://immich.${DOMAIN}
                 check-url: http://immich-server:2283
                 icon: di:immich
               - title: qBittorrent
-                url: http://qbittorrent.${DOMAIN}
+                url: https://qbittorrent.${DOMAIN}
                 check-url: http://qbittorrent:8080
                 alt-status-codes: [401]
                 icon: di:qbittorrent
               - title: File Browser
-                url: http://files.${DOMAIN}
+                url: https://files.${DOMAIN}
                 check-url: http://filebrowser:80
                 icon: di:filebrowser
 
@@ -41,11 +41,11 @@ pages:
             title: Apps
             sites:
               - title: Open WebUI
-                url: http://chat.${DOMAIN}
+                url: https://chat.${DOMAIN}
                 check-url: http://openwebui:8080
                 icon: di:open-webui
               - title: Excalidraw
-                url: http://excalidraw.${DOMAIN}
+                url: https://excalidraw.${DOMAIN}
                 check-url: http://excalidraw:80
                 icon: di:excalidraw
 
@@ -54,33 +54,32 @@ pages:
             title: Infrastructure
             sites:
               - title: Pi-hole
-                url: http://pihole.${DOMAIN}/admin/
+                url: https://pihole.${DOMAIN}/admin/
                 check-url: http://pihole/admin/
                 icon: di:pi-hole
               - title: Traefik
-                url: http://traefik.${DOMAIN}
+                url: https://traefik.${DOMAIN}
                 check-url: http://traefik:8080/dashboard/
                 icon: di:traefik
               - title: Dockhand
-                url: http://docker.${DOMAIN}
+                url: https://docker.${DOMAIN}
                 check-url: http://dockhand:3000
                 icon: mdi:docker
               - title: Dozzle
-                url: http://logs.${DOMAIN}
+                url: https://logs.${DOMAIN}
                 check-url: http://dozzle:8080
                 icon: di:dozzle
               - title: Gatus
-                url: http://uptime.${DOMAIN}
+                url: https://uptime.${DOMAIN}
                 check-url: http://gatus:8080
                 alt-status-codes: [401]
                 icon: di:gatus
               - title: Backrest
-                url: http://backup.${DOMAIN}
+                url: https://backup.${DOMAIN}
                 check-url: http://backrest:9898
                 icon: di:backrest
               - title: UGREEN NAS
-                url: http://192.168.1.33:9999/desktop/#/
-                check-url: http://192.168.1.33:9999
+                url: https://nas.local:9443
                 icon: mdi:nas
 
           - type: monitor
@@ -88,19 +87,19 @@ pages:
             title: Smart Home
             sites:
               - title: Home Assistant
-                url: http://ha.${DOMAIN}
+                url: https://ha.${DOMAIN}
                 check-url: http://host.docker.internal:8123
                 icon: di:home-assistant
               - title: ESPHome
-                url: http://ha-esphome.${DOMAIN}
+                url: https://ha-esphome.${DOMAIN}
                 check-url: http://host.docker.internal:6052
                 icon: di:esphome
               - title: Music Assistant
-                url: http://ha-music.${DOMAIN}
+                url: https://ha-music.${DOMAIN}
                 check-url: http://host.docker.internal:8095
                 icon: di:music-assistant
               - title: Node-RED
-                url: http://ha-flows.${DOMAIN}
+                url: https://ha-flows.${DOMAIN}
                 check-url: http://node-red:1880
                 icon: di:node-red
 
