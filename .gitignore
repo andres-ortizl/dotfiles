@@ -43,6 +43,7 @@ os/homeserver/secrets/
 os/homeserver/.recovery-*/
 os/homeserver/*.partial
 os/homeserver/data/
+os/homeserver/data/traefik/letsencrypt/
 os/homeserver/backups/
 os/homeserver/config/picoclaw/config.json
 os/homeserver/config/picoclaw/.security.yml

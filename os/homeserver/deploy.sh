@@ -68,6 +68,7 @@ homeserver_env="$script_dir/.env"
 immich_server_env="$script_dir/secrets/immich-server.env"
 immich_ml_env="$script_dir/secrets/immich-ml.env"
 gatus_env="$script_dir/secrets/gatus.env"
+cloudflare_dns_api_token="$script_dir/secrets/cloudflare_dns_api_token"
 bcrypt_pattern='^[$]2[aby][$][0-9]{2}[$][./A-Za-z0-9]{53}$'
 
 [ -s "$homeserver_env" ] || fail ".env is missing or empty; run ./recover-env.sh"
@@ -75,6 +76,24 @@ check_private_file "$homeserver_env"
 check_private_file "$immich_server_env"
 check_private_file "$immich_ml_env"
 check_private_file "$gatus_env"
+check_private_file "$cloudflare_dns_api_token"
+
+acme_email=$(file_value "$homeserver_env" ACME_EMAIL 2>/dev/null || true)
+acme_ca_server=$(file_value "$homeserver_env" ACME_CA_SERVER 2>/dev/null || true)
+acme_storage=$(file_value "$homeserver_env" ACME_STORAGE 2>/dev/null || true)
+[ -n "$acme_email" ] || fail "ACME_EMAIL is required"
+printf '%s\n' "$acme_email" | grep -Eq "^[A-Za-z0-9.!#\$%&'*+/=?^_\`{|}~-]+@[A-Za-z0-9.-]+$" \
+  || fail "ACME_EMAIL has an unsafe value"
+if [ -n "$acme_ca_server" ]; then
+  printf '%s\n' "$acme_ca_server" | grep -Eq '^https://acme-(staging-)?v02\.api\.letsencrypt\.org/directory$' \
+    || fail "ACME_CA_SERVER has an unsafe value"
+fi
+if [ -n "$acme_storage" ]; then
+  printf '%s\n' "$acme_storage" | grep -Eq '^/letsencrypt/[A-Za-z0-9._-]+\.json$' \
+    || fail "ACME_STORAGE has an unsafe value"
+fi
+awk 'NF != 1 || /[[:space:]=]/ { exit 1 } END { if (NR != 1) exit 1 }' "$cloudflare_dns_api_token" \
+  || fail "Cloudflare DNS API token has an invalid format"
 
 [ "$(file_value "$homeserver_env" DOMAIN 2>/dev/null || true)" = n33lab.com ] || fail "DOMAIN must appear exactly once and equal n33lab.com"
 validate_env_names "$immich_server_env" \
