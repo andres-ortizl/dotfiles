@@ -70,6 +70,8 @@ immich_ml_env="$script_dir/secrets/immich-ml.env"
 gatus_env="$script_dir/secrets/gatus.env"
 esphome_env="$script_dir/secrets/esphome.env"
 cloudflare_dns_api_token="$script_dir/secrets/cloudflare_dns_api_token"
+mqtt_passwd="$script_dir/secrets/mqtt-passwd"
+mqtt_acl="$script_dir/secrets/mqtt-acl"
 bcrypt_pattern='^[$]2[aby][$][0-9]{2}[$][./A-Za-z0-9]{53}$'
 
 [ -s "$homeserver_env" ] || fail ".env is missing or empty; run ./recover-env.sh"
@@ -79,6 +81,8 @@ check_private_file "$immich_ml_env"
 check_private_file "$gatus_env"
 check_private_file "$esphome_env"
 check_private_file "$cloudflare_dns_api_token"
+check_private_file "$mqtt_passwd"
+check_private_file "$mqtt_acl"
 
 acme_email=$(file_value "$homeserver_env" ACME_EMAIL 2>/dev/null || true)
 acme_ca_server=$(file_value "$homeserver_env" ACME_CA_SERVER 2>/dev/null || true)
@@ -96,6 +100,15 @@ if [ -n "$acme_storage" ]; then
 fi
 awk 'NF != 1 || /[[:space:]=]/ { exit 1 } END { if (NR != 1) exit 1 }' "$cloudflare_dns_api_token" \
   || fail "Cloudflare DNS API token has an invalid format"
+awk 'BEGIN { valid = 0 } /^[[:space:]]*($|#)/ { next } /^[A-Za-z0-9._-]+:\$[^[:space:]]+$/ { valid++; next } { exit 1 } END { if (!valid) exit 1 }' "$mqtt_passwd" \
+  || fail "mqtt-passwd has an invalid schema"
+awk '
+  /^[[:space:]]*($|#)/ { next }
+  /^user [A-Za-z0-9._-]+$/ { users++; next }
+  /^topic (read|write|readwrite) [^[:space:]#+]+$/ { topics++; next }
+  { exit 1 }
+  END { if (!users || !topics) exit 1 }
+' "$mqtt_acl" || fail "mqtt-acl has an invalid schema"
 
 [ "$(file_value "$homeserver_env" DOMAIN 2>/dev/null || true)" = n33lab.com ] || fail "DOMAIN must appear exactly once and equal n33lab.com"
 validate_env_names "$immich_server_env" \
