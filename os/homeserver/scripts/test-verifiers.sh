@@ -62,7 +62,7 @@ cat >"$root/plan.md" <<'EOF'
 task-1-deploy-preflight.txt task-2-pihole-dns.txt task-3-hostname-matrix.txt task-4-acme-staging.txt
 task-5-https-auth.txt task-6-production-cutover.txt task-7-mqtt-auth.txt task-8-mqtt-tls.txt
 task-9-docker-socket-proxy.txt task-10-controlled-updates.txt task-11-firewall.txt task-12-legacy-retirement.txt task-13-end-to-end.txt
-n33lab.com traefik.n33lab.com docker.n33lab.com pihole.n33lab.com qbittorrent.n33lab.com immich.n33lab.com
+n33lab.com auth.n33lab.com traefik.n33lab.com docker.n33lab.com pihole.n33lab.com qbittorrent.n33lab.com immich.n33lab.com
 chat.n33lab.com excalidraw.n33lab.com uptime.n33lab.com logs.n33lab.com files.n33lab.com backup.n33lab.com
 ha.n33lab.com ha-esphome.n33lab.com ha-music.n33lab.com ha-flows.n33lab.com git.n33lab.com mqtt.n33lab.com
 22,53,80,443,222,1883,3333,6052,6881,8095,8097,8123,8883,9090,9443,9999

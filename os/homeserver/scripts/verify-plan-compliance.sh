@@ -52,6 +52,7 @@ task-11-firewall.txt
 task-12-legacy-retirement.txt
 task-13-end-to-end.txt'
 hostnames='n33lab.com
+auth.n33lab.com
 traefik.n33lab.com
 docker.n33lab.com
 pihole.n33lab.com

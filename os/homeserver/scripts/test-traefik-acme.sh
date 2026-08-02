@@ -73,7 +73,7 @@ fi
 mkdir -p "$root/secrets" "$root/config/traefik/dynamic" "$root/config/glance" "$root/data/traefik/letsencrypt"
 printf '%s\n' 'fixture-token-not-real' >"$root/secrets/cloudflare_dns_api_token"
 chmod 600 "$root/secrets/cloudflare_dns_api_token"
-touch "$root/secrets/immich-server.env" "$root/secrets/immich-ml.env" "$root/secrets/gatus.env" "$root/secrets/traefik-users" "$root/secrets/mqtt-passwd" "$root/secrets/mqtt-acl"
+touch "$root/secrets/immich-server.env" "$root/secrets/immich-ml.env" "$root/secrets/authelia-jwt" "$root/secrets/authelia-session" "$root/secrets/authelia-storage-encryption" "$root/secrets/authelia-users" "$root/secrets/mqtt-passwd" "$root/secrets/mqtt-acl"
 printf '%s\n' 'ESPHOME_USERNAME=fixture' 'ESPHOME_PASSWORD=fixture' 'ESPHOME_TRUSTED_DOMAINS=example.test' >"$root/secrets/esphome.env"
 cp "$dynamic" "$root/config/traefik/dynamic/services.yml"
 cp "$compose" "$root/docker-compose.yml"

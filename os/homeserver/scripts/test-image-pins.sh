@@ -18,6 +18,7 @@ excalidraw|excalidraw/excalidraw@sha256:f7ee194addd607bf831d2af0f0a34463dd4225e4
 filebrowser|gtstef/filebrowser@sha256:fc213590ebc090cb8205125cd3ecdfa9066b9ed4a0b53fe2570972d6a3379e73
 forgejo|codeberg.org/forgejo/forgejo@sha256:dbb0f88677f0c65cd1b66fb83504225aa5a04c4bc4a5ffdf9fc9a3a6d5bb1c68
 gatus|ghcr.io/twin/gatus@sha256:c5f210d095fa78e6efaa20ffeb14803f2ba4f10615e16a6d12087697149617f0
+authelia|authelia/authelia@sha256:b5f415d5f14b154c2aa2b186d9f329d879e223da36e115cd871db4c261d5af54
 glance|glanceapp/glance@sha256:32ab73d80f2b8b5fb0735b0431deb36b93fbb6b2fb43592449b0178c8b83e350
 homeassistant|ghcr.io/home-assistant/home-assistant@sha256:5a531753cea96444200158fc2b0ac7ccd739291ec50414877b396de6e0bb29b3
 immich-machine-learning|ghcr.io/immich-app/immich-machine-learning@sha256:b3deefd1826f113824e9d7bc30d905e7f823535887d03f869330946b6db3b44a
@@ -40,11 +41,11 @@ extract() {
 
 check() {
     file=$1
-    [ "$(extract "$file" | wc -l)" -eq 24 ] || return 1
+    [ "$(extract "$file" | wc -l)" -eq 25 ] || return 1
     extract "$file" | sort >"$tmp/actual"
     printf '%s\n' "$expected" | sort >"$tmp/expected"
     cmp -s "$tmp/actual" "$tmp/expected" || return 1
-    [ "$(extract "$file" | cut -d'|' -f2 | grep -Ec '^.+@sha256:[0-9a-f]{64}$')" -eq 24 ] || return 1
+    [ "$(extract "$file" | cut -d'|' -f2 | grep -Ec '^.+@sha256:[0-9a-f]{64}$')" -eq 25 ] || return 1
 }
 
 check "$compose"
@@ -55,4 +56,4 @@ if check "$tmp/duplicate.yml"; then exit 1; fi
 sed '0,/@sha256:[0-9a-f]*/s///' "$compose" >"$tmp/unpinned.yml"
 if check "$tmp/unpinned.yml"; then exit 1; fi
 
-printf '%s\n' 'image pin check passed: 24 exact pinned service images'
+printf '%s\n' 'image pin check passed: 25 exact pinned service images'
