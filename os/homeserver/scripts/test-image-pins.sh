@@ -11,6 +11,7 @@ backrest|garethgeorge/backrest@sha256:b852979754281026230cc69fb11428e6d57c9a9778
 database|ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0@sha256:bcf63357191b76a916ae5eb93464d65c07511da41e3bf7a8416db519b40b1c23
 dhcphelper|noamokman/dhcp-helper@sha256:25a33e63a20f7ec06465653c40ccde3f692a23074d566ee9dcbb11d75307d538
 dozzle|amir20/dozzle@sha256:1c1060cfb5402093c4e0f03f3534d7deaffeb0a6f6dd034e7c5f244603f35fb3
+dozzle-agent|amir20/dozzle@sha256:1c1060cfb5402093c4e0f03f3534d7deaffeb0a6f6dd034e7c5f244603f35fb3
 dockhand|fnsys/dockhand@sha256:29d4183d8aef2cc7fbc50750fa11434ec331e044647288ae47fe15260e68a44c
 esphome|ghcr.io/esphome/esphome@sha256:de90d689b89e20f171b0fbdd0dfea31b21ef647aa7e83d6efd2916ca6e7a30d2
 excalidraw|excalidraw/excalidraw@sha256:f7ee194addd607bf831d2af0f0a34463dd4225e426cf35199ef0b12a803398e9
@@ -39,12 +40,11 @@ extract() {
 
 check() {
     file=$1
-    [ "$(extract "$file" | wc -l)" -eq 23 ] || return 1
+    [ "$(extract "$file" | wc -l)" -eq 24 ] || return 1
     extract "$file" | sort >"$tmp/actual"
     printf '%s\n' "$expected" | sort >"$tmp/expected"
     cmp -s "$tmp/actual" "$tmp/expected" || return 1
-    [ "$(extract "$file" | cut -d'|' -f2 | grep -Ec '^.+@sha256:[0-9a-f]{64}$')" -eq 23 ] || return 1
-    [ -z "$(extract "$file" | cut -d'|' -f2 | sed 's/^.*@//' | sort | uniq -d)" ] || return 1
+    [ "$(extract "$file" | cut -d'|' -f2 | grep -Ec '^.+@sha256:[0-9a-f]{64}$')" -eq 24 ] || return 1
 }
 
 check "$compose"
@@ -55,4 +55,4 @@ if check "$tmp/duplicate.yml"; then exit 1; fi
 sed '0,/@sha256:[0-9a-f]*/s///' "$compose" >"$tmp/unpinned.yml"
 if check "$tmp/unpinned.yml"; then exit 1; fi
 
-printf '%s\n' 'image pin check passed: 23 exact unique repo digests'
+printf '%s\n' 'image pin check passed: 24 exact pinned service images'
