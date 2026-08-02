@@ -17,6 +17,7 @@ http:
       rule: 'Host(`{{ env "DOMAIN" }}`)'
       entryPoints: [websecure]
       service: glance
+      middlewares: [admin-auth]
       tls:
         certResolver: cloudflare
         domains:
@@ -63,6 +64,7 @@ http:
       rule: 'Host(`uptime.{{ env "DOMAIN" }}`)'
       entryPoints: [websecure]
       service: gatus
+      middlewares: [admin-auth]
       tls: {}
     dozzle:
       rule: 'Host(`logs.{{ env "DOMAIN" }}`)'
@@ -84,6 +86,7 @@ http:
       rule: 'Host(`ha-flows.{{ env "DOMAIN" }}`)'
       entryPoints: [websecure]
       service: node-red
+      middlewares: [admin-auth]
       tls: {}
     forgejo:
       rule: 'Host(`git.{{ env "DOMAIN" }}`)'
