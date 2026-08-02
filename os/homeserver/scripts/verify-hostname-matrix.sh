@@ -132,6 +132,8 @@ fi
 for prefix in immich qbittorrent files chat excalidraw pihole traefik docker logs uptime backup ha ha-esphome ha-music ha-flows; do
   count_fixed 1 "url: https://$prefix.\${DOMAIN}" "$glance"
 done
+count_fixed 1 'url: https://traefik.${DOMAIN}/dashboard/' "$glance"
+count_fixed 1 'url: https://192.168.1.33:9443/desktop/?os=ugospro#/' "$glance"
 count_fixed 1 "homepage.href=https://pihole.${dollar}{DOMAIN:?set DOMAIN=n33lab.com}/admin" "$compose"
 count_fixed 1 "FORGEJO__server__DOMAIN=git.${dollar}{DOMAIN:?set DOMAIN=n33lab.com}" "$compose"
 count_fixed 1 "FORGEJO__server__ROOT_URL=https://git.${dollar}{DOMAIN:?set DOMAIN=n33lab.com}/" "$compose"

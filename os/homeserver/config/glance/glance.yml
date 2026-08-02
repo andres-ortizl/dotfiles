@@ -58,7 +58,7 @@ pages:
                 check-url: http://pihole/admin/
                 icon: di:pi-hole
               - title: Traefik
-                url: https://traefik.${DOMAIN}
+                url: https://traefik.${DOMAIN}/dashboard/
                 check-url: http://traefik:8080/dashboard/
                 icon: di:traefik
               - title: Dockhand
@@ -79,7 +79,7 @@ pages:
                 check-url: http://backrest:9898
                 icon: di:backrest
               - title: UGREEN NAS
-                url: https://nas.local:9443
+                url: https://192.168.1.33:9443/desktop/?os=ugospro#/
                 icon: mdi:nas
 
           - type: monitor

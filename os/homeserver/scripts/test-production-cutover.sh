@@ -32,7 +32,8 @@ fi
 for service in immich qbittorrent files chat excalidraw pihole traefik docker logs uptime backup ha ha-esphome ha-music ha-flows; do
   grep -Fq "url: https://$service.\${DOMAIN}" "$glance" || fail "Glance user URL is not HTTPS: $service"
 done
-grep -Fq 'url: https://nas.local:9443' "$glance" || fail 'UGREEN user URL is not canonical'
+grep -Fq 'url: https://traefik.${DOMAIN}/dashboard/' "$glance" || fail 'Traefik user URL is not canonical'
+grep -Fq 'url: https://192.168.1.33:9443/desktop/?os=ugospro#/' "$glance" || fail 'UGREEN user URL is not canonical'
 if awk '/title: UGREEN NAS/{ active=1; next } active && /check-url:/{ exit 1 } active && /icon:/{ exit }' "$glance"; then
   :
 else
