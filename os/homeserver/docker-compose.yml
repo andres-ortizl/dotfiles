@@ -127,7 +127,7 @@ services:
       - traefik
   # Tailscale - VPN Access
   tailscale:
-    image: tailscale/tailscale@sha256:25cde9ad76020b0e29229136d0c38b5962e9a0e1774ffac9b0df68e4a37d6cf0
+    image: tailscale/tailscale@sha256:cdf5612ded5be1344f1a704b8c5e53496db97376bb533e5e15f141e48bf60cc0
     container_name: tailscale
     hostname: homeserver
     restart: unless-stopped
@@ -215,7 +215,7 @@ services:
       - traefik
   # Immich Photo Management
   immich-server:
-    image: ghcr.io/immich-app/immich-server@sha256:46dedfc5848f7313bd6b584ea9f2648057430307aad6de56de968f6710a72cae
+    image: ghcr.io/immich-app/immich-server@sha256:b434cb9287eea1471c9974845914d4dd328c9c2d652e446ed4930f99944f0ceb
     container_name: immich_server
     restart: unless-stopped
     volumes:
@@ -237,7 +237,7 @@ services:
 
   # Immich Machine Learning
   immich-machine-learning:
-    image: ghcr.io/immich-app/immich-machine-learning@sha256:b3deefd1826f113824e9d7bc30d905e7f823535887d03f869330946b6db3b44a
+    image: ghcr.io/immich-app/immich-machine-learning@sha256:5a0839dc5303cd7215bcd2180a26aed3af41675aefb3e75e5157e9f10ad16e6e
     container_name: immich_machine_learning
     restart: unless-stopped
     volumes:
