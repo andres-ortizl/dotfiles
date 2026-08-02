@@ -54,9 +54,12 @@ awk '
   active { print }
 ' "$compose" >"$root/gatus-service"
 for required in 'image: ghcr.io/twin/gatus@sha256:c5f210d095fa78e6efaa20ffeb14803f2ba4f10615e16a6d12087697149617f0' './config/gatus:/config:ro' \
-  './data/gatus:/var/lib/gatus' './secrets/gatus.env' 'host.docker.internal:host-gateway'; do
+  './data/gatus:/var/lib/gatus' 'host.docker.internal:host-gateway'; do
   grep -Fq "$required" "$root/gatus-service" || fail "Gatus Compose contract is missing: $required"
 done
+if grep -Eq '^    env_file:|gatus\.env' "$root/gatus-service"; then
+  fail 'Gatus native auth attachment remains active'
+fi
 grep -Fq "Host(\`uptime.{{ env \"DOMAIN\" }}\`)" "$dynamic" || fail 'Gatus file-provider route is missing'
 grep -Fq 'url: http://gatus:8080' "$dynamic" || fail 'Gatus file-provider service is missing'
 grep -Fq '/var/run/docker.sock' "$root/gatus-service" && fail 'Gatus has Docker socket access'
@@ -86,10 +89,7 @@ with open(sys.argv[1], encoding="utf-8") as source:
 assert data["web"]["port"] == 8080
 assert data["ui"]["title"]
 assert data["storage"] == {"type": "sqlite", "path": "/var/lib/gatus/db.sqlite"}
-assert data["security"]["basic"] == {
-    "username": "${GATUS_USERNAME}",
-    "password-bcrypt-base64": "${GATUS_PASSWORD_BCRYPT_BASE64}",
-}
+assert "security" not in data
 endpoints = data["endpoints"]
 names = [endpoint["name"] for endpoint in endpoints]
 assert len(names) == len(set(names))
@@ -134,12 +134,15 @@ grep -Fq 'uptime.n33lab.com	http	gatus	gatus:8080	none' "$matrix" \
 grep -Fq '"uptime.n33lab.com gatus gatus:8080"' "$verifier" \
   || fail 'hostname verifier does not map Gatus'
 
-grep -Fq 'gatus.env' "$homeserver_dir/.env.example" || fail 'tracked attachment documentation omits gatus.env'
-grep -Fq 'gatus.env' "$homeserver_dir/recover-env.sh" || fail 'recovery omits gatus.env'
-grep -Fq 'restored 13 validated runtime attachments' "$homeserver_dir/recover-env.sh" \
-  || fail 'recovery attachment count is not 13'
-grep -Fq 'gatus_env=' "$homeserver_dir/deploy.sh" || fail 'deploy preflight omits gatus.env'
-grep -Fq 'GATUS_PASSWORD_BCRYPT_BASE64' "$homeserver_dir/deploy.sh" \
-  || fail 'deploy preflight does not validate the Gatus hash'
+for attachment in authelia-jwt authelia-session authelia-storage-encryption authelia-users; do
+  grep -Fq "$attachment" "$homeserver_dir/.env.example" || fail "attachment documentation omits $attachment"
+  grep -Fq "$attachment" "$homeserver_dir/recover-env.sh" || fail "recovery omits $attachment"
+  grep -Fq "$attachment" "$homeserver_dir/deploy.sh" || fail "deploy preflight omits $attachment"
+done
+grep -Fq 'restored 15 validated runtime attachments' "$homeserver_dir/recover-env.sh" \
+  || fail 'recovery attachment count is not 15'
+if grep -Eq 'gatus\.env|traefik-users|GATUS_' "$homeserver_dir/deploy.sh" "$homeserver_dir/recover-env.sh" "$homeserver_dir/.env.example"; then
+  fail 'retired authentication attachment remains in active contracts'
+fi
 
 printf '%s\n' 'gatus_config_status=PASS'

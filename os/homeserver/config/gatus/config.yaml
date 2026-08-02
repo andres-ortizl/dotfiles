@@ -9,11 +9,6 @@ storage:
   type: sqlite
   path: /var/lib/gatus/db.sqlite
 
-security:
-  basic:
-    username: ${GATUS_USERNAME}
-    password-bcrypt-base64: ${GATUS_PASSWORD_BCRYPT_BASE64}
-
 endpoints:
   - name: Glance
     group: Infrastructure
