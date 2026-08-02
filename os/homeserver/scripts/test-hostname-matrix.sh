@@ -40,11 +40,11 @@ expect_fail "$verifier" --unknown
 expect_ok "$verifier" --homeserver-dir "$homeserver_dir"
 
 make_fixture "$root/duplicate"
-printf '%s\n' "      - \"traefik.http.routers.glance-secure.rule=Host(\`n33lab.com\`)\"" >>"$root/duplicate/docker-compose.yml"
+printf '%s\n' "    glance-duplicate:" "      rule: 'Host(\`{{ env \"DOMAIN\" }}\`)'" >>"$root/duplicate/config/traefik/dynamic/services.yml"
 expect_fail "$verifier" --homeserver-dir "$root/duplicate" --matrix "$root/duplicate/scripts/hostname-matrix.tsv"
 
 make_fixture "$root/missing"
-sed -i '/traefik.http.routers.forgejo-secure.rule=/d' "$root/missing/docker-compose.yml"
+sed -i '/    forgejo:/d' "$root/missing/config/traefik/dynamic/services.yml"
 expect_fail "$verifier" --homeserver-dir "$root/missing" --matrix "$root/missing/scripts/hostname-matrix.tsv"
 
 make_fixture "$root/legacy"
@@ -52,7 +52,7 @@ printf '%s\n' '# lab.lan' >>"$root/legacy/config/glance/glance.yml"
 expect_fail "$verifier" --homeserver-dir "$root/legacy" --matrix "$root/legacy/scripts/hostname-matrix.tsv"
 
 make_fixture "$root/malformed"
-sed -i "s/Host(\`chat\./HostRegexp(\`chat\./" "$root/malformed/docker-compose.yml"
+sed -i "s/Host(\`chat\./HostRegexp(\`chat\./" "$root/malformed/config/traefik/dynamic/services.yml"
 expect_fail "$verifier" --homeserver-dir "$root/malformed" --matrix "$root/malformed/scripts/hostname-matrix.tsv"
 
 make_fixture "$root/direct-port"

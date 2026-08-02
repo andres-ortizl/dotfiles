@@ -90,62 +90,44 @@ dollar='$'
 domain="${dollar}{DOMAIN:?set DOMAIN=n33lab.com}"
 count_fixed 2 "DOMAIN=$domain" "$compose"
 
-verify_compose_route() {
-  hostname=$1
-  router=$2
-  backend=$3
-  host_prefix=${hostname%.n33lab.com}
-  if [ "$hostname" = n33lab.com ]; then
-    host_rule="$domain"
+verify_dynamic_service() {
+  router=$1
+  backend=$2
+  if [ "$backend" = api@internal ]; then
+    count_fixed 1 'service: api@internal' "$dynamic_dir/services.yml"
+  elif printf '%s\n' "$backend" | grep -q '^host\.docker\.internal:'; then
+    file="$dynamic_dir/$router.yml"
+    count_fixed 1 "service: $router" "$file"
+    count_fixed 1 "url: \"http://$backend\"" "$file"
   else
-    host_rule="$host_prefix.$domain"
+    count_fixed 1 "service: $router" "$dynamic_dir/services.yml"
+    count_fixed 1 "url: http://$backend" "$dynamic_dir/services.yml"
   fi
-  count_fixed 1 "traefik.http.routers.$router.rule=Host(\`$host_rule\`)" "$compose"
-  count_fixed 1 "traefik.http.routers.$router-secure.rule=Host(\`$host_rule\`)" "$compose"
-  count_fixed 1 "traefik.http.routers.$router-secure.tls=true" "$compose"
-  case $backend in
-    api@internal)
-      count_fixed 2 'service=api@internal' "$compose"
-      ;;
-    *)
-      port=${backend##*:}
-      count_fixed 1 "traefik.http.services.$router.loadbalancer.server.port=$port" "$compose"
-      ;;
-  esac
 }
 
-verify_compose_route n33lab.com glance glance:8080
-verify_compose_route traefik.n33lab.com dashboard api@internal
-verify_compose_route docker.n33lab.com dockhand dockhand:3000
-verify_compose_route pihole.n33lab.com pihole pihole:80
-verify_compose_route qbittorrent.n33lab.com qbittorrent qbittorrent:8080
-verify_compose_route immich.n33lab.com immich immich-server:2283
-verify_compose_route chat.n33lab.com openwebui openwebui:8080
-verify_compose_route excalidraw.n33lab.com excalidraw excalidraw:80
-verify_compose_route uptime.n33lab.com gatus gatus:8080
-verify_compose_route logs.n33lab.com dozzle dozzle:8080
-verify_compose_route files.n33lab.com filebrowser filebrowser:80
-verify_compose_route backup.n33lab.com backrest backrest:9898
-verify_compose_route ha-flows.n33lab.com node-red node-red:1880
-verify_compose_route git.n33lab.com forgejo forgejo:3000
-
-verify_dynamic_route() {
-  hostname=$1
-  router=$2
-  backend=$3
-  file=$4
-  prefix=${hostname%.n33lab.com}
-  count_fixed 2 "rule: 'Host(\`$prefix.{{ env \"DOMAIN\" }}\`)'" "$file"
-  count_fixed 1 "url: \"http://$backend\"" "$file"
-  count_fixed 2 "service: $router" "$file"
-}
-
-verify_dynamic_route ha.n33lab.com homeassistant host.docker.internal:8123 "$dynamic_dir/homeassistant.yml"
-verify_dynamic_route ha-esphome.n33lab.com esphome host.docker.internal:6052 "$dynamic_dir/esphome.yml"
-verify_dynamic_route ha-music.n33lab.com musicassistant host.docker.internal:8095 "$dynamic_dir/musicassistant.yml"
-
-host_rule_count=$(grep -F -h -c 'Host(`' "$compose" "$dynamic_dir"/*.yml | awk '{ total += $1 } END { print total + 0 }')
-[ "$host_rule_count" -eq 34 ] || fail "expected 34 HTTP Host rules, found $host_rule_count"
+for route in \
+  "n33lab.com glance glance:8080" "traefik.n33lab.com dashboard api@internal" \
+  "docker.n33lab.com dockhand dockhand:3000" "pihole.n33lab.com pihole pihole:80" \
+  "qbittorrent.n33lab.com qbittorrent qbittorrent:8080" "immich.n33lab.com immich immich-server:2283" \
+  "chat.n33lab.com openwebui openwebui:8080" "excalidraw.n33lab.com excalidraw excalidraw:80" \
+  "uptime.n33lab.com gatus gatus:8080" "logs.n33lab.com dozzle dozzle:8080" \
+  "files.n33lab.com filebrowser filebrowser:80" "backup.n33lab.com backrest backrest:9898" \
+  "ha-flows.n33lab.com node-red node-red:1880" "git.n33lab.com forgejo forgejo:3000"; do
+  router=$(printf '%s\n' "$route" | cut -d' ' -f2)
+  backend=$(printf '%s\n' "$route" | cut -d' ' -f3)
+  verify_dynamic_service "$router" "$backend"
+done
+verify_dynamic_service homeassistant host.docker.internal:8123
+verify_dynamic_service esphome host.docker.internal:6052
+verify_dynamic_service musicassistant host.docker.internal:8095
+count_fixed 1 'certResolver: cloudflare' "$dynamic_dir/services.yml"
+count_fixed 1 'permanent: true' "$dynamic_dir/services.yml"
+count_fixed 3 'middlewares: [admin-auth]' "$dynamic_dir/services.yml"
+count_fixed 1 'usersFile: /run/secrets/traefik-users' "$dynamic_dir/services.yml"
+[ "$(grep -F -h -c 'Host(`' "$dynamic_dir"/*.yml | awk '{ total += $1 } END { print total + 0 }')" -eq 17 ] || fail 'expected 17 HTTPS routers'
+if grep -E 'traefik\.(enable|http)' "$compose" >/dev/null; then
+  fail 'legacy Docker labels remain'
+fi
 
 for prefix in immich qbittorrent files chat excalidraw pihole traefik docker logs uptime backup ha ha-esphome ha-music ha-flows; do
   count_fixed 1 "url: http://$prefix.\${DOMAIN}" "$glance"
