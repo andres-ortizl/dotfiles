@@ -244,7 +244,7 @@ services:
     environment:
       - DB_HOSTNAME=database
     env_file:
-      - .env
+      - ./secrets/immich-server.env
     depends_on:
       - redis
       - database
@@ -269,7 +269,7 @@ services:
     volumes:
       - model-cache:/cache
     env_file:
-      - .env
+      - ./secrets/immich-ml.env
     networks:
       - traefik
     healthcheck:
