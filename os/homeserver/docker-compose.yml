@@ -24,7 +24,7 @@ services:
     container_name: traefik
     restart: unless-stopped
     environment:
-      - DOMAIN=${DOMAIN:-localhost}
+      - DOMAIN=${DOMAIN:?set DOMAIN=n33lab.com}
     ports:
       - "80:80" # HTTP
       - "443:443" # HTTPS
@@ -48,10 +48,10 @@ services:
       - "host.docker.internal:host-gateway"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.dashboard.rule=Host(`traefik.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.${DOMAIN:?set DOMAIN=n33lab.com}`)"
       - "traefik.http.routers.dashboard.entrypoints=web"
       - "traefik.http.routers.dashboard.service=api@internal"
-      - "traefik.http.routers.dashboard-secure.rule=Host(`traefik.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.dashboard-secure.rule=Host(`traefik.${DOMAIN:?set DOMAIN=n33lab.com}`)"
       - "traefik.http.routers.dashboard-secure.entrypoints=websecure"
       - "traefik.http.routers.dashboard-secure.tls=true"
       - "traefik.http.routers.dashboard-secure.service=api@internal"
@@ -63,7 +63,7 @@ services:
     restart: unless-stopped
     environment:
       - TZ=${TZ:-Europe/Madrid}
-      - DOMAIN=${DOMAIN:-localhost}
+      - DOMAIN=${DOMAIN:?set DOMAIN=n33lab.com}
       - PIHOLE_PASSWORD=${PIHOLE_PASSWORD:?set in .env}
     volumes:
       - ./config/glance:/app/config:ro
@@ -73,10 +73,9 @@ services:
       - "host.docker.internal:host-gateway"
     labels:
       - "traefik.enable=true"
-      - "com.centurylinklabs.watchtower.enable=true"
-      - "traefik.http.routers.glance.rule=Host(`home.${DOMAIN:-localhost}`) || Host(`${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.glance.rule=Host(`${DOMAIN:?set DOMAIN=n33lab.com}`)"
       - "traefik.http.routers.glance.entrypoints=web"
-      - "traefik.http.routers.glance-secure.rule=Host(`home.${DOMAIN:-localhost}`) || Host(`${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.glance-secure.rule=Host(`${DOMAIN:?set DOMAIN=n33lab.com}`)"
       - "traefik.http.routers.glance-secure.entrypoints=websecure"
       - "traefik.http.routers.glance-secure.tls=true"
       - "traefik.http.services.glance.loadbalancer.server.port=8080"
@@ -95,30 +94,12 @@ services:
       - traefik
     labels:
       - "traefik.enable=true"
-      - "com.centurylinklabs.watchtower.enable=true"
-      - "traefik.http.routers.dockhand.rule=Host(`docker.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.dockhand.rule=Host(`docker.${DOMAIN:?set DOMAIN=n33lab.com}`)"
       - "traefik.http.routers.dockhand.entrypoints=web"
-      - "traefik.http.routers.dockhand-secure.rule=Host(`docker.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.dockhand-secure.rule=Host(`docker.${DOMAIN:?set DOMAIN=n33lab.com}`)"
       - "traefik.http.routers.dockhand-secure.entrypoints=websecure"
       - "traefik.http.routers.dockhand-secure.tls=true"
       - "traefik.http.services.dockhand.loadbalancer.server.port=3000"
-
-  # Watchtower Auto-updater (only updates containers with watchtower.enable=true label)
-  watchtower:
-    image: nickfedor/watchtower:latest
-    container_name: watchtower
-    restart: unless-stopped
-    environment:
-      - WATCHTOWER_CLEANUP=true
-      - WATCHTOWER_REMOVE_VOLUMES=false
-      - WATCHTOWER_INCLUDE_STOPPED=true
-      - WATCHTOWER_LABEL_ENABLE=true
-      - WATCHTOWER_SCHEDULE=0 0 4 * * *
-      - TZ=${TZ:-Europe/Madrid}
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    networks:
-      - traefik
 
   # Tailscale - VPN Access
   tailscale:
@@ -173,17 +154,16 @@ services:
         ipv4_address: "172.31.0.100"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.pihole.rule=Host(`pihole.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.pihole.rule=Host(`pihole.${DOMAIN:?set DOMAIN=n33lab.com}`)"
       - "traefik.http.routers.pihole.entrypoints=web"
-      - "traefik.http.routers.pihole-secure.rule=Host(`pihole.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.pihole-secure.rule=Host(`pihole.${DOMAIN:?set DOMAIN=n33lab.com}`)"
       - "traefik.http.routers.pihole-secure.entrypoints=websecure"
       - "traefik.http.routers.pihole-secure.tls=true"
       - "traefik.http.services.pihole.loadbalancer.server.port=80"
-      - "com.centurylinklabs.watchtower.enable=true"
       - "homepage.group=Network"
       - "homepage.name=Pi-hole"
       - "homepage.icon=pihole.png"
-      - "homepage.href=http://pihole.${DOMAIN:-localhost}:3333/admin"
+      - "homepage.href=http://pihole.${DOMAIN:?set DOMAIN=n33lab.com}:3333/admin"
       - "homepage.description=Network-wide ad blocking and DNS"
       - "homepage.weight=1"
       - "homepage.widget.type=pihole"
@@ -220,11 +200,10 @@ services:
       - traefik
     labels:
       - "traefik.enable=true"
-      - "com.centurylinklabs.watchtower.enable=true"
-      - "traefik.http.routers.qbittorrent.rule=Host(`qbittorrent.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.qbittorrent.rule=Host(`qbittorrent.${DOMAIN:?set DOMAIN=n33lab.com}`)"
       - "traefik.http.routers.qbittorrent.entrypoints=web"
       - "traefik.http.routers.qbittorrent.service=qbittorrent"
-      - "traefik.http.routers.qbittorrent-secure.rule=Host(`qbittorrent.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.qbittorrent-secure.rule=Host(`qbittorrent.${DOMAIN:?set DOMAIN=n33lab.com}`)"
       - "traefik.http.routers.qbittorrent-secure.entrypoints=websecure"
       - "traefik.http.routers.qbittorrent-secure.tls=true"
       - "traefik.http.routers.qbittorrent-secure.service=qbittorrent"
@@ -251,9 +230,9 @@ services:
       - traefik
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.immich.rule=Host(`immich.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.immich.rule=Host(`immich.${DOMAIN:?set DOMAIN=n33lab.com}`)"
       - "traefik.http.routers.immich.entrypoints=web"
-      - "traefik.http.routers.immich-secure.rule=Host(`immich.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.immich-secure.rule=Host(`immich.${DOMAIN:?set DOMAIN=n33lab.com}`)"
       - "traefik.http.routers.immich-secure.entrypoints=websecure"
       - "traefik.http.routers.immich-secure.tls=true"
       - "traefik.http.services.immich.loadbalancer.server.port=2283"
@@ -315,10 +294,9 @@ services:
       - traefik
     labels:
       - "traefik.enable=true"
-      - "com.centurylinklabs.watchtower.enable=true"
-      - "traefik.http.routers.openwebui.rule=Host(`chat.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.openwebui.rule=Host(`chat.${DOMAIN:?set DOMAIN=n33lab.com}`)"
       - "traefik.http.routers.openwebui.entrypoints=web"
-      - "traefik.http.routers.openwebui-secure.rule=Host(`chat.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.openwebui-secure.rule=Host(`chat.${DOMAIN:?set DOMAIN=n33lab.com}`)"
       - "traefik.http.routers.openwebui-secure.entrypoints=websecure"
       - "traefik.http.routers.openwebui-secure.tls=true"
       - "traefik.http.services.openwebui.loadbalancer.server.port=8080"
@@ -336,10 +314,9 @@ services:
       - traefik
     labels:
       - "traefik.enable=true"
-      - "com.centurylinklabs.watchtower.enable=true"
-      - "traefik.http.routers.excalidraw.rule=Host(`excalidraw.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.excalidraw.rule=Host(`excalidraw.${DOMAIN:?set DOMAIN=n33lab.com}`)"
       - "traefik.http.routers.excalidraw.entrypoints=web"
-      - "traefik.http.routers.excalidraw-secure.rule=Host(`excalidraw.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.excalidraw-secure.rule=Host(`excalidraw.${DOMAIN:?set DOMAIN=n33lab.com}`)"
       - "traefik.http.routers.excalidraw-secure.entrypoints=websecure"
       - "traefik.http.routers.excalidraw-secure.tls=true"
       - "traefik.http.services.excalidraw.loadbalancer.server.port=80"
@@ -358,10 +335,9 @@ services:
       - traefik
     labels:
       - "traefik.enable=true"
-      - "com.centurylinklabs.watchtower.enable=true"
-      - "traefik.http.routers.uptime-kuma.rule=Host(`uptime.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.uptime-kuma.rule=Host(`uptime.${DOMAIN:?set DOMAIN=n33lab.com}`)"
       - "traefik.http.routers.uptime-kuma.entrypoints=web"
-      - "traefik.http.routers.uptime-kuma-secure.rule=Host(`uptime.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.uptime-kuma-secure.rule=Host(`uptime.${DOMAIN:?set DOMAIN=n33lab.com}`)"
       - "traefik.http.routers.uptime-kuma-secure.entrypoints=websecure"
       - "traefik.http.routers.uptime-kuma-secure.tls=true"
       - "traefik.http.services.uptime-kuma.loadbalancer.server.port=3001"
@@ -377,10 +353,9 @@ services:
       - traefik
     labels:
       - "traefik.enable=true"
-      - "com.centurylinklabs.watchtower.enable=true"
-      - "traefik.http.routers.dozzle.rule=Host(`logs.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.dozzle.rule=Host(`logs.${DOMAIN:?set DOMAIN=n33lab.com}`)"
       - "traefik.http.routers.dozzle.entrypoints=web"
-      - "traefik.http.routers.dozzle-secure.rule=Host(`logs.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.dozzle-secure.rule=Host(`logs.${DOMAIN:?set DOMAIN=n33lab.com}`)"
       - "traefik.http.routers.dozzle-secure.entrypoints=websecure"
       - "traefik.http.routers.dozzle-secure.tls=true"
       - "traefik.http.services.dozzle.loadbalancer.server.port=8080"
@@ -401,10 +376,9 @@ services:
       - traefik
     labels:
       - "traefik.enable=true"
-      - "com.centurylinklabs.watchtower.enable=true"
-      - "traefik.http.routers.filebrowser.rule=Host(`files.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.filebrowser.rule=Host(`files.${DOMAIN:?set DOMAIN=n33lab.com}`)"
       - "traefik.http.routers.filebrowser.entrypoints=web"
-      - "traefik.http.routers.filebrowser-secure.rule=Host(`files.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.filebrowser-secure.rule=Host(`files.${DOMAIN:?set DOMAIN=n33lab.com}`)"
       - "traefik.http.routers.filebrowser-secure.entrypoints=websecure"
       - "traefik.http.routers.filebrowser-secure.tls=true"
       - "traefik.http.services.filebrowser.loadbalancer.server.port=80"
@@ -429,10 +403,9 @@ services:
       - traefik
     labels:
       - "traefik.enable=true"
-      - "com.centurylinklabs.watchtower.enable=true"
-      - "traefik.http.routers.backrest.rule=Host(`backup.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.backrest.rule=Host(`backup.${DOMAIN:?set DOMAIN=n33lab.com}`)"
       - "traefik.http.routers.backrest.entrypoints=web"
-      - "traefik.http.routers.backrest-secure.rule=Host(`backup.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.backrest-secure.rule=Host(`backup.${DOMAIN:?set DOMAIN=n33lab.com}`)"
       - "traefik.http.routers.backrest-secure.entrypoints=websecure"
       - "traefik.http.routers.backrest-secure.tls=true"
       - "traefik.http.services.backrest.loadbalancer.server.port=9898"
@@ -452,9 +425,6 @@ services:
       - /etc/localtime:/etc/localtime:ro
     environment:
       - TZ=${TZ:-Europe/Madrid}
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
-
   # Mosquitto MQTT Broker (message bus for Node-RED, ESPHome, Home Assistant)
   mosquitto:
     image: eclipse-mosquitto:2
@@ -470,9 +440,6 @@ services:
       - "1883:1883"
     networks:
       - traefik
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
-
   # Node-RED - Visual Automation Flows
   node-red:
     image: nodered/node-red:latest
@@ -486,10 +453,9 @@ services:
       - traefik
     labels:
       - "traefik.enable=true"
-      - "com.centurylinklabs.watchtower.enable=true"
-      - "traefik.http.routers.node-red.rule=Host(`ha-flows.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.node-red.rule=Host(`ha-flows.${DOMAIN:?set DOMAIN=n33lab.com}`)"
       - "traefik.http.routers.node-red.entrypoints=web"
-      - "traefik.http.routers.node-red-secure.rule=Host(`ha-flows.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.node-red-secure.rule=Host(`ha-flows.${DOMAIN:?set DOMAIN=n33lab.com}`)"
       - "traefik.http.routers.node-red-secure.entrypoints=websecure"
       - "traefik.http.routers.node-red-secure.tls=true"
       - "traefik.http.services.node-red.loadbalancer.server.port=1880"
@@ -507,9 +473,6 @@ services:
       - /etc/localtime:/etc/localtime:ro
     environment:
       - TZ=${TZ:-Europe/Madrid}
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
-
   # Music Assistant - Whole-home audio
   # Host network for player discovery + streaming. Traefik routes via the file
   # provider instead of labels (see config/traefik/dynamic/musicassistant.yml).
@@ -522,9 +485,6 @@ services:
       - ./data/music-assistant:/data
     environment:
       - TZ=${TZ:-Europe/Madrid}
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
-
   # Forgejo - Self-hosted Git (GitHub private repos migration)
   forgejo:
     image: codeberg.org/forgejo/forgejo:12
@@ -534,9 +494,9 @@ services:
       - TZ=${TZ:-Europe/Madrid}
       - USER_UID=${PUID:-1000}
       - USER_GID=${PGID:-1000}
-      - FORGEJO__server__DOMAIN=git.${DOMAIN:-localhost}
-      - FORGEJO__server__ROOT_URL=https://git.${DOMAIN:-localhost}/
-      - FORGEJO__server__SSH_DOMAIN=git.${DOMAIN:-localhost}
+      - FORGEJO__server__DOMAIN=git.${DOMAIN:?set DOMAIN=n33lab.com}
+      - FORGEJO__server__ROOT_URL=https://git.${DOMAIN:?set DOMAIN=n33lab.com}/
+      - FORGEJO__server__SSH_DOMAIN=git.${DOMAIN:?set DOMAIN=n33lab.com}
       - FORGEJO__server__SSH_PORT=222
       - FORGEJO__attachment__ALLOWED_TYPES=image/jpeg|image/png|application/zip|application/gzip|application/octet-stream
       - FORGEJO__attachment__MAX_SIZE=512
@@ -553,10 +513,9 @@ services:
       - traefik
     labels:
       - "traefik.enable=true"
-      - "com.centurylinklabs.watchtower.enable=true"
-      - "traefik.http.routers.forgejo.rule=Host(`git.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.forgejo.rule=Host(`git.${DOMAIN:?set DOMAIN=n33lab.com}`)"
       - "traefik.http.routers.forgejo.entrypoints=web"
-      - "traefik.http.routers.forgejo-secure.rule=Host(`git.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.forgejo-secure.rule=Host(`git.${DOMAIN:?set DOMAIN=n33lab.com}`)"
       - "traefik.http.routers.forgejo-secure.entrypoints=websecure"
       - "traefik.http.routers.forgejo-secure.tls=true"
       - "traefik.http.services.forgejo.loadbalancer.server.port=3000"

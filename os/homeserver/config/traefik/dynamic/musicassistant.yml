@@ -4,7 +4,7 @@
 #
 # NOTE: Traefik's file provider does NOT expand ${VAR}. It renders files as Go
 # templates, so the domain is read from the traefik container's env via
-# {{ env "DOMAIN" }} (passed in docker-compose.yml, defaulting to localhost).
+# {{ env "DOMAIN" }} (required and passed in docker-compose.yml).
 http:
   routers:
     musicassistant:
