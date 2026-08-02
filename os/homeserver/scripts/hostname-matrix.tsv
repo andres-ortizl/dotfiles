@@ -1,4 +1,5 @@
 n33lab.com	http	glance	glance:8080	80,443=traefik
+auth.n33lab.com	http	authelia	authelia:9091	none
 traefik.n33lab.com	http	dashboard	api@internal	9090=disabled
 docker.n33lab.com	http	dockhand	dockhand:3000	none
 pihole.n33lab.com	http	pihole	pihole:80	53/tcp,53/udp=dns

@@ -43,7 +43,7 @@ grep -Fq 'url: http://immich-server:2283' "$glance" || fail 'internal Glance che
 grep -Fq 'url: http://host.docker.internal:8123' "$glance" || fail 'internal host check changed unexpectedly'
 grep -Fq 'FORGEJO__server__ROOT_URL=https://git.' "$compose" || fail 'Forgejo canonical URL is not HTTPS'
 grep -Fq "service: api@internal" "$homeserver_dir/config/traefik/dynamic/services.yml" || fail 'Traefik dashboard backend is not api@internal'
-grep -Fq 'middlewares: [admin-auth]' "$homeserver_dir/config/traefik/dynamic/services.yml" || fail 'Traefik dashboard authentication is missing'
+grep -Fq 'middlewares: [authelia]' "$homeserver_dir/config/traefik/dynamic/services.yml" || fail 'Traefik dashboard authentication is missing'
 
 mkdir -p "$root/bin" "$root/secrets" "$root/data/traefik/letsencrypt"
 cat >"$root/bin/git" <<'EOF'
@@ -75,7 +75,7 @@ cp "$compose" "$root/docker-compose.yml"
 cp "$homeserver_dir/deploy.sh" "$root/deploy.sh"
 mkdir -p "$root/config" "$root/config/traefik/dynamic"
 cp -R "$homeserver_dir/config/traefik/dynamic/." "$root/config/traefik/dynamic/"
-for file in cloudflare_dns_api_token traefik-users immich-server.env immich-ml.env gatus.env esphome.env mqtt-passwd mqtt-acl; do
+for file in cloudflare_dns_api_token authelia-jwt authelia-session authelia-storage-encryption authelia-users immich-server.env immich-ml.env esphome.env mqtt-passwd mqtt-acl; do
   : >"$root/secrets/$file"
   chmod 600 "$root/secrets/$file"
 done
@@ -84,8 +84,10 @@ printf '%s\n' 'DB_USERNAME=postgres' 'DB_PASSWORD=fixture' 'DB_DATABASE_NAME=imm
 printf '%s\n' 'ESPHOME_USERNAME=fixture' 'ESPHOME_PASSWORD=fixture' 'ESPHOME_TRUSTED_DOMAINS=example.test' >"$root/secrets/esphome.env"
 printf '%s\n' "fixture:\$2b\$12\$01234567890123456789012345678901234567890123456789012" >"$root/secrets/mqtt-passwd"
 printf '%s\n' 'user fixture' 'topic readwrite home/fixture' >"$root/secrets/mqtt-acl"
-printf '%s\n' 'GATUS_USERNAME=fixture' >"$root/secrets/gatus.env"
-printf 'GATUS_PASSWORD_BCRYPT_BASE64=%s\n' "$(printf '%s' "\$2a\$10\$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy" | base64 | tr -d '\n')" >>"$root/secrets/gatus.env"
+printf '%s\n' fixture >"$root/secrets/authelia-jwt"
+printf '%s\n' fixture >"$root/secrets/authelia-session"
+printf '%s\n' fixture >"$root/secrets/authelia-storage-encryption"
+printf '%s\n' 'users:' >"$root/secrets/authelia-users"
 
 cat >"$root/.env" <<'EOF'
 DOMAIN=n33lab.com

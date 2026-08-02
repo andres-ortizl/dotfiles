@@ -50,6 +50,7 @@ done
 
 expected_matrix=$(cat <<'EOF'
 n33lab.com	http	glance	glance:8080	80,443=traefik
+auth.n33lab.com	http	authelia	authelia:9091	none
 traefik.n33lab.com	http	dashboard	api@internal	9090=disabled
 docker.n33lab.com	http	dockhand	dockhand:3000	none
 pihole.n33lab.com	http	pihole	pihole:80	53/tcp,53/udp=dns
@@ -73,8 +74,8 @@ EOF
 [ "$(cat "$matrix")" = "$expected_matrix" ] || fail 'hostname matrix differs from the approved matrix'
 awk -F '\t' 'NF != 5 || $1 == "" || $2 == "" || $3 == "" || $4 == "" || $5 == "" { exit 1 } !seen[$1]++ { next } { exit 1 }' "$matrix" \
   || fail 'hostname matrix is malformed or contains duplicate hostnames'
-[ "$(awk -F '\t' '$2 == "http" { count++ } END { print count + 0 }' "$matrix")" -eq 17 ] \
-  || fail 'hostname matrix must contain the apex and 16 HTTP subdomains'
+[ "$(awk -F '\t' '$2 == "http" { count++ } END { print count + 0 }' "$matrix")" -eq 18 ] \
+  || fail 'hostname matrix must contain the apex and 17 HTTP subdomains'
 [ "$(awk -F '\t' '$2 == "reserved" && $1 == "mqtt.n33lab.com" { count++ } END { print count + 0 }' "$matrix")" -eq 1 ] \
   || fail 'MQTT reservation is missing'
 
@@ -106,7 +107,8 @@ verify_dynamic_service() {
 }
 
 for route in \
-  "n33lab.com glance glance:8080" "traefik.n33lab.com dashboard api@internal" \
+  "n33lab.com glance glance:8080" "auth.n33lab.com authelia authelia:9091" \
+  "traefik.n33lab.com dashboard api@internal" \
   "docker.n33lab.com dockhand dockhand:3000" "pihole.n33lab.com pihole pihole:80" \
   "qbittorrent.n33lab.com qbittorrent qbittorrent:8080" "immich.n33lab.com immich immich-server:2283" \
   "chat.n33lab.com openwebui openwebui:8080" "excalidraw.n33lab.com excalidraw excalidraw:80" \
@@ -122,17 +124,16 @@ verify_dynamic_service esphome host.docker.internal:6052
 verify_dynamic_service musicassistant host.docker.internal:8095
 count_fixed 1 'certResolver: cloudflare' "$dynamic_dir/services.yml"
 count_fixed 1 'permanent: true' "$dynamic_dir/services.yml"
-count_fixed 6 'middlewares: [admin-auth]' "$dynamic_dir/services.yml"
-for protected_router in dashboard dockhand dozzle glance gatus node-red; do
+count_fixed 7 'middlewares: [authelia]' "$dynamic_dir/services.yml"
+for protected_router in backrest dashboard dockhand dozzle glance gatus node-red; do
   awk -v target="$protected_router" '
     $0 == "    " target ":" { active=1; found=0; next }
     active && /^    [A-Za-z0-9-]+:/ { exit !found }
-    active && /middlewares: \[admin-auth\]/ { found=1 }
+    active && /middlewares: \[authelia\]/ { found=1 }
     END { exit !(active && found) }
-  ' "$dynamic_dir/services.yml" || fail "$protected_router lacks admin-auth"
+  ' "$dynamic_dir/services.yml" || fail "$protected_router lacks authelia"
 done
-count_fixed 1 'usersFile: /run/secrets/traefik-users' "$dynamic_dir/services.yml"
-[ "$(grep -F -h -c 'Host(`' "$dynamic_dir"/*.yml | awk '{ total += $1 } END { print total + 0 }')" -eq 17 ] || fail 'expected 17 HTTPS routers'
+[ "$(grep -F -h -c 'Host(`' "$dynamic_dir"/*.yml | awk '{ total += $1 } END { print total + 0 }')" -eq 18 ] || fail 'expected 18 HTTPS routers'
 if grep -E 'traefik\.(enable|http)' "$compose" >/dev/null; then
   fail 'legacy Docker labels remain'
 fi
