@@ -58,6 +58,9 @@ services:
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
       - --entrypoints.mqtts.address=:8883
+      - --entrypoints.ping.address=:8082
+      - --ping=true
+      - --ping.entrypoint=ping
       - --certificatesresolvers.cloudflare.acme.email=${ACME_EMAIL:?set ACME_EMAIL}
       - --certificatesresolvers.cloudflare.acme.storage=${ACME_STORAGE:-/letsencrypt/acme.json}
       - --certificatesresolvers.cloudflare.acme.caserver=${ACME_CA_SERVER:-https://acme-v02.api.letsencrypt.org/directory}

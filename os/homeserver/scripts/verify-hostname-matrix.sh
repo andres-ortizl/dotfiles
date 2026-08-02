@@ -83,7 +83,7 @@ count_fixed() {
   expected=$1
   needle=$2
   shift 2
-  actual=$(grep -F -h -c "$needle" "$@" | awk '{ total += $1 } END { print total + 0 }')
+  actual=$(grep -F -h -c -- "$needle" "$@" | awk '{ total += $1 } END { print total + 0 }')
   [ "$actual" -eq "$expected" ] || fail "expected $expected occurrence(s), found $actual: $needle"
 }
 
@@ -143,6 +143,15 @@ for prefix in immich qbittorrent files chat excalidraw pihole traefik docker log
 done
 count_fixed 1 "url: https://traefik.\${DOMAIN}/dashboard/" "$glance"
 count_fixed 1 'url: https://192.168.1.33:9443/desktop/?os=ugospro#/' "$glance"
+count_fixed 1 'check-url: http://traefik:8082/ping' "$glance"
+count_fixed 1 'check-url: http://host.docker.internal:9999' "$glance"
+count_fixed 1 'alt-status-codes: [307]' "$glance"
+count_fixed 1 '--ping=true' "$compose"
+count_fixed 1 '--ping.entrypoint=ping' "$compose"
+count_fixed 1 '--entrypoints.ping.address=:8082' "$compose"
+if grep -Eq '(^|[" ])([0-9.]+:)?8082:|(^|[" ])8082:[0-9]+' "$compose"; then
+  fail 'Traefik ping entrypoint is externally published'
+fi
 count_fixed 1 "homepage.href=https://pihole.${dollar}{DOMAIN:?set DOMAIN=n33lab.com}/admin" "$compose"
 count_fixed 1 "FORGEJO__server__DOMAIN=git.${dollar}{DOMAIN:?set DOMAIN=n33lab.com}" "$compose"
 count_fixed 1 "FORGEJO__server__ROOT_URL=https://git.${dollar}{DOMAIN:?set DOMAIN=n33lab.com}/" "$compose"

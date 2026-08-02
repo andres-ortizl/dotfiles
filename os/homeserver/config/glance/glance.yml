@@ -59,7 +59,7 @@ pages:
                 icon: di:pi-hole
               - title: Traefik
                 url: https://traefik.${DOMAIN}/dashboard/
-                check-url: http://traefik:8080/dashboard/
+                check-url: http://traefik:8082/ping
                 icon: di:traefik
               - title: Dockhand
                 url: https://docker.${DOMAIN}
@@ -80,6 +80,8 @@ pages:
                 icon: di:backrest
               - title: UGREEN NAS
                 url: https://192.168.1.33:9443/desktop/?os=ugospro#/
+                check-url: http://host.docker.internal:9999
+                alt-status-codes: [307]
                 icon: mdi:nas
 
           - type: monitor

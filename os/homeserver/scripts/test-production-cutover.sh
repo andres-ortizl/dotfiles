@@ -34,11 +34,15 @@ for service in immich qbittorrent files chat excalidraw pihole traefik docker lo
 done
 grep -Fq "url: https://traefik.\${DOMAIN}/dashboard/" "$glance" || fail 'Traefik user URL is not canonical'
 grep -Fq 'url: https://192.168.1.33:9443/desktop/?os=ugospro#/' "$glance" || fail 'UGREEN user URL is not canonical'
-if awk '/title: UGREEN NAS/{ active=1; next } active && /check-url:/{ exit 1 } active && /icon:/{ exit }' "$glance"; then
-  :
-else
-  fail 'UGREEN server-side check URL remains'
+grep -Fq 'check-url: http://host.docker.internal:9999' "$glance" || fail 'UGREEN server-side check URL is missing'
+grep -Fq 'alt-status-codes: [307]' "$glance" || fail 'UGREEN redirect status acceptance is missing'
+grep -Fq -- '--ping=true' "$compose" || fail 'Traefik ping is disabled'
+grep -Fq -- '--ping.entrypoint=ping' "$compose" || fail 'Traefik ping entrypoint is missing'
+grep -Fq -- '--entrypoints.ping.address=:8082' "$compose" || fail 'Traefik ping entrypoint address is missing'
+if grep -Eq '(^|[" ])([0-9.]+:)?8082:|(^|[" ])8082:[0-9]+' "$compose"; then
+  fail 'Traefik ping entrypoint is externally published'
 fi
+grep -Fq 'check-url: http://traefik:8082/ping' "$glance" || fail 'Glance Traefik check URL is missing'
 grep -Fq 'url: http://immich-server:2283' "$glance" || fail 'internal Glance checks changed unexpectedly'
 grep -Fq 'url: http://host.docker.internal:8123' "$glance" || fail 'internal host check changed unexpectedly'
 grep -Fq 'FORGEJO__server__ROOT_URL=https://git.' "$compose" || fail 'Forgejo canonical URL is not HTTPS'
