@@ -188,7 +188,7 @@ validate_attachment() {
           | grep -Eq "$bcrypt_pattern"
       ;;
     esphome.env)
-      validate_env_names "$2" "USERNAME PASSWORD" "USERNAME PASSWORD" 0
+      validate_env_names "$2" "ESPHOME_USERNAME ESPHOME_PASSWORD ESPHOME_TRUSTED_DOMAINS" "ESPHOME_USERNAME ESPHOME_PASSWORD ESPHOME_TRUSTED_DOMAINS" 0
       ;;
     qa-manifest.env)
       validate_env_names "$2" \

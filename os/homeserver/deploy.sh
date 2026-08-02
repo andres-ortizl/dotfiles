@@ -68,6 +68,7 @@ homeserver_env="$script_dir/.env"
 immich_server_env="$script_dir/secrets/immich-server.env"
 immich_ml_env="$script_dir/secrets/immich-ml.env"
 gatus_env="$script_dir/secrets/gatus.env"
+esphome_env="$script_dir/secrets/esphome.env"
 cloudflare_dns_api_token="$script_dir/secrets/cloudflare_dns_api_token"
 bcrypt_pattern='^[$]2[aby][$][0-9]{2}[$][./A-Za-z0-9]{53}$'
 
@@ -76,6 +77,7 @@ check_private_file "$homeserver_env"
 check_private_file "$immich_server_env"
 check_private_file "$immich_ml_env"
 check_private_file "$gatus_env"
+check_private_file "$esphome_env"
 check_private_file "$cloudflare_dns_api_token"
 
 acme_email=$(file_value "$homeserver_env" ACME_EMAIL 2>/dev/null || true)
@@ -105,6 +107,9 @@ validate_env_names "$immich_ml_env" \
 validate_env_names "$gatus_env" \
   "GATUS_USERNAME GATUS_PASSWORD_BCRYPT_BASE64" \
   "GATUS_USERNAME GATUS_PASSWORD_BCRYPT_BASE64" || fail "gatus.env has an invalid schema"
+validate_env_names "$esphome_env" \
+  "ESPHOME_USERNAME ESPHOME_PASSWORD ESPHOME_TRUSTED_DOMAINS" \
+  "ESPHOME_USERNAME ESPHOME_PASSWORD ESPHOME_TRUSTED_DOMAINS" || fail "esphome.env has an invalid schema"
 printf '%s\n' "$(file_value "$gatus_env" GATUS_USERNAME)" | grep -Eq '^[A-Za-z0-9._-]+$' \
   || fail "gatus.env has an invalid username"
 printf '%s' "$(file_value "$gatus_env" GATUS_PASSWORD_BCRYPT_BASE64)" | base64 -d 2>/dev/null \
