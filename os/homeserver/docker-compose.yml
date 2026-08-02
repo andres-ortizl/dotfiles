@@ -23,8 +23,14 @@ volumes:
 secrets:
   cloudflare_dns_api_token:
     file: ./secrets/cloudflare_dns_api_token
-  traefik_users:
-    file: ./secrets/traefik-users
+  authelia_jwt:
+    file: ./secrets/authelia-jwt
+  authelia_session:
+    file: ./secrets/authelia-session
+  authelia_storage_encryption:
+    file: ./secrets/authelia-storage-encryption
+  authelia_users:
+    file: ./secrets/authelia-users
   mqtt-passwd:
     file: ./secrets/mqtt-passwd
   mqtt-acl:
@@ -62,12 +68,32 @@ services:
       - ./data/traefik/letsencrypt:/letsencrypt
     secrets:
       - cloudflare_dns_api_token
-      - source: traefik_users
-        target: traefik-users
     networks:
       - traefik
     extra_hosts:
       - "host.docker.internal:host-gateway"
+  authelia:
+    image: authelia/authelia@sha256:b5f415d5f14b154c2aa2b186d9f329d879e223da36e115cd871db4c261d5af54
+    container_name: authelia
+    restart: unless-stopped
+    environment:
+      - X_AUTHELIA_CONFIG_FILTERS=template
+      - AUTHELIA_IDENTITY_VALIDATION_RESET_PASSWORD_JWT_SECRET_FILE=/run/secrets/authelia-jwt
+      - AUTHELIA_SESSION_SECRET_FILE=/run/secrets/authelia-session
+      - AUTHELIA_STORAGE_ENCRYPTION_KEY_FILE=/run/secrets/authelia-storage-encryption
+    volumes:
+      - ./config/authelia/configuration.yml:/config/configuration.yml:ro
+      - ./data/authelia:/data
+    secrets:
+      - authelia_jwt
+      - authelia_session
+      - authelia_storage_encryption
+      - source: authelia_users
+        target: authelia-users
+    networks:
+      - traefik
+    healthcheck:
+      test: ["CMD", "authelia", "healthcheck"]
   # Glance Dashboard
   glance:
     image: glanceapp/glance@sha256:32ab73d80f2b8b5fb0735b0431deb36b93fbb6b2fb43592449b0178c8b83e350
@@ -275,8 +301,6 @@ services:
     image: ghcr.io/twin/gatus@sha256:c5f210d095fa78e6efaa20ffeb14803f2ba4f10615e16a6d12087697149617f0
     container_name: gatus
     restart: unless-stopped
-    env_file:
-      - ./secrets/gatus.env
     volumes:
       - ./config/gatus:/config:ro
       - ./data/gatus:/var/lib/gatus

@@ -1,0 +1,62 @@
+server:
+  address: tcp4://:9091
+
+log:
+  level: info
+  file_path: /dev/stdout
+
+authentication_backend:
+  file:
+    path: /run/secrets/authelia-users
+    password:
+      algorithm: argon2
+      argon2:
+        variant: argon2id
+        iterations: 3
+        memory: 65535
+        parallelism: 4
+        key_length: 32
+        salt_length: 16
+
+totp:
+  issuer: n33lab.com
+
+access_control:
+  default_policy: deny
+  rules:
+    - domain: n33lab.com
+      policy: one_factor
+    - domain: uptime.n33lab.com
+      policy: one_factor
+    - domain: ha-flows.n33lab.com
+      policy: one_factor
+    - domain: traefik.n33lab.com
+      policy: one_factor
+    - domain: docker.n33lab.com
+      policy: one_factor
+    - domain: logs.n33lab.com
+      policy: one_factor
+    - domain: backup.n33lab.com
+      policy: one_factor
+
+session:
+  cookies:
+    - domain: n33lab.com
+      authelia_url: https://auth.n33lab.com
+      default_redirection_url: https://n33lab.com
+  expiration: 8h
+  inactivity: 1h
+  remember_me: 1M
+
+storage:
+  local:
+    path: /data/db.sqlite3
+
+notifier:
+  filesystem:
+    filename: /data/notification.txt
+
+regulation:
+  max_retries: 3
+  find_time: 2m
+  ban_time: 5m
