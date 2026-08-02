@@ -1,0 +1,147 @@
+web:
+  port: 8080
+
+ui:
+  title: N33 Lab Status
+  header: N33 Lab
+
+storage:
+  type: sqlite
+  path: /var/lib/gatus/db.sqlite
+
+security:
+  basic:
+    username: ${GATUS_USERNAME}
+    password-bcrypt-base64: ${GATUS_PASSWORD_BCRYPT_BASE64}
+
+endpoints:
+  - name: Glance
+    group: Infrastructure
+    url: http://glance:8080
+    interval: 1m
+    client:
+      timeout: 10s
+    conditions: &http-conditions
+      - "[STATUS] > 0"
+      - "[STATUS] < 500"
+      - "[RESPONSE_TIME] < 5000"
+
+  - name: Traefik
+    group: Infrastructure
+    url: http://traefik:8080/dashboard/
+    interval: 1m
+    client:
+      timeout: 10s
+    conditions: *http-conditions
+
+  - name: Dockhand
+    group: Infrastructure
+    url: http://dockhand:3000
+    interval: 1m
+    client:
+      timeout: 10s
+    conditions: *http-conditions
+
+  - name: Pi-hole
+    group: Infrastructure
+    url: http://pihole/admin/
+    interval: 1m
+    client:
+      timeout: 10s
+    conditions: *http-conditions
+
+  - name: Dozzle
+    group: Infrastructure
+    url: http://dozzle:8080
+    interval: 1m
+    client:
+      timeout: 10s
+    conditions: *http-conditions
+
+  - name: Open WebUI
+    group: Apps
+    url: http://openwebui:8080
+    interval: 1m
+    client:
+      timeout: 10s
+    conditions: *http-conditions
+
+  - name: Excalidraw
+    group: Apps
+    url: http://excalidraw:80
+    interval: 1m
+    client:
+      timeout: 10s
+    conditions: *http-conditions
+
+  - name: qBittorrent
+    group: Storage
+    url: http://qbittorrent:8080
+    interval: 1m
+    client:
+      timeout: 10s
+    conditions: *http-conditions
+
+  - name: Immich
+    group: Storage
+    url: http://immich-server:2283
+    interval: 1m
+    client:
+      timeout: 10s
+    conditions: *http-conditions
+
+  - name: File Browser
+    group: Storage
+    url: http://filebrowser:80
+    interval: 1m
+    client:
+      timeout: 10s
+    conditions: *http-conditions
+
+  - name: Backrest
+    group: Storage
+    url: http://backrest:9898
+    interval: 1m
+    client:
+      timeout: 10s
+    conditions: *http-conditions
+
+  - name: Home Assistant
+    group: Smart Home
+    url: http://host.docker.internal:8123
+    interval: 1m
+    client:
+      timeout: 10s
+    conditions: *http-conditions
+
+  - name: ESPHome
+    group: Smart Home
+    url: http://host.docker.internal:6052
+    interval: 1m
+    client:
+      timeout: 10s
+    conditions: *http-conditions
+
+  - name: Music Assistant
+    group: Smart Home
+    url: http://host.docker.internal:8095
+    interval: 1m
+    client:
+      timeout: 10s
+    conditions: *http-conditions
+
+  - name: Node-RED
+    group: Smart Home
+    url: http://node-red:1880
+    interval: 1m
+    client:
+      timeout: 10s
+    conditions: *http-conditions
+
+  - name: Forgejo
+    group: Git
+    url: http://forgejo:3000
+    interval: 1m
+    client:
+      timeout: 10s
+    conditions: *http-conditions

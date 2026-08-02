@@ -69,10 +69,11 @@ pages:
                 url: http://logs.${DOMAIN}
                 check-url: http://dozzle:8080
                 icon: di:dozzle
-              - title: Uptime Kuma
+              - title: Gatus
                 url: http://uptime.${DOMAIN}
-                check-url: http://uptime-kuma:3001
-                icon: di:uptime-kuma
+                check-url: http://gatus:8080
+                alt-status-codes: [401]
+                icon: di:gatus
               - title: Backrest
                 url: http://backup.${DOMAIN}
                 check-url: http://backrest:9898

@@ -321,26 +321,28 @@ services:
       - "traefik.http.routers.excalidraw-secure.tls=true"
       - "traefik.http.services.excalidraw.loadbalancer.server.port=80"
 
-  # Uptime Kuma Monitoring
-  uptime-kuma:
-    image: louislam/uptime-kuma:2
-    container_name: uptime-kuma
+  # Gatus Monitoring
+  gatus:
+    image: ghcr.io/twin/gatus:stable
+    container_name: gatus
     restart: unless-stopped
-    environment:
-      - TZ=${TZ:-Europe/Madrid}
+    env_file:
+      - ./secrets/gatus.env
     volumes:
-      - ./data/uptime-kuma:/app/data
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./config/gatus:/config:ro
+      - ./data/gatus:/var/lib/gatus
     networks:
       - traefik
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.uptime-kuma.rule=Host(`uptime.${DOMAIN:?set DOMAIN=n33lab.com}`)"
-      - "traefik.http.routers.uptime-kuma.entrypoints=web"
-      - "traefik.http.routers.uptime-kuma-secure.rule=Host(`uptime.${DOMAIN:?set DOMAIN=n33lab.com}`)"
-      - "traefik.http.routers.uptime-kuma-secure.entrypoints=websecure"
-      - "traefik.http.routers.uptime-kuma-secure.tls=true"
-      - "traefik.http.services.uptime-kuma.loadbalancer.server.port=3001"
+      - "traefik.http.routers.gatus.rule=Host(`uptime.${DOMAIN:?set DOMAIN=n33lab.com}`)"
+      - "traefik.http.routers.gatus.entrypoints=web"
+      - "traefik.http.routers.gatus-secure.rule=Host(`uptime.${DOMAIN:?set DOMAIN=n33lab.com}`)"
+      - "traefik.http.routers.gatus-secure.entrypoints=websecure"
+      - "traefik.http.routers.gatus-secure.tls=true"
+      - "traefik.http.services.gatus.loadbalancer.server.port=8080"
 
   # Dozzle - Real-time Log Viewer
   dozzle:
