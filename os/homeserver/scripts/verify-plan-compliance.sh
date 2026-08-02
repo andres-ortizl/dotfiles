@@ -46,7 +46,7 @@ task-5-https-auth.txt
 task-6-production-cutover.txt
 task-7-mqtt-auth.txt
 task-8-mqtt-tls.txt
-task-9-dozzle-agent.txt
+task-9-docker-socket-proxy.txt
 task-10-controlled-updates.txt
 task-11-firewall.txt
 task-12-legacy-retirement.txt
@@ -82,7 +82,7 @@ for hostname in $hostnames; do
 done
 grep -Fq '22,53,80,443,222,1883,3333,6052,6881,8095,8097,8123,8883,9090,9443,9999' "$plan" || result=1
 grep -Fq '53,67,68,6881' "$plan" || result=1
-for rollback in 'DNS/Pi-hole' 'Traefik/ACME' MQTT 'Dozzle Agent' Watchtower/update Firewall UGREEN URLs/config; do
+for rollback in 'DNS/Pi-hole' 'Traefik/ACME' MQTT 'Docker socket proxy' Watchtower/update Firewall UGREEN URLs/config; do
     grep -Fiq "$rollback" "$plan" || result=1
 done
 

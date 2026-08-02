@@ -122,7 +122,15 @@ verify_dynamic_service esphome host.docker.internal:6052
 verify_dynamic_service musicassistant host.docker.internal:8095
 count_fixed 1 'certResolver: cloudflare' "$dynamic_dir/services.yml"
 count_fixed 1 'permanent: true' "$dynamic_dir/services.yml"
-count_fixed 3 'middlewares: [admin-auth]' "$dynamic_dir/services.yml"
+count_fixed 6 'middlewares: [admin-auth]' "$dynamic_dir/services.yml"
+for protected_router in dashboard dockhand dozzle glance gatus node-red; do
+  awk -v target="$protected_router" '
+    $0 == "    " target ":" { active=1; found=0; next }
+    active && /^    [A-Za-z0-9-]+:/ { exit !found }
+    active && /middlewares: \[admin-auth\]/ { found=1 }
+    END { exit !(active && found) }
+  ' "$dynamic_dir/services.yml" || fail "$protected_router lacks admin-auth"
+done
 count_fixed 1 'usersFile: /run/secrets/traefik-users' "$dynamic_dir/services.yml"
 [ "$(grep -F -h -c 'Host(`' "$dynamic_dir"/*.yml | awk '{ total += $1 } END { print total + 0 }')" -eq 17 ] || fail 'expected 17 HTTPS routers'
 if grep -E 'traefik\.(enable|http)' "$compose" >/dev/null; then
@@ -132,7 +140,7 @@ fi
 for prefix in immich qbittorrent files chat excalidraw pihole traefik docker logs uptime backup ha ha-esphome ha-music ha-flows; do
   count_fixed 1 "url: https://$prefix.\${DOMAIN}" "$glance"
 done
-count_fixed 1 'url: https://traefik.${DOMAIN}/dashboard/' "$glance"
+count_fixed 1 "url: https://traefik.\${DOMAIN}/dashboard/" "$glance"
 count_fixed 1 'url: https://192.168.1.33:9443/desktop/?os=ugospro#/' "$glance"
 count_fixed 1 "homepage.href=https://pihole.${dollar}{DOMAIN:?set DOMAIN=n33lab.com}/admin" "$compose"
 count_fixed 1 "FORGEJO__server__DOMAIN=git.${dollar}{DOMAIN:?set DOMAIN=n33lab.com}" "$compose"
