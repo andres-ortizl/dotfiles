@@ -74,13 +74,15 @@ cp "$compose" "$root/docker-compose.yml"
 cp "$homeserver_dir/deploy.sh" "$root/deploy.sh"
 mkdir -p "$root/config" "$root/config/traefik/dynamic"
 cp -R "$homeserver_dir/config/traefik/dynamic/." "$root/config/traefik/dynamic/"
-for file in cloudflare_dns_api_token traefik-users immich-server.env immich-ml.env gatus.env esphome.env; do
+for file in cloudflare_dns_api_token traefik-users immich-server.env immich-ml.env gatus.env esphome.env mqtt-passwd mqtt-acl; do
   : >"$root/secrets/$file"
   chmod 600 "$root/secrets/$file"
 done
 printf '%s\n' fixture >"$root/secrets/cloudflare_dns_api_token"
 printf '%s\n' 'DB_USERNAME=postgres' 'DB_PASSWORD=fixture' 'DB_DATABASE_NAME=immich' >"$root/secrets/immich-server.env"
 printf '%s\n' 'ESPHOME_USERNAME=fixture' 'ESPHOME_PASSWORD=fixture' 'ESPHOME_TRUSTED_DOMAINS=example.test' >"$root/secrets/esphome.env"
+printf '%s\n' "fixture:\$2b\$12\$01234567890123456789012345678901234567890123456789012" >"$root/secrets/mqtt-passwd"
+printf '%s\n' 'user fixture' 'topic readwrite home/fixture' >"$root/secrets/mqtt-acl"
 printf '%s\n' 'GATUS_USERNAME=fixture' >"$root/secrets/gatus.env"
 printf 'GATUS_PASSWORD_BCRYPT_BASE64=%s\n' "$(printf '%s' "\$2a\$10\$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy" | base64 | tr -d '\n')" >>"$root/secrets/gatus.env"
 
@@ -96,6 +98,16 @@ PIHOLE_PASSWORD=fixture
 EOF
 chmod 600 "$root/.env"
 PATH="$root/bin:$PATH" HOME="$root" /bin/sh "$root/deploy.sh" --check >/dev/null || fail 'fake mode-600 Compose preflight failed'
+rm "$root/secrets/mqtt-passwd"
+expect_fail env PATH="$root/bin:$PATH" HOME="$root" /bin/sh "$root/deploy.sh" --check
+printf '%s\n' "fixture:\$2b\$12\$01234567890123456789012345678901234567890123456789012" >"$root/secrets/mqtt-passwd"
+chmod 644 "$root/secrets/mqtt-passwd"
+expect_fail env PATH="$root/bin:$PATH" HOME="$root" /bin/sh "$root/deploy.sh" --check
+chmod 600 "$root/secrets/mqtt-passwd"
+printf '%s\n' 'invalid' >"$root/secrets/mqtt-acl"
+expect_fail env PATH="$root/bin:$PATH" HOME="$root" /bin/sh "$root/deploy.sh" --check
+printf '%s\n' 'user fixture' 'topic readwrite home/fixture' >"$root/secrets/mqtt-acl"
+chmod 600 "$root/secrets/mqtt-acl"
 
 sed 's#ACME_CA_SERVER=https://acme-v02.api.letsencrypt.org/directory#ACME_CA_SERVER=https://acme-staging-v02.api.letsencrypt.org/directory#; s#ACME_STORAGE=/letsencrypt/acme.json#ACME_STORAGE=/letsencrypt/acme-staging.json#' "$root/.env" >"$root/staging.env"
 chmod 600 "$root/staging.env"
