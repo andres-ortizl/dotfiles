@@ -11,6 +11,9 @@ networks:
     ipam:
       config:
         - subnet: 172.31.0.0/16
+  dozzle_agent:
+    driver: bridge
+    internal: true
 
 volumes:
   model-cache:
@@ -287,10 +290,20 @@ services:
     image: amir20/dozzle@sha256:1c1060cfb5402093c4e0f03f3534d7deaffeb0a6f6dd034e7c5f244603f35fb3
     container_name: dozzle
     restart: unless-stopped
+    environment:
+      - DOZZLE_REMOTE_AGENT=dozzle-agent:7007
+    networks:
+      - traefik
+      - dozzle_agent
+  dozzle-agent:
+    image: amir20/dozzle@sha256:1c1060cfb5402093c4e0f03f3534d7deaffeb0a6f6dd034e7c5f244603f35fb3
+    container_name: dozzle-agent
+    restart: unless-stopped
+    command: agent
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
-      - traefik
+      - dozzle_agent
   # FileBrowser Quantum - File Server Web UI
   filebrowser:
     image: gtstef/filebrowser@sha256:fc213590ebc090cb8205125cd3ecdfa9066b9ed4a0b53fe2570972d6a3379e73
