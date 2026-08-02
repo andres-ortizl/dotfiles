@@ -122,3 +122,104 @@ pages:
                 title: Ars Technica
               - url: https://www.theverge.com/rss/index.xml
                 title: The Verge
+
+  - name: Briefing
+    columns:
+      - size: full
+        widgets:
+          - type: hacker-news
+            sort-by: top
+            limit: 8
+            collapse-after: 5
+            cache: 30m
+
+          - type: rss
+            title: AI & Tech
+            style: horizontal-cards
+            cache: 6h
+            limit: 9
+            collapse-after: 6
+            feeds:
+              - url: https://www.technologyreview.com/topic/artificial-intelligence/feed/
+                title: MIT Technology Review AI
+                limit: 3
+              - url: https://techcrunch.com/category/artificial-intelligence/feed/
+                title: TechCrunch AI
+                limit: 3
+              - url: https://tldr.tech/api/rss/ai
+                title: TLDR AI
+                limit: 3
+                headers:
+                  Accept: application/rss+xml, application/xml;q=0.9, */*;q=0.8
+                  User-Agent: Glance RSS reader
+
+          - type: rss
+            title: España
+            style: detailed-list
+            cache: 3h
+            limit: 9
+            collapse-after: 6
+            feeds:
+              - url: https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada
+                title: El País
+                limit: 3
+              - url: https://www.eldiario.es/rss/
+                title: elDiario.es
+                limit: 3
+              - url: https://www.xataka.com/index.xml
+                title: Xataka
+                limit: 3
+
+          - type: rss
+            title: Mundo
+            style: vertical-list
+            cache: 3h
+            limit: 8
+            collapse-after: 5
+            feeds:
+              - url: https://feeds.bbci.co.uk/news/world/rss.xml
+                title: BBC World
+                limit: 4
+              - url: https://www.theguardian.com/world/rss
+                title: The Guardian World
+                limit: 4
+
+      - size: small
+        widgets:
+          - type: bookmarks
+            title: Quick Reads
+            groups:
+              - title: Daily Briefings
+                links:
+                  - title: daily.dev
+                    url: https://app.daily.dev/
+                  - title: AlphaSignal Archive
+                    url: https://alphasignal.ai/archive
+                  - title: TLDR AI Archive
+                    url: https://tldr.tech/ai/archives
+
+          - type: releases
+            cache: 1d
+            limit: 9
+            collapse-after: 5
+            repositories:
+              - home-assistant/core
+              - immich-app/immich
+              - traefik/traefik
+              - authelia/authelia
+              - TwiN/gatus
+              - esphome/esphome
+              - node-red/node-red
+              - open-webui/open-webui
+              - amir20/dozzle
+
+          - type: monitor
+            title: External Status
+            cache: 10m
+            sites:
+              - title: GitHub Status
+                url: https://www.githubstatus.com/
+              - title: OpenAI Status
+                url: https://status.openai.com/
+              - title: Cloudflare Status
+                url: https://www.cloudflarestatus.com/
