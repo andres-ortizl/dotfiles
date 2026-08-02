@@ -26,6 +26,16 @@ if grep -Eq '^[[:space:]]*watchtower:|com\.centurylinklabs\.watchtower\.enable' 
 fi
 [ -x "$capture" ] || fail 'capture-image-lock.sh is not executable'
 [ -f "$prompt" ] && [ ! -L "$prompt" ] || fail 'UPDATE_IMAGES.md is missing'
+"$scripts_dir/test-image-pins.sh" "$homeserver_dir/docker-compose.yml" >/dev/null \
+  || fail 'Compose images are not all pinned to the expected digests'
+tailscale_caps=$(awk '
+  /^  tailscale:$/ { in_service = 1; next }
+  in_service && /^  [A-Za-z0-9-]+:$/ { exit }
+  in_service && /^[[:space:]]{4}cap_add:$/ { in_caps = 1; next }
+  in_caps && /^[[:space:]]{4}[A-Za-z0-9_-]+:/ { in_caps = 0 }
+  in_caps && /^[[:space:]]*-[[:space:]]+[A-Za-z_]+$/ { print $2 }
+' "$homeserver_dir/docker-compose.yml" | paste -sd, -)
+[ "$tailscale_caps" = NET_ADMIN ] || fail 'Tailscale capabilities drifted from NET_ADMIN-only'
 grep -Fq 'compose config --images' "$capture" && fail 'capture still uses ambiguous Compose image enumeration'
 grep -Fq -- "--format '{{.Config.Image}}'" "$capture" || fail 'capture does not inspect the running configured image'
 

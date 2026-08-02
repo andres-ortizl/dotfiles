@@ -112,7 +112,6 @@ services:
       - /dev/net/tun:/dev/net/tun
     cap_add:
       - NET_ADMIN
-      - SYS_MODULE
     networks:
       - traefik
       - pihole_network

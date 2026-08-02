@@ -56,6 +56,8 @@ test_path="$root/bin:$PATH"
 
 task_files='task-1-deploy-preflight.txt task-2-pihole-dns.txt task-3-hostname-matrix.txt task-4-acme-staging.txt task-5-https-auth.txt task-6-production-cutover.txt task-7-mqtt-auth.txt task-8-mqtt-tls.txt task-9-dozzle-agent.txt task-10-controlled-updates.txt task-11-firewall.txt task-12-legacy-retirement.txt task-13-end-to-end.txt'
 for file in $task_files; do printf '%s\n' 'status=PASS' >"$root/evidence/$file"; chmod 600 "$root/evidence/$file"; done
+assert_mode "$root/evidence/task-10-controlled-updates.txt"
+assert_allowlisted "$root/evidence/task-10-controlled-updates.txt"
 cat >"$root/plan.md" <<'EOF'
 task-1-deploy-preflight.txt task-2-pihole-dns.txt task-3-hostname-matrix.txt task-4-acme-staging.txt
 task-5-https-auth.txt task-6-production-cutover.txt task-7-mqtt-auth.txt task-8-mqtt-tls.txt
