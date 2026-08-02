@@ -52,6 +52,13 @@ assert secret_targets == {
     "authelia_users": "authelia-users",
 }
 assert config["server"]["address"] == "tcp4://:9091"
+forward_auth = config["server"]["endpoints"]["authz"]["forward-auth"]
+assert forward_auth == {
+    "implementation": "ForwardAuth",
+    "authn_strategies": [{"name": "CookieSession"}],
+}
+assert "HeaderAuthorization" not in str(forward_auth)
+assert "Basic" not in str(forward_auth)
 assert config["log"]["level"] == "info"
 assert config["log"]["file_path"] == "/dev/stdout"
 assert config["authentication_backend"]["file"]["path"] == "/run/secrets/authelia-users"

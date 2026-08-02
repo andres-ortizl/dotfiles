@@ -1,5 +1,11 @@
 server:
   address: tcp4://:9091
+  endpoints:
+    authz:
+      forward-auth:
+        implementation: ForwardAuth
+        authn_strategies:
+          - name: CookieSession
 
 log:
   level: info
