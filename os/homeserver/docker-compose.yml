@@ -85,9 +85,12 @@ services:
       - ./config/authelia/configuration.yml:/config/configuration.yml:ro
       - ./data/authelia:/data
     secrets:
-      - authelia_jwt
-      - authelia_session
-      - authelia_storage_encryption
+      - source: authelia_jwt
+        target: authelia-jwt
+      - source: authelia_session
+        target: authelia-session
+      - source: authelia_storage_encryption
+        target: authelia-storage-encryption
       - source: authelia_users
         target: authelia-users
     networks:

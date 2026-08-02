@@ -40,10 +40,16 @@ assert service["environment"] == [
     "AUTHELIA_SESSION_SECRET_FILE=/run/secrets/authelia-session",
     "AUTHELIA_STORAGE_ENCRYPTION_KEY_FILE=/run/secrets/authelia-storage-encryption",
 ]
-secret_names = {item if isinstance(item, str) else item["source"] for item in service["secrets"]}
-assert secret_names == {
-    "authelia_jwt", "authelia_session", "authelia_storage_encryption",
-    "authelia_users",
+secret_targets = {
+    item if isinstance(item, str) else item["source"]:
+    item if isinstance(item, str) else item.get("target", item["source"])
+    for item in service["secrets"]
+}
+assert secret_targets == {
+    "authelia_jwt": "authelia-jwt",
+    "authelia_session": "authelia-session",
+    "authelia_storage_encryption": "authelia-storage-encryption",
+    "authelia_users": "authelia-users",
 }
 assert config["server"]["address"] == "tcp4://:9091"
 assert config["log"]["level"] == "info"
