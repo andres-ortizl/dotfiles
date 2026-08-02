@@ -56,7 +56,7 @@ qbittorrent.n33lab.com	http	qbittorrent	qbittorrent:8080	6881/tcp,6881/udp=bitto
 immich.n33lab.com	http	immich	immich-server:2283	none
 chat.n33lab.com	http	openwebui	openwebui:8080	none
 excalidraw.n33lab.com	http	excalidraw	excalidraw:80	none
-uptime.n33lab.com	http	uptime-kuma	uptime-kuma:3001	none
+uptime.n33lab.com	http	gatus	gatus:8080	none
 logs.n33lab.com	http	dozzle	dozzle:8080	none
 files.n33lab.com	http	filebrowser	filebrowser:80	none
 backup.n33lab.com	http	backrest	backrest:9898	none
@@ -121,7 +121,7 @@ verify_compose_route qbittorrent.n33lab.com qbittorrent qbittorrent:8080
 verify_compose_route immich.n33lab.com immich immich-server:2283
 verify_compose_route chat.n33lab.com openwebui openwebui:8080
 verify_compose_route excalidraw.n33lab.com excalidraw excalidraw:80
-verify_compose_route uptime.n33lab.com uptime-kuma uptime-kuma:3001
+verify_compose_route uptime.n33lab.com gatus gatus:8080
 verify_compose_route logs.n33lab.com dozzle dozzle:8080
 verify_compose_route files.n33lab.com filebrowser filebrowser:80
 verify_compose_route backup.n33lab.com backrest backrest:9898

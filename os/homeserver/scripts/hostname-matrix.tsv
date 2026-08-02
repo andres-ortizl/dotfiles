@@ -6,7 +6,7 @@ qbittorrent.n33lab.com	http	qbittorrent	qbittorrent:8080	6881/tcp,6881/udp=bitto
 immich.n33lab.com	http	immich	immich-server:2283	none
 chat.n33lab.com	http	openwebui	openwebui:8080	none
 excalidraw.n33lab.com	http	excalidraw	excalidraw:80	none
-uptime.n33lab.com	http	uptime-kuma	uptime-kuma:3001	none
+uptime.n33lab.com	http	gatus	gatus:8080	none
 logs.n33lab.com	http	dozzle	dozzle:8080	none
 files.n33lab.com	http	filebrowser	filebrowser:80	none
 backup.n33lab.com	http	backrest	backrest:9898	none
