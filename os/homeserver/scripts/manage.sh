@@ -103,9 +103,11 @@ lock_images() {
     local_id=$(run_bounded docker image inspect --format '{{.Id}}' "$configured") || fail 'configured image is unavailable locally'
     [ "$running_id" = "$local_id" ] || fail 'running container does not use configured local image'
     repository=$(repo_name "$configured")
+    configured_digest=${configured##*@sha256:}
+    printf '%s\n' "$configured_digest" | grep -Eq '^[0-9a-f]{64}$' || fail 'configured image digest is invalid'
     run_bounded docker image inspect --format '{{range .RepoDigests}}{{println .}}{{end}}' "$configured" >"$temporary_dir/digests" || fail 'unable to inspect RepoDigests'
-    awk -v repository="$repository" '
-      $0 ~ /^[A-Za-z0-9][A-Za-z0-9._/:+-]*@sha256:[0-9a-f]+$/ { digest=$0; sub(/^.*@sha256:/, "", digest); if (length(digest) != 64) next; name=$0; sub(/@sha256:.*/, "", name); sub(/^docker.io\//, "", name); sub(/^index.docker.io\//, "", name); if (name == repository) print $0 }
+    awk -v repository="$repository" -v configured_digest="$configured_digest" '
+      $0 ~ /^[A-Za-z0-9][A-Za-z0-9._/:+-]*@sha256:[0-9a-f]+$/ { digest=$0; sub(/^.*@sha256:/, "", digest); if (length(digest) != 64) next; name=$0; sub(/@sha256:.*/, "", name); sub(/^docker.io\//, "", name); sub(/^index.docker.io\//, "", name); if (name == repository && digest == configured_digest) print $0 }
     ' "$temporary_dir/digests" | sort -u >"$temporary_dir/matches"
     [ "$(wc -l <"$temporary_dir/matches")" -eq 1 ] || fail 'matching RepoDigest is missing or ambiguous'
     repo_digest=$(cat "$temporary_dir/matches")
