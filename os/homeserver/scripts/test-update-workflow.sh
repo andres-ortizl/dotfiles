@@ -26,6 +26,8 @@ if grep -Eq '^[[:space:]]*watchtower:|com\.centurylinklabs\.watchtower\.enable' 
 fi
 [ -x "$capture" ] || fail 'capture-image-lock.sh is not executable'
 [ -f "$prompt" ] && [ ! -L "$prompt" ] || fail 'UPDATE_IMAGES.md is missing'
+grep -Fq 'compose config --images' "$capture" && fail 'capture still uses ambiguous Compose image enumeration'
+grep -Fq -- "--format '{{.Config.Image}}'" "$capture" || fail 'capture does not inspect the running configured image'
 
 mkdir -m 700 "$root/bin" "$root/project"
 printf '%s\n' 'services:' '  app:' '    image: ghcr.io/example/app:1' >"$root/project/docker-compose.yml"
@@ -55,11 +57,16 @@ case $* in
   'compose version') [ "${COMPOSE_FAIL:-0}" != 1 ] ;;
   compose*' config --quiet') exit 0 ;;
   compose*' config --services') printf '%s\n' app ;;
-  compose*' config --images app') printf '%s\n' 'ghcr.io/example/app:1' ;;
+  compose*' config --images app')
+    printf '%s\n' 'ghcr.io/example/app:1' 'ghcr.io/example/sidecar:2'
+    ;;
   compose*' ps -q app')
     [ "${IMAGE_CASE:-happy}" != missing ] && printf '%s\n' container-id
     ;;
-  inspect*' --type container '*' container-id')
+  inspect*'{{.Config.Image}}'*' container-id')
+    printf '%s\n' 'ghcr.io/example/app:1'
+    ;;
+  inspect*'{{.Image}}'*' container-id')
     printf '%s\n' 'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
     ;;
   image*' inspect '*'{{.Id}}'*)

@@ -96,17 +96,18 @@ chmod 600 "$temporary"
 printf 'service\tconfigured_image\timage_id\trepo_digests\n' >"$temporary"
 
 while IFS= read -r service; do
-  configured_image=$(compose config --images "$service") || fail 'unable to read a configured image'
-  [ "$(printf '%s\n' "$configured_image" | wc -l)" -eq 1 ] \
-    || fail 'configured image reference is ambiguous'
-  printf '%s\n' "$configured_image" | grep -Eq '^[A-Za-z0-9][A-Za-z0-9._/:@+-]*$' \
-    || fail 'configured image reference is invalid'
-
   container_ids=$(compose ps -q "$service") || fail 'unable to enumerate running containers'
   [ "$(printf '%s\n' "$container_ids" | awk 'NF { count++ } END { print count + 0 }')" -eq 1 ] \
     || fail 'service must have exactly one running container'
   container_id=$(printf '%s\n' "$container_ids" | awk 'NF { print; exit }')
   printf '%s\n' "$container_id" | grep -Eq '^[A-Za-z0-9_.-]+$' || fail 'container identifier is invalid'
+
+  configured_image=$(run_bounded docker inspect --type container --format '{{.Config.Image}}' "$container_id") \
+    || fail 'unable to inspect the configured image reference'
+  [ "$(printf '%s\n' "$configured_image" | wc -l)" -eq 1 ] \
+    || fail 'configured image reference is ambiguous'
+  printf '%s\n' "$configured_image" | grep -Eq '^[A-Za-z0-9][A-Za-z0-9._/:@+-]*$' \
+    || fail 'configured image reference is invalid'
 
   container_image_id=$(run_bounded docker inspect --type container --format '{{.Image}}' "$container_id") \
     || fail 'unable to inspect the running image identity'
