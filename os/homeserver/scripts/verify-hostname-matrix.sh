@@ -41,8 +41,9 @@ migration="$homeserver_dir/forgejo-migrate.sh"
 env_example="$homeserver_dir/.env.example"
 deploy="$homeserver_dir/deploy.sh"
 recovery="$homeserver_dir/recover-env.sh"
+image_pins="$script_dir/test-image-pins.sh"
 
-for file in "$matrix" "$compose" "$glance" "$migration" "$env_example" "$deploy" "$recovery" \
+for file in "$matrix" "$compose" "$glance" "$migration" "$env_example" "$deploy" "$recovery" "$image_pins" \
   "$dynamic_dir/homeassistant.yml" "$dynamic_dir/esphome.yml" "$dynamic_dir/musicassistant.yml"; do
   [ -f "$file" ] && [ ! -L "$file" ] || fail "required regular file missing: $file"
 done
@@ -160,6 +161,8 @@ for published_port in '"80:80"' '"443:443"' '"9090:8080"' \
   '"6881:6881"' '"6881:6881/udp"' '"1883:1883"' '"222:22"'; do
   count_fixed 1 "$published_port" "$compose"
 done
+
+"$image_pins" "$compose" >/dev/null
 [ "$(grep -c '^[[:space:]]*ports:$' "$compose")" -eq 5 ] || fail 'unexpected direct-port publication block'
 
 if grep -E -n 'lab\.lan|nasito\.local|192\.168\.1\.193|\$\{DOMAIN:-localhost\}|(^|[^A-Za-z0-9-])home\.\$\{DOMAIN' \
@@ -168,4 +171,4 @@ if grep -E -n 'lab\.lan|nasito\.local|192\.168\.1\.193|\$\{DOMAIN:-localhost\}|(
   fail 'active tracked source contains a legacy hostname, address, or domain fallback'
 fi
 
-printf '%s\n' 'hostname_matrix_status=PASS'
+printf '%s\n' 'hostname_matrix_status=PASS' 'image_pin_check=PASS'

@@ -32,6 +32,7 @@ make_fixture() {
   cp "$homeserver_dir/config/glance/glance.yml" "$destination/config/glance/"
   cp "$homeserver_dir/config/traefik/dynamic/"*.yml "$destination/config/traefik/dynamic/"
   cp "$scripts_dir/hostname-matrix.tsv" "$destination/scripts/"
+  cp "$scripts_dir/test-image-pins.sh" "$destination/scripts/"
 }
 
 expect_ok "$verifier" --help
