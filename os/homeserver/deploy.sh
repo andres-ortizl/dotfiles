@@ -67,11 +67,14 @@ cd "$repo_root"
 homeserver_env="$script_dir/.env"
 immich_server_env="$script_dir/secrets/immich-server.env"
 immich_ml_env="$script_dir/secrets/immich-ml.env"
+gatus_env="$script_dir/secrets/gatus.env"
+bcrypt_pattern='^[$]2[aby][$][0-9]{2}[$][./A-Za-z0-9]{53}$'
 
 [ -s "$homeserver_env" ] || fail ".env is missing or empty; run ./recover-env.sh"
 check_private_file "$homeserver_env"
 check_private_file "$immich_server_env"
 check_private_file "$immich_ml_env"
+check_private_file "$gatus_env"
 
 [ "$(file_value "$homeserver_env" DOMAIN 2>/dev/null || true)" = n33lab.com ] || fail "DOMAIN must appear exactly once and equal n33lab.com"
 validate_env_names "$immich_server_env" \
@@ -80,6 +83,14 @@ validate_env_names "$immich_server_env" \
 validate_env_names "$immich_ml_env" \
   "TZ IMMICH_ENV IMMICH_LOG_LEVEL NO_COLOR IMMICH_HOST IMMICH_PORT MACHINE_LEARNING_MODEL_TTL MACHINE_LEARNING_MODEL_TTL_POLL_S MACHINE_LEARNING_CACHE_FOLDER MACHINE_LEARNING_REQUEST_THREADS MACHINE_LEARNING_MODEL_INTER_OP_THREADS MACHINE_LEARNING_MODEL_INTRA_OP_THREADS MACHINE_LEARNING_WORKERS MACHINE_LEARNING_DEVICE_IDS" \
   "" || fail "immich-ml.env has an invalid schema"
+validate_env_names "$gatus_env" \
+  "GATUS_USERNAME GATUS_PASSWORD_BCRYPT_BASE64" \
+  "GATUS_USERNAME GATUS_PASSWORD_BCRYPT_BASE64" || fail "gatus.env has an invalid schema"
+printf '%s\n' "$(file_value "$gatus_env" GATUS_USERNAME)" | grep -Eq '^[A-Za-z0-9._-]+$' \
+  || fail "gatus.env has an invalid username"
+printf '%s' "$(file_value "$gatus_env" GATUS_PASSWORD_BCRYPT_BASE64)" | base64 -d 2>/dev/null \
+  | grep -Eq "$bcrypt_pattern" \
+  || fail "gatus.env password must be bcrypt-base64"
 
 for key in DB_USERNAME DB_PASSWORD DB_DATABASE_NAME; do
   [ "$(file_value "$homeserver_env" "$key" 2>/dev/null || true)" = "$(file_value "$immich_server_env" "$key" 2>/dev/null || true)" ] \

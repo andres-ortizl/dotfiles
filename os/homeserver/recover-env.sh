@@ -100,7 +100,8 @@ deploy_gid=${SUDO_GID:-$(id -g)}
 stage_dir=$(mktemp -d "${TMPDIR:-/tmp}/n33lab-recovery.XXXXXX")
 chmod 700 "$stage_dir"
 
-attachments="homeserver.env immich-server.env immich-ml.env cloudflare_dns_api_token traefik-users esphome.env mqtt-passwd mqtt-acl qa-manifest.env qa-nas-credentials.env qa-external.env qa-worker.env"
+attachments="homeserver.env immich-server.env immich-ml.env gatus.env cloudflare_dns_api_token traefik-users esphome.env mqtt-passwd mqtt-acl qa-manifest.env qa-nas-credentials.env qa-external.env qa-worker.env"
+bcrypt_pattern='^[$]2[aby][$][0-9]{2}[$][./A-Za-z0-9]{53}$'
 
 destination() {
   case "$1" in
@@ -176,7 +177,15 @@ validate_attachment() {
     immich-ml.env)
       validate_env_names "$2" \
         "TZ IMMICH_ENV IMMICH_LOG_LEVEL NO_COLOR IMMICH_HOST IMMICH_PORT MACHINE_LEARNING_MODEL_TTL MACHINE_LEARNING_MODEL_TTL_POLL_S MACHINE_LEARNING_CACHE_FOLDER MACHINE_LEARNING_REQUEST_THREADS MACHINE_LEARNING_MODEL_INTER_OP_THREADS MACHINE_LEARNING_MODEL_INTRA_OP_THREADS MACHINE_LEARNING_WORKERS MACHINE_LEARNING_DEVICE_IDS" \
-        "" 1
+      "" 1
+      ;;
+    gatus.env)
+      validate_env_names "$2" \
+        "GATUS_USERNAME GATUS_PASSWORD_BCRYPT_BASE64" \
+        "GATUS_USERNAME GATUS_PASSWORD_BCRYPT_BASE64" 0 \
+        && printf '%s\n' "$(env_value "$2" GATUS_USERNAME)" | grep -Eq '^[A-Za-z0-9._-]+$' \
+        && printf '%s' "$(env_value "$2" GATUS_PASSWORD_BCRYPT_BASE64)" | base64 -d 2>/dev/null \
+          | grep -Eq "$bcrypt_pattern"
       ;;
     esphome.env)
       validate_env_names "$2" "USERNAME PASSWORD" "USERNAME PASSWORD" 0
@@ -311,4 +320,4 @@ cleanup_stage || fail "unable to remove recovery staging data"
 transaction_active=false
 cleanup_dir "$transaction_dir" || fail "unable to remove recovery transaction data"
 transaction_dir=
-printf '%s\n' "restored 12 validated runtime attachments"
+printf '%s\n' "restored 13 validated runtime attachments"
