@@ -33,7 +33,7 @@ assert "ports" not in service
 assert service["networks"] == ["traefik"]
 assert "./config/authelia/configuration.yml:/config/configuration.yml:ro" in service["volumes"]
 assert "./data/authelia:/data" in service["volumes"]
-assert service["healthcheck"]["test"] == ["CMD", "authelia", "healthcheck"]
+assert "healthcheck" not in service
 assert service["environment"] == [
     "X_AUTHELIA_CONFIG_FILTERS=template",
     "AUTHELIA_IDENTITY_VALIDATION_RESET_PASSWORD_JWT_SECRET_FILE=/run/secrets/authelia-jwt",

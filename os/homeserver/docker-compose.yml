@@ -95,8 +95,6 @@ services:
         target: authelia-users
     networks:
       - traefik
-    healthcheck:
-      test: ["CMD", "authelia", "healthcheck"]
   # Glance Dashboard
   glance:
     image: glanceapp/glance@sha256:32ab73d80f2b8b5fb0735b0431deb36b93fbb6b2fb43592449b0178c8b83e350
