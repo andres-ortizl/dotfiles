@@ -39,6 +39,9 @@ tmp
 # Homeserver Services
 # Environment files with sensitive data
 os/homeserver/.env
+os/homeserver/secrets/
+os/homeserver/.recovery-*/
+os/homeserver/*.partial
 os/homeserver/data/
 os/homeserver/backups/
 os/homeserver/config/picoclaw/config.json
@@ -90,3 +93,6 @@ os/homeserver/siyuan/workspace/
 .spec
 .claude/worktrees/
 .claude/settings.local.json
+
+# Local verification evidence may contain runtime metadata
+.omo/evidence/
