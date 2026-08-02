@@ -18,7 +18,7 @@ assert_schema() {
     [ "$actual" = "$expected" ] || fail "schema mismatch: $file"
 }
 assert_allowlisted() {
-    if grep -Evq '^(check_identifier=[A-Za-z0-9-]+|timestamp_utc=[0-9TZ:+-]+|execution_node=(workstation|nas|external)|git_commit=[0-9A-Za-z._-]+|changed_path=[A-Za-z0-9_./*-]+|status=[A-Za-z_]+|file_mode=[0-7]+|listener_(address|port|protocol|probe_state)=[A-Za-z0-9:._/-]+|test_exit_code=[0-9]+|error_code=[A-Za-z0-9._-]+)$' "$1"; then
+    if grep -Evq '^(check_identifier=[A-Za-z0-9-]+|timestamp_utc=[0-9TZ:+-]+|execution_node=(workstation|nas|external)|git_commit=[0-9A-Za-z._-]+|changed_path=[A-Za-z0-9_./*-]+|status=[A-Za-z_]+|image_pin_check=PASS|file_mode=[0-7]+|listener_(address|port|protocol|probe_state)=[A-Za-z0-9:._/-]+|test_exit_code=[0-9]+|error_code=[A-Za-z0-9._-]+)$' "$1"; then
         fail "non-allowlisted evidence field: $1"
     fi
 }

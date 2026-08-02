@@ -24,6 +24,24 @@ expect_fail() {
   fi
 }
 
+assert_safe_migration() {
+  compose_file=$1
+  ignore_file=$2
+  prompt_file=$3
+  grep -Fxq 'os/homeserver/data/' "$ignore_file" || return 1
+  if grep -Eiq 'uptime-kuma|docker compose down -v|docker (volume|system|image) prune|rm[[:space:]]+(-[[:alnum:]]+[[:space:]]+)*[^#]*data/|git (reset --hard|clean)' \
+    "$compose_file" "$homeserver_dir/deploy.sh" "$homeserver_dir/recover-env.sh" "$homeserver_dir/forgejo-migrate.sh"; then
+    return 1
+  fi
+  grep -Fq "Never run \`docker compose down -v\`, any prune command" "$prompt_file" \
+    || return 1
+  grep -Fq 'destructive storage operation' "$prompt_file" \
+    || return 1
+  if grep -Eiq '^[[:space:]]*(rm[[:space:]]+(-[[:alnum:]]+[[:space:]]+)*[^#]*data/|docker compose down -v|docker (volume|system|image) prune|.*data/uptime-kuma.*(delete|remove|rm))' "$prompt_file"; then
+    return 1
+  fi
+}
+
 grep -Eq '^  gatus:$' "$compose" || fail 'Gatus service is missing'
 if grep -Eq '^  uptime-kuma:|louislam/uptime-kuma|com\.centurylinklabs\.watchtower\.enable' "$compose"; then
   fail 'legacy monitoring service remains active'
@@ -34,15 +52,21 @@ awk '
   active && /^  [A-Za-z0-9_-]+:$/ && $1 != "gatus:" { exit }
   active { print }
 ' "$compose" >"$root/gatus-service"
-for required in 'image: ghcr.io/twin/gatus:stable' './config/gatus:/config:ro' \
+for required in 'image: ghcr.io/twin/gatus@sha256:c5f210d095fa78e6efaa20ffeb14803f2ba4f10615e16a6d12087697149617f0' './config/gatus:/config:ro' \
   './data/gatus:/var/lib/gatus' './secrets/gatus.env' 'host.docker.internal:host-gateway' \
   'traefik.http.routers.gatus.rule=Host(' 'traefik.http.services.gatus.loadbalancer.server.port=8080'; do
   grep -Fq "$required" "$root/gatus-service" || fail "Gatus Compose contract is missing: $required"
 done
 grep -Fq '/var/run/docker.sock' "$root/gatus-service" && fail 'Gatus has Docker socket access'
 grep -Fq './data/uptime-kuma' "$compose" && fail 'new Compose references old Kuma data'
-git show HEAD:os/homeserver/docker-compose.yml | grep -Fq './data/uptime-kuma:/app/data' \
-  || fail 'old Kuma data path is not preserved in Git history'
+assert_safe_migration "$compose" "$homeserver_dir/../../.gitignore" "$homeserver_dir/UPDATE_IMAGES.md" \
+  || fail 'migration safety contract failed'
+
+sed '/^services:/a\  unsafe:\n    image: alpine:latest\n    command: docker compose down -v' "$compose" >"$root/unsafe-compose.yml"
+expect_fail assert_safe_migration "$root/unsafe-compose.yml" "$homeserver_dir/../../.gitignore" "$homeserver_dir/UPDATE_IMAGES.md"
+cp "$homeserver_dir/UPDATE_IMAGES.md" "$root/unsafe-update.md"
+printf '%s\n' 'rm -rf ./data/uptime-kuma' >>"$root/unsafe-update.md"
+expect_fail assert_safe_migration "$compose" "$homeserver_dir/../../.gitignore" "$root/unsafe-update.md"
 
 [ -f "$config" ] && [ ! -L "$config" ] || fail 'tracked Gatus config is missing'
 cat >"$root/validate.py" <<'PY'

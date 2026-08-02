@@ -61,7 +61,7 @@ for file in runtime.txt external.txt; do
     [ "$(stat -c %u "$incoming/$file")" = "$(id -u)" ] && [ "$(stat -c %u "$incoming/$checksum")" = "$(id -u)" ] || fail "wrong transferred owner: $file"
     grep -Eq "^[0-9a-f]{64}  $file$" "$incoming/$checksum" || fail "invalid checksum record: $file"
     (cd "$incoming" && sha256sum -c "$checksum" >/dev/null 2>&1) || fail "checksum mismatch: $file"
-    if grep -Evq '^(check_identifier=[A-Za-z0-9-]+|timestamp_utc=[0-9TZ:+-]+|execution_node=(nas|external)|git_commit=[0-9a-f]+|changed_path=[A-Za-z0-9_./*-]+|status=(PASS|FAIL|blocked|reference_validated)|file_mode=[0-7]+|listener_(address|port|protocol|probe_state)=[A-Za-z0-9:._/-]+|test_exit_code=[0-9]+|error_code=[A-Za-z0-9._-]+)$' "$incoming/$file"; then
+    if grep -Evq '^(check_identifier=[A-Za-z0-9-]+|timestamp_utc=[0-9TZ:+-]+|execution_node=(nas|external)|git_commit=[0-9a-f]+|changed_path=[A-Za-z0-9_./*-]+|status=(PASS|FAIL|blocked|reference_validated)|image_pin_check=PASS|file_mode=[0-7]+|listener_(address|port|protocol|probe_state)=[A-Za-z0-9:._/-]+|test_exit_code=[0-9]+|error_code=[A-Za-z0-9._-]+)$' "$incoming/$file"; then
         fail "non-allowlisted evidence field: $file"
     fi
 done
