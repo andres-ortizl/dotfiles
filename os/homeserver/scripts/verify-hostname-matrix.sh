@@ -66,7 +66,7 @@ ha-esphome.n33lab.com	http	esphome	host.docker.internal:6052	6052=retained
 ha-music.n33lab.com	http	musicassistant	host.docker.internal:8095	8095=retained;8097=stream
 ha-flows.n33lab.com	http	node-red	node-red:1880	none
 git.n33lab.com	http	forgejo	forgejo:3000	222=ssh
-mqtt.n33lab.com	reserved	mqtt	mosquitto:1883	8883=reserved-tcp-tls;1883=retained-until-task-8
+mqtt.n33lab.com	reserved	mqtt	mosquitto:1883	8883=tcp-tls;1883=internal-only
 nas.local	native	ugreen	nas.local:9443	9999=redirect-to-9443;80,443=disabled
 EOF
 )
@@ -140,15 +140,18 @@ count_fixed 1 "FORGEJO_URL=${dollar}{1:-https://git.n33lab.com}" "$migration"
 
 for published_port in '"80:80"' '"443:443"' \
   '"192.168.1.33:53:53/tcp"' '"192.168.1.33:53:53/udp"' \
-  '"6881:6881"' '"6881:6881/udp"' '"1883:1883"' '"222:22"'; do
+  '"6881:6881"' '"6881:6881/udp"' '"192.168.1.33:8883:8883"' '"222:22"'; do
   count_fixed 1 "$published_port" "$compose"
 done
+if grep -Fq '"1883:1883"' "$compose"; then
+  fail 'MQTT plaintext port must not be published'
+fi
 if grep -Eq '"(9090:8080|3333:80)"|api\.insecure' "$compose"; then
   fail 'retired direct administration ports or insecure API remain'
 fi
 
 "$image_pins" "$compose" >/dev/null
-[ "$(grep -c '^[[:space:]]*ports:$' "$compose")" -eq 5 ] || fail 'unexpected direct-port publication block'
+[ "$(grep -c '^[[:space:]]*ports:$' "$compose")" -eq 4 ] || fail 'unexpected direct-port publication block'
 
 if grep -E -n 'lab\.lan|nasito\.local|192\.168\.1\.193|\$\{DOMAIN:-localhost\}|(^|[^A-Za-z0-9-])home\.\$\{DOMAIN' \
   "$compose" "$env_example" "$glance" "$dynamic_dir/homeassistant.yml" "$dynamic_dir/esphome.yml" \

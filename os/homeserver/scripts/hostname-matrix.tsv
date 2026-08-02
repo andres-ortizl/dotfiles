@@ -15,5 +15,5 @@ ha-esphome.n33lab.com	http	esphome	host.docker.internal:6052	6052=retained
 ha-music.n33lab.com	http	musicassistant	host.docker.internal:8095	8095=retained;8097=stream
 ha-flows.n33lab.com	http	node-red	node-red:1880	none
 git.n33lab.com	http	forgejo	forgejo:3000	222=ssh
-mqtt.n33lab.com	reserved	mqtt	mosquitto:1883	8883=reserved-tcp-tls;1883=retained-until-task-8
+mqtt.n33lab.com	reserved	mqtt	mosquitto:1883	8883=tcp-tls;1883=internal-only
 nas.local	native	ugreen	nas.local:9443	9999=redirect-to-9443;80,443=disabled
