@@ -1,42 +1,40 @@
-#!/bin/bash
+#!/usr/bin/env bash
+#
+# Waybar notification module. Shows the latest desktop notification, or a mute
+# icon when dunst is paused. Reads dunst's own history via `dunstctl history`
+# (JSON) instead of sniffing D-Bus, so no separate collector service is needed.
 
-default_timeout=3
-store_dir="$HOME/.config/waybar/store"
-notif_file="$store_dir/lastnotif"
+set -u
 
-mkdir -p "$store_dir"
+default_timeout=8
 
 emit() {
-  local text="$1"
-  local cls="$2"
-  jq -cn --arg text "$text" --arg alt "notification" --arg class "$cls" \
+  jq -cn --arg text "$1" --arg alt "notification" --arg class "$2" \
     '{text:$text, alt:$alt, class:$class}'
 }
 
 last_state=""
-shown_timestamp=""
+last_id=""
+shown_until=0
+
+newest_notification() {
+  dunstctl history 2>/dev/null | jq -r '
+    .data[0][0]
+    | select(. != null)
+    | [.id.data, .summary.data // "", .appname.data // "", .body.data // ""]
+    | @tsv
+  '
+}
+
+is_paused() { [ "$(dunstctl is-paused 2>/dev/null || echo false)" = "true" ]; }
+
+# Don't re-show whatever is already in history when the script starts.
+if current="$(newest_notification)"; then
+  last_id="${current%%$'\t'*}"
+fi
 
 while true; do
-  dunst_paused="$(dunstctl is-paused 2>/dev/null || echo false)"
-  realtime="$(date +%s)"
-
-  timestamp=0
-  summary=""
-  body=""
-
-  if [ -f "$notif_file" ]; then
-    while IFS=': ' read -r key value; do
-      case "$key" in
-        timestamp) timestamp="${value:-0}" ;;
-        summary) summary="$value" ;;
-        body) body="$value" ;;
-      esac
-    done <"$notif_file"
-  fi
-
-  timediff=$((realtime - timestamp))
-
-  if [ "$dunst_paused" = "true" ]; then
+  if is_paused; then
     state="collapsed_muted"
     [ "$state" != "$last_state" ] && emit "󰂚" "$state"
     last_state="$state"
@@ -44,7 +42,8 @@ while true; do
     continue
   fi
 
-  if [ "$timediff" -gt $((default_timeout - 1)) ]; then
+  newest="$(newest_notification)"
+  if [ -z "$newest" ]; then
     state="collapsed"
     [ "$state" != "$last_state" ] && emit "󰂚" "$state"
     last_state="$state"
@@ -52,25 +51,26 @@ while true; do
     continue
   fi
 
-  if [ "$timestamp" = "$shown_timestamp" ]; then
-    sleep 0.4
-    continue
+  IFS=$'\t' read -r id summary appname body <<<"$newest"
+
+  if [ "$id" != "$last_id" ]; then
+    last_id="$id"
+    shown_until=$(( $(date +%s) + default_timeout ))
+    if [ "$summary" = "swww" ] && [ "$body" = "1" ]; then
+      state="wallpaper"
+      emit "" "$state"
+    else
+      state="expanded"
+      emit "${summary}: ${body}" "$state"
+    fi
+    last_state="$state"
+  else
+    if [ "$(date +%s)" -ge "$shown_until" ]; then
+      state="collapsed"
+      [ "$state" != "$last_state" ] && emit "󰂚" "$state"
+      last_state="$state"
+    fi
   fi
 
-  if [ "$summary" = "swww" ] && [ "$body" = "1" ]; then
-    emit "" "wallpaper"
-    shown_timestamp="$timestamp"
-    last_state="wallpaper"
-    sleep 0.7
-    continue
-  fi
-
-  emit "󰂚" "waiting_start"
-  sleep 0.2
-  emit "$summary: $body" "expanded"
-  sleep "$default_timeout"
-  emit "󰂚" "waiting_done"
-  sleep 0.25
-  shown_timestamp="$timestamp"
-  last_state="waiting_done"
+  sleep 0.5
 done

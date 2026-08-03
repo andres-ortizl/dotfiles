@@ -1,0 +1,8 @@
+[Unit]
+Description=Vicinae launcher daemon
+PartOf=hyprland-session.target
+
+[Service]
+ExecStart=/usr/bin/vicinae server
+Restart=on-failure
+RestartSec=2

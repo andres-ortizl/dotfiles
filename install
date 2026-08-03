@@ -45,3 +45,6 @@ fi
 if ! grep -q "shell/main.sh" ~/.bashrc 2>/dev/null; then
   echo "source $PWD/shell/main.sh" >>~/.bashrc
 fi
+
+# Route git hooks through the repository's .githooks dir (runs config validation)
+git config hooksPath "${BASEDIR}/.githooks"

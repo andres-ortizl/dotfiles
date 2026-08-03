@@ -27,6 +27,3 @@ curl -fsSL https://raw.githubusercontent.com/zimfw/install/master/install.zsh | 
 sudo usermod -a -G docker andrew
 sudo systemctl enable docker
 sudo systemctl start docker
-
-# rofi styles
-#https://github.com/adi1090x/rofi

@@ -1,0 +1,98 @@
+#!/usr/bin/env bash
+#
+# Validate dotfiles configuration files that have no syntax check of their own.
+# Runs best-effort: checks are skipped (with a warning) when their tooling is
+# not available, so it works from any shell session and on any OS.
+#
+# Exits non-zero if any available check fails. Intended to be run by hand or as
+# a pre-commit hook. Distribution/CI independent.
+
+set -u
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$REPO_ROOT"
+
+FAILURES=0
+WARNINGS=0
+
+note_fail() { printf 'FAIL  %s\n' "$1"; FAILURES=$((FAILURES + 1)); }
+note_ok()   { printf 'ok    %s\n' "$1"; }
+note_skip() { printf 'skip  %s\n' "$1"; WARNINGS=$((WARNINGS + 1)); }
+
+# --- dunst -----------------------------------------------------------------
+if command -v dunst >/dev/null 2>&1; then
+  log="$(mktemp)"
+  timeout 5 dunst -conf config/dunst/dunstrc >/dev/null 2>"$log"
+  # DBus-name / wayland-display noise appears even on valid configs; only real
+  # parse/syntax/config errors should fail us.
+  if grep -Eiq "parse error|invalid config|unable to parse|error.*config|syntax" "$log"; then
+    note_fail "dunstrc: $(grep -iE "parse error|invalid config|unable to parse|syntax" "$log" | head -1)"
+  else
+    note_ok "dunstrc parses"
+  fi
+  rm -f "$log"
+else
+  note_skip "dunst not installed"
+fi
+
+# --- Hyprland (only meaningful when a Hyprland session is running) ---------
+if command -v hyprctl >/dev/null 2>&1 && hyprctl configerrors >/dev/null 2>&1; then
+  if errs="$(hyprctl configerrors 2>/dev/null | grep -v '^$')" && [ -n "$errs" ]; then
+    note_fail "hypr config: $errs"
+  else
+    note_ok "hypr config clean (configerrors empty)"
+  fi
+else
+  note_skip "hyprctl/Hyprland session not available"
+fi
+
+# --- JSON -------------------------------------------------------------------
+if command -v python3 >/dev/null 2>&1; then
+  while IFS= read -r -d '' f; do
+    if python3 -m json.tool "$f" >/dev/null 2>&1; then
+      note_ok "json: $f"
+    else
+      note_fail "json: $f"
+    fi
+  done < <(find config/waybar config/quickshell -name '*.json' -print0 2>/dev/null)
+else
+  note_skip "json checks (python3 missing)"
+fi
+
+# --- TOML (hyprshade) -------------------------------------------------------
+if command -v python3 >/dev/null 2>&1 && python3 -c 'import tomllib' 2>/dev/null; then
+  while IFS= read -r -d '' f; do
+    if python3 -c 'import sys,tomllib; tomllib.load(open(sys.argv[1],"rb"))' "$f" >/dev/null 2>&1; then
+      note_ok "toml: $f"
+    else
+      note_fail "toml: $f"
+    fi
+  done < <(find config -name '*.toml' -not -path '*/themes/*' -print0 2>/dev/null)
+else
+  note_skip "toml checks (python3/tomllib missing)"
+fi
+
+# --- YAML (dotbot manifests) -------------------------------------------------
+if command -v python3 >/dev/null 2>&1 && python3 -c 'import yaml' 2>/dev/null; then
+  for f in .arch-conf.yml .mac-conf.yml; do
+    if [ -f "$f" ] && python3 -c 'import sys,yaml; yaml.safe_load(open(sys.argv[1]))' "$f" >/dev/null 2>&1; then
+      note_ok "yaml: $f"
+    elif [ -f "$f" ]; then
+      note_fail "yaml: $f"
+    fi
+  done
+else
+  note_skip "yaml checks (pyyaml missing)"
+fi
+
+# --- Bash syntax (cheap, no deps) -------------------------------------------
+while IFS= read -r -d '' f; do
+  if bash -n "$f" >/dev/null 2>&1; then
+    note_ok "bash -n: $f"
+  else
+    note_fail "bash -n: $f"
+  fi
+done < <(find bin config/hypr/scripts shell \( -name '*.sh' -o -path '*/scripts/*' \) -type f -exec sh -c 'head -1 "$1" | grep -q bash' _ {} \; -print0)
+
+printf '\n%d failure(s), %d skipped check(s)\n' "$FAILURES" "$WARNINGS"
+[ "$FAILURES" -eq 0 ]

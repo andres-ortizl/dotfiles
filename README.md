@@ -14,10 +14,6 @@ A cross-platform dotfiles repository with automated setup using [dotbot](https:/
 ![Clean Desktop](data/screenshots/desktop-clean.png)
 *Hyprland with Waybar, custom blur effects, and wallpaper*
 
-**Rofi Application Launcher**
-![Rofi Launcher](data/screenshots/rofi-launcher.png)
-*Application launcher with custom Dracula-inspired theme*
-
 **Terminal Setup**
 ![Terminal with Neofetch](data/screenshots/terminal-neofetch.png)
 *Ghostty terminal with neofetch showing system info*
@@ -109,7 +105,7 @@ The installer will:
 **Arch Linux Specific:**
 - Hyprland window manager (Wayland compositor)
 - Waybar status bar
-- Rofi application launcher
+- Vicinae application launcher
 - Dunst notifications
 - Wlogout power menu
 - Zen Browser
@@ -128,7 +124,6 @@ The installer will:
 Application-specific configurations organized by tool. Each application has its own subdirectory with all related configuration files. Examples include:
 - `hypr/` - Hyprland window manager (modular config files)
 - `waybar/` - Status bar with custom modules
-- `rofi/` - Application launcher themes
 - `ghostty/` - Terminal emulator configuration
 - `zed/` - Code editor settings
 - `git/` - Git aliases and configuration
@@ -203,7 +198,7 @@ A modern Wayland-based desktop environment:
 - **Terminal:** Ghostty
 - **Shell:** Zsh with Zim framework
 - **Editor:** Zed, Neovim
-- **Launcher:** Rofi
+- **Launcher:** Vicinae
 - **Browser:** Zen Browser
 - **File Manager:** Nautilus
 - **Notifications:** Dunst

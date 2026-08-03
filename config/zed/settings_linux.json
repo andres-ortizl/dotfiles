@@ -1,192 +1,105 @@
 {
-  // Theme and Appearance
-  "theme": "Catppuccin Macchiato",
-  "icon_theme": "Catppuccin Mocha",
-  "title_bar": {
-    "show_branch_icon": false,
-    "show_branch_name": true,
-    "show_project_items": true,
-    "show_onboarding_banner": false,
-    "show_user_picture": false,
-    "show_sign_in": false,
-    "show_menus": false
-  },
-  "experimental.theme_overrides": {
-    // "#00000000" black
-    // #1E1E2E catppuchino mocha
-    "pane_group.border": "#464b5700",
-    "background.appearance": "blurred",
-    "background": "#000000BB",
-    "panel.background": "#11111b",
-    // "background.image_file": "/Users/andresortiz/downloads/background.jpg",
-    "editor.background": "#11111b",
-    "tab_bar.background": "#11111b",
-    "terminal.background": "#11111b",
-    "toolbar.background": "#11111b",
-    "tab.inactive_background": "#11111b",
-    "tab.active_background": "#3f3f4650",
-    "border": "#11111b",
-    "status_bar.background": "#11111b",
-    "title_bar.background": "#11111b",
-    "border.variant": "#11111b",
-    "scrollbar.track.background": "#52525b20",
-    "scrollbar.track.border": "#11111b",
-    "scrollbar.thumb.background": "#52525b30",
-    "scrollbar.thumb.border": "#1E1E2E",
-    // "elevated_surface.background": "#00000090",
-    "elevated_surface.background": "#44475aee",
-    "warning.background": "#5A4A8A",
-    "warning.border": "#FFB84D",
-    "error.background": "#5A4A8A",
-    "error.border": "#d072771a",
-    "surface.background": "#00000090",
-    "editor.active_line_number": "#bd93f9",
-    "editor.gutter.background": "#11111b",
-    "editor.indent_guide": "#ffffff30",
-    "editor.indent_guide_active": "#ffffff80",
-    "editor.line_number": "#ffffff80",
-    "editor.active_line.background": "#bd93f920",
-    "editor.selection.background": "#44475a99"
-  },
-  // Cursor and Line Highlighting
-  "cursor_blink": false,
-  "cursor_shape": "block",
-  "current_line_highlight": "gutter",
-  "selection_highlight": true,
-  // Workspace & Pane Settings
   "active_pane_modifiers": {
     "border_size": 2.0,
     "inactive_opacity": 0.85
   },
-  "scroll_beyond_last_line": "one_page",
-  "vertical_scroll_margin": 3,
-  "horizontal_scroll_margin": 5,
-  // Soft Wrap & Wrap Guides
-  "soft_wrap": "none",
-  "preferred_line_length": 100,
-  "show_wrap_guides": false,
-  "wrap_guides": [],
-  "unnecessary_code_fade": 0.5,
-  // Editor Actions & Diagnostics
-  "inline_code_actions": false,
+  "agent": {
+    "always_allow_tool_actions": true,
+    "button": true,
+    "default_model": {
+      "model": "claude-sonnet-4-5",
+      "provider": "amazon-bedrock"
+    },
+    "default_width": 640,
+    "dock": "right",
+    "model_parameters": [],
+    "play_sound_when_agent_done": true
+  },
+  "agent_ui_font_size": 18,
   "auto_signature_help": false,
-  "show_signature_help_after_edits": false,
-  // Font Settings
-  "buffer_line_height": "comfortable",
-  "buffer_font_family": "FiraCode Nerd Font Mono",
-  "buffer_font_size": 17,
-  "buffer_font_features": {
-    "calt": true,
-    "dlig": true
-  },
-  "ui_font_family": "FiraCode Nerd Font Mono",
-  "ui_font_size": 19,
-  "ui_font_weight": 600,
-  "ui_font_features": {
-    "calt": true
-  },
-  "ui_font_fallbacks": [
-    "FiraCode Nerd Font Mono"
-  ],
-  // Editor Features and Behavior
-  "base_keymap": "JetBrains",
-  "centered_layout": {
-    "left_padding": 0.2,
-    "right_padding": 0
-  },
   "autosave": {
     "after_delay": {
       "milliseconds": 1000
     }
   },
-  "formatter": "language_server",
-  "enable_language_server": true,
-  "indent_guides": {
-    "enabled": true,
-    "line_width": 1,
-    "active_line_width": 2,
-    "coloring": "indent_aware",
-    "background_coloring": "disabled"
+  "base_keymap": "JetBrains",
+  "bottom_dock_layout": "full",
+  "buffer_font_family": "FiraCode Nerd Font Mono",
+  "buffer_font_features": {
+    "calt": true,
+    "dlig": true
   },
-  "inlay_hints": {
-    "enabled": false,
-    "show_type_hints": true,
-    "show_parameter_hints": true,
-    "show_other_hints": true
+  "buffer_font_size": 17,
+  "buffer_line_height": "comfortable",
+  "centered_layout": {
+    "left_padding": 0.2,
+    "right_padding": 0
   },
-  // Gutter and UI Elements
-  "gutter": {
-    "line_numbers": true
-  },
-  "scrollbar": {
-    "show": "never",
-    "git_diff": true,
-    "search_results": true,
-    "diagnostics": "error"
-  },
-  "minimap": {
-    "show": "never"
-  },
-  "tab_bar": {
-    "show": false
-  },
-  "toolbar": {
-    "breadcrumbs": true,
-    "quick_actions": false
-  },
-  // Panel Settings
-  "project_panel": {
-    "button": true,
-    "default_width": 280,
-    "dock": "left",
-    "file_icons": true,
-    "folder_icons": true,
-    "git_status": true,
-    "indent_size": 20,
-    "scrollbar": {
-      "show": "never"
-    }
-  },
-  "outline_panel": {
-    "button": true,
-    "dock": "left",
-    "default_width": 300,
-    "scrollbar": {
-      "show": "never"
-    }
-  },
-  "git_panel": {
-    "button": true,
-    "dock": "left",
-    "scrollbar": {
-      "show": "never"
-    }
-  },
+  "cli_default_open_behavior": "existing_window",
   "collaboration_panel": {
-    "dock": "left",
-    "button": true
-  },
-  "notification_panel": {
     "button": true,
     "dock": "left"
   },
-  // File Finder Settings
+  "completion_menu_scrollbar": "never",
+  "context_servers": {
+    "lean-ctx": {
+      "args": [],
+      "command": "/home/andres/.local/bin/lean-ctx",
+      "env": {}
+    }
+  },
+  "current_line_highlight": "gutter",
+  "cursor_blink": false,
+  "cursor_shape": "block",
+  "debugger": {
+    "button": true,
+    "dock": "left"
+  },
+  "edit_predictions": {
+    "mode": "subtle"
+  },
+  "enable_language_server": true,
+  "experimental.theme_overrides": {
+    "background": "#000000BB",
+    "background.appearance": "blurred",
+    "border": "#11111b",
+    "border.variant": "#11111b",
+    "editor.active_line.background": "#bd93f920",
+    "editor.active_line_number": "#bd93f9",
+    "editor.background": "#11111b",
+    "editor.gutter.background": "#11111b",
+    "editor.indent_guide": "#ffffff30",
+    "editor.indent_guide_active": "#ffffff80",
+    "editor.line_number": "#ffffff80",
+    "editor.selection.background": "#44475a99",
+    "elevated_surface.background": "#44475aee",
+    "error.background": "#5A4A8A",
+    "error.border": "#d072771a",
+    "pane_group.border": "#464b5700",
+    "panel.background": "#11111b",
+    "scrollbar.thumb.background": "#52525b30",
+    "scrollbar.thumb.border": "#1E1E2E",
+    "scrollbar.track.background": "#52525b20",
+    "scrollbar.track.border": "#11111b",
+    "status_bar.background": "#11111b",
+    "surface.background": "#00000090",
+    "tab.active_background": "#3f3f4650",
+    "tab.inactive_background": "#11111b",
+    "tab_bar.background": "#11111b",
+    "terminal.background": "#11111b",
+    "title_bar.background": "#11111b",
+    "toolbar.background": "#11111b",
+    "warning.background": "#5A4A8A",
+    "warning.border": "#FFB84D"
+  },
+  "features": {
+    "edit_prediction_provider": "copilot"
+  },
   "file_finder": {
     "file_icons": true,
-    "modal_max_width": "medium",
-    "git_status": true
+    "git_status": true,
+    "modal_max_width": "medium"
   },
-  "show_call_status_icon": false,
-  "bottom_dock_layout": "full",
-  // Git Integration
-  "git": {
-    "inline_blame": {
-      "enabled": false,
-      "delay_ms": 1000
-    },
-    "git_gutter": "tracked_files"
-  },
-  // File Handling
   "file_scan_exclusions": [
     "**/node_modules",
     "**/vendor",
@@ -199,9 +112,7 @@
     "**/.mypy_cache",
     "**/.ruff_cache",
     "**/venv",
-    //"**/.venv",
     "**/env",
-    //"**/.env",
     "**/virtualenv",
     "**/.virtualenv",
     "**/*.pyc",
@@ -226,56 +137,45 @@
       "jsonc"
     ]
   },
-  // Terminal Settings
-  "terminal": {
-    "copy_on_select": true,
-    "cursor_shape": "underline",
-    "blinking": "off",
-    "dock": "bottom",
-    "button": false,
-    "default_height": 500,
-    "font_family": "FiraCode Nerd Font",
-    "font_size": 17,
-    "font_weight": 400,
-    "line_height": "standard",
-    "max_scroll_history_lines": 10000,
-    "scrollbar": {
-      "show": "auto"
-    },
-    "toolbar": {
-      "breadcrumbs": false
+  "formatter": "language_server",
+  "git": {
+    "git_gutter": "tracked_files",
+    "inline_blame": {
+      "delay_ms": 1000,
+      "enabled": false
     }
   },
-  // AI Assistant Settings
-  "agent": {
-    "play_sound_when_agent_done": true,
-    "dock": "right",
+  "git_panel": {
     "button": true,
-    "default_width": 640,
-    "default_model": {
-      "provider": "amazon-bedrock",
-      "model": "claude-sonnet-4-5"
-    },
-    "always_allow_tool_actions": true,
-    "model_parameters": []
-  },
-  "show_completions_on_input": true,
-  "show_completion_documentation": true,
-  "completion_menu_scrollbar": "never",
-  "snippet_sort_order": "inline",
-  "edit_predictions": {
-    "mode": "subtle"
-  },
-  "features": {
-    "edit_prediction_provider": "copilot"
-  },
-  "debugger": {
     "dock": "left",
-    "button": true
+    "scrollbar": {
+      "show": "never"
+    }
   },
-  "show_edit_predictions": true,
-  "agent_ui_font_size": 18,
-  // Language-Specific Settings
+  "gutter": {
+    "line_numbers": true
+  },
+  "horizontal_scroll_margin": 5,
+  "icon_theme": "Catppuccin Mocha",
+  "indent_guides": {
+    "active_line_width": 2,
+    "background_coloring": "disabled",
+    "coloring": "indent_aware",
+    "enabled": true,
+    "line_width": 1
+  },
+  "inlay_hints": {
+    "enabled": false,
+    "show_other_hints": true,
+    "show_parameter_hints": true,
+    "show_type_hints": true
+  },
+  "inline_code_actions": false,
+  "jupyter": {
+    "kernel_selections": {
+      "python": "/Users/andrew/.local/pipx/venvs/ipykernel/share/jupyter/kernels/python3"
+    }
+  },
   "languages": {
     "Python": {
       "completions": {
@@ -306,53 +206,44 @@
       "show_edit_predictions": false
     }
   },
-  // LSP (Language Server Protocol) Settings
   "lsp": {
-    "ty": {
-      "binary": {
-        "path": "/home/andres/.local/bin/ty",
-        "arguments": [
-          "server"
-        ]
+    "basedpyright": {
+      "settings": {
+        "basedpyright.analysis": {
+          "diagnosticMode": "openFilesOnly",
+          "reportMissingTypeStubs": false,
+          "typeCheckingMode": "basic"
+        },
+        "disableOrganizeImports": true,
+        "python": {
+          "reportMissingTypeStubs": false
+        }
       }
     },
     "pyright": {
       "settings": {
+        "disableOrganizeImports": true,
         "python.analysis": {
           "diagnosticMode": "openFilesOnly",
           "typeCheckingMode": "basic"
-        },
-        "disableOrganizeImports": true
-      }
-    },
-    "basedpyright": {
-      "settings": {
-        "python": {
-          "reportMissingTypeStubs": false
-        },
-        "basedpyright.analysis": {
-          "diagnosticMode": "openFilesOnly",
-          "typeCheckingMode": "basic",
-          "reportMissingTypeStubs": false
-        },
-        "disableOrganizeImports": true
+        }
       }
     },
     "ruff": {
       "initialization_options": {
         "settings": {
           "lineLength": 88,
-          "showSyntaxErrors": true,
           "lint": {
-            "select": [
-              "ALL"
-            ],
             "ignore": [
               "D",
               "S101",
               "ANN201"
+            ],
+            "select": [
+              "ALL"
             ]
-          }
+          },
+          "showSyntaxErrors": true
         }
       }
     },
@@ -369,17 +260,110 @@
           "maxLength": null
         }
       }
+    },
+    "ty": {
+      "binary": {
+        "arguments": [
+          "server"
+        ],
+        "path": "/home/andres/.local/bin/ty"
+      }
     }
   },
-  // Jupyter Settings
-  "jupyter": {
-    "kernel_selections": {
-      "python": "/Users/andrew/.local/pipx/venvs/ipykernel/share/jupyter/kernels/python3"
+  "minimap": {
+    "show": "never"
+  },
+  "notification_panel": {
+    "button": true,
+    "dock": "left"
+  },
+  "outline_panel": {
+    "button": true,
+    "default_width": 300,
+    "dock": "left",
+    "scrollbar": {
+      "show": "never"
     }
   },
-  // Telemetry Settings
+  "preferred_line_length": 100,
+  "project_panel": {
+    "button": true,
+    "default_width": 280,
+    "dock": "left",
+    "file_icons": true,
+    "folder_icons": true,
+    "git_status": true,
+    "indent_size": 20,
+    "scrollbar": {
+      "show": "never"
+    }
+  },
+  "scroll_beyond_last_line": "one_page",
+  "scrollbar": {
+    "diagnostics": "error",
+    "git_diff": true,
+    "search_results": true,
+    "show": "never"
+  },
+  "selection_highlight": true,
+  "show_call_status_icon": false,
+  "show_completion_documentation": true,
+  "show_completions_on_input": true,
+  "show_edit_predictions": true,
+  "show_signature_help_after_edits": false,
+  "show_wrap_guides": false,
+  "snippet_sort_order": "inline",
+  "soft_wrap": "none",
+  "tab_bar": {
+    "show": false
+  },
   "telemetry": {
     "diagnostics": false,
     "metrics": false
-  }
+  },
+  "terminal": {
+    "blinking": "off",
+    "button": false,
+    "copy_on_select": true,
+    "cursor_shape": "underline",
+    "default_height": 500,
+    "dock": "bottom",
+    "font_family": "FiraCode Nerd Font",
+    "font_size": 17,
+    "font_weight": 400,
+    "line_height": "standard",
+    "max_scroll_history_lines": 10000,
+    "scrollbar": {
+      "show": "auto"
+    },
+    "toolbar": {
+      "breadcrumbs": false
+    }
+  },
+  "theme": "Catppuccin Macchiato",
+  "title_bar": {
+    "show_branch_icon": false,
+    "show_branch_name": true,
+    "show_menus": false,
+    "show_onboarding_banner": false,
+    "show_project_items": true,
+    "show_sign_in": false,
+    "show_user_picture": false
+  },
+  "toolbar": {
+    "breadcrumbs": true,
+    "quick_actions": false
+  },
+  "ui_font_fallbacks": [
+    "FiraCode Nerd Font Mono"
+  ],
+  "ui_font_family": "FiraCode Nerd Font Mono",
+  "ui_font_features": {
+    "calt": true
+  },
+  "ui_font_size": 19,
+  "ui_font_weight": 600,
+  "unnecessary_code_fade": 0.5,
+  "vertical_scroll_margin": 3,
+  "wrap_guides": []
 }

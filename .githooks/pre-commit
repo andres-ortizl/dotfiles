@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Runs on every local commit. Validates dotfiles configs, then defers to the
+# full pre-commit framework if it happens to be installed.
+set -u
+
+cd "$(git rev-parse --show-toplevel)" || exit 1
+
+if [ -x bin/validate-configs ]; then
+  if ! ./bin/validate-configs; then
+    echo "pre-commit hook: dotfiles config validation failed" >&2
+    exit 1
+  fi
+fi
+
+if command -v pre-commit >/dev/null 2>&1; then
+  pre-commit run --all-files || exit 1
+fi
+
+exit 0

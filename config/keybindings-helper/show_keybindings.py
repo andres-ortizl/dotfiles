@@ -100,14 +100,14 @@ class HyprlandParser:
                 return "Launch Browser"
             if "zed" in param:
                 return "Launch Zed Editor"
-            if "rofi" in param and "launcher" in param:
+            if "vicinae://launch/clipboard/history" in param:
+                return "Clipboard History"
+            if param == "vicinae toggle":
                 return "Application Launcher"
             if "grimblast" in param:
                 return "Screenshot"
             if "hyprlock" in param:
                 return "Lock Screen"
-            if "cliphist" in param:
-                return "Clipboard History"
             if "setwall" in param:
                 return "Cycle Wallpaper"
             if "powermenu" in param:
@@ -331,7 +331,7 @@ class KeybindingsViewer:
 
         return choice
 
-    def display_keybindings(self, app: str = None):
+    def display_keybindings(self, app: str | None = None):
         self.console.clear()
         keybindings = self.load_keybindings()
 

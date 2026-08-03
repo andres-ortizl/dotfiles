@@ -9,6 +9,7 @@ bison
 debugedit
 direnv
 docker
+docker-buildx
 docker-compose
 fakeroot
 file

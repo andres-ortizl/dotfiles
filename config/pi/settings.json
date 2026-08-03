@@ -1,13 +1,68 @@
 {
-  "defaultProvider": "openai",
-  "defaultModel": "gpt-5.3-codex",
+  "defaultProvider": "opencode",
+  "defaultModel": "deepseek-v4-flash-free",
+  "defaultThinkingLevel": "high",
   "theme": "catppuccin-mocha-andrew",
-  "lastChangelogVersion": "0.67.68",
+  "quietStartup": true,
+  "showCacheMissNotices": false,
+  "compaction": {
+    "enabled": true,
+    "reserveTokens": 8192,
+    "keepRecentTokens": 12000
+  },
+  "retry": {
+    "enabled": true,
+    "maxRetries": 3
+  },
+  "terminal": {
+    "showImages": true,
+    "imageWidthCells": 60
+  },
+  "subagents": {
+    "defaultModel": "openai/gpt-5.6-luna",
+    "defaultThinking": "low",
+    "agentOverrides": {
+      "scout": {
+        "model": "openai/gpt-5.6-luna",
+        "thinking": "low"
+      },
+      "delegate": {
+        "model": "openai/gpt-5.6-luna",
+        "thinking": "low"
+      },
+      "researcher": {
+        "model": "openai/gpt-5.6-luna",
+        "thinking": "low"
+      },
+      "worker": {
+        "model": "openai/gpt-5.6-terra",
+        "thinking": "medium"
+      },
+      "context-builder": {
+        "model": "openai/gpt-5.6-terra",
+        "thinking": "medium"
+      },
+      "reviewer": {
+        "model": "openai/gpt-5.6-terra",
+        "thinking": "medium"
+      },
+      "planner": {
+        "model": "openai/gpt-5.6-sol",
+        "thinking": "high"
+      },
+      "oracle": {
+        "model": "openai/gpt-5.6-sol",
+        "thinking": "high"
+      }
+    }
+  },
+  "extensions": [
+    "extensions/model-status.ts"
+  ],
   "packages": [
-    "npm:pi-subagents",
     "npm:pi-web-access",
-    "npm:pi-docparser",
-    "npm:@ifi/pi-plan",
+    "npm:pi-subagents",
     "npm:pi-lean-ctx"
-  ]
+  ],
+  "lastChangelogVersion": "0.83.0"
 }

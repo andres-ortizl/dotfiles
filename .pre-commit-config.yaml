@@ -45,3 +45,11 @@ repos:
       - id: shfmt
         args: [ -w, -i, '2', -ci ]
         exclude: ^(shell/|config/|language/)
+  - repo: local
+    hooks:
+      - id: validate-dotfiles
+        name: Validate dotfiles configs
+        entry: bin/validate-configs
+        language: system
+        always_run: true
+        pass_filenames: false

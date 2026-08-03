@@ -15,11 +15,9 @@
     ~/.zimrc: config/.zimrc
     ~/.gitconfig: config/git/.gitconfig
     ~/.config/BetterDiscord: config/BetterDiscord/**
-    ~/.config/btop: config/btop/**
     ~/.config/dunst/dunstrc: config/dunst/dunstrc
     ~/.config/hypr: config/hypr/**
     ~/.config/systemd/user: config/systemd/user/**
-    ~/.config/rofi: config/rofi/**
     ~/.config/nvim: config/nvim/**
     ~/.config/quickshell: config/quickshell/**
     ~/.config/wallpaper: config/wallpaper/**
@@ -33,6 +31,12 @@
     ~/.config/zed/keymap.json: config/zed/keymap_linux.json
     ~/.config/zed/settings.json: config/zed/settings_linux.json
     ~/.config/zed/debug.json: config/zed/debug_python_example.json
+    ~/.pi/agent/settings.json: config/pi/settings.json
+    ~/.pi/agent/AGENTS.md: AGENTS.md
+    ~/.pi/agent/skills: config/claude/skills
+    ~/.pi/agent/themes: config/pi/themes
+    ~/.pi/agent/extensions: config/pi/extensions
+    ~/.pi/agent/agents: config/pi/agents
     ~/.config/gitui: config/gitui/**
     ~/.config/keybindings-helper: config/keybindings-helper/**
     ~/.config/delta: config/delta/**

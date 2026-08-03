@@ -434,10 +434,14 @@ function droid() {
 }
 
 function pi() {
-  # Wrapper that exports only OPENAI_API_KEY from .env before calling pi
   if [ -f "$DOTFILES/.env" ]; then
-    local value=$(grep "^OPENAI_API_KEY=" "$DOTFILES/.env" | cut -d= -f2- | sed 's/^["'\'']//' | sed 's/["'\'']$//')
-    [ -n "$value" ] && export OPENAI_API_KEY="$value"
+    local var_name value
+    for var_name in OPENAI_API_KEY OPENCODE_API_KEY; do
+      if ! printenv "$var_name" >/dev/null 2>&1; then
+        value=$(grep "^${var_name}=" "$DOTFILES/.env" | cut -d= -f2- | sed 's/^["'\'']//' | sed 's/["'\'']$//')
+        [ -n "$value" ] && export "$var_name=$value"
+      fi
+    done
   fi
   command pi "$@"
 }

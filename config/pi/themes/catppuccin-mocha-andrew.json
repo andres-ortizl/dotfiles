@@ -80,6 +80,12 @@
     "thinkingMedium": "mauve",
     "thinkingHigh": "pink",
     "thinkingXhigh": "red",
+    "thinkingMax": "maroon",
     "bashMode": "peach"
+  },
+  "export": {
+    "pageBg": "#181825",
+    "cardBg": "#1e1e2e",
+    "infoBg": "#313244"
   }
 }

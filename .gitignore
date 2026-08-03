@@ -98,3 +98,5 @@ os/homeserver/siyuan/workspace/
 
 # Local verification evidence may contain runtime metadata
 .omo/evidence/
+.omo/
+.playwright-mcp/
