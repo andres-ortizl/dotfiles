@@ -467,6 +467,7 @@ services:
       - FORGEJO__security__INSTALL_LOCK=true
       - FORGEJO__service__DISABLE_REGISTRATION=true
       - FORGEJO__migrations__ALLOWED_DOMAINS=github.com,*.github.com
+      - FORGEJO__repository__ENABLE_PUSH_CREATE_USER=true
     volumes:
       - ./data/forgejo:/data
       - /etc/localtime:/etc/localtime:ro

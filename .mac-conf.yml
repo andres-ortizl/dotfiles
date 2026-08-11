@@ -60,6 +60,8 @@
     ~/.pi/agent/skills: config/claude/skills
     ~/.skills-library/langchain: config/skills-library/langchain-skills/config/skills
     ~/.pi/agent/themes: config/pi/themes
+    ~/.config/kilo/kilo.jsonc: config/kilo/kilo.jsonc
+    ~/.config/kilo/tui.jsonc: config/kilo/tui.jsonc
 
 - shell:
     - [git submodule update --init --recursive, Installing submodules]

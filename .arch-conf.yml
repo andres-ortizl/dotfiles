@@ -49,6 +49,8 @@
     ~/.config/gtk-2.0: config/gtk-2.0/**
     ~/.config/gtk-3.0: config/gtk-3.0/**
     ~/.config/gtk-4.0: config/gtk-4.0/**
+    ~/.config/kilo/kilo.jsonc: config/kilo/kilo.jsonc
+    ~/.config/kilo/tui.jsonc: config/kilo/tui.jsonc
 
 - shell:
     - [git submodule update --init --recursive, Installing submodules]

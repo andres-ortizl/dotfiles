@@ -1,0 +1,13 @@
+{
+  "$schema": "https://app.kilo.ai/tui.json",
+  "theme": "tokyonight",
+  "keybinds": {
+    "leader": "ctrl+x"
+  },
+  "leader_timeout": 1000,
+  "attention": {
+    "enabled": true,
+    "notifications": true,
+    "sound": false
+  }
+}

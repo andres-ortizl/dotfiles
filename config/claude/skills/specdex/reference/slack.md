@@ -45,8 +45,7 @@ notify "[<spec name>] <status> — <description>"
 
 - Spec started
 - Implementation started (you can detach now)
-- Implementation complete, tests passing
-- Review passed (or failed after 3 rounds)
+- All stories built + reviewed — final-review pass (or a story / the final review failed after 3 rounds)
 - PR created
 - CI fix pushed (one DM per push, not per poll)
 - Each Greptile round verdict arrived (`:robot_face:`)

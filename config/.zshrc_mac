@@ -61,9 +61,11 @@ export PATH="$PATH:$HOME/.lmstudio/bin"
 
 # Added by Antigravity CLI installer
 export PATH="$HOME/.local/bin:$PATH"
+# kilo
+export PATH=/Users/andrew/.kilo/bin:$PATH
 # lean-ctx shell hook — begin
-if [ -f "$HOME/.config/lean-ctx/shell-hook.zsh" ]; then
-. "$HOME/.config/lean-ctx/shell-hook.zsh"
+if [ -f "/Users/andrew/.config/lean-ctx/shell-hook.zsh" ]; then
+. "/Users/andrew/.config/lean-ctx/shell-hook.zsh"
 fi
 # lean-ctx shell hook — end
 

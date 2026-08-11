@@ -11,6 +11,8 @@ This is a collaborative session. Follow this rhythm:
 
 EXCEPTION: Direct commands like "debug this" or "investigate X" grant freedom to explore.
 Even when investigating freely, STOP when something looks weird or needs discussion.
+EXCEPTION: Autonomous skills and explicitly delegated loops (e.g. specdex, sentry-fix, /loop)
+override the checkpoint rhythm — they run their own implement/review cycle without per-step approval.
 
 ## Collaboration Style
 
@@ -46,10 +48,11 @@ When a task takes more than 2 back-and-forths:
 - Do NOT introduce new libraries without explicit approval
 - Avoid `_`-prefixed "private" names (functions, methods, module-level globals, classes) — default to plain public names. Only use a leading underscore when there's a specific, defensible reason: a genuine name collision, or keeping a verbatim port byte-for-byte aligned with its source module. Don't reflexively privatize helpers or constants.
 
-## Code Intelligence
+## Code Intelligence (Claude Code only)
 
-- For Python files, the built-in `LSP` tool is wired up to Astral's `ty` (operations: `hover`, `goToDefinition`, `findReferences`, `documentSymbol`, `workspaceSymbol`, call hierarchy). Available when a symbol-shaped query is cleaner than grep/read — your call.
-- Diagnostics (type errors, lint) are NOT surfaced through the `LSP` tool. Use the `python-hygiene` skill or run `ty check` / `ruff check` directly to see them.
+- In Claude Code, for Python files, the built-in `LSP` tool is wired up to Astral's `ty` (operations: `hover`, `goToDefinition`, `findReferences`, `documentSymbol`, `workspaceSymbol`, call hierarchy). Available when a symbol-shaped query is cleaner than grep/read — your call.
+- Diagnostics (type errors, lint) are NOT surfaced through the `LSP` tool. Use the `python-hygiene` skill (Claude Code) or run `ty check` / `ruff check` directly to see them.
+- Other harnesses (Factory, pi): no `LSP` tool or skills — use `ty check` / `ruff check` directly.
 
 ## Git
 
@@ -101,20 +104,40 @@ When a task takes more than 2 back-and-forths:
 - Keep responses focused and concise
 - Explain trade-offs when multiple approaches exist
 
-<!-- lean-ctx -->
-<!-- lean-ctx-claude-v6 -->
-## lean-ctx — Replace Mode (native tools denied)
+## Explanation Style (ASD-STE100-inspired)
 
-Native Read/Grep/Glob/Bash are denied by policy. Use ONLY `ctx_*` MCP tools:
-- `ctx_read` for ALL file reads (cached, 10 modes, re-reads ~13 tokens)
-- `ctx_shell` for ALL shell commands (95+ compression patterns)
+When explaining code, designs, or trade-offs, follow Simplified Technical English mechanics:
+
+- One idea per sentence. One instruction per step.
+- Keep sentences short: ~20 words for instructions, ~25 for descriptions.
+- Active voice: "The cache stores results", not "results are stored by the cache".
+- One term, one meaning: pick one name per concept and reuse it — never alternate
+  synonyms ("config"/"settings", "job"/"task") within an explanation.
+- Simple verbs: use, make, remove, start — not utilize, facilitate, leverage, instantiate
+  (unless it is the actual API name).
+- Break up noun clusters longer than 3 words.
+- State warnings and preconditions BEFORE the instruction they apply to.
+
+Technical vocabulary (API names, domain terms) is exempt — STE sentence structure
+applies, its restricted dictionary does not.
+
+<!-- lean-ctx -->
+<!-- lean-ctx-claude-v9 -->
+## lean-ctx — Replace Mode (native Grep/Glob denied by policy)
+
+Native Grep/Glob are denied by policy. Prefer `ctx_*` MCP tools for project work:
+- `ctx_read` for exploration reads (cached, 10 modes, re-reads ~13 tokens)
+- `ctx_shell` for shell commands (95+ compression patterns)
 - `ctx_search` instead of Grep/rg (compact results)
 - `ctx_tree` instead of ls/find (compact directory maps)
 - `ctx_glob` instead of Glob (file pattern matching)
-- Edits: `ctx_read(mode="anchored")` → `ctx_patch` (line+hash anchors, never echo old text; `op=create` for new files).
+- Project edits: `ctx_read(mode="anchored")` → `ctx_patch` (line+hash anchors; `op=create` for new files).
 
-Write and Delete — use native tools normally.
-Do NOT attempt native Read, Grep, Glob, or Bash — they will be denied.
+Native `Read` is reserved for the edit gate (read-before-write) only.
+For exploration, orientation, and code understanding: ALWAYS use `ctx_read`.
+Claude auto memory (`~/.claude/projects/<slug>/memory/` — MEMORY.md and topic
+files) uses native Read/Edit internally; do NOT call MCP `resources/read` with
+file:// URIs (lean-ctx resources are `lean-ctx://context/*` only). Native Delete is fine.
 
 Read modes: anchored (edit), full (verbatim), map (overview), signatures (API), diff (post-edit), lines:N-M (range), auto.
 Details live in the `lean-ctx` skill (loads on demand — keep this file lean).

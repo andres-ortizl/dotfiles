@@ -30,6 +30,16 @@ export DEX_SPEC=anyformat-backend/parse-cache   # or pass -s <project>/<name> pe
 | `dex agent spawn <role> [--id <id>]` | a teammate started working (`role`: `coder` `reviewer` `lead`) |
 | `dex agent idle <role>` | a teammate went idle |
 
+## Stories
+
+| Command | Effect |
+|---|---|
+| `dex story add --id <id> --title "<name>" [--summary "<summary>"]` | register a build story (emits `story.+`) |
+| `dex story start <id>` | mark a story in progress |
+| `dex story done <id> [--commit <sha>]` | mark a story complete — the lead's call, after its review passes |
+| `dex story ls` | list the spec's stories with status |
+| `dex story next` | print the next un-built story (`<id> <title>`); empty + exit 1 when all are done |
+
 ## Observations
 
 | Command | Effect |
@@ -41,6 +51,13 @@ export DEX_SPEC=anyformat-backend/parse-cache   # or pass -s <project>/<name> pe
 | `dex note --level <info\|warn\|error> --topic <topic> --text "<observation>"` | freeform signal (the curator/watcher feed) |
 
 `ci` and `review` are **roles**, not vendors — config maps them to a tool.
+
+## Notes & lessons
+
+| Command | Effect |
+|---|---|
+| `dex notes [--scope spec\|project\|skill] [--topic <t>] [--level <l>]` | aggregate notes across all specs in the registry (global) |
+| `dex lessons list\|show\|add` | manage per-project lessons (durable insights) |
 
 ## Ports
 

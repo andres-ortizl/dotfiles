@@ -1,0 +1,37 @@
+{
+  "$schema": "https://app.kilo.ai/config.json",
+  "model": "kilo-auto/frontier",
+  "small_model": "kilo-auto/small",
+  "skills": {
+    "paths": [
+      "~/.claude"
+    ]
+  },
+  "instructions": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "CONTEXT.md"
+  ],
+  "compaction": {
+    "auto": true,
+    "prune": true
+  },
+  "permission": {
+    "bash": {
+      "git status *": "allow",
+      "head *": "allow",
+      "echo *": "allow",
+      "git branch *": "allow",
+      "git diff *": "allow",
+      "ls *": "allow",
+      "cat *": "allow",
+      "basename *": "allow",
+      "find *": "allow",
+      "python3 *": "allow",
+      "curl *": "allow"
+    },
+    "external_directory": {
+      "/Users/andrew/.claude/skills/*": "allow"
+    }
+  }
+}

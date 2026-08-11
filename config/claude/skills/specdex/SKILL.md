@@ -70,7 +70,7 @@ MUX=zellij
 CI_REACTOR=/react-to-pipelines
 REVIEW_REACTOR=/react-to-greptile
 SHIP_ACTION=/pr
-WEBHOOK="$DEX_NOTIFY_WEBHOOK"        # set in env; keep OUT of committed files
+WEBHOOK="${DEX_NOTIFY_WEBHOOK:-$(grep -m1 '^DEX_NOTIFY_WEBHOOK=' ~/code/dotfiles/apps/specdex/.env 2>/dev/null | cut -d= -f2-)}"   # canonical home: apps/specdex/.env (gitignored); env export overrides
 ```
 
 - **Agent models** — coder/reviewer use their agent-definition `model:` unless overridden at spawn.
@@ -114,7 +114,7 @@ Both roles are real **teammates** — own context window, addressable via `SendM
 
   `SendMessage` is **theirs by virtue of the agent type** — `dex-coder` and `dex-reviewer` both declare `SendMessage` in their own tool lists, so they can message each other and ping you (`SendMessage(to:"main")`) regardless of any team-creation call. `team_name` is accepted-but-ignored; passing it is harmless, relying on it as the "make-real" step is the bug. Address a live teammate by its **name**: `SendMessage(to:"coder", …)`.
 
-**Verify you actually got a teammate — behaviorally, not by signature.** In the implicit-team harness a backgrounded spawn returning a bare UUID `agentId` + *"you will be notified when it completes"* is the **normal, correct result** — NOT the solo-fallback alarm it is in the explicit-team harness. Confirm the teammate is real by *using the channel*: `SendMessage(to:"coder", …)` and get a reply, or receive its `SendMessage(to:"main")` report. The real solo-fallback tell is universal and behavioral: **if you find yourself implementing a story's code yourself instead of through the `coder` teammate, you skipped the spawn** — stop and spawn it.
+**Verify you actually got a teammate — behaviorally, not by signature.** In the implicit-team harness a backgrounded spawn returning a bare UUID `agentId` + *"you will be notified when it completes"* is the **normal, correct result** — NOT the solo-fallback alarm it is in the explicit-team harness. Confirm the teammate is real by *using the channel* — and make that deterministic: the FIRST line of every spawn prompt orders an immediate `SendMessage(to:"main", "<role> alive")` ACK before any other work. No ACK within ~2 minutes = a dead spawn (they die silently: the spawn result looks healthy, `SendMessage` to the name reports "sent" into the void, and no completion notification ever fires — verified on this machine 2026-08-04). Respawn once; if named spawns keep dying, fall back to unnamed backgrounded agents addressed by their returned agentId, with the lead relaying coder⇄reviewer traffic. Never trust SendMessage's "sent" status as liveness. The real solo-fallback tell is universal and behavioral: **if you find yourself implementing a story's code yourself instead of through the `coder` teammate, you skipped the spawn** — stop and spawn it.
 
 **Per-story names collide with shutdown.** You reuse the names `coder`/`reviewer` every story, but if the prior story's teammate is still terminating when you spawn the next pair, the system auto-suffixes the new one (`reviewer-2`, …). **Read the actual name from the spawn result and brief the coder with it** (e.g. "your reviewer is `reviewer-2`"). The loop stays robust regardless because the lead always nudges the reviewer directly with the green sha (lead-relay) — but a stale name makes the coder's peer-ping land on a dead teammate.
 
@@ -226,7 +226,7 @@ The autonomous loop must survive the terminal closing, so it runs inside `zellij
 
 | MUX | create-or-attach | detach |
 |---|---|---|
-| zellij | `zellij attach spec-<spec-name> 2>/dev/null \|\| { zellij attach -b -c spec-<spec-name> && zellij --session spec-<spec-name> run -- claude --continue && zellij attach spec-<spec-name>; }` | `Ctrl+O, D` |
+| zellij | `zellij attach spec-<spec-name> 2>/dev/null \|\| { zellij attach -b -c spec-<spec-name> && zellij --session spec-<spec-name> run -- claude --continue --dangerously-skip-permissions && zellij attach spec-<spec-name>; }` | `Ctrl+O, D` |
 | tmux | `tmux new-session -A -s spec-<spec-name>` | `Ctrl+B, D` |
 
 If `$ZELLIJ_SESSION_NAME` is unset (not inside zellij), warn and wait for the user to confirm continue-anyway or restart inside a multiplexer:
@@ -276,7 +276,9 @@ dex init --branch specdex-<spec-name> --worktree <worktree-path> --session "$CLA
 
 ## 4. Environment
 
-If `.spec-env` exists in the project root, copy it silently into the worktree as `.env`. If not, warn once and continue — don't block.
+**Project bring-up first.** If the repo's CLAUDE.md defines a fresh-checkout bring-up, run it in the worktree now (anyformat-backend: `make setup` then `uv run af worktree` — seeds `.env` and isolates ports/compose project; skipping it collides with the main dev stack).
+
+Then, if `.spec-env` exists in the project root and bring-up didn't already seed a `.env`, copy it silently into the worktree as `.env`. If neither produced one, warn once and continue — don't block.
 
 ```bash
 cp <original-project-root>/.spec-env .env 2>/dev/null
@@ -284,7 +286,7 @@ cp <original-project-root>/.spec-env .env 2>/dev/null
 
 ## 5. Ports
 
-If the spec runs local services, allocate ports: `eval "$(dex ports alloc)"`. See **`reference/ports.md`** for the offset algorithm and the `.env`/`env.md` templates. (Record what you allocate — Complete's docker shutdown frees exactly these.)
+If the spec runs local services, allocate ports: `eval "$(dex ports alloc)"`. (A no-op without `[[ports]]` in `.dex.toml` — fine when project bring-up already isolated ports, e.g. `uv run af worktree`.) See **`reference/ports.md`** for the offset algorithm and the `.env`/`env.md` templates. (Record what you allocate — Complete's docker shutdown frees exactly these.)
 
 ## 6. Logbook
 
@@ -406,7 +408,7 @@ Two parts: **CI watch** then **bot review**. On entry `dex phase verify`; `dex b
 
 ## CI watch
 
-Poll the PR head until green or intentionally ignored — every ~4–5 min via `ScheduleWakeup` (`delaySeconds: 270` to stay in the prompt-cache window); never tight-loop.
+Poll the PR head until green or intentionally ignored — via `ScheduleWakeup`, delay matched to how long the CI run actually takes (e.g. `delaySeconds: 480` for an ~8-min pipeline); never tight-loop.
 
 ```bash
 gh pr view <number> --json statusCheckRollup
@@ -500,7 +502,7 @@ He reads these as the scoreboard + the things needing him — nothing else.
 
 ## The `notify()` impl
 
-`WEBHOOK="$DEX_NOTIFY_WEBHOOK"` (Slack incoming-webhook; env-set, kept OUT of committed files). Everywhere this skill writes `notify "<message>"`:
+The webhook lives in `~/code/dotfiles/apps/specdex/.env` (gitignored — its single home); the *Configuration* resolver reads it from there, and an explicit `DEX_NOTIFY_WEBHOOK` export overrides. Everywhere this skill writes `notify "<message>"`:
 
 ```bash
 notify() {
