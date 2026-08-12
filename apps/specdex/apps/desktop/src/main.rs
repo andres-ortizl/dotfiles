@@ -11,7 +11,11 @@ use specdex_core::{
     read_events, read_team_panes, set_archived, watch_team_argv, AggregatedNote, CuratorReport,
     FleetRow,
 };
-use tauri::{AppHandle, Emitter};
+use tauri::{
+    menu::{Menu, MenuBuilder, MenuItemBuilder},
+    tray::TrayIconBuilder,
+    AppHandle, Emitter, Manager, Wry,
+};
 
 const STALE_SECS: i64 = 15 * 60;
 
@@ -190,15 +194,78 @@ fn emit_signals(handle: &AppHandle) {
     let _ = handle.emit("signals", notes);
 }
 
+const TRAY_ID: &str = "specdex-tray";
+
+/// Menu bar dropdown: one attach item per needs-you spec, then app controls.
+fn tray_menu(handle: &AppHandle, blocked: &[FleetRow]) -> tauri::Result<Menu<Wry>> {
+    let mut menu = MenuBuilder::new(handle);
+    if blocked.is_empty() {
+        let calm = MenuItemBuilder::new("All calm").enabled(false).build(handle)?;
+        menu = menu.item(&calm);
+    } else {
+        for row in blocked {
+            let item = MenuItemBuilder::with_id(
+                format!("attach:{}/{}", row.project, row.name),
+                format!("{}/{}", row.project, row.name),
+            )
+            .build(handle)?;
+            menu = menu.item(&item);
+        }
+    }
+    let open = MenuItemBuilder::with_id("open", "Open specdex").build(handle)?;
+    let quit = MenuItemBuilder::with_id("quit", "Quit specdex").build(handle)?;
+    menu.separator().item(&open).item(&quit).build()
+}
+
+/// Recompute the tray title (needs-you count) and menu from the registry.
+/// Tray mutations must happen on the main thread on macOS.
+fn update_tray(handle: &AppHandle) {
+    let rows = snapshot();
+    let h = handle.clone();
+    let _ = handle.run_on_main_thread(move || {
+        let Some(tray) = h.tray_by_id(TRAY_ID) else { return };
+        let blocked: Vec<FleetRow> = rows.into_iter().filter(|r| r.health == "needs-you").collect();
+        let title = if blocked.is_empty() { "◆".to_string() } else { format!("◆ {}", blocked.len()) };
+        let _ = tray.set_title(Some(title));
+        if let Ok(menu) = tray_menu(&h, &blocked) {
+            let _ = tray.set_menu(Some(menu));
+        }
+    });
+}
+
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![fleet, archived_specs, archive_spec, unarchive_spec, signals, memory, curator_reports, read_curator_report, spec_detail, project_config, attach_terminal, team_panes, watch_team])
         .setup(|app| {
             let handle = app.handle().clone();
+            let menu = tray_menu(&handle, &[])?;
+            TrayIconBuilder::with_id(TRAY_ID)
+                .title("◆")
+                .menu(&menu)
+                .show_menu_on_left_click(true)
+                .on_menu_event(|app, event| match event.id().as_ref() {
+                    "quit" => app.exit(0),
+                    "open" => {
+                        if let Some(w) = app.get_webview_window("main") {
+                            let _ = w.show();
+                            let _ = w.unminimize();
+                            let _ = w.set_focus();
+                        }
+                    }
+                    id => {
+                        if let Some(spec) = id.strip_prefix("attach:") {
+                            if let Some((project, name)) = spec.split_once('/') {
+                                let _ = attach_terminal(project.to_string(), name.to_string());
+                            }
+                        }
+                    }
+                })
+                .build(app)?;
             // Watch the registry off-thread; push a fresh snapshot to the webview on change.
             std::thread::spawn(move || {
                 emit_fleet(&handle);
                 emit_signals(&handle);
+                update_tray(&handle);
                 let root = match paths::spec_root() {
                     Ok(r) if r.exists() => r,
                     _ => return,
@@ -218,6 +285,7 @@ fn main() {
                     std::thread::sleep(Duration::from_millis(80));
                     emit_fleet(&handle);
                     emit_signals(&handle);
+                    update_tray(&handle);
                 }
             });
             Ok(())
