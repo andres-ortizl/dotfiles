@@ -1,6 +1,6 @@
 layout {
     pane
-    pane size=1 borderless=true {
+    pane size=2 borderless=true {
         plugin location="file:~/.config/zellij/plugins/zjstatus.wasm" {
             color_rgb_fg "205,214,244"
             color_rgb_bg "30,30,46"
@@ -14,16 +14,35 @@ layout {
             color_rgb_white "205,214,244"
             color_rgb_orange "250,179,135"
 
-            format_left   "{tabs}"
-            format_right  "#[fg=#6c7086]{session} "
+            format_left   " {tabs}"
+            format_right  "{mode}#[fg=#585b70] · {session} "
             format_space  ""
 
-            border_enabled  "false"
-            border_position "off"
+            border_enabled  "true"
+            border_position "top"
+            border_char     " "
+            border_format   "{char}"
 
-            tab_normal              "#[fg=#6c7086,bg=#1e1e2e] {index} {name} "
-            tab_active              "#[fg=#1e1e2e,bg=#cba6f7,bold] {index} {name} "
+            mode_normal       "#[fg=#fab387]^g#[fg=#585b70] git · #[fg=#89b4fa]^d#[fg=#585b70] dock · #[fg=#f9e2af]^y#[fg=#585b70] files · #[fg=#a6e3a1]^f#[fg=#585b70] top · #[fg=#94e2d5]^b#[fg=#585b70] ports │ ^t ^p ^n ^s ^o · ^p? help"
+            mode_locked       "#[fg=#11111b,bg=#f38ba8,bold] LOCKED #[fg=#f38ba8]#[fg=#a6adc8] ^g unlock"
+            mode_pane         "#[fg=#11111b,bg=#a6e3a1,bold] PANE #[fg=#a6e3a1]#[fg=#a6adc8] n/r/d new · c rename · x close · f full · w float · e embed · hjkl focus · ? help"
+            mode_tab          "#[fg=#11111b,bg=#89b4fa,bold] TAB #[fg=#89b4fa]#[fg=#a6adc8] n new · r rename · x close · 1-9 jump · h/l cycle · b break · s sync"
+            mode_resize       "#[fg=#11111b,bg=#f9e2af,bold] RESIZE #[fg=#f9e2af]#[fg=#a6adc8] hjkl grow · HJKL shrink · +/- all"
+            mode_move         "#[fg=#11111b,bg=#fab387,bold] MOVE #[fg=#fab387]#[fg=#a6adc8] hjkl move · p backwards"
+            mode_scroll       "#[fg=#11111b,bg=#94e2d5,bold] SCROLL #[fg=#94e2d5]#[fg=#a6adc8] jk line · d/u half · e edit · s search · ^c bottom"
+            mode_enter_search "#[fg=#11111b,bg=#94e2d5,bold] SEARCH #[fg=#94e2d5]#[fg=#a6adc8] type query · enter start"
+            mode_search       "#[fg=#11111b,bg=#94e2d5,bold] SEARCH #[fg=#94e2d5]#[fg=#a6adc8] n/p next/prev · c case · w word · o wrap"
+            mode_rename_tab   "#[fg=#11111b,bg=#cba6f7,bold] RENAME #[fg=#cba6f7]#[fg=#a6adc8] type name · enter save · esc undo"
+            mode_rename_pane  "#[fg=#11111b,bg=#cba6f7,bold] RENAME #[fg=#cba6f7]#[fg=#a6adc8] type name · enter save · esc undo"
+            mode_session      "#[fg=#11111b,bg=#cba6f7,bold] SESSION #[fg=#cba6f7]#[fg=#a6adc8] w manager · d detach · c config · l layouts · s share"
+            mode_tmux         "#[fg=#11111b,bg=#f38ba8,bold] TMUX #[fg=#f38ba8]#[fg=#a6adc8] tmux-style prefix"
+
+            tab_normal              "#[fg=#a6adc8,bg=#313244] {name}{fullscreen_indicator}{floating_indicator}{sync_indicator} #[fg=#313244]"
+            tab_active              "#[fg=#11111b,bg=#cba6f7,bold] {name}{fullscreen_indicator}{floating_indicator}{sync_indicator} #[fg=#cba6f7]"
             tab_separator           " "
+            tab_fullscreen_indicator " [F]"
+            tab_floating_indicator   " [~]"
+            tab_sync_indicator       " [S]"
         }
     }
 }
