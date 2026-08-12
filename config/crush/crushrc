@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+provider add openai --api-key "${OPENAI_API_KEY:-}"
+
+model large openai/gpt-5.6-terra \
+  --reasoning-effort medium \
+  --max-tokens 65536
+model small openai/gpt-5.6-luna --max-tokens 16384
+
+option auto-summarize true
+option auto-lsp true
+option progress false
+option metrics false
+option ui compact true
+option ui diff split
+option ui scrollbar never
+option ui completions-max-depth 8
+option ui completions-max-items 12
+option attribution-trailer-style assisted-by
+option attribution-generated-with true

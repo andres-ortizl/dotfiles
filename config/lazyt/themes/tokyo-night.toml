@@ -1,0 +1,8 @@
+background = "#1a1b26"
+surface = "#24283b"
+primary = "#7aa2f7"
+text = "#c0caf5"
+muted = "#565f89"
+selection = "#9ece6a"
+warning = "#f7768e"
+progress = "#bb9af7"

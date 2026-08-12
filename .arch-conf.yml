@@ -17,6 +17,7 @@
     ~/.config/BetterDiscord: config/BetterDiscord/**
     ~/.config/dunst/dunstrc: config/dunst/dunstrc
     ~/.config/hypr: config/hypr/**
+    ~/.config/lazyt/themes: config/lazyt/themes/**
     ~/.config/systemd/user: config/systemd/user/**
     ~/.config/nvim: config/nvim/**
     ~/.config/quickshell: config/quickshell/**
@@ -24,6 +25,7 @@
     ~/.config/waybar: config/waybar/**
     ~/.config/starship/config.toml: config/starship/config.toml
     ~/.config/ghostty/config: config/ghostty/config
+    ~/.config/crush/crushrc: config/crush/crushrc
     ~/.config/discord/settings.json: config/discord/settings.json
     ~/.config/bat/bat.conf: config/bat/bat.conf
     ~/.usqlrc: config/usql/.usqlrc
