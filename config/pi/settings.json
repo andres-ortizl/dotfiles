@@ -1,7 +1,7 @@
 {
   "defaultProvider": "openai",
-  "defaultModel": "gpt-5.6-terra",
-  "defaultThinkingLevel": "high",
+  "defaultModel": "gpt-5.6-sol",
+  "defaultThinkingLevel": "xhigh",
   "theme": "catppuccin-mocha-andrew",
   "quietStartup": true,
   "showCacheMissNotices": false,
@@ -19,40 +19,40 @@
     "imageWidthCells": 60
   },
   "subagents": {
-    "defaultModel": "openai/gpt-5.6-luna",
-    "defaultThinking": "low",
+    "defaultModel": "openai/gpt-5.6-terra",
+    "defaultThinking": "xhigh",
     "agentOverrides": {
       "scout": {
-        "model": "openai/gpt-5.6-luna",
-        "thinking": "low"
+        "model": "openai/gpt-5.6-terra",
+        "thinking": "xhigh"
       },
       "delegate": {
-        "model": "openai/gpt-5.6-luna",
-        "thinking": "low"
+        "model": "openai/gpt-5.6-terra",
+        "thinking": "xhigh"
       },
       "researcher": {
-        "model": "openai/gpt-5.6-luna",
-        "thinking": "low"
+        "model": "openai/gpt-5.6-terra",
+        "thinking": "xhigh"
       },
       "worker": {
         "model": "openai/gpt-5.6-terra",
-        "thinking": "medium"
+        "thinking": "xhigh"
       },
       "context-builder": {
         "model": "openai/gpt-5.6-terra",
-        "thinking": "medium"
+        "thinking": "xhigh"
       },
       "reviewer": {
         "model": "openai/gpt-5.6-terra",
-        "thinking": "medium"
+        "thinking": "xhigh"
       },
       "planner": {
-        "model": "openai/gpt-5.6-sol",
-        "thinking": "high"
+        "model": "openai/gpt-5.6-terra",
+        "thinking": "xhigh"
       },
       "oracle": {
-        "model": "openai/gpt-5.6-sol",
-        "thinking": "high"
+        "model": "openai/gpt-5.6-terra",
+        "thinking": "xhigh"
       }
     }
   },
@@ -62,8 +62,14 @@
   "packages": [
     "npm:pi-web-access",
     "npm:pi-subagents",
-    "npm:pi-lean-ctx"
+    "npm:pi-lean-ctx",
+    "npm:@juicesharp/rpiv-ask-user-question",
+    "npm:@juicesharp/rpiv-todo",
+    "npm:pi-lens",
+    "npm:pi-powerline-footer",
+    "npm:pi-agent-browser-native",
+    "npm:pi-hashline-edit-pro"
   ],
-  "lastChangelogVersion": "0.84.1",
+  "lastChangelogVersion": "0.84.2",
   "hideThinkingBlock": true
 }
