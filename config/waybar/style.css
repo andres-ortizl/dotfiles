@@ -1,169 +1,127 @@
-@import url("colors.css");
-
 * {
-    /* `otf-font-awesome` is required to be installed for icons */
-    font-family: "JetBrainsMono Nerd Font", "FiraCode Nerd Font", "Font Awesome 6 Free", "Material Design Icons", sans-serif;
-    font-size: 17px;
-    border-radius: 17px;
-}
-
-#clock,
-#custom-notification,
-#custom-power-menu,
-#custom-control-center,
-#custom-tray,
-#custom-spotify,
-#pulseaudio,
-#window {
-    padding: 5px 15px;
-    border-radius: 12px;
-    background: @black-900;
-    color: @purpleSecondary;
-    box-shadow: @black-200 0 0 3px 2px;
-    margin: 8px 2px;
-    transition: all 0.3s ease;
-}
-
-#window {
-    min-width: 360px;
-    background-color: transparent;
-    box-shadow: none;
-}
-
-#pulseaudio:hover,
-#clock:hover,
-#custom-control-center:hover,
-#custom-tray:hover,
-#custom-power-menu:hover,
-#custom-notification:hover {
-    background: linear-gradient(135deg, @black-900, @purple-800);
-    box-shadow: @purple-500 0 0 10px 2px;
-    color: @white;
+    font-family: "JetBrainsMono Nerd Font", "Symbols Nerd Font Mono", monospace;
+    font-size: 13px;
+    min-height: 0;
 }
 
 window#waybar {
-    background-color: @black-600;
-    border-radius: 17px;
-}
-
-window * {
     background-color: transparent;
-    border-radius: 17px;
+    color: #cdd6f4;
 }
 
+.modules-left,
+.modules-center,
+.modules-right {
+    background-color: rgba(30, 30, 46, 0.84);
+    border: 1px solid rgba(69, 71, 90, 0.78);
+    border-radius: 14px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.28);
+}
+
+.modules-left {
+    margin-left: 8px;
+    padding: 0 2px;
+}
+
+.modules-center {
+    padding: 0 12px;
+}
+
+.modules-right {
+    margin-right: 8px;
+    padding: 0 15px 0 2px;
+}
 
 #workspaces {
-    background-color: transparent;
-    border-radius: 17px;
-    padding: 5px 0;
-    margin-top: 3px;
-    margin-bottom: 3px;
+    padding: 3px 1px;
 }
 
 #workspaces button {
-    box-shadow: @black-200 0 0 3px 2px;
-    background-color: @black-900;
-    border-radius: 12px;
-    margin-left: 10px;
-    min-width: 42px;
-    transition: all 0.3s ease;
+    min-width: 24px;
+    min-height: 30px;
+    margin: 2px 3px;
+    padding: 0;
+    border: 0;
+    border-radius: 9px;
+    color: #a6adc8;
+    background-color: transparent;
+    transition: background-color 150ms ease, color 150ms ease;
 }
 
 #workspaces button:hover {
-    background: linear-gradient(135deg, @purple-700, @purple-500);
-    box-shadow: @purple-400 0 0 8px 2px;
+    color: #cdd6f4;
+    background-color: rgba(69, 71, 90, 0.72);
 }
-
 
 #workspaces button.active {
-    min-width: 52px;
-    box-shadow: @black-300 2px 2px 5px 2px;
-    background: @purple-600;
-    background-size: 400% 400%;
-    transition: all 0.3s ease;
+    color: #1e1e2e;
+    background-color: #cba6f7;
 }
 
-@keyframes colored-gradient {
-    0% {
-        background-position: 71% 0;
-    }
-
-    50% {
-        background-position: 30% 100%;
-    }
-
-    100% {
-        background-position: 71% 0;
-    }
+#window {
+    min-width: 0;
+    padding: 0 12px;
+    color: #bac2de;
+    font-weight: 600;
 }
 
+#window label {
+    padding: 0 12px;
+}
+
+#mpris,
+#pulseaudio,
+#clock,
+#custom-notification,
+#custom-control-center,
+#custom-tray,
 #custom-power-menu {
-    margin-right: 10px;
-    padding-left: 12px;
-    padding-right: 15px;
-    padding-top: 3px;
+    margin: 2px;
+    padding: 0 7px;
+    border-radius: 9px;
+    color: #bac2de;
+    font-size: 14px;
+    transition: background-color 150ms ease, color 150ms ease;
 }
 
-
-
-#custom-control-center {
-    padding-left: 13px;
-    padding-right: 13px;
+#clock {
+    color: #cdd6f4;
+    font-weight: bold;
 }
 
-#custom-tray {
-    padding-left: 13px;
-    padding-right: 13px;
+#pulseaudio:hover,
+#custom-notification:hover,
+#custom-control-center:hover,
+#custom-tray:hover,
+#custom-power-menu:hover {
+    color: #f5e0dc;
+    background-color: rgba(203, 166, 247, 0.24);
 }
 
 #pulseaudio.muted {
-    color: @pink;
-    padding-right: 16px;
+    color: #f38ba8;
 }
 
-#custom-notification.collapsed,
-#custom-notification.waiting_done {
-    min-width: 12px;
-    padding-right: 17px;
+#custom-power-menu {
+    color: #f38ba8;
+    font-size: 14px;
+    padding-right: 7px;
 }
 
-#custom-notification.waiting_start,
-#custom-notification.expanded {
-    background: transparent linear-gradient(90deg,
-            @blackSecondary,
-            @black-900,
-            @black-900,
-            @black-900,
-            @black-900,
-            @blackSecondary);
-    background-size: 400% 100%;
-    animation: grey-gradient 3s linear infinite;
-    min-width: 500px;
+#custom-power-menu:hover {
+    color: #f5e0dc;
+    background-color: rgba(243, 139, 168, 0.22);
 }
 
-#custom-notification.collapsed_muted {
-    min-width: 12px;
-    color: @pink;
-    padding-right: 17px;
+tooltip {
+    background-color: #1e1e2e;
+    border: 1px solid #45475a;
+    border-radius: 10px;
+    color: #cdd6f4;
 }
 
-#custom-notification.waiting_done,
-#custom-notification.waiting_start {
-    color: rgba(255, 255, 255, 0);
-}
-
-#custom-notification.wallpaper {
-    min-width: 12px;
-    padding-right: 17px;
-    color: transparent;
-    background: linear-gradient(58deg,
-            #cba6f7,
-            #f38ba8,
-            #eba0ac,
-            #fab387,
-            #f9e2af,
-            #a6e3a1,
-            #94e2d5);
-    background-size: 300% 300%;
-    animation: colored-gradient 3s ease infinite;
+tooltip label {
+    padding: 5px;
 }

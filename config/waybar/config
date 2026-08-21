@@ -45,7 +45,9 @@
     },
     "hyprland/window": {
       "format": "{}",
-      "max-length": 48
+      "max-length": 48,
+      "align": 0.5,
+      "justify": "center"
     },
     "custom/control-center": {
       "format": "󰒓",
