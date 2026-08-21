@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+runtime_dir="${XDG_RUNTIME_DIR:-/tmp}"
+pid_file="$runtime_dir/wallpaper-picker.pid"
+
+exec 9>"$runtime_dir/wallpaper-picker.lock"
+flock -x 9
+
+if [[ -s "$pid_file" ]]; then
+    read -r pid < "$pid_file"
+    if kill -0 "$pid" 2>/dev/null; then
+        kill "$pid"
+        rm -f "$pid_file"
+        exit 0
+    fi
+fi
+
+quickshell -c wallpaper-picker >/dev/null 2>&1 &
+printf '%s\n' "$!" > "$pid_file"
