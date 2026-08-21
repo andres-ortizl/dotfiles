@@ -1,0 +1,92 @@
+@define-color thunar-base #1e1e2e;
+@define-color thunar-mantle #181825;
+@define-color thunar-surface #313244;
+@define-color thunar-surface-bright #45475a;
+@define-color thunar-mauve #cba6f7;
+@define-color thunar-text #cdd6f4;
+@define-color thunar-subtext #a6adc8;
+
+window.thunar {
+    background-color: @thunar-base;
+    color: @thunar-text;
+}
+
+window.thunar .background,
+window.thunar .standard-view,
+window.thunar iconview.view,
+window.thunar treeview.view {
+    background-color: @thunar-base;
+    color: @thunar-text;
+}
+
+window.thunar .sidebar {
+    background-color: @thunar-mantle;
+    border-right: 1px solid @thunar-surface;
+}
+
+window.thunar .sidebar treeview.view,
+window.thunar .sidebar treeview.view:not(:selected) {
+    background-color: @thunar-mantle;
+}
+
+window.thunar iconview.view:selected,
+window.thunar treeview.view:selected {
+    background-color: alpha(@thunar-mauve, 0.30);
+    color: @thunar-text;
+    border-radius: 9px;
+}
+
+window.thunar iconview.view:hover,
+window.thunar treeview.view:hover {
+    background-color: alpha(@thunar-surface-bright, 0.55);
+}
+
+window.thunar toolbar,
+window.thunar .toolbar,
+window.thunar .path-bar {
+    background-color: @thunar-mantle;
+    border-color: @thunar-surface;
+    box-shadow: none;
+}
+
+window.thunar .path-bar button,
+window.thunar .location-button {
+    background-color: transparent;
+    border-color: transparent;
+    border-radius: 8px;
+    color: @thunar-subtext;
+}
+
+window.thunar .path-bar button:hover,
+window.thunar .location-button:hover {
+    background-color: alpha(@thunar-surface-bright, 0.65);
+    color: @thunar-text;
+}
+
+window.thunar .path-bar button:checked,
+window.thunar .location-button:checked {
+    background-color: alpha(@thunar-mauve, 0.24);
+    color: @thunar-mauve;
+}
+
+window.thunar entry,
+window.thunar entry:focus {
+    background-color: @thunar-surface;
+    border-color: alpha(@thunar-mauve, 0.65);
+    border-radius: 8px;
+    color: @thunar-text;
+    box-shadow: none;
+}
+
+window.thunar scrollbar slider {
+    background-color: alpha(@thunar-mauve, 0.55);
+    border-radius: 999px;
+    min-width: 6px;
+    min-height: 6px;
+}
+
+window.thunar .statusbar {
+    background-color: @thunar-mantle;
+    border-top: 1px solid @thunar-surface;
+    color: @thunar-subtext;
+}

@@ -51,6 +51,7 @@
     ~/.config/gtk-2.0: config/gtk-2.0/**
     ~/.config/gtk-3.0: config/gtk-3.0/**
     ~/.config/gtk-4.0: config/gtk-4.0/**
+    ~/.config/xfce4/xfconf/xfce-perchannel-xml/thunar.xml: config/xfce4/xfconf/xfce-perchannel-xml/thunar.xml
     ~/.config/kilo/kilo.jsonc: config/kilo/kilo.jsonc
     ~/.config/kilo/tui.jsonc: config/kilo/tui.jsonc
 

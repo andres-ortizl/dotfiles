@@ -109,7 +109,7 @@ The installer will:
 - Dunst notifications
 - Wlogout power menu
 - Zen Browser
-- Nautilus file manager
+- Thunar file manager
 - swww wallpaper manager
 
 **macOS Specific:**
@@ -200,7 +200,7 @@ A modern Wayland-based desktop environment:
 - **Editor:** Zed, Neovim
 - **Launcher:** Vicinae
 - **Browser:** Zen Browser
-- **File Manager:** Nautilus
+- **File Manager:** Thunar
 - **Notifications:** Dunst
 - **Lock Screen:** Hyprlock
 - **Wallpaper:** swww
