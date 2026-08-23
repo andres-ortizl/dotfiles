@@ -1,5 +1,5 @@
 #!/bin/sh
 
 if ! pkill -f "ghostty --class=scratchpad.ghostty" 2>/dev/null; then
-    ghostty --class=scratchpad.ghostty
+    exec "$HOME/.config/hypr/scripts/launch-app" ghostty --class=scratchpad.ghostty
 fi

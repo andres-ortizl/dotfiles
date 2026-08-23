@@ -10,7 +10,9 @@ Usage:
     uv run show_keybindings.py [menu|hyprland|zed|all|search <query>]
 """
 
+import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -22,16 +24,118 @@ from rich.table import Table
 
 
 class HyprlandParser:
-    def __init__(self, config_path: Path):
-        self.config_path = config_path
+    MODIFIERS = (
+        (64, "Super"),
+        (4, "Ctrl"),
+        (8, "Alt"),
+        (1, "Shift"),
+        (2, "Caps"),
+        (16, "Mod2"),
+        (32, "Mod3"),
+        (128, "Mod5"),
+    )
+
+    def __init__(self, legacy_config_path: Path | None = None):
+        self.legacy_config_path = legacy_config_path
 
     def parse(self) -> dict:
+        try:
+            return self._parse_live()
+        except (
+            OSError,
+            subprocess.CalledProcessError,
+            json.JSONDecodeError,
+            ValueError,
+        ):
+            if self.legacy_config_path and self.legacy_config_path.exists():
+                return self._parse_legacy()
+            return {}
+
+    def _parse_live(self) -> dict:
+        result = subprocess.run(
+            ["hyprctl", "binds", "-j"],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        bindings = json.loads(result.stdout)
+        if not isinstance(bindings, list):
+            raise ValueError("hyprctl binds did not return a list")
+
         categories = {}
+        for binding in bindings:
+            action = str(binding.get("dispatcher") or "")
+            param = str(binding.get("arg") or "")
+            category, description = self._binding_description(binding, action, param)
+            categories.setdefault(category, []).append(
+                {
+                    "key": self._format_live_key(binding),
+                    "action": action,
+                    "description": description,
+                },
+            )
 
-        with open(self.config_path) as f:
-            content = f.read()
+        return {name: entries for name, entries in categories.items() if entries}
 
-        lines = content.split("\n")
+    def _binding_description(
+        self, binding: dict, action: str, param: str
+    ) -> tuple[str, str]:
+        description = str(binding.get("description") or "").strip()
+        if ": " in description:
+            category, description = description.split(": ", 1)
+            return category, description
+
+        submap = str(binding.get("submap") or "").strip()
+        category = (
+            f"{submap.title()} mode" if submap else self._category_for(action, binding)
+        )
+        return category, description or self._get_description(action, param)
+
+    def _category_for(self, action: str, binding: dict) -> str:
+        key = str(binding.get("key") or "")
+        if key.startswith("XF86Audio"):
+            return "Media"
+        if action in {"workspace", "movetoworkspace"}:
+            return "Workspaces"
+        if action in {
+            "killactive",
+            "fullscreen",
+            "togglefloating",
+            "movefocus",
+            "swapwindow",
+            "movewindow",
+            "resizewindow",
+            "resizeactive",
+            "togglegroup",
+            "changegroupactive",
+        }:
+            return "Windows"
+        if action == "exec":
+            return "Applications and utilities"
+        return "General"
+
+    def _format_live_key(self, binding: dict) -> str:
+        try:
+            modmask = int(binding.get("modmask") or 0)
+        except (TypeError, ValueError):
+            modmask = 0
+
+        parts = [name for bit, name in self.MODIFIERS if modmask & bit]
+        key = str(binding.get("key") or "").strip()
+        if not key and binding.get("keycode"):
+            key = f"code:{binding['keycode']}"
+        parts.append(key or "Unknown")
+        return " + ".join(parts)
+
+    def _parse_legacy(self) -> dict:
+        legacy_config_path = self.legacy_config_path
+        if legacy_config_path is None:
+            return {}
+
+        categories = {}
+        with legacy_config_path.open() as config_file:
+            lines = config_file.read().splitlines()
+
         current_category = "General"
         categories[current_category] = []
 
@@ -44,8 +148,18 @@ class HyprlandParser:
                     comment
                     and len(comment) < 50
                     and not any(
-                        c in comment
-                        for c in ["=", "bind", "┌", "┐", "├", "┴", "└", "─", "│"]
+                        character in comment
+                        for character in [
+                            "=",
+                            "bind",
+                            "┌",
+                            "┐",
+                            "├",
+                            "┴",
+                            "└",
+                            "─",
+                            "│",
+                        ]
                     )
                 ):
                     current_category = comment
@@ -56,41 +170,32 @@ class HyprlandParser:
                 continue
 
             match = re.match(r"bind[em]?\s*=\s*(.+)", line)
-            if match:
-                bind_content = match.group(1)
-                parts = [p.strip() for p in bind_content.split(",", 3)]
+            if not match:
+                continue
 
-                if len(parts) >= 3:
-                    modifiers = parts[0]
-                    key = parts[1]
-                    action = parts[2]
-                    param = parts[3] if len(parts) > 3 else ""
+            parts = [part.strip() for part in match.group(1).split(",", 3)]
+            if len(parts) < 3:
+                continue
 
-                    modifiers = modifiers.replace("$mainMod", "Super")
-                    modifiers = modifiers.replace("$winMod", "Meta")
-                    modifiers = modifiers.replace("SHIFT", "Shift")
-                    modifiers = modifiers.replace("ALT", "Alt")
-                    modifiers = modifiers.replace("CTRL", "Ctrl")
+            modifiers, key, action = parts[:3]
+            param = parts[3] if len(parts) > 3 else ""
+            modifiers = modifiers.replace("$mainMod", "Super")
+            modifiers = modifiers.replace("$winMod", "Meta")
+            modifiers = modifiers.replace("SHIFT", "Shift")
+            modifiers = modifiers.replace("ALT", "Alt")
+            modifiers = modifiers.replace("CTRL", "Ctrl")
+            mod_parts = modifiers.split()
+            formatted_key = " + ".join([*mod_parts, key]) if mod_parts else key
 
-                    mod_parts = modifiers.split()
-                    if len(mod_parts) > 1:
-                        formatted_key = " + ".join(mod_parts) + " + " + key
-                    elif mod_parts:
-                        formatted_key = f"{mod_parts[0]} + {key}"
-                    else:
-                        formatted_key = key
+            categories[current_category].append(
+                {
+                    "key": formatted_key,
+                    "action": action,
+                    "description": self._get_description(action, param),
+                },
+            )
 
-                    description = self._get_description(action, param)
-
-                    categories[current_category].append(
-                        {
-                            "key": formatted_key,
-                            "action": action,
-                            "description": description,
-                        },
-                    )
-
-        return {k: v for k, v in categories.items() if v}
+        return {name: entries for name, entries in categories.items() if entries}
 
     def _get_description(self, action: str, param: str) -> str:
         if action == "exec":
@@ -110,7 +215,7 @@ class HyprlandParser:
                 return "Lock Screen"
             if "setwall" in param:
                 return "Cycle Wallpaper"
-            if "powermenu" in param:
+            if "powermenu" in param or "wlogout" in param:
                 return "Power Menu"
             if "scratchpad" in param:
                 return "Scratchpad Terminal"

@@ -1,0 +1,7 @@
+hl.env("BROWSER", "zen-bin")
+hl.env("TERMINAL", "ghostty")
+hl.env("EDITOR", "zeditor")
+hl.env("FILEMANAGER", "thunar")
+hl.env("XDG_UTILS_TERMINAL", "ghostty")
+hl.env("XDG_UTILS_BROWSER", "zen-bin")
+hl.env("XDG_UTILS_FILEMANAGER", "thunar")

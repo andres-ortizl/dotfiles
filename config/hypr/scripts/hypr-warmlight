@@ -10,8 +10,15 @@ VIBRANCE="/usr/share/hyprshade/shaders/vibrance.glsl"
 EMPTY="[[EMPTY]]"
 SOCKET="$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock"
 
-on()  { hyprctl keyword decoration:screen_shader "$1" >/dev/null 2>&1; }
-off() { hyprctl keyword decoration:screen_shader "$EMPTY" >/dev/null 2>&1; }
+set_shader() {
+  local shader="$1"
+
+  hyprctl eval "hl.config({ decoration = { screen_shader = '$shader' } })" >/dev/null 2>&1 ||
+    hyprctl keyword decoration:screen_shader "$shader" >/dev/null 2>&1
+}
+
+on()  { set_shader "$1"; }
+off() { set_shader "$EMPTY"; }
 
 # ¿Hay alguna ventana en fullscreen?
 any_fullscreen() {
