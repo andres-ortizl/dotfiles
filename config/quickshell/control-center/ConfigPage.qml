@@ -31,7 +31,7 @@ Item {
                 width: (parent.width - parent.spacing) / 2
                 icon: "󰸉"
                 title: "Next wallpaper"
-                subtitle: "Rotate with awww / swww"
+                subtitle: "Rotate with Awww and refresh accents"
                 onClicked: Quickshell.execDetached([Quickshell.env("HOME") + "/.config/hypr/scripts/setwall"])
             }
 

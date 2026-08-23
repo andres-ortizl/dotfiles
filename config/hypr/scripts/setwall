@@ -1,78 +1,70 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-# swww animation settings
-export SWWW_TRANSITION=outer                    # Sets the type of transition. Default is 'simple', that fades into the new image
-export SWWW_TRANSITION_STEP=100                 # How fast the transition approaches the new image
-export SWWW_TRANSITION_DURATION=1.5             # How long the transition takes to complete in seconds
-export SWWW_TRANSITION_FPS=144                  # Frame rate for the transition effect
-export SWWW_TRANSITION_ANGLE=180                # This is only used for the 'wipe' transition. It controls the angle of the wipe
-export SWWW_TRANSITION_POS=0.6877,0.975         # This is only used for the 'grow','outer' transitions. It controls the center of circle
-export SWWW_TRANSITION_BEZIER=.4,0.02,0.21,0.99 # bezier curve to use for the transition
+export AWWW_TRANSITION=outer
+export AWWW_TRANSITION_STEP=100
+export AWWW_TRANSITION_DURATION=1.5
+export AWWW_TRANSITION_FPS=144
+export AWWW_TRANSITION_ANGLE=180
+export AWWW_TRANSITION_POS=0.6877,0.975
+export AWWW_TRANSITION_BEZIER=.4,0.02,0.21,0.99
 
-GREEN='\033[0;32m'
-NC='\033[0m'
+readonly wallpaper_dir="$HOME/.config/wallpaper"
+readonly state_file="$HOME/.config/hypr/store/wallpaper"
 
-# Support both swww and awww binaries.
-if command -v swww >/dev/null 2>&1; then
-    WALL_BIN="swww"
-    WALL_DAEMON="swww-daemon"
-    WALL_PROC="swww"
-elif command -v awww >/dev/null 2>&1; then
-    WALL_BIN="awww"
-    WALL_DAEMON="awww-daemon"
-    WALL_PROC="awww-daemon"
-else
-    echo "[ERROR] Neither swww nor awww is installed."
+mapfile -t wallpapers < <(
+    find -L "$wallpaper_dir" -maxdepth 1 -type f \
+        \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' \) \
+        -printf '%f\n' | sort
+)
+((${#wallpapers[@]} > 0)) || {
+    printf 'No wallpapers found in %s\n' "$wallpaper_dir" >&2
     exit 1
+}
+
+index=1
+if [[ -f $state_file ]]; then
+    read -r index <"$state_file"
+fi
+if [[ ! $index =~ ^[0-9]+$ ]] || ((index < 1 || index > ${#wallpapers[@]})); then
+    index=1
 fi
 
-# If wallpaper daemon is not started, start it.
-if ! pgrep -x "$WALL_PROC" >/dev/null; then
-    "$WALL_DAEMON" &
-    # Wait for daemon to start (max 2s)
-    for i in {1..20}; do
-        if pgrep -x "$WALL_PROC" >/dev/null; then
-            break
-        fi
+case "${1:-}" in
+    startup)
+        mode=Startup
+        ;;
+    "")
+        index=$((index % ${#wallpapers[@]} + 1))
+        mode=Cycle
+        ;;
+    *[!0-9]*)
+        printf 'Usage: %s [startup|INDEX]\n' "$0" >&2
+        exit 2
+        ;;
+    *)
+        ((1 <= $1 && $1 <= ${#wallpapers[@]})) || {
+            printf 'Wallpaper index must be between 1 and %d\n' "${#wallpapers[@]}" >&2
+            exit 2
+        }
+        index=$1
+        mode=Direct
+        ;;
+esac
+
+mkdir -p "$(dirname "$state_file")"
+printf '%d\n' "$index" >"$state_file"
+
+if ! pgrep -x awww-daemon >/dev/null; then
+    awww-daemon &
+    for _ in {1..20}; do
+        pgrep -x awww-daemon >/dev/null && break
         sleep 0.1
     done
 fi
 
-var=$(cat ~/.config/hypr/store/wallpaper)
-wallpapernum=$(ls ~/.config/wallpaper | wc -l)
-new=$(($var + 1))
-
-# get the names of the wallpapers in .config/wallpapers
-wallpapers=($(ls ~/.config/wallpaper))
-
-# Test startup arg
-if [[ $1 != "startup" ]]; then
-  # If the script is not called on startup, then increment the wallpaper number
-  if [[ $var -ge $wallpapernum ]]; then
-    echo 1 >$HOME/.config/hypr/store/wallpaper
-  else
-    echo $new >$HOME/.config/hypr/store/wallpaper
-  fi
-else
-  var=$(($var - 1))
-  if [ $var -eq 0 ]; then
-    var=$wallpapernum
-  fi
-fi
-
-# Test mode
-if [[ $1 =~ ^[0-9]+$ ]] && [[ $(ls $HOME/.config/wallpaper | grep $1) ]]; then
-  var=$1
-  printf "$GREEN[MODE]$NC Direct\n"
-else
-  if [[ $1 == "startup" ]]; then
-    printf "$GREEN[MODE]$NC Startup\n"
-  else
-    printf "$GREEN[MODE]$NC Cycle\n"
-  fi
-fi
-
-# Set wallpaper
-
-printf "$GREEN[INFO]$NC Setting wallpaper to $var (${wallpapers[$(($var - 1))]})\n"
-"$WALL_BIN" img "$HOME/.config/wallpaper/${wallpapers[$(($var - 1))]}" -o DP-3
+wallpaper="$wallpaper_dir/${wallpapers[index - 1]}"
+printf '[MODE] %s\n[INFO] Setting wallpaper %d (%s)\n' \
+    "$mode" "$index" "${wallpapers[index - 1]}"
+awww img "$wallpaper" -o DP-3
+"$HOME/.config/hypr/scripts/apply-wallpaper-theme" "$wallpaper"

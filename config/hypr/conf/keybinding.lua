@@ -66,6 +66,8 @@ bind("Print", "Capture: Copy screen", hl.dsp.exec_cmd("$HOME/.config/hypr/script
 bind("SHIFT + Print", "Capture: Copy active window", hl.dsp.exec_cmd("$HOME/.config/hypr/scripts/grimblast --notify copy window"))
 bind(mainMod .. " + SHIFT + S", "Capture: Copy selected area", hl.dsp.exec_cmd("$HOME/.config/hypr/scripts/grimblast --notify copy area"))
 bind(mainMod .. " + CTRL + S", "Capture: Decode QR code", hl.dsp.exec_cmd("$HOME/.config/hypr/scripts/capture-qr"))
+bind(mainMod .. " + SHIFT + A", "Capture: Annotate selected area", hl.dsp.exec_cmd("$HOME/.config/hypr/scripts/annotate-screenshot"))
+bind(mainMod .. " + SHIFT + C", "Capture: Pick color", hl.dsp.exec_cmd("$HOME/.config/hypr/scripts/pick-color"))
 
 bind(mainMod .. " + W", "Appearance: Open wallpaper picker", hl.dsp.exec_cmd("$HOME/.config/hypr/scripts/toggle-wallpaper-picker"))
 bind(mainMod .. " + ALT + W", "Appearance: Select random wallpaper", hl.dsp.exec_cmd("$HOME/.config/hypr/scripts/setwall"))

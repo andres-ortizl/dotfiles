@@ -1,3 +1,3 @@
 [Unit]
 Description=Hyprland session services
-Wants=desktop-text-scale.service awww-daemon.service waybar.service waybar.path quickshell-control-center.service dunst.service hypridle.service hyprshade.service hyprshade.timer fan-curve.service screensharing.service vicinae.service
+Wants=desktop-text-scale.service awww-daemon.service waybar.service waybar.path quickshell-control-center.service dunst.service hypridle.service hyprsunset.service hyprsunset-fullscreen.service hyprpolkitagent.service fan-curve.service vicinae.service xdg-desktop-portal.service xdg-desktop-portal-hyprland.service

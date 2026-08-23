@@ -1,6 +1,7 @@
 [Unit]
 Description=Quickshell control center
 PartOf=hyprland-session.target
+After=awww-daemon.service
 
 [Service]
 ExecStart=/usr/bin/qs --no-duplicate -c control-center

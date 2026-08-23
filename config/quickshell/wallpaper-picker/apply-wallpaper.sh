@@ -22,3 +22,4 @@ if ! pgrep -x awww-daemon >/dev/null; then
 fi
 
 awww img "$wallpaper" -t random --transition-duration 1
+"$HOME/.config/hypr/scripts/apply-wallpaper-theme" "$wallpaper"

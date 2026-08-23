@@ -646,6 +646,10 @@ ShellRoot {
         function media(payload: string): void {
             desktopOsd.showMedia(payload);
         }
+
+        function color(payload: string): void {
+            desktopOsd.showColor(payload);
+        }
     }
 
     IpcHandler {

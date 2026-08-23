@@ -5,6 +5,6 @@ PartOf=hyprland-session.target
 [Service]
 Type=exec
 ExecStart=/usr/bin/awww-daemon
-ExecStartPost=/bin/bash -c 'sleep 0.5 && /usr/bin/awww img %h/.config/wallpaper/futuristic_city.png'
+ExecStartPost=/bin/bash -c 'sleep 0.5 && %h/.config/hypr/scripts/setwall startup'
 Restart=on-failure
 RestartSec=2

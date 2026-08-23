@@ -1,0 +1,30 @@
+[general]
+fullscreen = "current-screen"
+resize = { mode = "smart" }
+floating-hack = true
+early-exit = ["copy"]
+initial-tool = "pointer"
+copy-command = "wl-copy"
+annotation-size-factor = 2
+corner-roundness = 12
+no-window-decoration = true
+actions-on-enter = ["save-to-clipboard"]
+actions-on-escape = ["exit"]
+notification-thumbnail = "screenshot"
+
+[font]
+family = "JetBrainsMono Nerd Font"
+style = "Regular"
+fallback = ["Noto Color Emoji"]
+
+[color-palette]
+palette = [
+    "#cba6f7ff",
+    "#f38ba8ff",
+    "#fab387ff",
+    "#f9e2afff",
+    "#a6e3a1ff",
+    "#89dcebff",
+    "#89b4faff",
+    "#cdd6f4ff",
+]

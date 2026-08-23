@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+wallpaper=${1:?Usage: apply-wallpaper-theme WALLPAPER}
+script_path=$(readlink -f "$0")
+dotfiles=$(cd "$(dirname "$script_path")/../../.." && pwd)
+
+"$dotfiles/bin/sync-desktop-theme" --wallpaper "$wallpaper"

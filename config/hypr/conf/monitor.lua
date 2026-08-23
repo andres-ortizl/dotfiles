@@ -3,6 +3,7 @@ local monitor = {
     mode = "2560x1440@180",
     position = "0x0",
     scale = 1,
+    vrr = 3,
 }
 
 if package.searchpath("machine", package.path) then

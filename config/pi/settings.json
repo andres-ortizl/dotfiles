@@ -71,5 +71,5 @@
     "npm:pi-hashline-edit-pro"
   ],
   "lastChangelogVersion": "0.84.2",
-  "hideThinkingBlock": true
+  "hideThinkingBlock": false
 }

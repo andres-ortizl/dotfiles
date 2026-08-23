@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+color=$(hyprpicker --no-fancy)
+[[ $color =~ ^#[0-9A-Fa-f]{6}$ ]] || exit 1
+printf '%s' "$color" | wl-copy
+
+payload=$(jq -cn --arg color "$color" '{color:$color}')
+if ! qs -c control-center ipc call osd color "$payload" >/dev/null 2>&1; then
+    notify-send "Color copied" "$color"
+fi

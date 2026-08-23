@@ -1,0 +1,8 @@
+[Unit]
+Description=Hyprsunset blue-light filter
+PartOf=hyprland-session.target
+
+[Service]
+ExecStart=/usr/bin/hyprsunset
+Restart=on-failure
+RestartSec=2

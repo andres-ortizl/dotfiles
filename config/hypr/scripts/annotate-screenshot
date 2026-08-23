@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+freeze_pid=""
+screenshot="$(mktemp --suffix=.png)"
+
+cleanup() {
+    if [[ -n $freeze_pid ]]; then
+        kill "$freeze_pid" 2>/dev/null || true
+    fi
+    rm -f "$screenshot"
+}
+trap cleanup EXIT
+
+hyprpicker -r -z >/dev/null 2>&1 &
+freeze_pid=$!
+sleep 0.1
+
+selection=$(slurp 2>/dev/null) || exit 0
+[[ -n $selection ]] || exit 0
+grim -g "$selection" "$screenshot"
+
+kill "$freeze_pid" 2>/dev/null || true
+freeze_pid=""
+satty --filename "$screenshot"

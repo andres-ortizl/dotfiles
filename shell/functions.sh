@@ -143,7 +143,7 @@ function shell-bench() {
     echo "   - Shell startup is slow. Check .zshrc plugins"
   fi
   if [[ $ls_time -gt $alias_ok ]] || [[ $ll_time -gt $alias_ok ]]; then
-    echo "   - File listing aliases are slow. Check lsd installation"
+    echo "   - File listing aliases are slow. Check eza installation"
   fi
   if [[ $startup -lt $startup_good ]] && [[ $ls_time -lt $alias_good ]] && [[ $ll_time -lt $alias_good ]]; then
     echo "   🎉 All benchmarks are excellent! Keep it up!"

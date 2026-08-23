@@ -1,0 +1,10 @@
+[Unit]
+Description=Disable Hyprsunset for fullscreen windows
+PartOf=hyprland-session.target
+Requires=hyprsunset.service
+After=hyprsunset.service
+
+[Service]
+ExecStart=%h/.config/hypr/scripts/hyprsunset-fullscreen
+Restart=on-failure
+RestartSec=2

@@ -9,6 +9,7 @@ PanelWindow {
     property bool progressVisible: false
     property real progress: 0
     property string icon: "󰕾"
+    property color iconColor: Theme.mauve
     property string title: ""
     property string subtitle: ""
 
@@ -48,6 +49,7 @@ PanelWindow {
             progress = Math.min(value, 100) / 100
             progressVisible = true
             icon = muted || value === 0 ? "󰖁" : value < 35 ? "󰕿" : value < 70 ? "󰖀" : "󰕾"
+            iconColor = Theme.mauve
             title = muted ? "Muted" : value + "%"
             subtitle = "Default audio output"
             present()
@@ -61,8 +63,26 @@ PanelWindow {
             const payload = JSON.parse(raw)
             progressVisible = false
             icon = payload.status === "Playing" ? "󰏤" : "󰐊"
+            iconColor = Theme.mauve
             title = String(payload.title || "Media")
             subtitle = String(payload.artist || payload.player || "")
+            present()
+        } catch (error) {
+            shown = false
+        }
+    }
+
+    function showColor(raw) {
+        try {
+            const payload = JSON.parse(raw)
+            const value = String(payload.color || "")
+            if (!/^#[0-9a-fA-F]{6}$/.test(value))
+                throw new Error("Invalid color")
+            progressVisible = false
+            icon = "󰏘"
+            iconColor = value
+            title = value.toUpperCase()
+            subtitle = "Copied to clipboard"
             present()
         } catch (error) {
             shown = false
@@ -92,7 +112,7 @@ PanelWindow {
                 Text {
                     anchors.centerIn: parent
                     text: osd.icon
-                    color: Theme.mauve
+                    color: osd.iconColor
                     font.family: Ui.fontFamily
                     font.pixelSize: 30
                 }

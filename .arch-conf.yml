@@ -5,7 +5,11 @@
       force: true
       glob: true
 
-- clean: ["~"]
+- clean:
+    ~/:
+      force: false
+    ~/.config:
+      recursive: true
 
 - link:
     ~/.zshrc: config/.zshrc_arch
@@ -15,13 +19,16 @@
     ~/.zimrc: config/.zimrc
     ~/.gitconfig: config/git/.gitconfig
     ~/.config/BetterDiscord: config/BetterDiscord/**
+    ~/.config/atuin: config/atuin/**
     ~/.config/dunst/dunstrc: config/dunst/dunstrc
     ~/.config/dunst/dunstrc.d: config/dunst/dunstrc.d/**
     ~/.config/hypr: config/hypr/**
     ~/.config/lazyt/themes: config/lazyt/themes/**
     ~/.config/systemd/user: config/systemd/user/**
     ~/.config/nvim: config/nvim/**
-    ~/.config/quickshell: config/quickshell/**
+    ~/.config/quickshell/control-center: config/quickshell/control-center
+    ~/.config/quickshell/wallpaper-picker: config/quickshell/wallpaper-picker
+    ~/.config/satty/config.toml: config/satty/config.toml
     ~/.config/wallpaper: config/wallpaper/**
     ~/.config/waybar: config/waybar/**
     ~/.config/starship/config.toml: config/starship/config.toml
@@ -43,6 +50,7 @@
     ~/.config/gitui: config/gitui/**
     ~/.config/keybindings-helper: config/keybindings-helper/**
     ~/.config/delta: config/delta/**
+    ~/.config/fastfetch: config/fastfetch/**
     ~/.config/yazi: config/yazi/**
     ~/.config/eza: config/eza/**
     ~/.config/lazygit: config/lazygit/**

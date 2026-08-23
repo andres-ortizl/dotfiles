@@ -2,14 +2,17 @@
 pragma Singleton
 
 import QtQuick
+import Quickshell
 
 QtObject {
     readonly property string fontFamily: "JetBrainsMono Nerd Font"
     readonly property string symbolsFont: "Symbols Nerd Font Mono"
+    readonly property color wallpaperAccent: Quickshell.env("DOTFILES_ACCENT") || "#9580ff"
+    readonly property color wallpaperAccentContainer: Quickshell.env("DOTFILES_ACCENT_CONTAINER") || "#354f80"
     readonly property color rosewater: "#f5e0dc"
     readonly property color flamingo: "#f2cdcd"
     readonly property color pink: "#f5c2e7"
-    readonly property color mauve: "#cba6f7"
+    readonly property color mauve: wallpaperAccent
     readonly property color red: "#f38ba8"
     readonly property color maroon: "#eba0ac"
     readonly property color peach: "#fab387"
@@ -36,14 +39,14 @@ QtObject {
     readonly property color surface: "#414558"
     readonly property color surfaceRaised: "#393a4b"
     readonly property color surfaceInset: "#303140"
-    readonly property color activeSurface: "#354f80"
+    readonly property color activeSurface: wallpaperAccentContainer
     readonly property color hoverSurface: "#5f5575"
     readonly property color dangerSurface: "#4d3a55"
     readonly property color primaryText: "#f8f8f2"
     readonly property color mutedText: "#a7abbe"
     readonly property color quietText: "#626784"
-    readonly property color accent: "#9580ff"
-    readonly property color accentText: "#d4ccff"
+    readonly property color accent: wallpaperAccent
+    readonly property color accentText: wallpaperAccent
     readonly property color success: "#8aff80"
     readonly property color warning: "#ff9580"
     readonly property color danger: "#ff80bf"

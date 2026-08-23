@@ -1,6 +1,7 @@
 [Unit]
 Description=Waybar status bar
 PartOf=hyprland-session.target
+After=awww-daemon.service
 
 [Service]
 ExecStart=/usr/bin/waybar
