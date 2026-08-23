@@ -11,7 +11,7 @@ Rectangle {
 
     height: 44
     radius: 12
-    color: active ? "#3d354f80" : tabMouse.containsMouse ? "#4d414558" : "transparent"
+    color: active ? Theme.alpha(Theme.activeSurface, 0.24) : tabMouse.containsMouse ? Theme.alpha(Theme.surface, 0.30) : "transparent"
 
     Row {
         anchors.centerIn: parent
@@ -19,14 +19,14 @@ Rectangle {
 
         Text {
             text: root.icon
-            color: root.active ? "#d4ccff" : "#a7abbe"
+            color: root.active ? Theme.accentText : Theme.mutedText
             font.family: Ui.fontFamily
             font.pixelSize: 16
         }
 
         Text {
             text: root.label
-            color: root.active ? "#f8f8f2" : "#a7abbe"
+            color: root.active ? Theme.primaryText : Theme.mutedText
             font.family: Ui.fontFamily
             font.pixelSize: Ui.body
             font.bold: root.active

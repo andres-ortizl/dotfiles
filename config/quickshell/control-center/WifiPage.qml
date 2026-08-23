@@ -48,12 +48,12 @@ Item {
             width: 44
             height: 44
             radius: 11
-            color: backMouse.containsMouse ? "#73414558" : "#4d414558"
+            color: backMouse.containsMouse ? Theme.alpha(Theme.surface, 0.45) : Theme.alpha(Theme.surface, 0.30)
 
             Text {
                 anchors.centerIn: parent
                 text: "<"
-                color: "#d4ccff"
+                color: Theme.accentText
                 font.family: Ui.fontFamily
                 font.pixelSize: Ui.heading
             }
@@ -71,7 +71,7 @@ Item {
             x: 58
             anchors.verticalCenter: parent.verticalCenter
             text: "WI-FI NETWORKS"
-            color: "#f8f8f2"
+            color: Theme.primaryText
             font.family: Ui.fontFamily
             font.pixelSize: Ui.title
             font.bold: true
@@ -80,16 +80,44 @@ Item {
 
         Rectangle {
             anchors.right: parent.right
+            anchors.rightMargin: 70
+            anchors.verticalCenter: parent.verticalCenter
+            width: 34
+            height: 26
+            radius: 9
+            color: qrMouse.containsMouse ? Theme.alpha(Theme.surface, 0.45) : Theme.alpha(Theme.surface, 0.30)
+            opacity: root.host.connectedWifi ? 1 : 0.45
+
+            Text {
+                anchors.centerIn: parent
+                text: "󰐲"
+                color: Theme.accentText
+                font.family: Ui.fontFamily
+                font.pixelSize: Ui.body
+            }
+
+            MouseArea {
+                id: qrMouse
+                anchors.fill: parent
+                enabled: root.host.connectedWifi !== null
+                hoverEnabled: true
+                cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+                onClicked: wifiQr.show()
+            }
+        }
+
+        Rectangle {
+            anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
             width: 58
             height: 26
             radius: 10
-            color: root.host.networking.wifiEnabled ? "#4d9580ff" : "#4d414558"
+            color: root.host.networking.wifiEnabled ? Theme.alpha(Theme.accent, 0.30) : Theme.alpha(Theme.surface, 0.30)
 
             Text {
                 anchors.centerIn: parent
                 text: root.host.networking.wifiEnabled ? "ON" : "OFF"
-                color: root.host.networking.wifiEnabled ? "#d4ccff" : "#a7abbe"
+                color: root.host.networking.wifiEnabled ? Theme.accentText : Theme.mutedText
                 font.family: Ui.fontFamily
                 font.pixelSize: Ui.caption
                 font.bold: true
@@ -129,13 +157,13 @@ Item {
                     width: networkList.width
                     height: 68
                     radius: 12
-                    color: networkMouse.containsMouse ? "#73414558" : modelData.connected ? "#3d354f80" : "#4d414558"
+                    color: networkMouse.containsMouse ? Theme.alpha(Theme.surface, 0.45) : modelData.connected ? Theme.alpha(Theme.activeSurface, 0.24) : Theme.alpha(Theme.surface, 0.30)
 
                     Text {
                         x: 13
                         anchors.verticalCenter: parent.verticalCenter
                         text: root.iconFor(networkRow.modelData.signalStrength)
-                        color: networkRow.modelData.connected ? "#d4ccff" : "#a7abbe"
+                        color: networkRow.modelData.connected ? Theme.accentText : Theme.mutedText
                         font.family: Ui.fontFamily
                         font.pixelSize: Ui.icon
                     }
@@ -145,7 +173,7 @@ Item {
                         y: 9
                         width: parent.width - 112
                         text: networkRow.modelData.name || "Hidden network"
-                        color: "#f8f8f2"
+                        color: Theme.primaryText
                         elide: Text.ElideRight
                         font.family: Ui.fontFamily
                         font.pixelSize: Ui.body
@@ -156,7 +184,7 @@ Item {
                         x: 49
                         y: 40
                         text: networkRow.modelData.connected ? "Connected" : networkRow.modelData.stateChanging ? "Connecting..." : networkRow.modelData.known ? "Saved" : `${Math.round(networkRow.modelData.signalStrength * 100)}% signal`
-                        color: networkRow.modelData.connected ? "#8aff80" : "#a7abbe"
+                        color: networkRow.modelData.connected ? Theme.success : Theme.mutedText
                         font.family: Ui.fontFamily
                         font.pixelSize: Ui.caption
                     }
@@ -166,7 +194,7 @@ Item {
                         anchors.rightMargin: 14
                         anchors.verticalCenter: parent.verticalCenter
                         text: networkRow.modelData.security === WifiSecurityType.Open ? "" : "󰌾"
-                        color: "#a7abbe"
+                        color: Theme.mutedText
                         font.family: Ui.fontFamily
                         font.pixelSize: Ui.title
                     }
@@ -205,7 +233,7 @@ Item {
                 height: root.sortedNetworks.length === 0 ? 70 : 0
                 visible: root.sortedNetworks.length === 0
                 text: root.host.networking.wifiEnabled ? "Scanning for networks..." : "Wi-Fi is disabled"
-                color: "#a7abbe"
+                color: Theme.mutedText
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
                 font.family: Ui.fontFamily
@@ -223,13 +251,13 @@ Item {
         height: visible ? 96 : 0
         visible: root.passwordNetwork !== null
         radius: 13
-        color: "#73414558"
+        color: Theme.alpha(Theme.surface, 0.45)
 
         Text {
             x: 13
             y: 9
             text: `Password for ${root.passwordNetwork?.name ?? "network"}`
-            color: "#f8f8f2"
+            color: Theme.primaryText
             font.family: Ui.fontFamily
             font.pixelSize: Ui.body
             font.bold: true
@@ -241,15 +269,15 @@ Item {
             width: parent.width - 104
             height: 40
             radius: 9
-            color: "#cc21222c"
+            color: Theme.alpha(Theme.panel, 0.80)
 
             TextInput {
                 id: passwordInput
                 anchors.fill: parent
                 anchors.leftMargin: 10
                 anchors.rightMargin: 10
-                color: "#f8f8f2"
-                selectionColor: "#9580ff"
+                color: Theme.primaryText
+                selectionColor: Theme.accent
                 verticalAlignment: TextInput.AlignVCenter
                 echoMode: TextInput.Password
                 font.family: Ui.fontFamily
@@ -265,12 +293,12 @@ Item {
             width: 70
             height: 40
             radius: 9
-            color: "#9580ff"
+            color: Theme.accent
 
             Text {
                 anchors.centerIn: parent
                 text: "Connect"
-                color: "#21222c"
+                color: Theme.panel
                 font.family: Ui.fontFamily
                 font.pixelSize: Ui.body
                 font.bold: true
@@ -291,12 +319,12 @@ Item {
         anchors.bottom: parent.bottom
         height: 44
         radius: 11
-        color: advancedMouse.containsMouse ? "#73414558" : "#4d414558"
+        color: advancedMouse.containsMouse ? Theme.alpha(Theme.surface, 0.45) : Theme.alpha(Theme.surface, 0.30)
 
         Text {
             anchors.centerIn: parent
             text: root.errorMessage || "Advanced network settings"
-            color: root.errorMessage ? "#ff9580" : "#d4ccff"
+            color: root.errorMessage ? Theme.warning : Theme.accentText
             elide: Text.ElideRight
             font.family: Ui.fontFamily
             font.pixelSize: Ui.body
@@ -309,8 +337,13 @@ Item {
             cursorShape: Qt.PointingHandCursor
             onClicked: {
                 root.host.open = false;
-                Quickshell.execDetached(["ghostty", "-e", "nmtui"]);
+                Ui.launch(["ghostty", "-e", "nmtui"]);
             }
         }
+    }
+
+    WifiQrOverlay {
+        id: wifiQr
+        anchors.fill: parent
     }
 }

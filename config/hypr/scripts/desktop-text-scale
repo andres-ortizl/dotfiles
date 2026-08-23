@@ -1,0 +1,107 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+readonly min_size=9
+readonly max_size=20
+readonly default_size=13
+readonly state_dir="$HOME/.config/dotfiles"
+readonly state_file="$state_dir/text-size"
+readonly generated_dir="$state_dir/generated"
+
+usage() {
+    printf 'Usage: %s [SIZE|increase|decrease|apply|reset]\n' "$0" >&2
+    printf 'SIZE must be an integer from %d to %d.\n' "$min_size" "$max_size" >&2
+    exit 2
+}
+
+write_atomic() {
+    local destination=$1
+    local content=$2
+    local temporary
+
+    mkdir -p "$(dirname "$destination")"
+    temporary=$(mktemp "${destination}.XXXXXX")
+    printf '%s\n' "$content" >"$temporary"
+    mv "$temporary" "$destination"
+}
+
+read_size() {
+    local value=$default_size
+    if [[ -f $state_file ]]; then
+        read -r value <"$state_file"
+    fi
+    if [[ ! $value =~ ^[0-9]+$ ]] || (( value < min_size || value > max_size )); then
+        printf 'Invalid text size in %s\n' "$state_file" >&2
+        exit 1
+    fi
+    printf '%s\n' "$value"
+}
+
+apply_size() {
+    local size=$1
+    local dunst_size ghostty_size module_size scale
+
+    scale=$(awk -v size="$size" -v base="$default_size" 'BEGIN { printf "%.4f", size / base }')
+    module_size=$(awk -v scale="$scale" 'BEGIN { printf "%.1f", 14 * scale }')
+    dunst_size=$(awk -v scale="$scale" 'BEGIN { printf "%d", int(16 * scale + 0.5) }')
+    ghostty_size=$(awk -v scale="$scale" 'BEGIN { printf "%.1f", 18 * scale }')
+
+    mkdir -p "$state_dir" "$generated_dir" "$HOME/.config/waybar" "$HOME/.config/dunst/dunstrc.d"
+    write_atomic "$state_file" "$size"
+    write_atomic "$HOME/.config/waybar/text-scale.css" "* {
+    font-size: ${size}px;
+}
+
+#mpris,
+#pulseaudio,
+#clock,
+#custom-notification,
+#custom-control-center,
+#custom-tray,
+#custom-power-menu {
+    font-size: ${module_size}px;
+}"
+    write_atomic "$HOME/.config/dunst/dunstrc.d/95-text-scale.conf" "[global]
+    font = JetBrainsMono Nerd Font ${dunst_size}"
+    write_atomic "$generated_dir/ghostty-scale.conf" "font-size = ${ghostty_size}"
+
+    systemctl --user set-environment DOTFILES_TEXT_SCALE="$scale"
+    gsettings set org.gnome.desktop.interface text-scaling-factor "$scale" 2>/dev/null || true
+
+    if [[ ${DOTFILES_SCALE_NO_RESTART:-0} != 1 ]]; then
+        systemctl --user try-restart waybar.service quickshell-control-center.service >/dev/null 2>&1 || true
+        dunstctl reload >/dev/null 2>&1 || true
+        pkill -SIGUSR2 ghostty 2>/dev/null || true
+    fi
+
+    printf 'Desktop text size: %dpx (scale %s)\n' "$size" "$scale"
+}
+
+case "${1:-}" in
+    "")
+        current=$(read_size)
+        scale=$(awk -v size="$current" -v base="$default_size" 'BEGIN { printf "%.4f", size / base }')
+        printf 'Desktop text size: %dpx (scale %s)\n' "$current" "$scale"
+        ;;
+    apply)
+        apply_size "$(read_size)"
+        ;;
+    increase)
+        current=$(read_size)
+        (( current < max_size )) && (( current += 1 ))
+        apply_size "$current"
+        ;;
+    decrease)
+        current=$(read_size)
+        (( current > min_size )) && (( current -= 1 ))
+        apply_size "$current"
+        ;;
+    reset)
+        apply_size "$default_size"
+        ;;
+    *)
+        [[ $1 =~ ^[0-9]+$ ]] || usage
+        (( $1 >= min_size && $1 <= max_size )) || usage
+        apply_size "$1"
+        ;;
+esac

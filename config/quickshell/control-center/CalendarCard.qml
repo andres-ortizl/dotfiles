@@ -46,9 +46,9 @@ Rectangle {
 
     height: 200
     radius: 16
-    color: "#4d414558"
+    color: Theme.alpha(Theme.surface, 0.30)
     border.width: 1
-    border.color: "#33414558"
+    border.color: Theme.alpha(Theme.surface, 0.20)
 
     Item {
         id: header
@@ -61,7 +61,7 @@ Rectangle {
             anchors.left: parent.left
             anchors.verticalCenter: parent.verticalCenter
             text: "<"
-            color: previousMouse.containsMouse ? "#d4ccff" : "#626784"
+            color: previousMouse.containsMouse ? Theme.accentText : Theme.quietText
             font.family: Ui.fontFamily
             font.pixelSize: Ui.title
 
@@ -78,7 +78,7 @@ Rectangle {
         Text {
             anchors.centerIn: parent
             text: `${root.monthNames[root.month].substring(0, 3).toUpperCase()}  ${root.year}`
-            color: titleMouse.containsMouse ? "#d4ccff" : "#f8f8f2"
+            color: titleMouse.containsMouse ? Theme.accentText : Theme.primaryText
             font.family: Ui.fontFamily
             font.pixelSize: 12
             font.bold: true
@@ -97,7 +97,7 @@ Rectangle {
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
             text: ">"
-            color: nextMouse.containsMouse ? "#d4ccff" : "#626784"
+            color: nextMouse.containsMouse ? Theme.accentText : Theme.quietText
             font.family: Ui.fontFamily
             font.pixelSize: Ui.title
 
@@ -126,7 +126,7 @@ Rectangle {
                 required property string modelData
                 width: weekHeader.width / 7
                 text: modelData
-                color: "#626784"
+                color: Theme.quietText
                 horizontalAlignment: Text.AlignHCenter
                 font.family: Ui.fontFamily
                 font.pixelSize: Ui.caption
@@ -164,12 +164,12 @@ Rectangle {
                     width: 22
                     height: 22
                     radius: 11
-                    color: dayCell.today ? "#4d9580ff" : "transparent"
+                    color: dayCell.today ? Theme.alpha(Theme.accent, 0.30) : "transparent"
 
                     Text {
                         anchors.centerIn: parent
                         text: dayCell.valid ? dayCell.day : ""
-                        color: dayCell.today ? "#f8f8f2" : "#a7abbe"
+                        color: dayCell.today ? Theme.primaryText : Theme.mutedText
                         font.family: Ui.fontFamily
                         font.pixelSize: Ui.caption
                         font.bold: dayCell.today
@@ -183,7 +183,7 @@ Rectangle {
                         height: 3
                         radius: 2
                         visible: dayCell.valid && root.hasEvents(dayCell.day)
-                        color: "#ff80bf"
+                        color: Theme.danger
                     }
                 }
             }

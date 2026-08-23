@@ -56,7 +56,7 @@ Item {
                 hasDetails: true
                 onClicked: {
                     root.host.open = false;
-                    Quickshell.execDetached(["blueman-manager"]);
+                    Ui.launch(["blueman-manager"]);
                 }
                 onToggleClicked: root.host.bluetoothAdapter.enabled = !root.host.bluetoothAdapter.enabled
             }
@@ -66,7 +66,7 @@ Item {
             width: parent.width
             height: 80
             radius: 14
-            color: "#4d414558"
+            color: Theme.alpha(Theme.surface, 0.30)
 
             Item {
                 x: 15
@@ -76,7 +76,7 @@ Item {
                 Text {
                     y: 16
                     text: root.host.activeDevice?.type === DeviceType.Wired ? "󰈀  Ethernet" : root.host.connectedWifi ? `󰖩  ${root.host.connectedWifi.name}` : "󰤭  Offline"
-                    color: "#f8f8f2"
+                    color: Theme.primaryText
                     font.family: Ui.fontFamily
                     font.pixelSize: Ui.title
                     font.bold: true
@@ -85,7 +85,7 @@ Item {
                 Text {
                     y: 51
                     text: root.host.activeDevice ? `RX ${root.host.formatRate(root.host.downloadRate)}` : "No connection"
-                    color: "#a7abbe"
+                    color: Theme.mutedText
                     font.family: Ui.fontFamily
                     font.pixelSize: Ui.caption
                 }
@@ -96,7 +96,7 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 width: 1
                 height: 48
-                color: "#414558"
+                color: Theme.surface
             }
 
             Item {
@@ -116,7 +116,7 @@ Item {
                     y: 16
                     width: parent.width - 36
                     text: root.host.bluetoothDevices.length > 0 ? root.host.bluetoothDevices[0].name : "No BT device"
-                    color: "#f8f8f2"
+                    color: Theme.primaryText
                     elide: Text.ElideRight
                     font.family: Ui.fontFamily
                     font.pixelSize: Ui.body
@@ -127,7 +127,7 @@ Item {
                     x: 36
                     y: 51
                     text: root.host.bluetoothDevices.length > 0 ? "Connected" : "Bluetooth idle"
-                    color: "#a7abbe"
+                    color: Theme.mutedText
                     font.family: Ui.fontFamily
                     font.pixelSize: Ui.caption
                 }

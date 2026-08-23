@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+freeze_pid=""
+cleanup() {
+    if [[ -n $freeze_pid ]]; then
+        kill "$freeze_pid" 2>/dev/null || true
+    fi
+}
+trap cleanup EXIT
+
+if command -v hyprpicker >/dev/null 2>&1; then
+    hyprpicker -r -z >/dev/null 2>&1 &
+    freeze_pid=$!
+    sleep 0.1
+fi
+
+selection=$(slurp 2>/dev/null) || exit 0
+[[ -n $selection ]] || exit 0
+
+if ! result=$(grim -g "$selection" - | zbarimg -q --raw -Sdisable -Sqrcode.enable - 2>/dev/null); then
+    notify-send -u critical "QR capture" "No QR code found in the selected region"
+    exit 1
+fi
+
+[[ -n $result ]] || {
+    notify-send -u critical "QR capture" "No QR code found in the selected region"
+    exit 1
+}
+
+printf '%s' "$result" | wl-copy --sensitive
+notify-send "QR capture" "QR code copied to the sensitive clipboard"

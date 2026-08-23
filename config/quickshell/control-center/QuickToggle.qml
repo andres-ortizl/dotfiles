@@ -15,9 +15,9 @@ Rectangle {
 
     height: 104
     radius: 16
-    color: active ? "#3d354f80" : "#73414558"
+    color: active ? Theme.alpha(Theme.activeSurface, 0.24) : Theme.alpha(Theme.surface, 0.45)
     border.width: 1
-    border.color: active ? "#809580ff" : "#33414558"
+    border.color: active ? Theme.alpha(Theme.accent, 0.50) : Theme.alpha(Theme.surface, 0.20)
     opacity: available ? 1 : 0.45
 
     Behavior on color {
@@ -28,7 +28,7 @@ Rectangle {
         x: 15
         y: 16
         text: root.icon
-        color: root.active ? "#d4ccff" : "#a7abbe"
+        color: root.active ? Theme.accentText : Theme.mutedText
         font.family: Ui.fontFamily
         font.pixelSize: 28
     }
@@ -38,7 +38,7 @@ Rectangle {
         y: 58
         width: parent.width - 30
         text: root.title
-        color: "#f8f8f2"
+        color: Theme.primaryText
         elide: Text.ElideRight
         font.family: Ui.fontFamily
         font.pixelSize: Ui.title
@@ -49,7 +49,7 @@ Rectangle {
         x: 15
         y: 84
         text: root.subtitle
-        color: root.active ? "#d4ccff" : "#a7abbe"
+        color: root.active ? Theme.accentText : Theme.mutedText
         font.family: Ui.fontFamily
         font.pixelSize: Ui.caption
     }
@@ -64,7 +64,7 @@ Rectangle {
         width: 30
         height: 16
         radius: 8
-        color: root.active ? "#9580ff" : "#626784"
+        color: root.active ? Theme.accent : Theme.quietText
         z: 2
 
         Rectangle {
@@ -73,7 +73,7 @@ Rectangle {
             width: 12
             height: 12
             radius: 6
-            color: "#f8f8f2"
+            color: Theme.primaryText
 
             Behavior on x {
                 NumberAnimation { duration: 140; easing.type: Easing.OutCubic }
@@ -93,7 +93,7 @@ Rectangle {
         y: 80
         visible: root.hasDetails
         text: ">"
-        color: "#a7abbe"
+        color: Theme.mutedText
         font.family: Ui.fontFamily
         font.pixelSize: Ui.title
     }

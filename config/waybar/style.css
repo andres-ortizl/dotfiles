@@ -1,19 +1,21 @@
+@import "theme.css";
+@import "text-scale.css";
+
 * {
     font-family: "JetBrainsMono Nerd Font", "Symbols Nerd Font Mono", monospace;
-    font-size: 13px;
     min-height: 0;
 }
 
 window#waybar {
     background-color: transparent;
-    color: #cdd6f4;
+    color: @text;
 }
 
 .modules-left,
 .modules-center,
 .modules-right {
-    background-color: rgba(30, 30, 46, 0.84);
-    border: 1px solid rgba(69, 71, 90, 0.78);
+    background-color: alpha(@base, 0.84);
+    border: 1px solid alpha(@surface1, 0.78);
     border-radius: 14px;
     margin-top: 8px;
     margin-bottom: 8px;
@@ -45,25 +47,25 @@ window#waybar {
     padding: 0;
     border: 0;
     border-radius: 9px;
-    color: #a6adc8;
+    color: @subtext0;
     background-color: transparent;
     transition: background-color 150ms ease, color 150ms ease;
 }
 
 #workspaces button:hover {
-    color: #cdd6f4;
-    background-color: rgba(69, 71, 90, 0.72);
+    color: @text;
+    background-color: alpha(@surface1, 0.72);
 }
 
 #workspaces button.active {
-    color: #1e1e2e;
-    background-color: #cba6f7;
+    color: @base;
+    background-color: @mauve;
 }
 
 #window {
     min-width: 0;
     padding: 0 12px;
-    color: #bac2de;
+    color: @subtext1;
     font-weight: 600;
 }
 
@@ -81,13 +83,12 @@ window#waybar {
     margin: 2px;
     padding: 0 7px;
     border-radius: 9px;
-    color: #bac2de;
-    font-size: 14px;
+    color: @subtext1;
     transition: background-color 150ms ease, color 150ms ease;
 }
 
 #clock {
-    color: #cdd6f4;
+    color: @text;
     font-weight: bold;
 }
 
@@ -96,30 +97,29 @@ window#waybar {
 #custom-control-center:hover,
 #custom-tray:hover,
 #custom-power-menu:hover {
-    color: #f5e0dc;
-    background-color: rgba(203, 166, 247, 0.24);
+    color: @rosewater;
+    background-color: alpha(@mauve, 0.24);
 }
 
 #pulseaudio.muted {
-    color: #f38ba8;
+    color: @red;
 }
 
 #custom-power-menu {
-    color: #f38ba8;
-    font-size: 14px;
+    color: @red;
     padding-right: 7px;
 }
 
 #custom-power-menu:hover {
-    color: #f5e0dc;
-    background-color: rgba(243, 139, 168, 0.22);
+    color: @rosewater;
+    background-color: alpha(@red, 0.22);
 }
 
 tooltip {
-    background-color: #1e1e2e;
-    border: 1px solid #45475a;
+    background-color: @base;
+    border: 1px solid @surface1;
     border-radius: 10px;
-    color: #cdd6f4;
+    color: @text;
 }
 
 tooltip label {

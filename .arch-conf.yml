@@ -16,6 +16,7 @@
     ~/.gitconfig: config/git/.gitconfig
     ~/.config/BetterDiscord: config/BetterDiscord/**
     ~/.config/dunst/dunstrc: config/dunst/dunstrc
+    ~/.config/dunst/dunstrc.d: config/dunst/dunstrc.d/**
     ~/.config/hypr: config/hypr/**
     ~/.config/lazyt/themes: config/lazyt/themes/**
     ~/.config/systemd/user: config/systemd/user/**

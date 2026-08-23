@@ -1,0 +1,10 @@
+[Unit]
+Description=Apply desktop text scaling
+PartOf=hyprland-session.target
+Before=waybar.service quickshell-control-center.service dunst.service
+
+[Service]
+Type=oneshot
+Environment=DOTFILES_SCALE_NO_RESTART=1
+ExecStart=%h/.config/hypr/scripts/desktop-text-scale apply
+RemainAfterExit=yes

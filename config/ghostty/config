@@ -1,4 +1,5 @@
 theme = Catppuccin Mocha
+config-file = ?~/.config/dotfiles/generated/ghostty-scale.conf
 shell-integration-features = no-cursor
 background-opacity=0.90
 background-blur-radius = 20

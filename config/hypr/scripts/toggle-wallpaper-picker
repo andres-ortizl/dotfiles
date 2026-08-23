@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+if qs -c control-center ipc call wallpaperPicker toggle >/dev/null 2>&1; then
+    exit 0
+fi
+
 runtime_dir="${XDG_RUNTIME_DIR:-/tmp}"
 pid_file="$runtime_dir/wallpaper-picker.pid"
 

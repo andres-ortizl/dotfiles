@@ -19,7 +19,7 @@ Rectangle {
 
     height: 70
     radius: 13
-    color: itemMouse.containsMouse ? "#73414558" : "transparent"
+    color: itemMouse.containsMouse ? Theme.alpha(Theme.surface, 0.45) : "transparent"
 
     Behavior on color {
         ColorAnimation { duration: 120 }
@@ -31,9 +31,9 @@ Rectangle {
         width: 44
         height: 44
         radius: 12
-        color: root.trayItem.status === Status.NeedsAttention ? "#33ff80bf" : "#33414558"
+        color: root.trayItem.status === Status.NeedsAttention ? Theme.alpha(Theme.danger, 0.20) : Theme.alpha(Theme.surface, 0.20)
         border.width: 1
-        border.color: root.trayItem.status === Status.NeedsAttention ? "#99ff80bf" : "#33414558"
+        border.color: root.trayItem.status === Status.NeedsAttention ? Theme.alpha(Theme.danger, 0.60) : Theme.alpha(Theme.surface, 0.20)
 
         IconImage {
             anchors.centerIn: parent
@@ -50,7 +50,7 @@ Rectangle {
         width: parent.width - 96
         text: root.trayItem.tooltipTitle || root.trayItem.title || root.trayItem.id || "Application"
         elide: Text.ElideRight
-        color: "#f8f8f2"
+        color: Theme.primaryText
         font.family: Ui.fontFamily
         font.pixelSize: Ui.title
         font.bold: true
@@ -60,7 +60,7 @@ Rectangle {
         x: 65
         y: 39
         text: root.trayItem.status === Status.NeedsAttention ? "Needs attention" : root.trayItem.status === Status.Passive ? "Idle" : "Running"
-        color: root.trayItem.status === Status.NeedsAttention ? "#ff80bf" : "#a7abbe"
+        color: root.trayItem.status === Status.NeedsAttention ? Theme.danger : Theme.mutedText
         font.family: Ui.fontFamily
         font.pixelSize: Ui.caption
     }
@@ -74,14 +74,14 @@ Rectangle {
         width: 34
         height: 34
         radius: 10
-        color: menuMouse.containsMouse ? "#665f5575" : "transparent"
+        color: menuMouse.containsMouse ? Theme.alpha(Theme.hoverSurface, 0.40) : "transparent"
         z: 2
 
         Text {
             anchors.centerIn: parent
             anchors.verticalCenterOffset: -3
             text: "..."
-            color: menuMouse.containsMouse ? "#d4ccff" : "#626784"
+            color: menuMouse.containsMouse ? Theme.accentText : Theme.quietText
             font.family: Ui.fontFamily
             font.pixelSize: Ui.title
         }

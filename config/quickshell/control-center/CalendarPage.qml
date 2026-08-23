@@ -19,12 +19,12 @@ Item {
             width: 44
             height: 44
             radius: 11
-            color: backMouse.containsMouse ? "#73414558" : "#4d414558"
+            color: backMouse.containsMouse ? Theme.alpha(Theme.surface, 0.45) : Theme.alpha(Theme.surface, 0.30)
 
             Text {
                 anchors.centerIn: parent
                 text: "<"
-                color: "#d4ccff"
+                color: Theme.accentText
                 font.family: Ui.fontFamily
                 font.pixelSize: Ui.heading
             }
@@ -42,7 +42,7 @@ Item {
             x: 58
             anchors.verticalCenter: parent.verticalCenter
             text: "CALENDAR"
-            color: "#f8f8f2"
+            color: Theme.primaryText
             font.family: Ui.fontFamily
             font.pixelSize: Ui.title
             font.bold: true
@@ -53,7 +53,7 @@ Item {
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
             text: root.host.calendarAuthenticated ? "Google connected" : "Local only"
-            color: root.host.calendarAuthenticated ? "#8aff80" : "#a7abbe"
+            color: root.host.calendarAuthenticated ? Theme.success : Theme.mutedText
             font.family: Ui.fontFamily
             font.pixelSize: Ui.caption
         }
@@ -81,14 +81,14 @@ Item {
                 width: parent.width
                 height: 88
                 radius: 13
-                color: "#4d414558"
+                color: Theme.alpha(Theme.surface, 0.30)
 
                 Text {
                     x: 13
                     y: 11
                     width: parent.width - 26
                     text: root.host.calendarAuthenticated ? "Google Calendar synced" : "Connect Google Calendar"
-                    color: "#f8f8f2"
+                    color: Theme.primaryText
                     elide: Text.ElideRight
                     font.family: Ui.fontFamily
                     font.pixelSize: Ui.body
@@ -100,7 +100,7 @@ Item {
                     y: 45
                     width: parent.width - 26
                     text: root.host.calendarAuthenticated ? `${root.host.calendarEvents.length} upcoming events` : "OAuth setup required once"
-                    color: "#a7abbe"
+                    color: Theme.mutedText
                     font.family: Ui.fontFamily
                     font.pixelSize: Ui.caption
                 }
@@ -110,7 +110,7 @@ Item {
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
                         if (root.host.calendarAuthenticated)
-                            Quickshell.execDetached(["xdg-open", "https://calendar.google.com"]);
+                            Ui.launch(["xdg-open", "https://calendar.google.com"]);
                         else
                             root.host.openCalendarSetup();
                     }
@@ -122,14 +122,14 @@ Item {
             width: parent.width - 242
             height: parent.height
             radius: 15
-            color: "#4d414558"
+            color: Theme.alpha(Theme.surface, 0.30)
 
             Text {
                 id: agendaTitle
                 x: 13
                 y: 12
                 text: "UPCOMING"
-                color: "#a7abbe"
+                color: Theme.mutedText
                 font.family: Ui.fontFamily
                 font.pixelSize: 12
                 font.bold: true
@@ -159,14 +159,14 @@ Item {
                             width: agendaList.width
                             height: 68
                             radius: 11
-                            color: eventMouse.containsMouse ? "#73414558" : "#3321222c"
+                            color: eventMouse.containsMouse ? Theme.alpha(Theme.surface, 0.45) : Theme.alpha(Theme.panel, 0.20)
 
                             Text {
                                 x: 10
                                 y: 8
                                 width: parent.width - 20
                                 text: eventRow.modelData.title
-                                color: "#f8f8f2"
+                                color: Theme.primaryText
                                 elide: Text.ElideRight
                                 font.family: Ui.fontFamily
                                 font.pixelSize: Ui.body
@@ -178,7 +178,7 @@ Item {
                                 y: 40
                                 width: parent.width - 20
                                 text: `${eventRow.modelData.startDate.substring(5)}  ${eventRow.modelData.time}`
-                                color: "#a7abbe"
+                                color: Theme.mutedText
                                 elide: Text.ElideRight
                                 font.family: Ui.fontFamily
                                 font.pixelSize: Ui.caption
@@ -190,7 +190,7 @@ Item {
                                 enabled: eventRow.modelData.url !== ""
                                 hoverEnabled: true
                                 cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
-                                onClicked: Quickshell.execDetached(["xdg-open", eventRow.modelData.url])
+                                onClicked: Ui.launch(["xdg-open", eventRow.modelData.url])
                             }
                         }
                     }
@@ -200,7 +200,7 @@ Item {
                         height: root.host.calendarEvents.length === 0 ? 90 : 0
                         visible: root.host.calendarEvents.length === 0
                         text: root.host.calendarAuthenticated ? "No upcoming events" : "Connect your Google account to show events"
-                        color: "#a7abbe"
+                        color: Theme.mutedText
                         wrapMode: Text.WordWrap
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter

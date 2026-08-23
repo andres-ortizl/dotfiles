@@ -14,7 +14,7 @@ Item {
             width: parent.width
             height: 28
             text: "QUICK CONFIG"
-            color: "#a7abbe"
+            color: Theme.mutedText
             verticalAlignment: Text.AlignVCenter
             font.family: Ui.fontFamily
             font.pixelSize: 12
@@ -56,7 +56,7 @@ Item {
                 subtitle: "Outputs, inputs and levels"
                 onClicked: {
                     root.host.open = false;
-                    Quickshell.execDetached(["pavucontrol"]);
+                    Ui.launch(["pavucontrol"]);
                 }
             }
 
@@ -67,7 +67,7 @@ Item {
                 subtitle: "Fans, pump and profiles"
                 onClicked: {
                     root.host.open = false;
-                    Quickshell.execDetached(["coolercontrol"]);
+                    Ui.launch(["coolercontrol"]);
                 }
             }
         }
@@ -84,7 +84,7 @@ Item {
                 subtitle: "Edit this dashboard and desktop"
                 onClicked: {
                     root.host.open = false;
-                    Quickshell.execDetached(["zed", Quickshell.env("DOTFILES") || Quickshell.env("HOME") + "/code/dotfiles"]);
+                    Ui.launch(["zed", Quickshell.env("DOTFILES") || Quickshell.env("HOME") + "/code/dotfiles"]);
                 }
             }
 

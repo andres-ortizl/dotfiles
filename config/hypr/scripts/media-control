@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+    printf 'Usage: %s volume-up|volume-down|volume-mute|play-pause|next|previous\n' "$0" >&2
+    exit 2
+}
+
+show_volume() {
+    local muted payload volume
+
+    volume=$(pactl get-sink-volume @DEFAULT_SINK@ | awk 'match($0, /[0-9]+%/) { print substr($0, RSTART, RLENGTH - 1); exit }')
+    muted=$(pactl get-sink-mute @DEFAULT_SINK@ | awk '{ print $2 == "yes" ? "true" : "false" }')
+    [[ $volume =~ ^[0-9]+$ ]] || exit 1
+    [[ $muted == "true" || $muted == "false" ]] || muted=false
+
+    payload=$(jq -cn --argjson value "$volume" --argjson muted "$muted" '{value:$value, muted:$muted}')
+    qs -c control-center ipc call osd volume "$payload" >/dev/null 2>&1 || true
+}
+
+show_media() {
+    local metadata payload player artist title status
+
+    metadata=$(playerctl metadata --format '{{playerName}}\t{{artist}}\t{{title}}\t{{status}}' 2>/dev/null) || return 0
+    IFS=$'\t' read -r player artist title status <<<"$metadata"
+    [[ -n $title ]] || return 0
+
+    payload=$(jq -cn \
+        --arg player "$player" \
+        --arg artist "$artist" \
+        --arg title "$title" \
+        --arg status "$status" \
+        '{player:$player, artist:$artist, title:$title, status:$status}')
+    qs -c control-center ipc call osd media "$payload" >/dev/null 2>&1 || true
+}
+
+case "${1:-}" in
+    volume-up)
+        pactl set-sink-volume @DEFAULT_SINK@ +5%
+        show_volume
+        ;;
+    volume-down)
+        pactl set-sink-volume @DEFAULT_SINK@ -5%
+        show_volume
+        ;;
+    volume-mute)
+        pactl set-sink-mute @DEFAULT_SINK@ toggle
+        show_volume
+        ;;
+    play-pause)
+        playerctl play-pause
+        show_media
+        ;;
+    next)
+        playerctl next
+        show_media
+        ;;
+    previous)
+        playerctl previous
+        show_media
+        ;;
+    *)
+        usage
+        ;;
+esac

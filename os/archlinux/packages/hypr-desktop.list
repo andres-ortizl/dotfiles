@@ -6,6 +6,9 @@ hyprland-git
 hypridle
 hyprlock
 hyprshade
+hunspell
+hunspell-en_us
+hunspell-es_any
 libva-mesa-driver
 pamixer
 pavucontrol
@@ -13,6 +16,7 @@ playerctl
 polkit-kde-agent
 pulseaudio
 quickshell
+qrencode
 slurp
 swww
 thunar
@@ -27,3 +31,4 @@ wlogout
 xcb-util-cursor
 xdg-desktop-portal
 xdg-desktop-portal-hyprland-git
+zbar

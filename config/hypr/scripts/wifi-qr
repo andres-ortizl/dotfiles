@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+set -euo pipefail
+umask 077
+
+command -v nmcli >/dev/null 2>&1 || { printf 'ERROR:NetworkManager tools are not installed\n'; exit 1; }
+command -v qrencode >/dev/null 2>&1 || { printf 'ERROR:Install qrencode to share Wi-Fi\n'; exit 1; }
+
+fail() {
+    printf 'ERROR:%s\n' "$1"
+    exit 1
+}
+
+escape_wifi() {
+    sed -e 's/\\/\\\\/g' -e 's/;/\\;/g' -e 's/,/\\,/g' -e 's/:/\\:/g' -e 's/"/\\"/g' <<<"$1"
+}
+
+wifi_device=$(nmcli -t -f DEVICE,TYPE,STATE device status | awk -F: '$2 == "wifi" && $3 == "connected" { print $1; exit }')
+[[ -n $wifi_device ]] || fail "No connected Wi-Fi network"
+
+profile=$(nmcli -g GENERAL.CONNECTION device show "$wifi_device")
+[[ -n $profile && $profile != "--" ]] || fail "Could not identify the active Wi-Fi profile"
+
+ssid=$(nmcli -g 802-11-wireless.ssid connection show "$profile")
+[[ -n $ssid ]] || fail "The active profile has no Wi-Fi SSID"
+
+key_mgmt=$(nmcli -g 802-11-wireless-security.key-mgmt connection show "$profile" 2>/dev/null || true)
+if [[ $key_mgmt == "--" ]]; then
+    key_mgmt=""
+fi
+hidden=$(nmcli -g 802-11-wireless.hidden connection show "$profile" 2>/dev/null || true)
+password=""
+security="nopass"
+
+if [[ $key_mgmt == *wpa-eap* || $key_mgmt == *ieee8021x* ]]; then
+    fail "Enterprise Wi-Fi profiles cannot be shared as a password QR code"
+fi
+
+if [[ -n $key_mgmt ]]; then
+    password=$(nmcli --show-secrets -g 802-11-wireless-security.psk connection show "$profile" 2>/dev/null || true)
+    if [[ -n $password ]]; then
+        security="WPA"
+    else
+        password=$(nmcli --show-secrets -g 802-11-wireless-security.wep-key0 connection show "$profile" 2>/dev/null || true)
+        [[ -n $password ]] || fail "NetworkManager did not provide a shareable Wi-Fi password"
+        security="WEP"
+    fi
+fi
+
+ssid_escaped=$(escape_wifi "$ssid")
+password_escaped=$(escape_wifi "$password")
+hidden_value="false"
+if [[ $hidden == "yes" || $hidden == "true" || $hidden == "1" ]]; then
+    hidden_value="true"
+fi
+payload="WIFI:T:${security};S:${ssid_escaped};P:${password_escaped};H:${hidden_value};;"
+
+runtime_dir=${XDG_RUNTIME_DIR:-/tmp}
+output="$runtime_dir/dotfiles-wifi-qr.png"
+temporary=$(mktemp "$runtime_dir/.dotfiles-wifi-qr.XXXXXX")
+trap 'rm -f "$temporary"' EXIT
+
+qrencode -t PNG -s 8 -m 2 -o "$temporary" "$payload"
+chmod 600 "$temporary"
+mv "$temporary" "$output"
+printf '%s\n' "$output"

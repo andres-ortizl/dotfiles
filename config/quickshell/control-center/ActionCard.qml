@@ -11,15 +11,15 @@ Rectangle {
 
     height: 116
     radius: 15
-    color: actionMouse.containsMouse ? "#73414558" : "#4d414558"
+    color: actionMouse.containsMouse ? Theme.alpha(Theme.surface, 0.45) : Theme.alpha(Theme.surface, 0.30)
     border.width: 1
-    border.color: "#33414558"
+    border.color: Theme.alpha(Theme.surface, 0.20)
 
     Text {
         x: 15
         y: 19
         text: root.icon
-        color: "#9580ff"
+        color: Theme.accent
         font.family: Ui.fontFamily
         font.pixelSize: 28
     }
@@ -29,7 +29,7 @@ Rectangle {
         y: 20
         width: parent.width - 70
         text: root.title
-        color: "#f8f8f2"
+        color: Theme.primaryText
         elide: Text.ElideRight
         font.family: Ui.fontFamily
         font.pixelSize: Ui.title
@@ -41,7 +41,7 @@ Rectangle {
         y: 78
         width: parent.width - 38
         text: root.subtitle
-        color: "#a7abbe"
+        color: Theme.mutedText
         elide: Text.ElideRight
         font.family: Ui.fontFamily
         font.pixelSize: Ui.caption
@@ -52,7 +52,7 @@ Rectangle {
         anchors.rightMargin: 15
         y: 78
         text: ">"
-        color: "#626784"
+        color: Theme.quietText
         font.family: Ui.fontFamily
         font.pixelSize: Ui.body
     }

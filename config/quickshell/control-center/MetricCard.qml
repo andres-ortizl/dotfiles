@@ -14,15 +14,15 @@ Rectangle {
 
     height: 84
     radius: 14
-    color: interactive && cardMouse.containsMouse ? "#73414558" : "#4d414558"
+    color: interactive && cardMouse.containsMouse ? Theme.alpha(Theme.surface, 0.45) : Theme.alpha(Theme.surface, 0.30)
     border.width: critical ? 1 : 0
-    border.color: "#99ff80bf"
+    border.color: Theme.alpha(Theme.danger, 0.60)
 
     Text {
         x: 13
         y: 14
         text: root.icon
-        color: root.critical ? "#ff80bf" : "#9580ff"
+        color: root.critical ? Theme.danger : Theme.accent
         font.family: Ui.fontFamily
         font.pixelSize: Ui.icon
     }
@@ -32,7 +32,7 @@ Rectangle {
         y: 16
         width: parent.width - 72
         text: root.title
-        color: "#a7abbe"
+        color: Theme.mutedText
         elide: Text.ElideRight
         font.family: Ui.fontFamily
         font.pixelSize: 12
@@ -43,7 +43,7 @@ Rectangle {
         x: 13
         y: 48
         text: root.value
-        color: root.critical ? "#ff80bf" : "#f8f8f2"
+        color: root.critical ? Theme.danger : Theme.primaryText
         font.family: Ui.fontFamily
         font.pixelSize: Ui.heading
         font.bold: true
@@ -54,7 +54,7 @@ Rectangle {
         anchors.rightMargin: 12
         y: 51
         text: root.detail
-        color: "#a7abbe"
+        color: Theme.mutedText
         font.family: Ui.fontFamily
         font.pixelSize: Ui.caption
     }
@@ -65,7 +65,7 @@ Rectangle {
         y: 14
         visible: root.interactive
         text: ">"
-        color: "#626784"
+        color: Theme.quietText
         font.family: Ui.fontFamily
         font.pixelSize: Ui.body
     }

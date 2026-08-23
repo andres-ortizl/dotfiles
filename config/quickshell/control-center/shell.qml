@@ -33,7 +33,7 @@ ShellRoot {
         Rectangle {
             id: backdropSurface
             anchors.fill: parent
-            color: Qt.rgba(0, 0, 0, 0.22)
+            color: Theme.alpha(Theme.crust, 0.22)
 
             MouseArea {
                 anchors.fill: parent
@@ -217,8 +217,8 @@ ShellRoot {
 
         function openCalendarSetup() {
             open = false;
-            Quickshell.execDetached(["xdg-open", "https://github.com/insanum/gcalcli/blob/HEAD/docs/api-auth.md"]);
-            Quickshell.execDetached(["ghostty", "-e", "gcalcli", "init"]);
+            Ui.launch(["xdg-open", "https://github.com/insanum/gcalcli/blob/HEAD/docs/api-auth.md"]);
+            Ui.launch(["ghostty", "-e", "gcalcli", "init"]);
         }
 
         function updateScanner() {
@@ -298,9 +298,9 @@ ShellRoot {
             id: card
             anchors.fill: parent
             radius: 18
-            color: Qt.rgba(33 / 255, 34 / 255, 44 / 255, 0.85)
+            color: Theme.alpha(Theme.panel, 0.85)
             border.width: 1
-            border.color: "#66414558"
+            border.color: Theme.alpha(Theme.surface, 0.40)
         }
 
         Column {
@@ -533,9 +533,9 @@ ShellRoot {
             id: trayCard
             anchors.fill: parent
             radius: 18
-            color: Qt.rgba(33 / 255, 34 / 255, 44 / 255, 0.90)
+            color: Theme.alpha(Theme.panel, 0.90)
             border.width: 1
-            border.color: "#66414558"
+            border.color: Theme.alpha(Theme.surface, 0.40)
         }
 
         Column {
@@ -552,7 +552,7 @@ ShellRoot {
                     anchors.left: parent.left
                     anchors.verticalCenter: parent.verticalCenter
                     text: "SYSTEM TRAY"
-                    color: "#a7abbe"
+                    color: Theme.mutedText
                     font.family: Ui.fontFamily
                     font.pixelSize: 12
                     font.bold: true
@@ -565,12 +565,12 @@ ShellRoot {
                     width: 32
                     height: 22
                     radius: 8
-                    color: "#339580ff"
+                    color: Theme.alpha(Theme.accent, 0.20)
 
                     Text {
                         anchors.centerIn: parent
                         text: trayPopup.itemCount
-                        color: "#d4ccff"
+                        color: Theme.accentText
                         font.family: Ui.fontFamily
                         font.pixelSize: Ui.caption
                         font.bold: true
@@ -594,7 +594,7 @@ ShellRoot {
                 height: trayPopup.itemCount === 0 ? 52 : 0
                 visible: trayPopup.itemCount === 0
                 text: "No background apps"
-                color: "#a7abbe"
+                color: Theme.mutedText
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
                 font.family: Ui.fontFamily
@@ -624,10 +624,66 @@ ShellRoot {
         }
     }
 
+    WallpaperPicker {
+        id: wallpaperPicker
+    }
+
+    NotificationHistory {
+        id: notificationHistory
+    }
+
+    DesktopOsd {
+        id: desktopOsd
+    }
+
+    IpcHandler {
+        target: "osd"
+
+        function volume(payload: string): void {
+            desktopOsd.showVolume(payload);
+        }
+
+        function media(payload: string): void {
+            desktopOsd.showMedia(payload);
+        }
+    }
+
+    IpcHandler {
+        target: "wallpaperPicker"
+
+        function toggle(): void {
+            popup.open = false;
+            trayPopup.open = false;
+            notificationHistory.open = false;
+            wallpaperPicker.open = !wallpaperPicker.open;
+        }
+
+        function close(): void {
+            wallpaperPicker.open = false;
+        }
+    }
+
+    IpcHandler {
+        target: "notificationHistory"
+
+        function toggle(): void {
+            popup.open = false;
+            trayPopup.open = false;
+            wallpaperPicker.open = false;
+            notificationHistory.open = !notificationHistory.open;
+        }
+
+        function close(): void {
+            notificationHistory.open = false;
+        }
+    }
+
     IpcHandler {
         target: "controlCenter"
 
         function toggle(): void {
+            wallpaperPicker.open = false;
+            notificationHistory.open = false;
             trayPopup.open = false;
             popup.open = !popup.open;
         }
@@ -645,6 +701,8 @@ ShellRoot {
         }
 
         function openPage(page: string): void {
+            wallpaperPicker.open = false;
+            notificationHistory.open = false;
             trayPopup.open = false;
             popup.open = true;
             if (page === "wifi" || page === "calendar")
@@ -665,6 +723,8 @@ ShellRoot {
 
         function toggle(): void {
             popup.open = false;
+            wallpaperPicker.open = false;
+            notificationHistory.open = false;
             trayPopup.open = !trayPopup.open;
         }
 

@@ -20,7 +20,7 @@ Item {
             width: parent.width
             height: 28
             text: "SYSTEM HEALTH"
-            color: "#a7abbe"
+            color: Theme.mutedText
             verticalAlignment: Text.AlignVCenter
             font.family: Ui.fontFamily
             font.pixelSize: 12
@@ -43,7 +43,7 @@ Item {
                 interactive: true
                 onClicked: {
                     root.host.open = false;
-                    Quickshell.execDetached(["ghostty", "-e", "btop"]);
+                    Ui.launch(["ghostty", "-e", "btop"]);
                 }
             }
 
@@ -57,7 +57,7 @@ Item {
                 interactive: true
                 onClicked: {
                     root.host.open = false;
-                    Quickshell.execDetached(["ghostty", "-e", "watch", "-n", "1", "nvidia-smi"]);
+                    Ui.launch(["ghostty", "-e", "watch", "-n", "1", "nvidia-smi"]);
                 }
             }
         }
@@ -77,7 +77,7 @@ Item {
                 interactive: true
                 onClicked: {
                     root.host.open = false;
-                    Quickshell.execDetached(["ghostty", "-e", "btop"]);
+                    Ui.launch(["ghostty", "-e", "btop"]);
                 }
             }
 
@@ -105,7 +105,7 @@ Item {
                 interactive: true
                 onClicked: {
                     root.host.open = false;
-                    Quickshell.execDetached(["ghostty", "-e", "watch", "-n", "2", "nvme", "smart-log", "/dev/nvme1n1"]);
+                    Ui.launch(["ghostty", "-e", "watch", "-n", "2", "nvme", "smart-log", "/dev/nvme1n1"]);
                 }
             }
 
@@ -119,7 +119,7 @@ Item {
                 interactive: true
                 onClicked: {
                     root.host.open = false;
-                    Quickshell.execDetached(["ghostty", "-e", "watch", "-n", "2", "nvme", "smart-log", "/dev/nvme0n1"]);
+                    Ui.launch(["ghostty", "-e", "watch", "-n", "2", "nvme", "smart-log", "/dev/nvme0n1"]);
                 }
             }
         }
@@ -139,7 +139,7 @@ Item {
                 critical: root.host.hardwareStats.pumpRpm === 0
                 onClicked: {
                     root.host.open = false;
-                    Quickshell.execDetached(["coolercontrol"]);
+                    Ui.launch(["coolercontrol"]);
                 }
             }
 
@@ -152,7 +152,7 @@ Item {
                 interactive: true
                 onClicked: {
                     root.host.open = false;
-                    Quickshell.execDetached(["coolercontrol"]);
+                    Ui.launch(["coolercontrol"]);
                 }
             }
         }

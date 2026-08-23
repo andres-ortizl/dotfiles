@@ -98,9 +98,9 @@
           ""
         ]
       },
-      "on-click": "pavucontrol",
-      "on-scroll-up": "pactl set-sink-volume @DEFAULT_SINK@ +5%",
-      "on-scroll-down": "pactl set-sink-volume @DEFAULT_SINK@ -5%",
+      "on-click": "$HOME/.config/hypr/scripts/launch-app pavucontrol",
+      "on-scroll-up": "$HOME/.config/hypr/scripts/media-control volume-up",
+      "on-scroll-down": "$HOME/.config/hypr/scripts/media-control volume-down",
       "scroll-step": 5,
       "smooth-scrolling-threshold": 1
     },
@@ -110,8 +110,8 @@
     },
     "custom/notification": {
       "exec": "~/.config/waybar/scripts/notification.sh",
-      "on-click": "dunstctl set-paused toggle",
-      "on-click-right": "notify-send -t 1 'swww' '1' & ~/.config/hypr/scripts/setwall",
+      "on-click": "qs -c control-center ipc call notificationHistory toggle",
+      "on-click-right": "dunstctl set-paused toggle",
       "return-type": "json",
       "max-length": 50,
        "format": "{}"
