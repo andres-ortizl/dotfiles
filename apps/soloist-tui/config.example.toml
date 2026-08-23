@@ -1,0 +1,5 @@
+spotify_client_id = "YOUR_SPOTIFY_CLIENT_ID"
+redirect_uri = "http://127.0.0.1:8888/callback"
+
+# Optional. Defaults to ~/.local/share/soloist.
+# soloist_data_dir = "/home/you/.local/share/soloist"
