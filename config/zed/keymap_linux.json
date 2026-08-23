@@ -4,7 +4,7 @@
       "alt-1": null,
       "alt-2": null
     },
-    "context": "Editor",
+    "context": "Editor"
   },
   {
     "bindings": {
@@ -51,24 +51,8 @@
   },
   {
     "bindings": {
-      "alt-t": "workspace::ToggleBottomDock",
+      "alt-t": "workspace::ToggleBottomDock"
     },
     "context": "Terminal"
-  },
-  // toggle left panel alt-1
-  //
-  // toggle right panel alt-2
-  //
-  // go back alt-super-left
-  // go forward alt-super-right
-  // go to defitiniion alt-b
-  // go to references alt-shift-b
-  // select next occurrence ctlr-g
-  // search alt-f in file
-  // refactor ctrl-t
-  // context selection super-up
-  // format alt-super-l
-  //
-  // editor: next edit prediction (alt-]): To cycle to the next edit prediction
-  // editor: previous edit prediction (alt-[): To cycle to the previous edit prediction
+  }
 ]

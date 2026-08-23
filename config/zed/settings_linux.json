@@ -4,7 +4,9 @@
     "inactive_opacity": 0.85
   },
   "agent": {
-    "always_allow_tool_actions": true,
+    "tool_permissions": {
+      "default": "allow"
+    },
     "button": true,
     "default_model": {
       "model": "claude-sonnet-4-5",
@@ -13,7 +15,7 @@
     "default_width": 640,
     "dock": "right",
     "model_parameters": [],
-    "play_sound_when_agent_done": true
+    "play_sound_when_agent_done": "always"
   },
   "agent_ui_font_size": 18,
   "auto_signature_help": false,
@@ -56,6 +58,7 @@
     "dock": "left"
   },
   "edit_predictions": {
+    "provider": "copilot",
     "mode": "subtle"
   },
   "enable_language_server": true,
@@ -91,9 +94,6 @@
     "toolbar.background": "#11111b",
     "warning.background": "#5A4A8A",
     "warning.border": "#FFB84D"
-  },
-  "features": {
-    "edit_prediction_provider": "copilot"
   },
   "file_finder": {
     "file_icons": true,
@@ -342,7 +342,6 @@
   },
   "theme": "Catppuccin Macchiato",
   "title_bar": {
-    "show_branch_icon": false,
     "show_branch_name": true,
     "show_menus": false,
     "show_onboarding_banner": false,
