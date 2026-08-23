@@ -52,7 +52,6 @@
     ~/.factory/AGENTS.md: AGENTS.md
     ~/.claude/CLAUDE.md: AGENTS.md
     ~/.claude/commands: config/claude/commands/**
-    ~/.claude/settings.json: config/claude/settings.json
     ~/.claude/skills: config/claude/skills/**
     ~/.claude/agents: config/claude/agents/**
     ~/.config/nvim/init.lua: config/nvim/init.lua
