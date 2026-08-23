@@ -15,8 +15,8 @@ A cross-platform dotfiles repository with automated setup using [dotbot](https:/
 *Hyprland with Waybar, custom blur effects, and wallpaper*
 
 **Terminal Setup**
-![Terminal with Neofetch](data/screenshots/terminal-neofetch.png)
-*Ghostty terminal with neofetch showing system info*
+![Terminal with system information](data/screenshots/terminal-neofetch.png)
+*Ghostty terminal showing system information*
 
 **System Monitor**
 ![Terminal with btop](data/screenshots/terminal-btop.png)
@@ -98,7 +98,7 @@ The installer will:
 **Common (Both OS):**
 - Shell configurations (Zsh with Zim framework)
 - Git configuration
-- Modern CLI tools (Starship prompt, Bat, lsd)
+- Modern CLI tools (Starship, Bat, Eza, Fastfetch, and Yazi)
 - Terminal emulator (Ghostty)
 - Code editor (Zed)
 
@@ -110,7 +110,9 @@ The installer will:
 - Wlogout power menu
 - Zen Browser
 - Thunar file manager
-- swww wallpaper manager
+- Awww wallpaper manager with Matugen-generated accents
+- Satty screenshot annotation and Hyprpicker color selection
+- Hyprsunset blue-light filtering
 
 **macOS Specific:**
 - Karabiner keyboard customization
@@ -140,7 +142,7 @@ Shell environment configuration that's automatically sourced:
 
 **Key features:**
 - Git workflow shortcuts (`gl`, `gaa`, `gco`, `gs`, etc.)
-- Modern command replacements (`ls` → `lsd`, `cat` → `bat`, `vim` → `nvim`)
+- Modern command replacements (`ls` → `eza`, `cat` → `bat`, `vim` → `nvim`)
 - Custom functions for Docker, Kubernetes, AWS, and more
 - Automatic `$DOTFILES` environment variable
 
@@ -203,8 +205,8 @@ A modern Wayland-based desktop environment:
 - **File Manager:** Thunar
 - **Notifications:** Dunst
 - **Lock Screen:** Hyprlock
-- **Wallpaper:** swww
-- **Theme:** Dracula-inspired with custom blur/opacity effects
+- **Wallpaper:** Awww with a Quickshell picker
+- **Theme:** Catppuccin Mocha with wallpaper-derived Matugen accents
 
 ### macOS
 A consistent development environment:
@@ -257,7 +259,7 @@ paru -S --needed - < os/archlinux/packages/optional.list
 ### macOS
 ```bash
 # Using Homebrew
-brew install zsh git neovim lsd bat starship
+brew install zsh git neovim eza bat fastfetch starship yazi
 brew install ghostty zed
 brew install --cask amethyst karabiner-elements
 ```
@@ -291,10 +293,13 @@ ls -la ~/.config/ | grep " -> "
 ## 🧩 Notable Features
 
 ### Hyprland Configuration
-Modular structure with separate files for different aspects of configuration, making it easy to understand and modify window management behavior.
+Modular Lua configuration with fullscreen-only VRR, Hyprsunset scheduling, and focused screenshot and color tools.
+
+### Dynamic Desktop Theme
+Wallpaper changes preserve the Catppuccin base palette while Matugen updates accents in Quickshell, Waybar, Dunst, Ghostty, and Hyprland.
 
 ### Shell Enhancements
-- Modern CLI tool replacements (lsd, bat, etc.)
+- Modern CLI tool replacements (Eza, Bat, and others)
 - Comprehensive git workflow shortcuts
 - Custom functions for Docker, Kubernetes, AWS workflows
 - Fuzzy finder integration (fzf) for history, processes, and more
@@ -349,10 +354,12 @@ git submodule update --init --recursive
 
 ## 🔄 Continuous Integration
 
-GitHub Actions automatically test the installation process on every push to ensure:
-- Dotbot configuration is valid
-- Symlinks can be created successfully
-- No broken paths or references
+GitHub Actions run for pushes and pull requests. The workflow:
+- Validates JSON, TOML, YAML, shell scripts, and available desktop configs
+- Tests Dotbot installation on current Ubuntu and macOS runners
+- Runs the Soloist TUI and Specdex Rust test suites with locked dependencies
+
+This repository has no automatic deployment target. Run `./install` explicitly to deploy the dotfiles on a workstation.
 
 ## 🤝 Contributing
 

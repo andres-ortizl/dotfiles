@@ -5,7 +5,11 @@
       force: true
       glob: true
 
-- clean: ["~"]
+- clean:
+    ~/:
+      force: false
+    ~/.config:
+      recursive: true
 
 - link:
     ~/.zshrc: config/.zshrc_mac

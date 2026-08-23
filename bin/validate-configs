@@ -10,7 +10,7 @@
 set -u
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-cd "$REPO_ROOT"
+cd "$REPO_ROOT" || exit 1
 
 FAILURES=0
 WARNINGS=0
@@ -59,7 +59,7 @@ else
   note_skip "json checks (python3 missing)"
 fi
 
-# --- TOML (hyprshade) -------------------------------------------------------
+# --- TOML ------------------------------------------------------------------
 if command -v python3 >/dev/null 2>&1 && python3 -c 'import tomllib' 2>/dev/null; then
   while IFS= read -r -d '' f; do
     if python3 -c 'import sys,tomllib; tomllib.load(open(sys.argv[1],"rb"))' "$f" >/dev/null 2>&1; then
@@ -72,9 +72,9 @@ else
   note_skip "toml checks (python3/tomllib missing)"
 fi
 
-# --- YAML (dotbot manifests) -------------------------------------------------
+# --- YAML (dotbot manifests and GitHub Actions) -----------------------------
 if command -v python3 >/dev/null 2>&1 && python3 -c 'import yaml' 2>/dev/null; then
-  for f in .arch-conf.yml .mac-conf.yml; do
+  for f in .arch-conf.yml .mac-conf.yml .github/workflows/*.yml .github/workflows/*.yaml; do
     if [ -f "$f" ] && python3 -c 'import sys,yaml; yaml.safe_load(open(sys.argv[1]))' "$f" >/dev/null 2>&1; then
       note_ok "yaml: $f"
     elif [ -f "$f" ]; then

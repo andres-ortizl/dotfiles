@@ -47,4 +47,4 @@ if ! grep -q "shell/main.sh" ~/.bashrc 2>/dev/null; then
 fi
 
 # Route git hooks through the repository's .githooks dir (runs config validation)
-git config hooksPath "${BASEDIR}/.githooks"
+git config core.hooksPath "${BASEDIR}/.githooks"
