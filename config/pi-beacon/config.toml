@@ -1,0 +1,24 @@
+schema_version = 1
+recent_session_limit = 5
+
+[service]
+runtime_interval_seconds = 2
+history_interval_seconds = 60
+history_enabled = true
+history_retention_days = 7
+watch_debounce_ms = 250
+
+[display]
+show_cost = true
+show_context = true
+show_recent_sessions = true
+
+[notifications]
+enabled = true
+settled = true
+waiting = true
+errors = true
+minimum_duration_seconds = 10
+sound = true
+
+[paths]

@@ -91,6 +91,6 @@ hl.define_submap("resize", function()
     bind("escape", "Resize: Leave resize mode", hl.dsp.submap("reset"))
 end)
 
-bind(mainMod .. " + M", "Applications: Toggle Soloist player", hl.dsp.exec_cmd("$HOME/.config/hypr/scripts/scratchpad-soloist.sh"))
+bind(mainMod .. " + M", "Applications: Toggle Spotify", hl.dsp.exec_cmd("$HOME/.config/hypr/scripts/scratchpad-spotify.sh"))
 bind(mainMod .. " + K", "Help: Open keybindings", hl.dsp.exec_cmd("$HOME/.config/hypr/scripts/launch-app ghostty -e $HOME/.local/bin/uv run $HOME/.config/keybindings-helper/show_keybindings.py"))
 bind(mainMod .. " + Escape", "Session: Open power menu", hl.dsp.exec_cmd("$HOME/.config/wlogout/init.sh"))

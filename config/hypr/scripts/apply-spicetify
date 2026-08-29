@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+spotify_path="${XDG_DATA_HOME:-$HOME/.local/share}/spotify-launcher/install/usr/share/spotify"
+prefs_path="${XDG_CONFIG_HOME:-$HOME/.config}/spotify/prefs"
+spicetify_root="/opt/spicetify-cli"
+spicetify_config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/spicetify"
+spicetify_state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/spicetify"
+
+for command_name in spicetify spotify-launcher; do
+    if ! command -v "$command_name" >/dev/null 2>&1; then
+        printf 'Missing command: %s\n' "$command_name" >&2
+        exit 1
+    fi
+done
+
+if [[ ! -x "$spotify_path/spotify" || ! -d "$spotify_path/Apps" ]]; then
+    printf 'Spotify has not been downloaded by spotify-launcher yet.\n' >&2
+    exit 1
+fi
+
+if [[ ! -f "$prefs_path" ]]; then
+    printf 'Spotify must run once before Spicetify can be applied.\n' >&2
+    exit 1
+fi
+
+if [[ ! -f "$spicetify_root/Themes/Sleek/user.css" ]]; then
+    printf 'Missing Spicetify theme: Sleek\n' >&2
+    exit 1
+fi
+
+if [[ ! -f "$spicetify_root/CustomApps/marketplace/index.js" ]]; then
+    printf 'Missing Spicetify custom app: marketplace\n' >&2
+    exit 1
+fi
+
+mkdir -p "$spicetify_config_dir/Themes" "$spicetify_config_dir/CustomApps"
+ln -sfnT "$spicetify_root/Themes/Sleek" "$spicetify_config_dir/Themes/Sleek"
+ln -sfnT "$spicetify_root/CustomApps/marketplace" "$spicetify_config_dir/CustomApps/marketplace"
+
+spicetify config \
+    spotify_path "$spotify_path" \
+    prefs_path "$prefs_path" \
+    current_theme Sleek \
+    color_scheme Catppuccin \
+    inject_css 1 \
+    replace_colors 1 \
+    overwrite_assets 0
+spicetify config custom_apps marketplace
+
+spotify_version=$(sed -n 's/^app\.last-launched-version="\([^"]*\)".*/\1/p' "$prefs_path" | head -1)
+backup_version=$(sed -n '/^\[Backup\]/,$ s/^version[[:space:]]*=[[:space:]]*//p' "$spicetify_config_dir/config-xpui.ini" | head -1)
+
+if [[ -n "$spotify_version" && "$backup_version" == "$spotify_version" ]] \
+    && compgen -G "$spicetify_state_dir/Backup/*.spa" >/dev/null; then
+    spicetify apply
+else
+    spicetify backup apply
+fi

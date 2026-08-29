@@ -31,6 +31,7 @@
     ~/.config/satty/config.toml: config/satty/config.toml
     ~/.config/wallpaper: config/wallpaper/**
     ~/.config/waybar: config/waybar/**
+    ~/.config/pi-beacon: config/pi-beacon/**
     ~/.config/starship/config.toml: config/starship/config.toml
     ~/.config/ghostty/config: config/ghostty/config
     ~/.config/crush/crushrc: config/crush/crushrc

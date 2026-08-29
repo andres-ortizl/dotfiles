@@ -26,9 +26,8 @@ A cross-platform dotfiles repository with automated setup using [dotbot](https:/
 ![Tiled Windows](data/screenshots/workspace-tiled.png)
 *Multiple windows tiled showing the power of Hyprland's window management*
 
-**YouTube Music Scratchpad**
-![YouTube Music](data/screenshots/youtube-music.png)
-*Dropdown YouTube Music scratchpad (SUPER+M)*
+**Spotify Scratchpad**
+*Spicetify-themed Spotify scratchpad with Waybar media controls (SUPER+M).*
 
 ## 🎯 Philosophy
 
@@ -105,6 +104,7 @@ The installer will:
 **Arch Linux Specific:**
 - Hyprland window manager (Wayland compositor)
 - Waybar status bar
+- Spotify Launcher with Spicetify, Marketplace, and Catppuccin styling
 - Vicinae application launcher
 - Dunst notifications
 - Wlogout power menu
@@ -197,6 +197,7 @@ This loads all aliases, functions, and exports automatically on every shell sess
 A modern Wayland-based desktop environment:
 - **Window Manager:** Hyprland (Wayland compositor)
 - **Status Bar:** Waybar with custom modules
+- **Music:** Spotify scratchpad with Spicetify and Waybar MPRIS controls
 - **Terminal:** Ghostty
 - **Shell:** Zsh with Zim framework
 - **Editor:** Zed, Neovim
@@ -297,6 +298,18 @@ Modular Lua configuration with fullscreen-only VRR, Hyprsunset scheduling, and f
 
 ### Dynamic Desktop Theme
 Wallpaper changes preserve the Catppuccin base palette while Matugen updates accents in Quickshell, Waybar, Dunst, Ghostty, and Hyprland.
+
+### Spotify Rice
+Spotify Launcher runs as a `SUPER+M` scratchpad. The cold-launch wrapper checks for client updates, reapplies the Sleek Catppuccin theme and Marketplace, and then starts Spotify. A separate Waybar media island provides track metadata plus previous, play/pause, and next controls. The first launch is unthemed so Spotify can create its preferences file. Close and reopen it once to apply Spicetify.
+
+### Audio Routing
+The Waybar volume module opens a Quickshell output panel with global volume, mute, and one-click device switching. Selecting an output moves active media streams to it. Discord remains pinned to the HyperX headset. The advanced mixer remains available from the panel and from right-clicking the Waybar volume module.
+
+### Pi Beacon
+The `pi-beacon` uv tool and Pi extension publish live main-session state, consume pi-subagents lifecycle artifacts, and index daily usage incrementally with SQLModel. Waybar shows the compact `πⁿ` status; clicking opens the themed Quickshell dashboard. Use `Ctrl+Alt+F` inside Pi for the full FleetView.
+
+### Night Shift
+Hyprsunset follows the automatic 19:00 to 06:00 schedule. The Waybar control can force warm or off modes, restore the automatic schedule with right-click, and adjust warmth with the scroll wheel. Fullscreen windows temporarily suspend the filter.
 
 ### Shell Enhancements
 - Modern CLI tool replacements (Eza, Bat, and others)

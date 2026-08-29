@@ -18,9 +18,14 @@ hl.window_rule({
 })
 
 hl.window_rule({
-    name = "spotify-workspace",
-    match = { class = "^(Spotify)$" },
-    workspace = "4 silent",
+    name = "spotify-scratchpad",
+    match = { class = "^(Spotify|spotify)$" },
+    workspace = "special:music silent",
+    float = true,
+    size = "1500 800",
+    center = true,
+    opacity = "0.9 0.82",
+    animation = "slide",
 })
 
 hl.window_rule({
@@ -50,12 +55,6 @@ hl.window_rule({
 hl.window_rule({
     name = "discord-opacity",
     match = { class = "^(discord)$" },
-    opacity = "0.8 0.6",
-})
-
-hl.window_rule({
-    name = "spotify-opacity",
-    match = { class = "^(spotify)$" },
     opacity = "0.8 0.6",
 })
 
@@ -90,11 +89,15 @@ hl.window_rule({
 })
 
 for _, namespace in ipairs({ "waybar", "wlogout", "zen" }) do
-    hl.layer_rule({
+    local rule = {
         name = namespace .. "-blur",
         match = { namespace = namespace },
         blur = true,
-    })
+    }
+    if namespace == "waybar" then
+        rule.ignore_alpha = 0.05
+    end
+    hl.layer_rule(rule)
 end
 
 hl.window_rule({

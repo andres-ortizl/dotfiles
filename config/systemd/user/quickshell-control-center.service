@@ -1,7 +1,8 @@
 [Unit]
 Description=Quickshell control center
 PartOf=hyprland-session.target
-After=awww-daemon.service
+Wants=pi-beacon.service
+After=awww-daemon.service pi-beacon.service
 
 [Service]
 ExecStart=/usr/bin/qs --no-duplicate -c control-center

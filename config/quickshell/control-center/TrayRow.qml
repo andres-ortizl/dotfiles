@@ -17,6 +17,11 @@ Rectangle {
             Quickshell.execDetached(["hyprctl", "dispatch", "focuswindow", "class:.*discord.*"]);
     }
 
+    function openMenu() {
+        if (trayItem.hasMenu)
+            trayMenu.showMenu();
+    }
+
     height: 70
     radius: 13
     color: itemMouse.containsMouse ? Theme.alpha(Theme.surface, 0.45) : "transparent"
@@ -95,7 +100,7 @@ Rectangle {
             acceptedButtons: Qt.LeftButton | Qt.RightButton
             onClicked: {
                 if (root.trayItem.hasMenu)
-                    trayMenu.open();
+                    root.openMenu();
             }
         }
     }
@@ -116,7 +121,7 @@ Rectangle {
                 root.trayItem.secondaryActivate();
             } else if (mouse.button === Qt.RightButton || root.trayItem.onlyMenu) {
                 if (root.trayItem.hasMenu)
-                    trayMenu.open();
+                    root.openMenu();
             } else {
                 root.trayItem.activate();
                 Qt.callLater(root.focusKnownWindow);
@@ -127,15 +132,13 @@ Rectangle {
         onWheel: wheel => root.trayItem.scroll(wheel.angleDelta.y, false)
     }
 
-    QsMenuAnchor {
+    TrayMenu {
         id: trayMenu
 
+        host: root.host
+        anchorItem: menuButton
         menu: root.trayItem.menu
-        anchor.item: root
-        anchor.edges: Edges.Left | Edges.Bottom
-        anchor.gravity: Edges.Right | Edges.Bottom
-
-        onOpened: root.host.openMenuCount++
-        onClosed: root.host.openMenuCount = Math.max(0, root.host.openMenuCount - 1)
+        title: root.trayItem.tooltipTitle || root.trayItem.title || root.trayItem.id || "Application"
+        onActionTriggered: root.host.open = false
     }
 }

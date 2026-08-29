@@ -3,16 +3,8 @@ set -euo pipefail
 
 readonly socket="$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock"
 
-any_fullscreen() {
-    hyprctl -j clients 2>/dev/null | jq -e '.[] | select((.fullscreenClient // 0) != 0 or (.fullscreen // 0) != 0)' >/dev/null
-}
-
 apply_state() {
-    if any_fullscreen; then
-        hyprctl hyprsunset identity >/dev/null 2>&1 || true
-    else
-        hyprctl hyprsunset reset >/dev/null 2>&1 || true
-    fi
+    "$HOME/.config/hypr/scripts/night-shift" apply >/dev/null 2>&1 || true
 }
 
 for _ in {1..20}; do

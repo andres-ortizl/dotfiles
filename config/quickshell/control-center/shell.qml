@@ -497,8 +497,21 @@ ShellRoot {
 
         property bool open: false
         property bool grabReady: false
-        property int openMenuCount: 0
+        property var activeContextMenu: null
+        readonly property bool contextMenuOpen: activeContextMenu !== null
         readonly property int itemCount: SystemTray.items.values.length
+
+        function showContextMenu(menu) {
+            const previous = activeContextMenu;
+            activeContextMenu = menu;
+            if (previous && previous !== menu)
+                previous.hideMenu();
+        }
+
+        function clearContextMenu(menu) {
+            if (activeContextMenu === menu)
+                activeContextMenu = null;
+        }
 
         visible: open
         color: "transparent"
@@ -538,7 +551,18 @@ ShellRoot {
             border.color: Theme.alpha(Theme.surface, 0.40)
         }
 
+        MouseArea {
+            anchors.fill: parent
+            enabled: trayPopup.contextMenuOpen
+            onClicked: {
+                if (trayPopup.activeContextMenu)
+                    trayPopup.activeContextMenu.hideMenu();
+            }
+        }
+
         Column {
+            id: trayList
+
             x: 12
             y: 12
             width: parent.width - 24
@@ -610,15 +634,25 @@ ShellRoot {
 
         onOpenChanged: {
             grabReady = false;
-            if (open)
+            if (open) {
                 trayFocusDelay.restart();
+            } else if (activeContextMenu) {
+                activeContextMenu.hideMenu();
+            }
+        }
+
+        Shortcut {
+            sequence: "Escape"
+            context: Qt.WindowShortcut
+            enabled: trayPopup.open && !trayPopup.contextMenuOpen
+            onActivated: trayPopup.open = false
         }
 
         HyprlandFocusGrab {
             windows: [trayPopup]
-            active: trayPopup.grabReady && trayPopup.openMenuCount === 0
+            active: trayPopup.grabReady && !trayPopup.contextMenuOpen
             onCleared: {
-                if (trayPopup.grabReady && trayPopup.openMenuCount === 0)
+                if (trayPopup.grabReady && !trayPopup.contextMenuOpen)
                     trayPopup.open = false;
             }
         }
@@ -634,6 +668,59 @@ ShellRoot {
 
     DesktopOsd {
         id: desktopOsd
+    }
+
+    AudioPanel {
+        id: audioPanel
+    }
+
+    PiBeaconPanel {
+        id: piBeaconPanel
+
+        fontFamily: Ui.fontFamily
+        panelColor: Theme.alpha(Theme.panel, 0.94)
+        surfaceColor: Theme.surface
+        raisedColor: Theme.surfaceRaised
+        borderColor: Theme.alpha(Theme.surface, 0.45)
+        primaryText: Theme.primaryText
+        mutedText: Theme.mutedText
+        quietText: Theme.quietText
+        accentColor: Theme.accent
+        accentText: Theme.accentText
+        successColor: Theme.success
+        warningColor: Theme.warning
+        dangerColor: Theme.danger
+        closeOnFocusLoss: false
+    }
+
+    Connections {
+        target: piBeaconPanel
+        function onOpenChanged() {
+            if (!piBeaconPanel.open)
+                return;
+            popup.open = false;
+            trayPopup.open = false;
+            wallpaperPicker.open = false;
+            notificationHistory.open = false;
+            audioPanel.open = false;
+        }
+    }
+
+    IpcHandler {
+        target: "audio"
+
+        function toggle(): void {
+            popup.open = false;
+            trayPopup.open = false;
+            wallpaperPicker.open = false;
+            notificationHistory.open = false;
+            piBeaconPanel.open = false;
+            audioPanel.open = !audioPanel.open;
+        }
+
+        function close(): void {
+            audioPanel.open = false;
+        }
     }
 
     IpcHandler {
@@ -658,6 +745,8 @@ ShellRoot {
         function toggle(): void {
             popup.open = false;
             trayPopup.open = false;
+            audioPanel.open = false;
+            piBeaconPanel.open = false;
             notificationHistory.open = false;
             wallpaperPicker.open = !wallpaperPicker.open;
         }
@@ -673,6 +762,8 @@ ShellRoot {
         function toggle(): void {
             popup.open = false;
             trayPopup.open = false;
+            audioPanel.open = false;
+            piBeaconPanel.open = false;
             wallpaperPicker.open = false;
             notificationHistory.open = !notificationHistory.open;
         }
@@ -689,6 +780,8 @@ ShellRoot {
             wallpaperPicker.open = false;
             notificationHistory.open = false;
             trayPopup.open = false;
+            audioPanel.open = false;
+            piBeaconPanel.open = false;
             popup.open = !popup.open;
         }
 
@@ -708,6 +801,8 @@ ShellRoot {
             wallpaperPicker.open = false;
             notificationHistory.open = false;
             trayPopup.open = false;
+            audioPanel.open = false;
+            piBeaconPanel.open = false;
             popup.open = true;
             if (page === "wifi" || page === "calendar")
                 popup.currentPage = 0;
@@ -729,6 +824,8 @@ ShellRoot {
             popup.open = false;
             wallpaperPicker.open = false;
             notificationHistory.open = false;
+            audioPanel.open = false;
+            piBeaconPanel.open = false;
             trayPopup.open = !trayPopup.open;
         }
 

@@ -8,19 +8,22 @@
 }
 
 window#waybar {
-    background-color: transparent;
+    background-color: alpha(@base, 0.22);
+    border: 1px solid alpha(@surface1, 0.34);
+    border-radius: 999px;
     color: @text;
 }
 
 .modules-left,
 .modules-center,
-.modules-right {
-    background-color: alpha(@base, 0.84);
-    border: 1px solid alpha(@surface1, 0.78);
-    border-radius: 14px;
+#spotify,
+#system {
+    background-color: alpha(@base, 0.78);
+    border: 1px solid alpha(@surface1, 0.46);
+    border-radius: 999px;
     margin-top: 8px;
     margin-bottom: 8px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.28);
+    box-shadow: none;
 }
 
 .modules-left {
@@ -34,6 +37,16 @@ window#waybar {
 
 .modules-right {
     margin-right: 8px;
+    padding: 0;
+}
+
+#spotify {
+    margin-right: 8px;
+    padding: 0 4px;
+    border-color: alpha(@mauve, 0.72);
+}
+
+#system {
     padding: 0 15px 0 2px;
 }
 
@@ -42,12 +55,12 @@ window#waybar {
 }
 
 #workspaces button {
-    min-width: 24px;
+    min-width: 30px;
     min-height: 30px;
-    margin: 2px 3px;
+    margin: 2px;
     padding: 0;
     border: 0;
-    border-radius: 9px;
+    border-radius: 999px;
     color: @subtext0;
     background-color: transparent;
     transition: background-color 150ms ease, color 150ms ease;
@@ -75,15 +88,19 @@ window#waybar {
 }
 
 #mpris,
+#custom-spotify-previous,
+#custom-spotify-next,
 #pulseaudio,
 #clock,
 #custom-notification,
+#custom-night-shift,
+#custom-pi-beacon,
 #custom-control-center,
 #custom-tray,
 #custom-power-menu {
     margin: 2px;
     padding: 0 7px;
-    border-radius: 9px;
+    border-radius: 999px;
     color: @subtext1;
     transition: background-color 150ms ease, color 150ms ease;
 }
@@ -93,8 +110,27 @@ window#waybar {
     font-weight: bold;
 }
 
+#mpris {
+    color: @text;
+    font-weight: 600;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+#custom-spotify-previous,
+#custom-spotify-next {
+    color: @mauve;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+#mpris:hover,
+#custom-spotify-previous:hover,
+#custom-spotify-next:hover,
 #pulseaudio:hover,
 #custom-notification:hover,
+#custom-night-shift:hover,
+#custom-pi-beacon:hover,
 #custom-control-center:hover,
 #custom-tray:hover,
 #custom-power-menu:hover {
@@ -102,8 +138,40 @@ window#waybar {
     background-color: alpha(@mauve, 0.24);
 }
 
+#pulseaudio {
+    min-width: 62px;
+    padding-left: 9px;
+    padding-right: 9px;
+}
+
 #pulseaudio.muted {
     color: @red;
+}
+
+#custom-night-shift.idle {
+    color: @overlay1;
+}
+
+#custom-night-shift.active {
+    color: @peach;
+    background-color: alpha(@peach, 0.14);
+}
+
+#custom-night-shift.suspended {
+    color: @mauve;
+}
+
+#custom-pi-beacon.idle {
+    color: @overlay1;
+}
+
+#custom-pi-beacon.active {
+    color: @green;
+}
+
+#custom-pi-beacon.attention {
+    color: @yellow;
+    background-color: alpha(@yellow, 0.16);
 }
 
 #custom-power-menu {

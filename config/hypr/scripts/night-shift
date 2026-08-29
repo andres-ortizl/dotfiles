@@ -1,0 +1,124 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+state_file="${XDG_RUNTIME_DIR:-/tmp}/hyprsunset-control-$(id -u)"
+mode=auto
+temperature=2600
+
+load_state() {
+    if [[ -r $state_file ]]; then
+        read -r saved_mode saved_temperature <"$state_file" || true
+        if [[ $saved_mode == auto || $saved_mode == on || $saved_mode == off ]]; then
+            mode=$saved_mode
+        fi
+        if [[ $saved_temperature =~ ^[0-9]+$ ]]; then
+            temperature=$saved_temperature
+        fi
+    fi
+}
+
+save_state() {
+    printf '%s %s\n' "$mode" "$temperature" >"$state_file"
+}
+
+is_fullscreen() {
+    hyprctl -j clients 2>/dev/null |
+        jq -e '.[] | select((.fullscreenClient // 0) != 0 or (.fullscreen // 0) != 0)' >/dev/null
+}
+
+profile_is_warm() {
+    hyprctl hyprsunset profile 2>/dev/null | grep -Fq 'Identity: false'
+}
+
+requested_warm() {
+    case $mode in
+        on) return 0 ;;
+        off) return 1 ;;
+        auto) profile_is_warm ;;
+    esac
+}
+
+apply_state() {
+    if is_fullscreen; then
+        hyprctl hyprsunset identity >/dev/null
+        return
+    fi
+
+    case $mode in
+        on) hyprctl hyprsunset temperature "$temperature" >/dev/null ;;
+        off) hyprctl hyprsunset identity >/dev/null ;;
+        auto) hyprctl hyprsunset reset >/dev/null ;;
+    esac
+}
+
+emit_status() {
+    local class current icon profile tooltip
+    profile=$(hyprctl hyprsunset profile 2>/dev/null || true)
+
+    if requested_warm; then
+        if is_fullscreen; then
+            class=suspended
+            current="Suspended for fullscreen"
+            icon="󰖔"
+        else
+            class=active
+            current="Warm at ${temperature}K"
+            icon="󰖔"
+        fi
+    else
+        class=idle
+        current="Off"
+        icon="󰖙"
+    fi
+
+    tooltip=$(printf 'Night shift • %s\n%s\n%s\n\nLeft click: toggle\nRight click: automatic schedule\nScroll: adjust warmth' "${mode^^}" "$current" "$profile")
+    jq -cn \
+        --arg text "$icon" \
+        --arg alt "night-shift" \
+        --arg class "$class" \
+        --arg tooltip "$tooltip" \
+        '{text:$text, alt:$alt, class:$class, tooltip:$tooltip}'
+}
+
+load_state
+
+case ${1:-status} in
+    status)
+        emit_status
+        ;;
+    apply)
+        apply_state
+        ;;
+    toggle)
+        if requested_warm; then
+            mode=off
+        else
+            mode=on
+        fi
+        save_state
+        apply_state
+        ;;
+    auto)
+        mode=auto
+        save_state
+        apply_state
+        ;;
+    warmer)
+        mode=on
+        temperature=$((temperature - 200))
+        ((temperature < 1800)) && temperature=1800
+        save_state
+        apply_state
+        ;;
+    cooler)
+        mode=on
+        temperature=$((temperature + 200))
+        ((temperature > 5000)) && temperature=5000
+        save_state
+        apply_state
+        ;;
+    *)
+        printf 'Usage: %s status|apply|toggle|auto|warmer|cooler\n' "$0" >&2
+        exit 2
+        ;;
+esac

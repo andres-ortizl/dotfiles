@@ -1,0 +1,18 @@
+[Unit]
+Description=Pi Beacon local observability API
+PartOf=hyprland-session.target
+Before=waybar.service quickshell-control-center.service
+
+[Service]
+Type=simple
+ExecStart=/home/andres/.local/bin/pi-beacon serve
+Restart=on-failure
+RestartSec=2
+UMask=0077
+NoNewPrivileges=true
+LockPersonality=true
+PrivateDevices=true
+RestrictSUIDSGID=true
+
+[Install]
+WantedBy=hyprland-session.target
