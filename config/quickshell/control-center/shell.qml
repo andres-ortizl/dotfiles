@@ -693,11 +693,43 @@ ShellRoot {
         closeOnFocusLoss: false
     }
 
+    PiBeaconServiceMenu {
+        id: piBeaconServiceMenu
+
+        fontFamily: Ui.fontFamily
+        panelColor: Theme.alpha(Theme.panel, 0.96)
+        surfaceColor: Theme.surface
+        raisedColor: Theme.surfaceRaised
+        borderColor: Theme.alpha(Theme.surface, 0.55)
+        primaryText: Theme.primaryText
+        mutedText: Theme.mutedText
+        quietText: Theme.quietText
+        accentColor: Theme.accent
+        successColor: Theme.success
+        warningColor: Theme.warning
+        dangerColor: Theme.danger
+    }
+
+    Connections {
+        target: piBeaconServiceMenu
+        function onOpenChanged() {
+            if (!piBeaconServiceMenu.open)
+                return;
+            popup.open = false;
+            trayPopup.open = false;
+            wallpaperPicker.open = false;
+            notificationHistory.open = false;
+            audioPanel.open = false;
+            piBeaconPanel.open = false;
+        }
+    }
+
     Connections {
         target: piBeaconPanel
         function onOpenChanged() {
             if (!piBeaconPanel.open)
                 return;
+            piBeaconServiceMenu.open = false;
             popup.open = false;
             trayPopup.open = false;
             wallpaperPicker.open = false;

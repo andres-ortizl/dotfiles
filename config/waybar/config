@@ -163,7 +163,8 @@
       "exec": "$HOME/.local/bin/pi-beacon-stream --format waybar",
       "return-type": "json",
       "tooltip": true,
-      "on-click": "qs -c control-center ipc call piBeacon toggle"
+      "on-click": "qs -c control-center ipc call piBeacon toggle",
+      "on-click-right": "qs -c control-center ipc call piBeaconServiceMenu toggle"
     },
     "custom/notification": {
       "exec": "~/.config/waybar/scripts/notification.sh",
