@@ -678,19 +678,6 @@ ShellRoot {
         id: piBeaconPanel
 
         fontFamily: Ui.fontFamily
-        panelColor: Theme.alpha(Theme.panel, 0.94)
-        surfaceColor: Theme.surface
-        raisedColor: Theme.surfaceRaised
-        borderColor: Theme.alpha(Theme.surface, 0.45)
-        primaryText: Theme.primaryText
-        mutedText: Theme.mutedText
-        quietText: Theme.quietText
-        accentColor: Theme.accent
-        accentText: Theme.accentText
-        successColor: Theme.success
-        warningColor: Theme.warning
-        dangerColor: Theme.danger
-        closeOnFocusLoss: false
     }
 
     PiBeaconServiceMenu {

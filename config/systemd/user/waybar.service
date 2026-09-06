@@ -1,8 +1,7 @@
 [Unit]
 Description=Waybar status bar
 PartOf=hyprland-session.target
-Wants=pi-beacon.service
-After=awww-daemon.service pi-beacon.service
+After=awww-daemon.service
 
 [Service]
 ExecStart=/usr/bin/waybar

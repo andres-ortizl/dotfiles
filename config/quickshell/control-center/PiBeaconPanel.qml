@@ -36,33 +36,66 @@ PanelWindow {
     property color dangerColor: theme.danger
 
     property int panelWidth: 470
+    property int panelMinHeight: 380
     property int panelMaxHeight: 700
     property int panelRadius: 18
-    property int cardRadius: 13
+    property int cardRadius: 12
+    property int controlRadius: 8
     property int contentPadding: 12
-    property int contentGap: 9
+    property int contentGap: 8
+    property int sectionGap: 16
+    property int cardPadding: 12
+    property int rowHeight: 64
+    property int detailHeight: 104
+    property int fontCaption: 10
+    property int fontBody: 11
+    property int fontRowTitle: 13
+    property int fontTitle: 15
+    property int fontMetric: 20
+
+    property string currentTab: "overview"
+    property string selectedActivityIdentity: ""
+    property string selectedModel: ""
 
     PiBeaconTheme {
         id: defaultTheme
     }
 
     property var snapshotData: ({
-        runtime: { sessions: [], subagents: [], sessionCount: 0, subagentCount: 0 },
-        today: { cost: 0, tokens: 0, sessions: 0, messages: 0, recent: [] }
+        runtime: {
+            sessions: [],
+            subagents: [],
+            agents: [],
+            activity: [],
+            unattachedAgents: [],
+            modelActivity: [],
+            sessionCount: 0,
+            subagentCount: 0,
+            attentionCount: 0
+        },
+        today: { cost: 0, tokens: 0, sessions: 0, messages: 0, recent: [] },
+        history: { dailyCost: [], modelUsageToday: [], modelUsage7d: [] },
+        update: { currentVersion: "", latestVersion: "", available: false }
     })
     property string loadError: ""
-    property string expandedSessionId: ""
 
     readonly property var runtimeData: snapshotData.runtime || ({})
     readonly property var todayData: snapshotData.today || ({})
-    readonly property var liveSessions: runtimeData.sessions || []
-    readonly property var subagents: runtimeData.agents !== undefined ? runtimeData.agents : runtimeData.subagents || []
-    readonly property var recentSessions: todayData.recent || []
+    readonly property var historyData: snapshotData.history || ({})
+    readonly property var updateData: snapshotData.update || ({})
+    readonly property bool bodyScrollable: viewport.contentHeight > viewport.height + 1
+    readonly property bool moreBelow: bodyScrollable && viewport.contentY < viewport.contentHeight - viewport.height - 2
 
     visible: open
     color: "transparent"
     implicitWidth: root.panelWidth
-    implicitHeight: Math.min(root.panelMaxHeight, content.implicitHeight + root.contentPadding * 2)
+    implicitHeight: Math.min(
+        root.panelMaxHeight,
+        Math.max(
+            root.panelMinHeight,
+            root.contentPadding * 2 + 38 + root.contentGap + 34 + root.contentGap + bodyContent.implicitHeight
+        )
+    )
     exclusionMode: ExclusionMode.Ignore
     focusable: true
     WlrLayershell.layer: WlrLayer.Overlay
@@ -98,6 +131,8 @@ PanelWindow {
             return successColor;
         if (state === "waiting" || state === "paused" || state === "needs_attention")
             return warningColor;
+        if (state === "failed")
+            return dangerColor;
         return quietText;
     }
 
@@ -120,6 +155,34 @@ PanelWindow {
         return pieces[pieces.length - 1];
     }
 
+    function descendantCount(node) {
+        const children = node && node.children ? node.children : [];
+        let count = children.length;
+        for (let index = 0; index < children.length; index++)
+            count += descendantCount(children[index]);
+        return count;
+    }
+
+    function countLabel(value, singular) {
+        const count = Number(value) || 0;
+        return `${count} ${singular}${count === 1 ? "" : "s"}`;
+    }
+
+    function providerName(value) {
+        const pieces = String(value || "").split("/");
+        if (pieces.length < 2 || !pieces[0])
+            return "";
+        const provider = pieces[0].toLowerCase();
+        const labels = {
+            "github-copilot": "GitHub Copilot",
+            "openai": "OpenAI",
+            "openai-codex": "OpenAI Codex",
+            "openrouter": "OpenRouter",
+            "xai": "xAI"
+        };
+        return labels[provider] || provider.charAt(0).toUpperCase() + provider.slice(1);
+    }
+
     function formatTime(value) {
         if (value === undefined || value === null || value === "")
             return "unknown";
@@ -134,6 +197,10 @@ PanelWindow {
             snapshotProcess.running = true;
     }
 
+    function scrollToTop() {
+        viewport.contentY = 0;
+    }
+
     Rectangle {
         id: card
 
@@ -144,390 +211,221 @@ PanelWindow {
         border.color: root.borderColor
     }
 
-    Flickable {
+    Item {
+        id: layout
+
         anchors.fill: parent
         anchors.margins: root.contentPadding
-        clip: true
-        contentHeight: content.implicitHeight
-        interactive: contentHeight > height
 
-        Column {
-            id: content
+        Item {
+            id: header
 
-            width: parent.width
-            spacing: root.contentGap
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: parent.top
+            height: 38
 
-            Item {
-                width: parent.width
-                height: 38
+            Text {
+                anchors.left: parent.left
+                anchors.verticalCenter: parent.verticalCenter
+                text: "PI BEACON"
+                color: root.mutedText
+                font.family: root.fontFamily
+                font.pixelSize: root.fontBody
+                font.bold: true
+                font.letterSpacing: 1
+            }
 
-                Text {
-                    anchors.left: parent.left
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: "PI BEACON"
-                    color: root.mutedText
-                    font.family: root.fontFamily
-                    font.pixelSize: 12
-                    font.bold: true
-                    font.letterSpacing: 1
-                }
+            Text {
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                text: root.updateData.available
+                    ? `UPDATE ${root.updateData.latestVersion} ↑`
+                    : `${root.countLabel(root.runtimeData.sessionCount, "session")} • ${root.countLabel(root.runtimeData.subagentCount, "subagent")}`
+                color: root.updateData.available ? root.accentText : root.quietText
+                font.family: root.fontFamily
+                font.pixelSize: root.fontCaption
+                font.bold: root.updateData.available === true
+            }
+        }
 
-                Text {
-                    anchors.right: closeButton.left
-                    anchors.rightMargin: 10
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: `${root.runtimeData.sessionCount || 0} live • ${root.runtimeData.subagentCount || 0} agents`
-                    color: root.quietText
-                    font.family: root.fontFamily
-                    font.pixelSize: 11
-                }
+        Row {
+            id: tabRow
 
-                Rectangle {
-                    id: closeButton
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: header.bottom
+            anchors.topMargin: root.contentGap
+            height: 34
+            spacing: 4
 
-                    anchors.right: parent.right
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: 32
-                    height: 32
-                    radius: 10
-                    color: closeMouse.containsMouse ? root.alpha(root.dangerColor, 0.18) : "transparent"
+            Repeater {
+                model: [
+                    { key: "overview", label: "OVERVIEW" },
+                    { key: "activity", label: "ACTIVITY" },
+                    { key: "models", label: "MODELS" }
+                ]
+
+                delegate: Rectangle {
+                    required property var modelData
+
+                    width: (tabRow.width - tabRow.spacing * 2) / 3
+                    height: tabRow.height
+                    radius: root.controlRadius
+                    color: tabMouse.containsMouse ? root.alpha(root.surfaceColor, 0.42) : "transparent"
 
                     Text {
                         anchors.centerIn: parent
-                        text: "×"
-                        color: closeMouse.containsMouse ? root.dangerColor : root.quietText
+                        text: parent.modelData.label
+                        color: root.currentTab === parent.modelData.key ? root.accentText : root.mutedText
                         font.family: root.fontFamily
-                        font.pixelSize: 17
+                        font.pixelSize: root.fontCaption
+                        font.bold: true
+                        font.letterSpacing: 0.5
                     }
-
-                    MouseArea {
-                        id: closeMouse
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: root.open = false
-                    }
-                }
-            }
-
-            Row {
-                width: parent.width
-                height: 72
-                spacing: 8
-
-                Repeater {
-                    model: [
-                        { label: "COST", value: root.showCost ? root.cost(root.todayData.cost) : "hidden" },
-                        { label: "TOKENS", value: root.compact(root.todayData.tokens) },
-                        { label: "SESSIONS", value: String(root.todayData.sessions || 0) },
-                        { label: "MESSAGES", value: String(root.todayData.messages || 0) }
-                    ]
-
-                    delegate: Rectangle {
-                        required property var modelData
-                        width: (parent.width - parent.spacing * 3) / 4
-                        height: parent.height
-                        radius: root.cardRadius
-                        color: root.alpha(root.surfaceColor, 0.58)
-
-                        Text {
-                            x: 10
-                            y: 10
-                            text: parent.modelData.label
-                            color: root.quietText
-                            font.family: root.fontFamily
-                            font.pixelSize: 10
-                            font.bold: true
-                        }
-
-                        Text {
-                            x: 10
-                            y: 35
-                            width: parent.width - 20
-                            text: parent.modelData.value
-                            color: root.primaryText
-                            elide: Text.ElideRight
-                            font.family: root.fontFamily
-                            font.pixelSize: 14
-                            font.bold: true
-                        }
-                    }
-                }
-            }
-
-            Text {
-                width: parent.width
-                height: 22
-                text: "LIVE SESSIONS"
-                color: root.mutedText
-                verticalAlignment: Text.AlignBottom
-                font.family: root.fontFamily
-                font.pixelSize: 11
-                font.bold: true
-                font.letterSpacing: 0.8
-            }
-
-            Repeater {
-                model: root.liveSessions
-
-                delegate: Rectangle {
-                    id: sessionRow
-
-                    required property var modelData
-                    readonly property bool expanded: root.expandedSessionId === String(modelData.sessionId || "")
-                    width: content.width
-                    height: expanded ? 136 : 86
-                    radius: root.cardRadius
-                    color: sessionMouse.containsMouse ? root.alpha(root.surfaceColor, 0.55) : root.alpha(root.surfaceColor, 0.30)
-                    border.width: 1
-                    border.color: root.alpha(root.stateColor(modelData.state), 0.60)
 
                     Rectangle {
-                        x: 14
-                        y: 17
-                        width: 9
-                        height: 9
-                        radius: 5
-                        color: root.stateColor(sessionRow.modelData.state)
-                    }
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.bottom: parent.bottom
+                        width: root.currentTab === parent.modelData.key ? 42 : 0
+                        height: 2
+                        radius: 1
+                        color: root.accentColor
 
-                    Text {
-                        x: 34
-                        y: 10
-                        width: parent.width - 150
-                        text: sessionRow.modelData.displayName || sessionRow.modelData.sessionName || sessionRow.modelData.project || "Pi session"
-                        color: root.primaryText
-                        elide: Text.ElideRight
-                        font.family: root.fontFamily
-                        font.pixelSize: 14
-                        font.bold: true
-                    }
-
-                    Text {
-                        anchors.right: parent.right
-                        anchors.rightMargin: 14
-                        y: 11
-                        text: sessionRow.modelData.state || "open"
-                        color: root.stateColor(sessionRow.modelData.state)
-                        font.family: root.fontFamily
-                        font.pixelSize: 11
-                        font.bold: true
-                    }
-
-                    Text {
-                        x: 34
-                        y: 35
-                        width: parent.width - 48
-                        text: `${root.modelName(sessionRow.modelData.model)} • ${sessionRow.modelData.thinking || "default"} • ${sessionRow.modelData.detail || "Ready"}`
-                        color: root.mutedText
-                        elide: Text.ElideRight
-                        font.family: root.fontFamily
-                        font.pixelSize: 11
-                    }
-
-                    Text {
-                        x: 34
-                        y: 58
-                        width: parent.width - 48
-                        text: {
-                            const usage = sessionRow.modelData.usage || {};
-                            const context = sessionRow.modelData.context || {};
-                            const values = [`${root.compact(usage.totalTokens)} tokens`, root.cost(usage.cost)];
-                            if (root.showContext && context.percent !== undefined && context.percent !== null)
-                                values.push(`${Number(context.percent).toFixed(1)}% context`);
-                            if (sessionRow.modelData.elapsed)
-                                values.push(sessionRow.modelData.elapsed);
-                            return values.join(" • ");
+                        Behavior on width {
+                            NumberAnimation { duration: 140; easing.type: Easing.OutCubic }
                         }
-                        color: root.quietText
-                        elide: Text.ElideRight
-                        font.family: root.fontFamily
-                        font.pixelSize: 10
-                    }
-
-                    Text {
-                        x: 34
-                        y: 84
-                        width: parent.width - 48
-                        visible: sessionRow.expanded
-                        text: `Path  ${sessionRow.modelData.sessionFile || sessionRow.modelData.cwd || "not persisted"}`
-                        color: root.mutedText
-                        elide: Text.ElideMiddle
-                        font.family: root.fontFamily
-                        font.pixelSize: 10
-                    }
-
-                    Text {
-                        x: 34
-                        y: 108
-                        width: parent.width - 48
-                        visible: sessionRow.expanded
-                        text: `Started ${root.formatTime(sessionRow.modelData.startedAt)} • Last message ${root.formatTime(sessionRow.modelData.lastMessageAt)} • ID ${String(sessionRow.modelData.sessionId || "").slice(0, 8)}`
-                        color: root.quietText
-                        elide: Text.ElideRight
-                        font.family: root.fontFamily
-                        font.pixelSize: 10
-                    }
-
-                    Behavior on height {
-                        NumberAnimation { duration: 300; easing.type: Easing.OutCubic }
                     }
 
                     MouseArea {
-                        id: sessionMouse
+                        id: tabMouse
+
                         anchors.fill: parent
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            const id = String(sessionRow.modelData.sessionId || "");
-                            root.expandedSessionId = sessionRow.expanded ? "" : id;
-                        }
+                        onClicked: root.currentTab = parent.modelData.key
                     }
                 }
             }
+        }
 
-            Text {
-                width: parent.width
-                height: root.liveSessions.length === 0 ? 48 : 0
-                visible: height > 0
-                text: "No live session bridge yet. Run /reload inside Pi."
-                color: root.mutedText
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-                font.family: root.fontFamily
-                font.pixelSize: 12
-            }
+        Flickable {
+            id: viewport
 
-            Text {
-                width: parent.width
-                height: root.subagents.length > 0 ? 22 : 0
-                visible: height > 0
-                text: "ACTIVE SUBAGENTS"
-                color: root.mutedText
-                verticalAlignment: Text.AlignBottom
-                font.family: root.fontFamily
-                font.pixelSize: 11
-                font.bold: true
-                font.letterSpacing: 0.8
-            }
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: tabRow.bottom
+            anchors.topMargin: root.contentGap
+            anchors.bottom: parent.bottom
+            clip: true
+            contentWidth: width
+            contentHeight: bodyContent.implicitHeight
+            interactive: root.bodyScrollable
+            boundsBehavior: Flickable.StopAtBounds
 
-            Repeater {
-                model: root.subagents
+            Column {
+                id: bodyContent
 
-                delegate: Rectangle {
-                    id: agentRow
+                width: viewport.width
+                spacing: root.contentGap
 
-                    required property var modelData
-                    width: content.width
-                    height: 52
-                    radius: root.cardRadius
-                    color: root.alpha(root.surfaceColor, 0.24)
+                Loader {
+                    id: dashboardView
 
-                    Text {
-                        x: 14
-                        anchors.verticalCenter: parent.verticalCenter
-                        text: "↳"
-                        color: root.stateColor(agentRow.modelData.state)
-                        font.family: root.fontFamily
-                        font.pixelSize: 15
-                        font.bold: true
-                    }
-
-                    Text {
-                        x: 40
-                        y: 8
-                        width: parent.width - 120
-                        text: agentRow.modelData.agent || "agent"
-                        color: root.primaryText
-                        font.family: root.fontFamily
-                        font.pixelSize: 12
-                        font.bold: true
-                    }
-
-                    Text {
-                        x: 40
-                        y: 29
-                        width: parent.width - 54
-                        text: agentRow.modelData.task || agentRow.modelData.state || "running"
-                        color: root.mutedText
-                        elide: Text.ElideRight
-                        font.family: root.fontFamily
-                        font.pixelSize: 10
-                    }
-
-                    Text {
-                        anchors.right: parent.right
-                        anchors.rightMargin: 14
-                        y: 9
-                        text: agentRow.modelData.elapsed || agentRow.modelData.state
-                        color: root.stateColor(agentRow.modelData.state)
-                        font.family: root.fontFamily
-                        font.pixelSize: 10
+                    width: parent.width
+                    sourceComponent: root.currentTab === "activity"
+                        ? activityView
+                        : root.currentTab === "models" ? modelsView : overviewView
+                    onLoaded: {
+                        if (item)
+                            item.dashboard = root;
                     }
                 }
-            }
 
-            Text {
-                width: parent.width
-                height: root.showRecent && root.recentSessions.length > 0 ? 22 : 0
-                visible: height > 0
-                text: "RECENT TODAY"
-                color: root.mutedText
-                verticalAlignment: Text.AlignBottom
-                font.family: root.fontFamily
-                font.pixelSize: 11
-                font.bold: true
-                font.letterSpacing: 0.8
-            }
-
-            Repeater {
-                model: root.showRecent ? root.recentSessions.slice(0, root.recentLimit) : []
-
-                delegate: Item {
-                    id: recentRow
-
-                    required property var modelData
-                    width: content.width
-                    height: 38
-
-                    Text {
-                        anchors.left: parent.left
-                        anchors.verticalCenter: parent.verticalCenter
-                        width: parent.width - 170
-                        text: recentRow.modelData.project || "session"
-                        color: root.mutedText
-                        elide: Text.ElideRight
-                        font.family: root.fontFamily
-                        font.pixelSize: 11
-                    }
-
-                    Text {
-                        anchors.right: parent.right
-                        anchors.verticalCenter: parent.verticalCenter
-                        text: `${root.compact(recentRow.modelData.tokens)} • ${root.cost(recentRow.modelData.cost)}`
-                        color: root.quietText
-                        font.family: root.fontFamily
-                        font.pixelSize: 10
-                    }
+                Text {
+                    width: parent.width
+                    height: root.loadError ? 38 : 0
+                    visible: height > 0
+                    text: root.loadError
+                    color: root.dangerColor
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    font.family: root.fontFamily
+                    font.pixelSize: root.fontBody
                 }
-            }
 
-            Text {
-                width: parent.width
-                height: root.loadError ? 38 : 0
-                visible: height > 0
-                text: root.loadError
-                color: root.dangerColor
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-                font.family: root.fontFamily
-                font.pixelSize: 11
+                Item {
+                    width: parent.width
+                    height: root.cardPadding
+                }
             }
         }
     }
 
+    Rectangle {
+        anchors.right: card.right
+        anchors.rightMargin: 4
+        y: layout.y + viewport.y
+        width: 3
+        height: viewport.height
+        radius: 2
+        visible: root.bodyScrollable
+        color: root.alpha(root.borderColor, 0.55)
+
+        Rectangle {
+            y: (parent.height - height) * viewport.contentY / Math.max(1, viewport.contentHeight - viewport.height)
+            width: parent.width
+            height: Math.max(28, parent.height * viewport.height / Math.max(viewport.contentHeight, viewport.height))
+            radius: parent.radius
+            color: root.alpha(root.mutedText, 0.62)
+        }
+    }
+
+    Rectangle {
+        anchors.left: card.left
+        anchors.right: card.right
+        anchors.bottom: card.bottom
+        anchors.margins: 1
+        height: 30
+        visible: root.moreBelow
+        color: "transparent"
+        gradient: Gradient {
+            GradientStop { position: 0; color: "transparent" }
+            GradientStop { position: 1; color: root.panelColor }
+        }
+
+        Text {
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 3
+            text: "↓"
+            color: root.quietText
+            font.family: root.fontFamily
+            font.pixelSize: root.fontBody
+        }
+    }
+
+    Component {
+        id: overviewView
+
+        PiBeaconOverview {}
+    }
+
+    Component {
+        id: activityView
+
+        PiBeaconActivity {}
+    }
+
+    Component {
+        id: modelsView
+
+        PiBeaconModels {}
+    }
+
     Process {
         id: snapshotProcess
+
         command: [root.streamExecutable, "--format", "snapshot"]
         stdout: SplitParser {
             onRead: line => {
@@ -550,6 +448,7 @@ PanelWindow {
 
     Timer {
         id: reconnectTimer
+
         interval: root.refreshInterval
         repeat: false
         onTriggered: root.refresh()
@@ -557,13 +456,21 @@ PanelWindow {
 
     Timer {
         id: focusDelay
+
         interval: 150
         onTriggered: root.grabReady = root.open
     }
 
+    Behavior on implicitHeight {
+        NumberAnimation { duration: 180; easing.type: Easing.OutCubic }
+    }
+
+    onCurrentTabChanged: scrollToTop()
+
     onOpenChanged: {
         grabReady = false;
         if (open) {
+            scrollToTop();
             refresh();
             focusDelay.restart();
         } else {
