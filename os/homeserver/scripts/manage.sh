@@ -169,6 +169,15 @@ bootstrap() {
   verify_services <"$services_file"
 }
 
+restart_service() {
+  [ "$#" -eq 1 ] || fail 'usage: restart SERVICE'
+  target=$1
+  check
+  valid_service "$target" || fail "unknown service: $target"
+  compose restart "$target" >/dev/null || fail 'service restart failed'
+  printf '%s\n' "$target" | verify_services
+}
+
 rollback() {
   [ "$#" -eq 2 ] || fail 'usage: rollback SERVICE IMAGE_REF@sha256:DIGEST'
   service=$1
@@ -197,13 +206,14 @@ prune_images() {
   run_bounded docker image prune -a -f >/dev/null || fail 'image prune failed'
 }
 
-usage() { printf '%s\n' "Usage: $0 check | lock-images --output FILE | deploy SERVICE|all | bootstrap SERVICE | rollback SERVICE IMAGE_REF@sha256:DIGEST | prune-images --yes"; }
+usage() { printf '%s\n' "Usage: $0 check | lock-images --output FILE | deploy SERVICE|all | bootstrap SERVICE | restart SERVICE | rollback SERVICE IMAGE_REF@sha256:DIGEST | prune-images --yes"; }
 
 case ${1-} in
   check) shift; [ "$#" -eq 0 ] || fail 'check takes no arguments'; check; printf '%s\n' 'check passed' ;;
   lock-images) shift; lock_images "$@"; printf '%s\n' 'image lock captured' ;;
   deploy) shift; deploy "$@"; printf '%s\n' 'deployment verified' ;;
   bootstrap) shift; bootstrap "$@"; printf '%s\n' 'bootstrap verified' ;;
+  restart) shift; restart_service "$@"; printf '%s\n' 'restart verified' ;;
   rollback) shift; rollback "$@"; printf '%s\n' 'rollback verified' ;;
   prune-images) shift; prune_images "$@"; printf '%s\n' 'unused images pruned' ;;
   *) usage >&2; exit 2 ;;
