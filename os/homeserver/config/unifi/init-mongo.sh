@@ -6,14 +6,12 @@ if command -v mongosh >/dev/null 2>&1; then
   mongo_init_bin=mongosh
 fi
 
-mongo_pass=$(cat "$MONGO_PASS_FILE")
-
 "$mongo_init_bin" --quiet <<EOF
 use ${MONGO_AUTHSOURCE}
 db.auth("${MONGO_INITDB_ROOT_USERNAME}", "${MONGO_INITDB_ROOT_PASSWORD}")
 db.createUser({
   user: "${MONGO_USER}",
-  pwd: "${mongo_pass}",
+  pwd: "${MONGO_PASS}",
   roles: [
     "clusterMonitor",
     { db: "${MONGO_DBNAME}", role: "dbOwner" },

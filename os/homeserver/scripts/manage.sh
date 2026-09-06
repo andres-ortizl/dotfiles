@@ -153,7 +153,12 @@ bootstrap() {
   check
   valid_service "$target" || fail "unknown service: $target"
   container_ids=$(compose ps --all --quiet "$target") || fail 'unable to inspect bootstrap target'
-  [ -z "$container_ids" ] || fail "service already exists: $target"
+  if [ -n "$container_ids" ]; then
+    [ "$(printf '%s\n' "$container_ids" | awk 'NF { count++ } END { print count + 0 }')" -eq 1 ] \
+      || fail "service has multiple containers: $target"
+    container_id=$(printf '%s\n' "$container_ids" | awk 'NF { print; exit }')
+    container_ok "$container_id" && fail "service already exists and is healthy: $target"
+  fi
   "$project_dir/deploy.sh" "$target" >/dev/null || fail 'bootstrap failed'
   verify_services <"$services_file"
 }

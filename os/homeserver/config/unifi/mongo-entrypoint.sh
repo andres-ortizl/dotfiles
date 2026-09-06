@@ -1,0 +1,9 @@
+#!/bin/bash
+set -euo pipefail
+
+MONGO_INITDB_ROOT_PASSWORD=$(cat "$MONGO_INITDB_ROOT_PASSWORD_FILE")
+MONGO_PASS=$(cat "$MONGO_PASS_FILE")
+export MONGO_INITDB_ROOT_PASSWORD MONGO_PASS
+unset MONGO_INITDB_ROOT_PASSWORD_FILE MONGO_PASS_FILE
+
+exec /usr/local/bin/docker-entrypoint.sh "$@"

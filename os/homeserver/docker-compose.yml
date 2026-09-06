@@ -206,6 +206,7 @@ services:
     image: docker.io/library/mongo:8.0@sha256:02a0cc7939f5ed38f30f9bc714ef5f682d49baf9350c54acf302ce833087fe8a
     container_name: unifi-db
     restart: unless-stopped
+    entrypoint: ["/usr/local/bin/unifi-mongo-entrypoint"]
     environment:
       - MONGO_INITDB_ROOT_USERNAME=unifi-root
       - MONGO_INITDB_ROOT_PASSWORD_FILE=/run/secrets/unifi-mongo-root-password
@@ -216,6 +217,7 @@ services:
     volumes:
       - ./data/unifi/database:/data/db
       - ./config/unifi/init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh:ro
+      - ./config/unifi/mongo-entrypoint.sh:/usr/local/bin/unifi-mongo-entrypoint:ro
     secrets:
       - source: unifi_mongo_app_password
         target: unifi-mongo-app-password
