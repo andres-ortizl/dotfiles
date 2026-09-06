@@ -16,23 +16,22 @@ window#waybar {
 
 .modules-left,
 .modules-center,
-#spotify,
 #system {
+    margin-top: 8px;
+    margin-bottom: 8px;
     background-color: alpha(@base, 0.78);
     border: 1px solid alpha(@surface1, 0.46);
     border-radius: 999px;
-    margin-top: 8px;
-    margin-bottom: 8px;
     box-shadow: none;
 }
 
 .modules-left {
     margin-left: 8px;
-    padding: 0 2px;
+    padding: 0 4px;
 }
 
 .modules-center {
-    padding: 0 12px;
+    padding: 0;
 }
 
 .modules-right {
@@ -42,49 +41,51 @@ window#waybar {
 
 #spotify {
     margin-right: 8px;
-    padding: 0 4px;
-    border-color: alpha(@mauve, 0.72);
+    padding: 0;
+    border: 0;
+    background-color: transparent;
 }
 
 #system {
-    padding: 0 15px 0 2px;
+    padding: 0 6px;
 }
 
 #workspaces {
-    padding: 3px 1px;
+    padding: 0;
 }
 
 #workspaces button {
-    min-width: 30px;
-    min-height: 30px;
-    margin: 2px;
+    min-width: 28px;
+    min-height: 28px;
+    margin: 5px 2px;
     padding: 0;
     border: 0;
     border-radius: 999px;
     color: @subtext0;
     background-color: transparent;
+    font-weight: 600;
     transition: background-color 150ms ease, color 150ms ease;
 }
 
 #workspaces button:hover {
-    color: @text;
-    background-color: alpha(@surface1, 0.72);
+    color: @shell_accentText;
+    background-color: alpha(@shell_accent, 0.18);
 }
 
 #workspaces button.active {
     color: @base;
-    background-color: @mauve;
+    background-color: @shell_accent;
 }
 
 #window {
     min-width: 0;
-    padding: 0 12px;
+    padding: 0 14px;
     color: @subtext1;
     font-weight: 600;
 }
 
 #window label {
-    padding: 0 12px;
+    padding: 0;
 }
 
 #mpris,
@@ -98,50 +99,80 @@ window#waybar {
 #custom-control-center,
 #custom-tray,
 #custom-power-menu {
-    margin: 2px;
-    padding: 0 7px;
-    border-radius: 999px;
+    margin: 0;
+    padding: 0 6px;
+    border: 0;
+    border-radius: 8px;
     color: @subtext1;
+    background-color: transparent;
     transition: background-color 150ms ease, color 150ms ease;
 }
 
-#clock {
-    color: @text;
-    font-weight: bold;
-}
-
 #mpris {
+    margin: 8px 2px;
+    padding: 0 10px;
+    background-color: alpha(@base, 0.78);
+    border: 1px solid alpha(@shell_accent, 0.68);
+    border-radius: 999px;
     color: @text;
     font-weight: 600;
-    padding-left: 5px;
-    padding-right: 5px;
 }
 
 #custom-spotify-previous,
 #custom-spotify-next {
-    color: @mauve;
-    padding-left: 5px;
-    padding-right: 5px;
+    min-width: 28px;
+    margin: 6px 2px;
+    padding: 0;
+    background-color: alpha(@base, 0.78);
+    border: 1px solid alpha(@shell_accent, 0.68);
+    border-radius: 999px;
+    color: @shell_accentText;
 }
 
-#mpris:hover,
+#mpris:hover {
+    color: @shell_accentText;
+    background-color: transparent;
+}
+
+
+#pulseaudio.icon:hover,
 #custom-spotify-previous:hover,
 #custom-spotify-next:hover,
-#pulseaudio:hover,
 #custom-notification:hover,
 #custom-night-shift:hover,
 #custom-pi-beacon:hover,
 #custom-control-center:hover,
 #custom-tray:hover,
 #custom-power-menu:hover {
-    color: @rosewater;
-    background-color: alpha(@mauve, 0.24);
+    color: @shell_accentText;
+    background-color: alpha(@shell_accent, 0.2);
 }
 
-#pulseaudio {
-    min-width: 62px;
-    padding-left: 9px;
-    padding-right: 9px;
+#pulseaudio.icon {
+    min-width: 28px;
+    margin: 6px 0;
+    padding: 0;
+    border-radius: 999px;
+}
+
+
+#clock {
+    padding-right: 8px;
+    padding-left: 8px;
+    color: @text;
+    font-weight: 700;
+}
+
+#custom-notification,
+#custom-night-shift,
+#custom-pi-beacon,
+#custom-control-center,
+#custom-tray,
+#custom-power-menu {
+    min-width: 28px;
+    margin: 6px 0;
+    padding: 0;
+    border-radius: 999px;
 }
 
 #pulseaudio.muted {
@@ -158,8 +189,9 @@ window#waybar {
 }
 
 #custom-night-shift.suspended {
-    color: @mauve;
+    color: @shell_accentText;
 }
+
 
 #custom-pi-beacon.idle {
     color: @overlay1;
@@ -181,7 +213,6 @@ window#waybar {
 
 #custom-power-menu {
     color: @red;
-    padding-right: 7px;
 }
 
 #custom-power-menu:hover {
@@ -197,5 +228,5 @@ tooltip {
 }
 
 tooltip label {
-    padding: 5px;
+    padding: 8px;
 }

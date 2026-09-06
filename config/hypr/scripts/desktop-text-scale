@@ -39,10 +39,10 @@ read_size() {
 
 apply_size() {
     local size=$1
-    local dunst_size ghostty_size module_size scale
+    local dunst_size ghostty_size icon_size scale
 
     scale=$(awk -v size="$size" -v base="$default_size" 'BEGIN { printf "%.4f", size / base }')
-    module_size=$(awk -v scale="$scale" 'BEGIN { printf "%.1f", 14 * scale }')
+    icon_size=$(awk -v scale="$scale" 'BEGIN { printf "%.1f", 15 * scale }')
     dunst_size=$(awk -v scale="$scale" 'BEGIN { printf "%d", int(16 * scale + 0.5) }')
     ghostty_size=$(awk -v scale="$scale" 'BEGIN { printf "%.1f", 18 * scale }')
 
@@ -52,14 +52,15 @@ apply_size() {
     font-size: ${size}px;
 }
 
-#mpris,
-#pulseaudio,
-#clock,
+#pulseaudio.icon,
+#custom-spotify-previous,
+#custom-spotify-next,
 #custom-notification,
+#custom-night-shift,
 #custom-control-center,
 #custom-tray,
 #custom-power-menu {
-    font-size: ${module_size}px;
+    font-size: ${icon_size}px;
 }"
     write_atomic "$HOME/.config/dunst/dunstrc.d/95-text-scale.conf" "[global]
     font = JetBrainsMono Nerd Font ${dunst_size}"

@@ -2,10 +2,10 @@
   {
     "output": "DP-3",
     "layer": "top",
-    "height": 60,
+    "height": 56,
     "fixed-center": true,
-    "spacing": 1,
-    "margin": "10 10 10 10",
+    "spacing": 0,
+    "margin": "8 10 8 10",
     "reload_style_on_change": true,
     "modules-left": [
       "hyprland/workspaces"
@@ -20,15 +20,13 @@
     "group/spotify": {
       "orientation": "horizontal",
       "modules": [
-        "custom/spotify-previous",
-        "mpris#spotify",
-        "custom/spotify-next"
+        "mpris#spotify"
       ]
     },
     "group/system": {
       "orientation": "horizontal",
       "modules": [
-        "pulseaudio",
+        "pulseaudio#icon",
         "clock",
         "custom/notification",
         "custom/night-shift",
@@ -80,14 +78,6 @@
       "format": " {:%I:%M %p}",
       "tooltip": false
     },
-    "custom/spotify-previous": {
-      "exec": "printf '󰒮'",
-      "exec-if": "playerctl -p spotify status >/dev/null 2>&1",
-      "interval": 2,
-      "format": "{}",
-      "tooltip-format": "Previous track",
-      "on-click": "playerctl -p spotify previous"
-    },
     "mpris#spotify": {
       "player": "spotify",
       "interval": 1,
@@ -112,19 +102,11 @@
       "on-scroll-up": "playerctl -p spotify next",
       "on-scroll-down": "playerctl -p spotify previous"
     },
-    "custom/spotify-next": {
-      "exec": "printf '󰒭'",
-      "exec-if": "playerctl -p spotify status >/dev/null 2>&1",
-      "interval": 2,
-      "format": "{}",
-      "tooltip-format": "Next track",
-      "on-click": "playerctl -p spotify next"
-    },
-    "pulseaudio": {
-      "format": "{icon}  {volume}%",
-      "format-bluetooth": "{icon}  {volume}%  󰂯",
-      "format-bluetooth-muted": "󰖁  {icon}  󰂯",
-      "format-muted": "󰖁  {volume}%",
+    "pulseaudio#icon": {
+      "format": "{icon}",
+      "format-bluetooth": "{icon}",
+      "format-bluetooth-muted": "󰖁",
+      "format-muted": "󰖁",
       "format-icons": {
         "headphone": "󰋋",
         "hands-free": "󱡒",
@@ -138,6 +120,7 @@
           ""
         ]
       },
+      "tooltip-format": "{desc}\n{volume}%",
       "on-click": "qs -c control-center ipc call audio toggle",
       "on-click-right": "$HOME/.config/hypr/scripts/launch-app pavucontrol",
       "on-scroll-up": "$HOME/.config/hypr/scripts/media-control volume-up",
@@ -152,7 +135,8 @@
     "custom/night-shift": {
       "exec": "~/.config/hypr/scripts/night-shift status",
       "return-type": "json",
-      "interval": 2,
+      "interval": 60,
+      "signal": 8,
       "tooltip": true,
       "on-click": "~/.config/hypr/scripts/night-shift toggle",
       "on-click-right": "~/.config/hypr/scripts/night-shift auto",
@@ -160,14 +144,17 @@
       "on-scroll-down": "~/.config/hypr/scripts/night-shift warmer"
     },
     "custom/pi-beacon": {
-      "exec": "$HOME/.local/bin/pi-beacon-stream --format waybar",
+      "exec": "$HOME/.config/waybar/scripts/pi-beacon.sh",
+      "restart-interval": 5,
       "return-type": "json",
+      "hide-empty-text": true,
       "tooltip": true,
       "on-click": "qs -c control-center ipc call piBeacon toggle",
       "on-click-right": "qs -c control-center ipc call piBeaconServiceMenu toggle"
     },
     "custom/notification": {
       "exec": "~/.config/waybar/scripts/notification.sh",
+      "restart-interval": 5,
       "on-click": "qs -c control-center ipc call notificationHistory toggle",
       "on-click-right": "dunstctl set-paused toggle",
       "return-type": "json",

@@ -282,7 +282,7 @@ def apply_wallpaper_theme(theme: dict, wallpaper: Path, reload_apps: bool) -> No
     )
     changed |= write_if_changed(
         Path.home() / ".config/waybar/accent.css",
-        f"@define-color mauve {colors['accent']};",
+        f"@define-color wallpaper_accent {colors['accent']};",
     )
     changed |= write_if_changed(
         Path.home() / ".config/dunst/dunstrc.d/91-accent.conf",

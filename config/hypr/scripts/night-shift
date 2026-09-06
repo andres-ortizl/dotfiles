@@ -4,6 +4,7 @@ set -euo pipefail
 state_file="${XDG_RUNTIME_DIR:-/tmp}/hyprsunset-control-$(id -u)"
 mode=auto
 temperature=2600
+waybar_signal=8
 
 load_state() {
     if [[ -r $state_file ]]; then
@@ -21,41 +22,60 @@ save_state() {
     printf '%s %s\n' "$mode" "$temperature" >"$state_file"
 }
 
+refresh_waybar() {
+    pkill --signal "RTMIN+$waybar_signal" waybar 2>/dev/null || true
+}
+
 is_fullscreen() {
-    hyprctl -j clients 2>/dev/null |
-        jq -e '.[] | select((.fullscreenClient // 0) != 0 or (.fullscreen // 0) != 0)' >/dev/null
+    local key value
+
+    while IFS=: read -r key value; do
+        value=${value//[[:space:]]/}
+        case $key in
+            fullscreen | fullscreenClient)
+                [[ $value != 0 ]] && return 0
+                ;;
+        esac
+    done < <(hyprctl activewindow 2>/dev/null)
+
+    return 1
 }
 
 profile_is_warm() {
-    hyprctl hyprsunset profile 2>/dev/null | grep -Fq 'Identity: false'
+    local profile=${1:-}
+    [[ -n $profile ]] || profile=$(hyprctl hyprsunset profile 2>/dev/null || true)
+    [[ $profile == *"Identity: false"* ]]
 }
 
 requested_warm() {
+    local profile=${1:-}
+
     case $mode in
         on) return 0 ;;
         off) return 1 ;;
-        auto) profile_is_warm ;;
+        auto) profile_is_warm "$profile" ;;
     esac
 }
 
 apply_state() {
     if is_fullscreen; then
         hyprctl hyprsunset identity >/dev/null
-        return
+    else
+        case $mode in
+            on) hyprctl hyprsunset temperature "$temperature" >/dev/null ;;
+            off) hyprctl hyprsunset identity >/dev/null ;;
+            auto) hyprctl hyprsunset reset >/dev/null ;;
+        esac
     fi
 
-    case $mode in
-        on) hyprctl hyprsunset temperature "$temperature" >/dev/null ;;
-        off) hyprctl hyprsunset identity >/dev/null ;;
-        auto) hyprctl hyprsunset reset >/dev/null ;;
-    esac
+    refresh_waybar
 }
 
 emit_status() {
     local class current icon profile tooltip
     profile=$(hyprctl hyprsunset profile 2>/dev/null || true)
 
-    if requested_warm; then
+    if requested_warm "$profile"; then
         if is_fullscreen; then
             class=suspended
             current="Suspended for fullscreen"
