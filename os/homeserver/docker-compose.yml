@@ -14,6 +14,8 @@ networks:
   dozzle_agent:
     driver: bridge
     internal: true
+  unifi:
+    driver: bridge
 
 volumes:
   model-cache:
@@ -35,6 +37,10 @@ secrets:
     file: ./secrets/mqtt-passwd
   mqtt-acl:
     file: ./secrets/mqtt-acl
+  unifi_mongo_app_password:
+    file: ./secrets/unifi-mongo-app-password
+  unifi_mongo_root_password:
+    file: ./secrets/unifi-mongo-root-password
 
 services:
   # Traefik Reverse Proxy
@@ -194,6 +200,70 @@ services:
     command: -s 172.31.0.100
     cap_add:
       - NET_ADMIN
+
+  # UniFi Network controller and its private database
+  unifi-db:
+    image: docker.io/library/mongo:8.0@sha256:02a0cc7939f5ed38f30f9bc714ef5f682d49baf9350c54acf302ce833087fe8a
+    container_name: unifi-db
+    restart: unless-stopped
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=unifi-root
+      - MONGO_INITDB_ROOT_PASSWORD_FILE=/run/secrets/unifi-mongo-root-password
+      - MONGO_USER=unifi
+      - MONGO_PASS_FILE=/run/secrets/unifi-mongo-app-password
+      - MONGO_DBNAME=unifi
+      - MONGO_AUTHSOURCE=admin
+    volumes:
+      - ./data/unifi/database:/data/db
+      - ./config/unifi/init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh:ro
+    secrets:
+      - source: unifi_mongo_app_password
+        target: unifi-mongo-app-password
+      - source: unifi_mongo_root_password
+        target: unifi-mongo-root-password
+    networks:
+      - unifi
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "quit(db.adminCommand('ping').ok ? 0 : 2)"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+  unifi-network-application:
+    image: lscr.io/linuxserver/unifi-network-application@sha256:b6ce6968ee45705934f819157aebd1bb80af8ee3e7d6b3b06e010013553ab0e4
+    container_name: unifi-network-application
+    restart: unless-stopped
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Europe/Madrid}
+      - MONGO_USER=unifi
+      - FILE__MONGO_PASS=/run/secrets/unifi-mongo-app-password
+      - MONGO_HOST=unifi-db
+      - MONGO_PORT=27017
+      - MONGO_DBNAME=unifi
+      - MONGO_AUTHSOURCE=admin
+    volumes:
+      - ./data/unifi/application:/config
+    ports:
+      - "192.168.1.33:8443:8443"
+      - "192.168.1.33:3478:3478/udp"
+      - "192.168.1.33:10001:10001/udp"
+      - "192.168.1.33:8080:8080"
+    secrets:
+      - source: unifi_mongo_app_password
+        target: unifi-mongo-app-password
+    depends_on:
+      unifi-db:
+        condition: service_healthy
+    networks:
+      - unifi
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --insecure --silent https://localhost:8443/status >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 3m
 
   # qBittorrent Download Client
   qbittorrent:

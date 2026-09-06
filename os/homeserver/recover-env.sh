@@ -100,7 +100,7 @@ deploy_gid=${SUDO_GID:-$(id -g)}
 stage_dir=$(mktemp -d "${TMPDIR:-/tmp}/n33lab-recovery.XXXXXX")
 chmod 700 "$stage_dir"
 
-attachments="homeserver.env immich-server.env immich-ml.env cloudflare_dns_api_token authelia-jwt authelia-session authelia-storage-encryption authelia-users esphome.env mqtt-passwd mqtt-acl qa-manifest.env qa-nas-credentials.env qa-external.env qa-worker.env"
+attachments="homeserver.env immich-server.env immich-ml.env cloudflare_dns_api_token authelia-jwt authelia-session authelia-storage-encryption authelia-users esphome.env mqtt-passwd mqtt-acl unifi-mongo-app-password unifi-mongo-root-password qa-manifest.env qa-nas-credentials.env qa-external.env qa-worker.env"
 
 destination() {
   case "$1" in
@@ -211,6 +211,9 @@ validate_attachment() {
     authelia-jwt|authelia-session|authelia-storage-encryption)
       awk 'NF != 1 { exit 1 } END { if (NR != 1) exit 1 }' "$2"
       ;;
+    unifi-mongo-app-password|unifi-mongo-root-password)
+      awk 'NF != 1 || length($0) != 64 || $0 !~ /^[0-9a-f]+$/ { exit 1 } END { if (NR != 1) exit 1 }' "$2"
+      ;;
     authelia-users)
       grep -Eq '^[[:space:]]*users:' "$2"
       ;;
@@ -314,4 +317,4 @@ cleanup_stage || fail "unable to remove recovery staging data"
 transaction_active=false
 cleanup_dir "$transaction_dir" || fail "unable to remove recovery transaction data"
 transaction_dir=
-printf '%s\n' "restored 15 validated runtime attachments"
+printf '%s\n' "restored 17 validated runtime attachments"
