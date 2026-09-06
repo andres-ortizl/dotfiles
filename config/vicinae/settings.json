@@ -1,0 +1,32 @@
+// This configuration is merged with the default vicinae configuration file, which you can obtain by running the `vicinae config default` command.
+// Every item defined in this file takes precedence over the values defined in the default config or any other imported file.
+//
+// This file is managed by the dotfiles repository. Changes made through the Vicinae GUI will update this file through its symlink.
+{
+   "$schema": "https://vicinae.com/schemas/config.json",
+   "providers": {
+      "applications": {
+         "preferences": {
+            "launchPrefix": "systemd-run --user --scope --"
+         }
+      },
+      "files": {
+         "preferences": {
+            "autoIndexing": true,
+            "indexingPaths": [
+               "/home/andres/code",
+               "/home/andres/Documents",
+               "/home/andres/Downloads",
+               "/home/andres/Desktop",
+               "/home/andres/Applications"
+            ],
+            "excludedIndexingPaths": []
+         }
+      }
+   },
+   "theme": {
+      "dark": {
+         "name": "dracula"
+      }
+   }
+}

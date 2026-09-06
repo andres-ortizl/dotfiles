@@ -11,12 +11,15 @@ PanelWindow {
     required property var anchorItem
     property var menu: null
     property string title: "Application"
+    property string extraActionText: ""
     property var currentMenu: menu
     property string currentTitle: title
     property var history: []
+    readonly property bool hasExtraAction: extraActionText !== ""
     readonly property point anchorPosition: anchorItem ? anchorItem.mapToItem(null, 0, 0) : Qt.point(0, 0)
 
     signal actionTriggered
+    signal extraActionTriggered
 
     visible: false
     color: "transparent"
@@ -309,9 +312,75 @@ PanelWindow {
                 }
             }
 
+            Item {
+                width: parent.width
+                height: root.hasExtraAction && root.history.length === 0 && menuOpener.children && menuOpener.children.values.length > 0 ? 9 : 0
+                visible: height > 0
+
+                Rectangle {
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.leftMargin: 8
+                    anchors.rightMargin: 8
+                    height: 1
+                    color: Theme.alpha(Theme.surface, 0.55)
+                }
+            }
+
+            Item {
+                id: extraAction
+
+                width: parent.width
+                height: root.hasExtraAction && root.history.length === 0 ? 40 : 0
+                visible: height > 0
+
+                Rectangle {
+                    anchors.fill: parent
+                    radius: 10
+                    color: extraActionMouse.containsMouse ? Theme.alpha(Theme.hoverSurface, 0.40) : "transparent"
+
+                    Text {
+                        anchors.left: parent.left
+                        anchors.leftMargin: 14
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: "⏻"
+                        color: extraActionMouse.containsMouse ? Theme.accentText : Theme.mutedText
+                        font.family: Ui.fontFamily
+                        font.pixelSize: Ui.body
+                    }
+
+                    Text {
+                        anchors.left: parent.left
+                        anchors.leftMargin: 42
+                        anchors.right: parent.right
+                        anchors.rightMargin: 12
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: root.extraActionText
+                        elide: Text.ElideRight
+                        color: extraActionMouse.containsMouse ? Theme.accentText : Theme.primaryText
+                        font.family: Ui.fontFamily
+                        font.pixelSize: Ui.body
+                    }
+
+                    MouseArea {
+                        id: extraActionMouse
+
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            root.extraActionTriggered();
+                            root.hideMenu();
+                            root.actionTriggered();
+                        }
+                    }
+                }
+            }
+
             Text {
                 width: parent.width
-                height: menuOpener.children && menuOpener.children.values.length === 0 ? 44 : 0
+                height: menuOpener.children && menuOpener.children.values.length === 0 && !(root.hasExtraAction && root.history.length === 0) ? 44 : 0
                 visible: height > 0
                 text: "No actions"
                 color: Theme.mutedText

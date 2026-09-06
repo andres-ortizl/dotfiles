@@ -1,8 +1,13 @@
 [Unit]
 Description=Vicinae launcher daemon
+Documentation=https://docs.vicinae.com
+Requires=dbus.socket
 PartOf=hyprland-session.target
 
 [Service]
-ExecStart=/usr/bin/vicinae server
-Restart=on-failure
-RestartSec=2
+Type=simple
+ExecStart=/usr/bin/vicinae server --replace
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=60
+KillMode=process

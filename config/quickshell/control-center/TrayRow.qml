@@ -8,6 +8,9 @@ Rectangle {
 
     required property var trayItem
     required property var host
+    readonly property string itemIdentity: (String(trayItem.id || "") + " " + String(trayItem.title || "") + " " + String(trayItem.tooltipTitle || "")).toLowerCase()
+    readonly property bool isSteam: itemIdentity.includes("steam")
+    readonly property bool hasMenuActions: trayItem.hasMenu || isSteam
 
     function focusKnownWindow() {
         const id = String(trayItem.id || "").toLowerCase();
@@ -18,8 +21,13 @@ Rectangle {
     }
 
     function openMenu() {
-        if (trayItem.hasMenu)
+        if (hasMenuActions)
             trayMenu.showMenu();
+    }
+
+    function quitSteam() {
+        if (isSteam)
+            Quickshell.execDetached(["steam", "-shutdown"]);
     }
 
     height: 70
@@ -98,10 +106,7 @@ Rectangle {
             hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
             acceptedButtons: Qt.LeftButton | Qt.RightButton
-            onClicked: {
-                if (root.trayItem.hasMenu)
-                    root.openMenu();
-            }
+            onClicked: root.openMenu()
         }
     }
 
@@ -120,8 +125,7 @@ Rectangle {
             if (mouse.button === Qt.MiddleButton) {
                 root.trayItem.secondaryActivate();
             } else if (mouse.button === Qt.RightButton || root.trayItem.onlyMenu) {
-                if (root.trayItem.hasMenu)
-                    root.openMenu();
+                root.openMenu();
             } else {
                 root.trayItem.activate();
                 Qt.callLater(root.focusKnownWindow);
@@ -139,6 +143,8 @@ Rectangle {
         anchorItem: menuButton
         menu: root.trayItem.menu
         title: root.trayItem.tooltipTitle || root.trayItem.title || root.trayItem.id || "Application"
+        extraActionText: root.isSteam ? "Exit Steam" : ""
+        onExtraActionTriggered: root.quitSteam()
         onActionTriggered: root.host.open = false
     }
 }

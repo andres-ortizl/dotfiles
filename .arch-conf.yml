@@ -25,6 +25,7 @@
     ~/.config/hypr: config/hypr/**
     ~/.config/lazyt/themes: config/lazyt/themes/**
     ~/.config/systemd/user: config/systemd/user/**
+    ~/.config/vicinae/settings.json: config/vicinae/settings.json
     ~/.config/nvim: config/nvim/**
     ~/.config/quickshell/control-center: config/quickshell/control-center
     ~/.config/quickshell/wallpaper-picker: config/quickshell/wallpaper-picker
