@@ -123,6 +123,12 @@ container_ok() {
   [ "$state" = running ] && [ "$health" != unhealthy ]
 }
 
+container_ready() {
+  state=$(run_bounded docker inspect --type container --format '{{.State.Status}}' "$1") || return 1
+  health=$(run_bounded docker inspect --type container --format '{{if .State.Health}}{{.State.Health.Status}}{{end}}' "$1") || return 1
+  [ "$state" = running ] && { [ -z "$health" ] || [ "$health" = healthy ]; }
+}
+
 verify_services() {
   while IFS= read -r service; do
     container_ids=$(compose ps -q "$service") || fail 'unable to inspect deployed containers'
@@ -157,7 +163,7 @@ bootstrap() {
     [ "$(printf '%s\n' "$container_ids" | awk 'NF { count++ } END { print count + 0 }')" -eq 1 ] \
       || fail "service has multiple containers: $target"
     container_id=$(printf '%s\n' "$container_ids" | awk 'NF { print; exit }')
-    container_ok "$container_id" && fail "service already exists and is healthy: $target"
+    container_ready "$container_id" && fail "service already exists and is healthy: $target"
   fi
   "$project_dir/deploy.sh" "$target" >/dev/null || fail 'bootstrap failed'
   verify_services <"$services_file"
