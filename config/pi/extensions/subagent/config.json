@@ -1,0 +1,4 @@
+{
+  "asyncByDefault": true,
+  "forceTopLevelAsync": true
+}

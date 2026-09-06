@@ -68,8 +68,10 @@
     "npm:pi-lens",
     "npm:pi-powerline-footer",
     "npm:pi-agent-browser-native",
-    "npm:pi-hashline-edit-pro"
+    "npm:pi-hashline-edit-pro",
+    "../../code/pi-beacon",
+    "git:github.com/andres-ortizl/pi-beacon@v1.1.0"
   ],
-  "lastChangelogVersion": "0.84.2",
+  "lastChangelogVersion": "0.85.0",
   "hideThinkingBlock": false
 }
