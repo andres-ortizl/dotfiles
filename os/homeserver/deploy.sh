@@ -42,6 +42,22 @@ check_private_file() {
   [ "$(stat -c '%u' "$1")" = "$(id -u)" ] || fail "runtime file owner must match the deployment user"
 }
 
+check_unifi_database_dir() {
+  if [ ! -e "$unifi_database_dir" ] && [ ! -L "$unifi_database_dir" ]; then
+    return 0
+  fi
+  [ -d "$unifi_database_dir" ] && [ ! -L "$unifi_database_dir" ] || fail "UniFi database path is invalid"
+  [ "$(stat -c '%u' "$unifi_database_dir")" = "$(id -u)" ] || fail "UniFi database owner must match the deployment user"
+}
+
+prepare_unifi_database_dir() {
+  if [ ! -e "$unifi_database_dir" ]; then
+    mkdir -m 700 "$unifi_database_dir" || fail "unable to create the UniFi database directory"
+  fi
+  check_unifi_database_dir
+  chmod 700 "$unifi_database_dir" || fail "unable to secure the UniFi database directory"
+}
+
 run_bounded() {
   command -v timeout >/dev/null 2>&1 || {
     printf '%s\n' "timeout is required for bounded external commands" >&2
@@ -77,6 +93,7 @@ mqtt_passwd="$script_dir/secrets/mqtt-passwd"
 mqtt_acl="$script_dir/secrets/mqtt-acl"
 unifi_mongo_app_password="$script_dir/secrets/unifi-mongo-app-password"
 unifi_mongo_root_password="$script_dir/secrets/unifi-mongo-root-password"
+unifi_database_dir="$script_dir/data/unifi-database"
 
 [ -s "$homeserver_env" ] || fail ".env is missing or empty; run ./recover-env.sh"
 check_private_file "$homeserver_env"
@@ -148,10 +165,12 @@ compose() {
 }
 
 compose config --quiet || fail "Compose configuration validation failed"
+check_unifi_database_dir
 
 if [ "$check_only" = true ]; then
   printf '%s\n' "deployment preflight passed"
   exit 0
 fi
 
+prepare_unifi_database_dir
 compose up -d "$@"
