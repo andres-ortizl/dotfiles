@@ -147,6 +147,17 @@ deploy() {
   if [ "$target" = all ]; then verify_services <"$services_file"; else printf '%s\n' "$target" | verify_services; fi
 }
 
+bootstrap() {
+  [ "$#" -eq 1 ] || fail 'usage: bootstrap SERVICE'
+  target=$1
+  check
+  valid_service "$target" || fail "unknown service: $target"
+  container_ids=$(compose ps --all --quiet "$target") || fail 'unable to inspect bootstrap target'
+  [ -z "$container_ids" ] || fail "service already exists: $target"
+  "$project_dir/deploy.sh" "$target" >/dev/null || fail 'bootstrap failed'
+  verify_services <"$services_file"
+}
+
 rollback() {
   [ "$#" -eq 2 ] || fail 'usage: rollback SERVICE IMAGE_REF@sha256:DIGEST'
   service=$1
@@ -175,12 +186,13 @@ prune_images() {
   run_bounded docker image prune -a -f >/dev/null || fail 'image prune failed'
 }
 
-usage() { printf '%s\n' "Usage: $0 check | lock-images --output FILE | deploy SERVICE|all | rollback SERVICE IMAGE_REF@sha256:DIGEST | prune-images --yes"; }
+usage() { printf '%s\n' "Usage: $0 check | lock-images --output FILE | deploy SERVICE|all | bootstrap SERVICE | rollback SERVICE IMAGE_REF@sha256:DIGEST | prune-images --yes"; }
 
 case ${1-} in
   check) shift; [ "$#" -eq 0 ] || fail 'check takes no arguments'; check; printf '%s\n' 'check passed' ;;
   lock-images) shift; lock_images "$@"; printf '%s\n' 'image lock captured' ;;
   deploy) shift; deploy "$@"; printf '%s\n' 'deployment verified' ;;
+  bootstrap) shift; bootstrap "$@"; printf '%s\n' 'bootstrap verified' ;;
   rollback) shift; rollback "$@"; printf '%s\n' 'rollback verified' ;;
   prune-images) shift; prune_images "$@"; printf '%s\n' 'unused images pruned' ;;
   *) usage >&2; exit 2 ;;
