@@ -61,11 +61,6 @@ pages:
                 url: https://pihole.${DOMAIN}/admin/
                 check-url: http://pihole/admin/
                 icon: di:pi-hole
-              - title: UniFi Network
-                url: https://192.168.1.33:8443
-                check-url: https://host.docker.internal:8443/status
-                allow-insecure: true
-                icon: di:unifi
               - title: Traefik
                 url: https://traefik.${DOMAIN}/dashboard/
                 check-url: http://traefik:8082/ping

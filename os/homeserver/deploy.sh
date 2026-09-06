@@ -42,22 +42,6 @@ check_private_file() {
   [ "$(stat -c '%u' "$1")" = "$(id -u)" ] || fail "runtime file owner must match the deployment user"
 }
 
-check_unifi_database_dir() {
-  if [ ! -e "$unifi_database_dir" ] && [ ! -L "$unifi_database_dir" ]; then
-    return 0
-  fi
-  [ -d "$unifi_database_dir" ] && [ ! -L "$unifi_database_dir" ] || fail "UniFi database path is invalid"
-  [ "$(stat -c '%u' "$unifi_database_dir")" = "$(id -u)" ] || fail "UniFi database owner must match the deployment user"
-}
-
-prepare_unifi_database_dir() {
-  if [ ! -e "$unifi_database_dir" ]; then
-    mkdir -m 700 "$unifi_database_dir" || fail "unable to create the UniFi database directory"
-  fi
-  check_unifi_database_dir
-  chmod 700 "$unifi_database_dir" || fail "unable to secure the UniFi database directory"
-}
-
 run_bounded() {
   command -v timeout >/dev/null 2>&1 || {
     printf '%s\n' "timeout is required for bounded external commands" >&2
@@ -91,9 +75,6 @@ authelia_storage_encryption="$script_dir/secrets/authelia-storage-encryption"
 authelia_users="$script_dir/secrets/authelia-users"
 mqtt_passwd="$script_dir/secrets/mqtt-passwd"
 mqtt_acl="$script_dir/secrets/mqtt-acl"
-unifi_mongo_app_password="$script_dir/secrets/unifi-mongo-app-password"
-unifi_mongo_root_password="$script_dir/secrets/unifi-mongo-root-password"
-unifi_database_dir="$script_dir/data/unifi-database"
 
 [ -s "$homeserver_env" ] || fail ".env is missing or empty; run ./recover-env.sh"
 check_private_file "$homeserver_env"
@@ -107,8 +88,6 @@ check_private_file "$authelia_storage_encryption"
 check_private_file "$authelia_users"
 check_private_file "$mqtt_passwd"
 check_private_file "$mqtt_acl"
-check_private_file "$unifi_mongo_app_password"
-check_private_file "$unifi_mongo_root_password"
 
 acme_email=$(file_value "$homeserver_env" ACME_EMAIL 2>/dev/null || true)
 acme_ca_server=$(file_value "$homeserver_env" ACME_CA_SERVER 2>/dev/null || true)
@@ -135,11 +114,6 @@ awk '
   { exit 1 }
   END { if (!users || !topics) exit 1 }
 ' "$mqtt_acl" || fail "mqtt-acl has an invalid schema"
-for secret in "$unifi_mongo_app_password" "$unifi_mongo_root_password"; do
-  awk 'NF != 1 || length($0) != 64 || $0 !~ /^[0-9a-f]+$/ { exit 1 } END { if (NR != 1) exit 1 }' "$secret" \
-    || fail "UniFi MongoDB passwords must contain exactly 64 lowercase hexadecimal characters"
-done
-
 [ "$(file_value "$homeserver_env" DOMAIN 2>/dev/null || true)" = n33lab.com ] || fail "DOMAIN must appear exactly once and equal n33lab.com"
 validate_env_names "$immich_server_env" \
   "DB_USERNAME DB_PASSWORD DB_DATABASE_NAME" \
@@ -165,12 +139,10 @@ compose() {
 }
 
 compose config --quiet || fail "Compose configuration validation failed"
-check_unifi_database_dir
 
 if [ "$check_only" = true ]; then
   printf '%s\n' "deployment preflight passed"
   exit 0
 fi
 
-prepare_unifi_database_dir
 compose up -d "$@"

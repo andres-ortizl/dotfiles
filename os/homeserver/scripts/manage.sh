@@ -123,12 +123,6 @@ container_ok() {
   [ "$state" = running ] && [ "$health" != unhealthy ]
 }
 
-container_ready() {
-  state=$(run_bounded docker inspect --type container --format '{{.State.Status}}' "$1") || return 1
-  health=$(run_bounded docker inspect --type container --format '{{if .State.Health}}{{.State.Health.Status}}{{end}}' "$1") || return 1
-  [ "$state" = running ] && { [ -z "$health" ] || [ "$health" = healthy ]; }
-}
-
 verify_services() {
   while IFS= read -r service; do
     container_ids=$(compose ps -q "$service") || fail 'unable to inspect deployed containers'
@@ -151,22 +145,6 @@ deploy() {
     "$project_dir/deploy.sh" "$target" >/dev/null || fail 'deployment failed'
   fi
   if [ "$target" = all ]; then verify_services <"$services_file"; else printf '%s\n' "$target" | verify_services; fi
-}
-
-bootstrap() {
-  [ "$#" -eq 1 ] || fail 'usage: bootstrap SERVICE'
-  target=$1
-  check
-  valid_service "$target" || fail "unknown service: $target"
-  container_ids=$(compose ps --all --quiet "$target") || fail 'unable to inspect bootstrap target'
-  if [ -n "$container_ids" ]; then
-    [ "$(printf '%s\n' "$container_ids" | awk 'NF { count++ } END { print count + 0 }')" -eq 1 ] \
-      || fail "service has multiple containers: $target"
-    container_id=$(printf '%s\n' "$container_ids" | awk 'NF { print; exit }')
-    container_ready "$container_id" && fail "service already exists and is healthy: $target"
-  fi
-  "$project_dir/deploy.sh" "$target" >/dev/null || fail 'bootstrap failed'
-  verify_services <"$services_file"
 }
 
 restart_service() {
@@ -206,13 +184,12 @@ prune_images() {
   run_bounded docker image prune -a -f >/dev/null || fail 'image prune failed'
 }
 
-usage() { printf '%s\n' "Usage: $0 check | lock-images --output FILE | deploy SERVICE|all | bootstrap SERVICE | restart SERVICE | rollback SERVICE IMAGE_REF@sha256:DIGEST | prune-images --yes"; }
+usage() { printf '%s\n' "Usage: $0 check | lock-images --output FILE | deploy SERVICE|all | restart SERVICE | rollback SERVICE IMAGE_REF@sha256:DIGEST | prune-images --yes"; }
 
 case ${1-} in
   check) shift; [ "$#" -eq 0 ] || fail 'check takes no arguments'; check; printf '%s\n' 'check passed' ;;
   lock-images) shift; lock_images "$@"; printf '%s\n' 'image lock captured' ;;
   deploy) shift; deploy "$@"; printf '%s\n' 'deployment verified' ;;
-  bootstrap) shift; bootstrap "$@"; printf '%s\n' 'bootstrap verified' ;;
   restart) shift; restart_service "$@"; printf '%s\n' 'restart verified' ;;
   rollback) shift; rollback "$@"; printf '%s\n' 'rollback verified' ;;
   prune-images) shift; prune_images "$@"; printf '%s\n' 'unused images pruned' ;;
