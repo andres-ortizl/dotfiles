@@ -213,6 +213,20 @@ services:
       - "6881:6881/udp"
     networks:
       - traefik
+
+  # Kavita Ebook and Comics Library
+  kavita:
+    image: jvmilazz0/kavita@sha256:31181a32f0dda73cae68721867028a7253d57881b58bea5754cd9e578e75421a
+    container_name: kavita
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ:-Europe/Madrid}
+    volumes:
+      - ./data/kavita/config:/kavita/config
+      - ${DATA_ROOT:-./data/shared}/books:/books:ro
+    networks:
+      - traefik
+
   # Immich Photo Management
   immich-server:
     image: ghcr.io/immich-app/immich-server@sha256:b434cb9287eea1471c9974845914d4dd328c9c2d652e446ed4930f99944f0ceb

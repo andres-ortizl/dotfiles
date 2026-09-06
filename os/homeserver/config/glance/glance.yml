@@ -31,6 +31,10 @@ pages:
                 check-url: http://qbittorrent:8080
                 alt-status-codes: [401]
                 icon: di:qbittorrent
+              - title: Kavita
+                url: https://books.${DOMAIN}
+                check-url: http://kavita:5000
+                icon: di:kavita
               - title: File Browser
                 url: https://files.${DOMAIN}
                 check-url: http://filebrowser:80

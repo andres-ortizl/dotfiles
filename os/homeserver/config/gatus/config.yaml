@@ -77,6 +77,14 @@ endpoints:
       timeout: 10s
     conditions: *http-conditions
 
+  - name: Kavita
+    group: Storage
+    url: http://kavita:5000
+    interval: 1m
+    client:
+      timeout: 10s
+    conditions: *http-conditions
+
   - name: Immich
     group: Storage
     url: http://immich-server:2283

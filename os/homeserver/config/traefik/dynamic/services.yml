@@ -51,6 +51,11 @@ http:
       entryPoints: [websecure]
       service: qbittorrent
       tls: {}
+    kavita:
+      rule: 'Host(`books.{{ env "DOMAIN" }}`)'
+      entryPoints: [websecure]
+      service: kavita
+      tls: {}
     immich:
       rule: 'Host(`immich.{{ env "DOMAIN" }}`)'
       entryPoints: [websecure]
@@ -110,6 +115,7 @@ http:
     dockhand: { loadBalancer: { servers: [{ url: http://dockhand:3000 }] } }
     pihole: { loadBalancer: { servers: [{ url: http://pihole:80 }] } }
     qbittorrent: { loadBalancer: { servers: [{ url: http://qbittorrent:8080 }] } }
+    kavita: { loadBalancer: { servers: [{ url: http://kavita:5000 }] } }
     immich: { loadBalancer: { servers: [{ url: http://immich-server:2283 }] } }
     openwebui: { loadBalancer: { servers: [{ url: http://openwebui:8080 }] } }
     excalidraw: { loadBalancer: { servers: [{ url: http://excalidraw:80 }] } }
