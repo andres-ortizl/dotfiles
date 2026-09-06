@@ -234,6 +234,7 @@ services:
     image: lscr.io/linuxserver/unifi-network-application@sha256:b6ce6968ee45705934f819157aebd1bb80af8ee3e7d6b3b06e010013553ab0e4
     container_name: unifi-network-application
     restart: unless-stopped
+    entrypoint: ["/usr/local/bin/unifi-entrypoint"]
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
@@ -246,6 +247,7 @@ services:
       - MONGO_AUTHSOURCE=admin
     volumes:
       - ./data/unifi/application:/config
+      - ./config/unifi/unifi-entrypoint.sh:/usr/local/bin/unifi-entrypoint:ro
     ports:
       - "192.168.1.33:8443:8443"
       - "192.168.1.33:3478:3478/udp"
