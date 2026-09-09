@@ -32,8 +32,43 @@
       "userTimezone": "Europe/Madrid",
       "utilityModel": "openai/gpt-5.4-mini",
       "workspace": "/home/node/.openclaw/workspace"
-    }
+    },
+    "entries": {
+      "mail_reader": {
+        "model": "openai/gpt-5.4-mini",
+        "sandbox": {
+          "mode": "off"
+        },
+        "tools": {
+          "allow": [
+            "session_status"
+          ],
+          "deny": [
+            "group:fs",
+            "group:runtime",
+            "group:web",
+            "browser",
+            "cron",
+            "gateway",
+            "nodes"
+          ],
+          "profile": "minimal"
+        },
+        "workspace": "/home/node/.openclaw/workspace-mail-reader"
+      },
+      "main": {}
+    },
+    "ownership": "explicit"
   },
+  "bindings": [
+    {
+      "agentId": "main",
+      "match": {
+        "accountId": "*",
+        "channel": "whatsapp"
+      }
+    }
+  ],
   "channels": {
     "whatsapp": {
       "allowFrom": [
@@ -71,9 +106,40 @@
       "openai",
       "memory-core",
       "memory-wiki",
-      "whatsapp"
+      "whatsapp",
+      "imap"
     ],
     "entries": {
+      "imap": {
+        "config": {
+          "accounts": {
+            "personal": {
+              "agentId": "mail_reader",
+              "allowedSenders": [
+                "${OPENCLAW_IMAP_USER}"
+              ],
+              "deliver": true,
+              "host": "imap.gmail.com",
+              "includeBody": true,
+              "mailbox": "INBOX",
+              "maxBytes": 20000,
+              "password": "${OPENCLAW_IMAP_PASSWORD}",
+              "port": 993,
+              "secure": true,
+              "senderAuth": {
+                "acceptTrustedAuthservId": false,
+                "min": "verified"
+              },
+              "user": "${OPENCLAW_IMAP_USER}",
+              "watch": {
+                "mode": "auto",
+                "pollSeconds": 60
+              }
+            }
+          }
+        },
+        "enabled": true
+      },
       "memory-core": {
         "config": {
           "dreaming": {

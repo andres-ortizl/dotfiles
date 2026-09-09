@@ -85,6 +85,10 @@ class OpenClawTest(unittest.TestCase):
             "OPENCLAW_GATEWAY_TOKEN=test-token-not-for-deployment-0123456789",
             "-e",
             "OPENCLAW_OWNER_PHONE=+15555550123",
+            "-e",
+            "OPENCLAW_IMAP_USER=test@example.com",
+            "-e",
+            "OPENCLAW_IMAP_PASSWORD=test-not-a-real-password",
             "-v",
             f"{cls.state}:/home/node/.openclaw",
             "-v",
@@ -118,8 +122,11 @@ class OpenClawTest(unittest.TestCase):
             )
         cls.cli("config", "validate", "--json")
         # Exercise real FTS and wiki operations without calling a paid embedding provider.
+        # The IMAP watcher stays disabled: runtime tests run with --network none and the
+        # watcher would mark itself unhealthy retrying against unreachable imap.gmail.com.
         config = json.loads(cls.test_config.read_text())
         config["memory"]["search"]["provider"] = "none"
+        config["plugins"]["entries"]["imap"]["enabled"] = False
         cls.test_config.write_text(json.dumps(config))
         cls.cli("wiki", "init")
 
