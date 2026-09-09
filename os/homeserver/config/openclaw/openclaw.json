@@ -99,11 +99,6 @@
         "connectionTimeoutMs": 5000,
         "enabled": true,
         "requestTimeoutMs": 20000,
-        "toolFilter": {
-          "include": [
-            "GOOGLECALENDAR_*"
-          ]
-        },
         "transport": "streamable-http",
         "url": "${OPENCLAW_COMPOSIO_MCP_URL}"
       }
