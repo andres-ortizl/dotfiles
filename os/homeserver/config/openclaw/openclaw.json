@@ -95,6 +95,7 @@
   "mcp": {
     "servers": {
       "composio": {
+        "auth": "oauth",
         "connectionTimeoutMs": 5000,
         "enabled": true,
         "requestTimeoutMs": 20000,
