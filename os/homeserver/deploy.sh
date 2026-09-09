@@ -101,9 +101,11 @@ if [ "$openclaw_enabled" = true ]; then
   openclaw_env="$script_dir/secrets/openclaw.env"
   check_private_file "$openclaw_env"
   validate_env_names "$openclaw_env" \
-    "OPENAI_API_KEY OPENCLAW_GATEWAY_TOKEN OPENCLAW_OWNER_PHONE OPENCLAW_IMAP_USER OPENCLAW_IMAP_PASSWORD OPENCLAW_COMPOSIO_KEY" \
-    "OPENAI_API_KEY OPENCLAW_GATEWAY_TOKEN OPENCLAW_OWNER_PHONE OPENCLAW_IMAP_USER OPENCLAW_IMAP_PASSWORD OPENCLAW_COMPOSIO_KEY" ||
+    "OPENAI_API_KEY OPENCLAW_GATEWAY_TOKEN OPENCLAW_OWNER_PHONE OPENCLAW_IMAP_USER OPENCLAW_IMAP_PASSWORD OPENCLAW_COMPOSIO_MCP_URL" \
+    "OPENAI_API_KEY OPENCLAW_GATEWAY_TOKEN OPENCLAW_OWNER_PHONE OPENCLAW_IMAP_USER OPENCLAW_IMAP_PASSWORD OPENCLAW_COMPOSIO_MCP_URL OPENCLAW_COMPOSIO_KEY" ||
     fail "openclaw.env has an invalid schema"
+  printf '%s\n' "$(file_value "$openclaw_env" OPENCLAW_COMPOSIO_MCP_URL)" | grep -Eq '^https://[A-Za-z0-9./_?=-]+$' ||
+    fail "OpenClaw Composio MCP URL must be a plain https URL"
   printf '%s\n' "$(file_value "$openclaw_env" OPENCLAW_IMAP_USER)" | grep -Eq "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+$" ||
     fail "OpenClaw IMAP user must be an email address"
   printf '%s\n' "$(file_value "$openclaw_env" OPENCLAW_OWNER_PHONE)" | grep -Eq '^\+[1-9][0-9]{6,14}$' ||

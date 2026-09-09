@@ -92,6 +92,22 @@
     },
     "mode": "local"
   },
+  "mcp": {
+    "servers": {
+      "composio": {
+        "connectionTimeoutMs": 5000,
+        "enabled": true,
+        "requestTimeoutMs": 20000,
+        "toolFilter": {
+          "include": [
+            "GOOGLECALENDAR_*"
+          ]
+        },
+        "transport": "streamable-http",
+        "url": "${OPENCLAW_COMPOSIO_MCP_URL}"
+      }
+    }
+  },
   "memory": {
     "search": {
       "extraPaths": [
@@ -107,16 +123,9 @@
       "memory-core",
       "memory-wiki",
       "whatsapp",
-      "imap",
-      "composio"
+      "imap"
     ],
     "entries": {
-      "composio": {
-        "config": {
-          "consumerKey": "${OPENCLAW_COMPOSIO_KEY}"
-        },
-        "enabled": true
-      },
       "imap": {
         "config": {
           "accounts": {
@@ -208,7 +217,8 @@
       "wiki_apply",
       "wiki_lint",
       "session_status",
-      "cron"
+      "cron",
+      "GOOGLECALENDAR_*"
     ],
     "deny": [
       "group:runtime",
