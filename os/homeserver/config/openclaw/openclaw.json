@@ -216,7 +216,7 @@
       "wiki_lint",
       "session_status",
       "cron",
-      "GOOGLECALENDAR_*"
+      "bundle-mcp"
     ],
     "deny": [
       "group:runtime",
