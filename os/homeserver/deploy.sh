@@ -101,8 +101,8 @@ if [ "$openclaw_enabled" = true ]; then
   openclaw_env="$script_dir/secrets/openclaw.env"
   check_private_file "$openclaw_env"
   validate_env_names "$openclaw_env" \
-    "OPENAI_API_KEY OPENCLAW_GATEWAY_TOKEN OPENCLAW_OWNER_PHONE OPENCLAW_IMAP_USER OPENCLAW_IMAP_PASSWORD" \
-    "OPENAI_API_KEY OPENCLAW_GATEWAY_TOKEN OPENCLAW_OWNER_PHONE OPENCLAW_IMAP_USER OPENCLAW_IMAP_PASSWORD" ||
+    "OPENAI_API_KEY OPENCLAW_GATEWAY_TOKEN OPENCLAW_OWNER_PHONE OPENCLAW_IMAP_USER OPENCLAW_IMAP_PASSWORD OPENCLAW_COMPOSIO_KEY" \
+    "OPENAI_API_KEY OPENCLAW_GATEWAY_TOKEN OPENCLAW_OWNER_PHONE OPENCLAW_IMAP_USER OPENCLAW_IMAP_PASSWORD OPENCLAW_COMPOSIO_KEY" ||
     fail "openclaw.env has an invalid schema"
   printf '%s\n' "$(file_value "$openclaw_env" OPENCLAW_IMAP_USER)" | grep -Eq "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+$" ||
     fail "OpenClaw IMAP user must be an email address"

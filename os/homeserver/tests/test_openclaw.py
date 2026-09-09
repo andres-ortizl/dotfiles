@@ -89,6 +89,8 @@ class OpenClawTest(unittest.TestCase):
             "OPENCLAW_IMAP_USER=test@example.com",
             "-e",
             "OPENCLAW_IMAP_PASSWORD=test-not-a-real-password",
+            "-e",
+            "OPENCLAW_COMPOSIO_KEY=ck_test_not_a_real_key",
             "-v",
             f"{cls.state}:/home/node/.openclaw",
             "-v",
@@ -127,6 +129,7 @@ class OpenClawTest(unittest.TestCase):
         config = json.loads(cls.test_config.read_text())
         config["memory"]["search"]["provider"] = "none"
         config["plugins"]["entries"]["imap"]["enabled"] = False
+        config["plugins"]["entries"]["composio"]["enabled"] = False
         cls.test_config.write_text(json.dumps(config))
         cls.cli("wiki", "init")
 

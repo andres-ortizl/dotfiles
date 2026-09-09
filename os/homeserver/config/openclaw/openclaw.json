@@ -107,9 +107,16 @@
       "memory-core",
       "memory-wiki",
       "whatsapp",
-      "imap"
+      "imap",
+      "composio"
     ],
     "entries": {
+      "composio": {
+        "config": {
+          "consumerKey": "${OPENCLAW_COMPOSIO_KEY}"
+        },
+        "enabled": true
+      },
       "imap": {
         "config": {
           "accounts": {
