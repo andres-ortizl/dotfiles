@@ -58,6 +58,14 @@ elif [ "${1-}" != "" ] && [ "${1#--}" != "$1" ]; then
   usage
 fi
 
+openclaw_enabled=false
+case ",${COMPOSE_PROFILES-}," in
+  *,openclaw,* | *,\*,*) openclaw_enabled=true ;;
+esac
+for service in "$@"; do
+  [ "$service" != openclaw ] || openclaw_enabled=true
+done
+
 script_dir=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 repo_root=$(git -C "$script_dir" rev-parse --show-toplevel 2>/dev/null) || fail "unable to locate repository root"
 cd "$repo_root"
@@ -89,24 +97,37 @@ check_private_file "$authelia_users"
 check_private_file "$mqtt_passwd"
 check_private_file "$mqtt_acl"
 
+if [ "$openclaw_enabled" = true ]; then
+  openclaw_env="$script_dir/secrets/openclaw.env"
+  check_private_file "$openclaw_env"
+  validate_env_names "$openclaw_env" \
+    "OPENAI_API_KEY OPENCLAW_GATEWAY_TOKEN OPENCLAW_OWNER_PHONE" \
+    "OPENAI_API_KEY OPENCLAW_GATEWAY_TOKEN OPENCLAW_OWNER_PHONE" ||
+    fail "openclaw.env has an invalid schema"
+  printf '%s\n' "$(file_value "$openclaw_env" OPENCLAW_OWNER_PHONE)" | grep -Eq '^\+[1-9][0-9]{6,14}$' ||
+    fail "OpenClaw owner phone must use E.164 format"
+  printf '%s\n' "$(file_value "$openclaw_env" OPENCLAW_GATEWAY_TOKEN)" | grep -Eq '^[A-Za-z0-9_-]{32,}$' ||
+    fail "OpenClaw gateway token must have at least 32 URL-safe characters"
+fi
+
 acme_email=$(file_value "$homeserver_env" ACME_EMAIL 2>/dev/null || true)
 acme_ca_server=$(file_value "$homeserver_env" ACME_CA_SERVER 2>/dev/null || true)
 acme_storage=$(file_value "$homeserver_env" ACME_STORAGE 2>/dev/null || true)
 [ -n "$acme_email" ] || fail "ACME_EMAIL is required"
-printf '%s\n' "$acme_email" | grep -Eq "^[A-Za-z0-9.!#\$%&'*+/=?^_\`{|}~-]+@[A-Za-z0-9.-]+$" \
-  || fail "ACME_EMAIL has an unsafe value"
+printf '%s\n' "$acme_email" | grep -Eq "^[A-Za-z0-9.!#\$%&'*+/=?^_\`{|}~-]+@[A-Za-z0-9.-]+$" ||
+  fail "ACME_EMAIL has an unsafe value"
 if [ -n "$acme_ca_server" ]; then
-  printf '%s\n' "$acme_ca_server" | grep -Eq '^https://acme-(staging-)?v02\.api\.letsencrypt\.org/directory$' \
-    || fail "ACME_CA_SERVER has an unsafe value"
+  printf '%s\n' "$acme_ca_server" | grep -Eq '^https://acme-(staging-)?v02\.api\.letsencrypt\.org/directory$' ||
+    fail "ACME_CA_SERVER has an unsafe value"
 fi
 if [ -n "$acme_storage" ]; then
-  printf '%s\n' "$acme_storage" | grep -Eq '^/letsencrypt/[A-Za-z0-9._-]+\.json$' \
-    || fail "ACME_STORAGE has an unsafe value"
+  printf '%s\n' "$acme_storage" | grep -Eq '^/letsencrypt/[A-Za-z0-9._-]+\.json$' ||
+    fail "ACME_STORAGE has an unsafe value"
 fi
-awk 'NF != 1 || /[[:space:]=]/ { exit 1 } END { if (NR != 1) exit 1 }' "$cloudflare_dns_api_token" \
-  || fail "Cloudflare DNS API token has an invalid format"
-awk 'BEGIN { valid = 0 } /^[[:space:]]*($|#)/ { next } /^[A-Za-z0-9._-]+:\$[^[:space:]]+$/ { valid++; next } { exit 1 } END { if (!valid) exit 1 }' "$mqtt_passwd" \
-  || fail "mqtt-passwd has an invalid schema"
+awk 'NF != 1 || /[[:space:]=]/ { exit 1 } END { if (NR != 1) exit 1 }' "$cloudflare_dns_api_token" ||
+  fail "Cloudflare DNS API token has an invalid format"
+awk 'BEGIN { valid = 0 } /^[[:space:]]*($|#)/ { next } /^[A-Za-z0-9._-]+:\$[^[:space:]]+$/ { valid++; next } { exit 1 } END { if (!valid) exit 1 }' "$mqtt_passwd" ||
+  fail "mqtt-passwd has an invalid schema"
 awk '
   /^[[:space:]]*($|#)/ { next }
   /^user [A-Za-z0-9._-]+$/ { users++; next }
@@ -130,8 +151,8 @@ validate_env_names "$esphome_env" \
 [ -s "$authelia_users" ] || fail "authelia-users is empty"
 
 for key in DB_USERNAME DB_PASSWORD DB_DATABASE_NAME; do
-  [ "$(file_value "$homeserver_env" "$key" 2>/dev/null || true)" = "$(file_value "$immich_server_env" "$key" 2>/dev/null || true)" ] \
-    || fail "Immich database settings do not match the Compose interpolation file"
+  [ "$(file_value "$homeserver_env" "$key" 2>/dev/null || true)" = "$(file_value "$immich_server_env" "$key" 2>/dev/null || true)" ] ||
+    fail "Immich database settings do not match the Compose interpolation file"
 done
 
 compose() {

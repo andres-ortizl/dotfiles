@@ -8,7 +8,10 @@ compose_file=$project_dir/docker-compose.yml
 env_file=$project_dir/.env
 temporary_dir=
 
-fail() { printf 'FAIL: %s\n' "$1" >&2; exit 1; }
+fail() {
+  printf 'FAIL: %s\n' "$1" >&2
+  exit 1
+}
 cleanup() { [ -z "$temporary_dir" ] || rm -rf "$temporary_dir"; }
 trap cleanup EXIT
 trap 'exit 1' HUP INT TERM
@@ -31,8 +34,8 @@ list_services() {
   services_file=${temporary_dir:-${TMPDIR:-/tmp}}/services
   compose config --services >"$services_file" || fail 'unable to enumerate Compose services'
   [ -s "$services_file" ] || fail 'Compose has no configured services'
-  awk 'NF != 1 || $1 !~ /^[A-Za-z0-9][A-Za-z0-9_.-]*$/ || seen[$1]++ { exit 1 }' "$services_file" \
-    || fail 'configured service list is invalid'
+  awk 'NF != 1 || $1 !~ /^[A-Za-z0-9][A-Za-z0-9_.-]*$/ || seen[$1]++ { exit 1 }' "$services_file" ||
+    fail 'configured service list is invalid'
 }
 
 valid_service() {
@@ -49,8 +52,8 @@ check_pins() {
       count=split($1, parts, "@sha256:")
       if (count != 2 || parts[1] !~ /^[A-Za-z0-9][A-Za-z0-9._:/-]*$/ || parts[2] !~ /^[0-9a-f]+$/ || length(parts[2]) != 64) exit 1
     }
-  ' "$images_file" \
-    || fail 'every service image must be exactly digest-pinned'
+  ' "$images_file" ||
+    fail 'every service image must be exactly digest-pinned'
 }
 
 check() {
@@ -187,11 +190,39 @@ prune_images() {
 usage() { printf '%s\n' "Usage: $0 check | lock-images --output FILE | deploy SERVICE|all | restart SERVICE | rollback SERVICE IMAGE_REF@sha256:DIGEST | prune-images --yes"; }
 
 case ${1-} in
-  check) shift; [ "$#" -eq 0 ] || fail 'check takes no arguments'; check; printf '%s\n' 'check passed' ;;
-  lock-images) shift; lock_images "$@"; printf '%s\n' 'image lock captured' ;;
-  deploy) shift; deploy "$@"; printf '%s\n' 'deployment verified' ;;
-  restart) shift; restart_service "$@"; printf '%s\n' 'restart verified' ;;
-  rollback) shift; rollback "$@"; printf '%s\n' 'rollback verified' ;;
-  prune-images) shift; prune_images "$@"; printf '%s\n' 'unused images pruned' ;;
-  *) usage >&2; exit 2 ;;
+  check)
+    shift
+    [ "$#" -eq 0 ] || fail 'check takes no arguments'
+    check
+    printf '%s\n' 'check passed'
+    ;;
+  lock-images)
+    shift
+    lock_images "$@"
+    printf '%s\n' 'image lock captured'
+    ;;
+  deploy)
+    shift
+    deploy "$@"
+    printf '%s\n' 'deployment verified'
+    ;;
+  restart)
+    shift
+    restart_service "$@"
+    printf '%s\n' 'restart verified'
+    ;;
+  rollback)
+    shift
+    rollback "$@"
+    printf '%s\n' 'rollback verified'
+    ;;
+  prune-images)
+    shift
+    prune_images "$@"
+    printf '%s\n' 'unused images pruned'
+    ;;
+  *)
+    usage >&2
+    exit 2
+    ;;
 esac

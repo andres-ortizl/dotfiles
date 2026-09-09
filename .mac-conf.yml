@@ -40,7 +40,6 @@
     ~/.gitkraken/themes/: config/gitkraken/themes/**
     ~/.config/mise: config/mise/**
     ~/.config/helix: config/helix/**
-    "~/Library/Application Support/com.mitchellh.ghostty/config": config/ghostty/config
     ~/.amethyst.yml: config/amethyst/.amethyst.yml
     ~/.config/delta: config/delta/**
     "~/Library/Application Support/lazygit/config.yml": config/lazygit/config.yml
@@ -58,11 +57,16 @@
     ~/.config/nvim/stylua.toml: config/nvim/stylua.toml
     ~/.config/nvim/lua: config/nvim/lua/**
     ~/.config/zellij: config/zellij/*
+    ~/.config/herdr/config.toml: config/herdr/config.toml
+    ~/.config/herdr/cheatsheet.md: config/herdr/cheatsheet.md
+    ~/.config/herdr/plugins/config/herdr-plugin-workspace-manager/config.yml: config/herdr/workspace-manager.yml
+    ~/.config/herdr/plugins/config/tdi.worktree-from-linear/config.json: config/herdr/worktree-from-linear.json
     ~/.factory/mcp.json: config/factory/mcp.json
     ~/.pi/agent/settings.json: config/pi/settings.json
     ~/.pi/agent/AGENTS.md: AGENTS.md
     ~/.pi/agent/skills: config/claude/skills
     ~/.skills-library/langchain: config/skills-library/langchain-skills/config/skills
+    ~/.skills-library/design: config/skills-library/design
     ~/.pi/agent/themes: config/pi/themes
     ~/.config/kilo/kilo.jsonc: config/kilo/kilo.jsonc
     ~/.config/kilo/tui.jsonc: config/kilo/tui.jsonc

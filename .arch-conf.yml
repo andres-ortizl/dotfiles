@@ -35,6 +35,10 @@
     ~/.config/pi-beacon: config/pi-beacon/**
     ~/.config/starship/config.toml: config/starship/config.toml
     ~/.config/ghostty/config: config/ghostty/config
+    ~/.config/herdr/config.toml: config/herdr/config.toml
+    ~/.config/herdr/cheatsheet.md: config/herdr/cheatsheet.md
+    ~/.config/herdr/plugins/config/herdr-plugin-workspace-manager/config.yml: config/herdr/workspace-manager.yml
+    ~/.config/herdr/plugins/config/tdi.worktree-from-linear/config.json: config/herdr/worktree-from-linear.json
     ~/.config/crush/crushrc: config/crush/crushrc
     ~/.config/discord/settings.json: config/discord/settings.json
     ~/.config/bat/bat.conf: config/bat/bat.conf

@@ -1,4 +1,10 @@
 [
+  {
+    "bindings": {
+      "shift-escape": "workspace::ToggleZoom",
+      "cmd-alt-j": "multi_workspace::ToggleWorkspaceSidebar"
+    }
+  },
   // ============================================================================
   // EDITOR CONTEXT - Disable default keybindings
   // ============================================================================

@@ -4,6 +4,7 @@ umask 077
 
 item_name=n33lab-homeserver-runtime
 check_only=false
+include_openclaw=false
 stage_dir=
 install_dir=
 restore_dir=
@@ -48,10 +49,10 @@ rollback() {
         result=1
         continue
       }
-      cp -p "$backup" "$restore_dir/payload" \
-        && mv -f "$restore_dir/payload" "$target" \
-        && cmp -s "$backup" "$target" \
-        || result=1
+      cp -p "$backup" "$restore_dir/payload" &&
+        mv -f "$restore_dir/payload" "$target" &&
+        cmp -s "$backup" "$target" ||
+        result=1
       cleanup_dir "$restore_dir" || result=1
       restore_dir=
     elif [ -f "$target" ] || [ -L "$target" ]; then
@@ -85,11 +86,14 @@ cleanup_stage() {
   fi
 }
 
-if [ "${1-}" = "--check" ]; then
-  check_only=true
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --check) check_only=true ;;
+    --openclaw) include_openclaw=true ;;
+    *) fail "Usage: $0 [--check] [--openclaw]" ;;
+  esac
   shift
-fi
-[ "$#" -eq 0 ] || fail "Usage: $0 [--check]"
+done
 
 command -v bw >/dev/null 2>&1 || fail "Bitwarden CLI is required"
 command -v timeout >/dev/null 2>&1 || fail "timeout is required for bounded external commands"
@@ -101,6 +105,9 @@ stage_dir=$(mktemp -d "${TMPDIR:-/tmp}/n33lab-recovery.XXXXXX")
 chmod 700 "$stage_dir"
 
 attachments="homeserver.env immich-server.env immich-ml.env cloudflare_dns_api_token authelia-jwt authelia-session authelia-storage-encryption authelia-users esphome.env mqtt-passwd mqtt-acl qa-manifest.env qa-nas-credentials.env qa-external.env qa-worker.env"
+if [ "$include_openclaw" = true ]; then
+  attachments="$attachments openclaw.env"
+fi
 
 destination() {
   case "$1" in
@@ -114,8 +121,8 @@ run_bounded() {
   timeout 60 "$@"
 }
 
-item_id=$(run_bounded bw get item "$item_name" 2>/dev/null \
-  | awk -v expected_name="$item_name" '
+item_id=$(run_bounded bw get item "$item_name" 2>/dev/null |
+  awk -v expected_name="$item_name" '
       item_id == "" && match($0, /"id"[[:space:]]*:[[:space:]]*"[0-9a-fA-F-]+"/) {
         value = substr($0, RSTART, RLENGTH)
         sub(/^"id"[[:space:]]*:[[:space:]]*"/, "", value)
@@ -132,8 +139,8 @@ item_id=$(run_bounded bw get item "$item_name" 2>/dev/null \
         if (item_id == "" || item_name != expected_name) exit 1
         print item_id
       }
-    ') \
-  || fail "Bitwarden item is unavailable or ambiguous: $item_name"
+    ') ||
+  fail "Bitwarden item is unavailable or ambiguous: $item_name"
 [ "${#item_id}" -eq 36 ] || fail "Bitwarden item has an invalid identifier"
 case "$item_id" in
   *[!0-9a-fA-F-]*) fail "Bitwarden item has an invalid identifier" ;;
@@ -167,8 +174,8 @@ validate_attachment() {
     homeserver.env)
       validate_env_names "$2" \
         "DOMAIN ACME_EMAIL ACME_CA_SERVER ACME_STORAGE PUID PGID TZ DATA_ROOT UPLOAD_LOCATION DB_PASSWORD DB_USERNAME DB_DATABASE_NAME PIHOLE_PASSWORD PIHOLE_DNS PIHOLE_API_KEY TS_AUTHKEY" \
-        "DOMAIN ACME_EMAIL PUID PGID TZ DATA_ROOT UPLOAD_LOCATION DB_PASSWORD DB_USERNAME DB_DATABASE_NAME PIHOLE_PASSWORD PIHOLE_DNS PIHOLE_API_KEY TS_AUTHKEY" 0 \
-        && [ "$(awk -F= '$1 == "DOMAIN" { count++; value = substr($0, index($0, "=") + 1) } END { if (count != 1) exit 1; print value }' "$2")" = n33lab.com ]
+        "DOMAIN ACME_EMAIL PUID PGID TZ DATA_ROOT UPLOAD_LOCATION DB_PASSWORD DB_USERNAME DB_DATABASE_NAME PIHOLE_PASSWORD PIHOLE_DNS PIHOLE_API_KEY TS_AUTHKEY" 0 &&
+        [ "$(awk -F= '$1 == "DOMAIN" { count++; value = substr($0, index($0, "=") + 1) } END { if (count != 1) exit 1; print value }' "$2")" = n33lab.com ]
       ;;
     immich-server.env)
       validate_env_names "$2" "DB_USERNAME DB_PASSWORD DB_DATABASE_NAME" "DB_USERNAME DB_PASSWORD DB_DATABASE_NAME" 0
@@ -176,16 +183,23 @@ validate_attachment() {
     immich-ml.env)
       validate_env_names "$2" \
         "TZ IMMICH_ENV IMMICH_LOG_LEVEL NO_COLOR IMMICH_HOST IMMICH_PORT MACHINE_LEARNING_MODEL_TTL MACHINE_LEARNING_MODEL_TTL_POLL_S MACHINE_LEARNING_CACHE_FOLDER MACHINE_LEARNING_REQUEST_THREADS MACHINE_LEARNING_MODEL_INTER_OP_THREADS MACHINE_LEARNING_MODEL_INTRA_OP_THREADS MACHINE_LEARNING_WORKERS MACHINE_LEARNING_DEVICE_IDS" \
-      "" 1
+        "" 1
       ;;
     esphome.env)
       validate_env_names "$2" "ESPHOME_USERNAME ESPHOME_PASSWORD ESPHOME_TRUSTED_DOMAINS" "ESPHOME_USERNAME ESPHOME_PASSWORD ESPHOME_TRUSTED_DOMAINS" 0
       ;;
+    openclaw.env)
+      validate_env_names "$2" \
+        "OPENAI_API_KEY OPENCLAW_GATEWAY_TOKEN OPENCLAW_OWNER_PHONE" \
+        "OPENAI_API_KEY OPENCLAW_GATEWAY_TOKEN OPENCLAW_OWNER_PHONE" 0 &&
+        printf '%s\n' "$(env_value "$2" OPENCLAW_OWNER_PHONE)" | grep -Eq '^\+[1-9][0-9]{6,14}$' &&
+        printf '%s\n' "$(env_value "$2" OPENCLAW_GATEWAY_TOKEN)" | grep -Eq '^[A-Za-z0-9_-]{32,}$'
+      ;;
     qa-manifest.env)
       validate_env_names "$2" \
         "MODE BASIC_AUTH_CREDENTIALS_FILE HOME_ASSISTANT_CREDENTIALS_FILE FORGEJO_TOKEN_FILE ESPHOME_DEVICE_FILE MUSIC_ASSISTANT_PLAYER_FILE MQTT_CLIENT_FILES_FILE ADMIN_IPV4_SET_FILE CHECKS_DIR" \
-        "MODE BASIC_AUTH_CREDENTIALS_FILE HOME_ASSISTANT_CREDENTIALS_FILE FORGEJO_TOKEN_FILE ESPHOME_DEVICE_FILE MUSIC_ASSISTANT_PLAYER_FILE MQTT_CLIENT_FILES_FILE ADMIN_IPV4_SET_FILE CHECKS_DIR" 0 \
-        && case "$(env_value "$2" MODE)" in reference|execute) true ;; *) false ;; esac
+        "MODE BASIC_AUTH_CREDENTIALS_FILE HOME_ASSISTANT_CREDENTIALS_FILE FORGEJO_TOKEN_FILE ESPHOME_DEVICE_FILE MUSIC_ASSISTANT_PLAYER_FILE MQTT_CLIENT_FILES_FILE ADMIN_IPV4_SET_FILE CHECKS_DIR" 0 &&
+        case "$(env_value "$2" MODE)" in reference | execute) true ;; *) false ;; esac
       ;;
     qa-nas-credentials.env)
       validate_env_names "$2" \
@@ -195,8 +209,8 @@ validate_attachment() {
     qa-external.env)
       validate_env_names "$2" \
         "MODE WAN_IPV4_FILE NAS_GLOBAL_IPV6_FILE PUBLIC_DNS_RESOLVERS_FILE EXTERNAL_PROBE_COMMAND_FILE" \
-        "MODE WAN_IPV4_FILE NAS_GLOBAL_IPV6_FILE PUBLIC_DNS_RESOLVERS_FILE EXTERNAL_PROBE_COMMAND_FILE" 0 \
-        && case "$(env_value "$2" MODE)" in reference|execute) true ;; *) false ;; esac
+        "MODE WAN_IPV4_FILE NAS_GLOBAL_IPV6_FILE PUBLIC_DNS_RESOLVERS_FILE EXTERNAL_PROBE_COMMAND_FILE" 0 &&
+        case "$(env_value "$2" MODE)" in reference | execute) true ;; *) false ;; esac
       ;;
     qa-worker.env)
       validate_env_names "$2" "NAS_ENDPOINT EXTERNAL_ENDPOINT" "NAS_ENDPOINT EXTERNAL_ENDPOINT" 0 || return 1
@@ -208,7 +222,7 @@ validate_attachment() {
     cloudflare_dns_api_token)
       awk 'NF != 1 || /[=[:space:]]/ { exit 1 } END { if (NR != 1) exit 1 }' "$2"
       ;;
-    authelia-jwt|authelia-session|authelia-storage-encryption)
+    authelia-jwt | authelia-session | authelia-storage-encryption)
       awk 'NF != 1 { exit 1 } END { if (NR != 1) exit 1 }' "$2"
       ;;
     authelia-users)
@@ -244,8 +258,8 @@ for attachment in $attachments; do
 done
 
 for key in DB_USERNAME DB_PASSWORD DB_DATABASE_NAME; do
-  [ "$(env_value "$stage_dir/homeserver.env" "$key")" = "$(env_value "$stage_dir/immich-server.env" "$key")" ] \
-    || fail "Immich database attachments are inconsistent"
+  [ "$(env_value "$stage_dir/homeserver.env" "$key")" = "$(env_value "$stage_dir/immich-server.env" "$key")" ] ||
+    fail "Immich database attachments are inconsistent"
 done
 
 if [ "$check_only" = true ]; then
@@ -314,4 +328,5 @@ cleanup_stage || fail "unable to remove recovery staging data"
 transaction_active=false
 cleanup_dir "$transaction_dir" || fail "unable to remove recovery transaction data"
 transaction_dir=
-printf '%s\n' "restored 15 validated runtime attachments"
+attachment_count=$(printf '%s\n' "$attachments" | awk '{ print NF }')
+printf 'restored %s validated runtime attachments\n' "$attachment_count"

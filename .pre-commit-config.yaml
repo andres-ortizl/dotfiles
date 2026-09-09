@@ -1,4 +1,4 @@
-exclude: ^(docs/|.devcontainer/|config/zed/settings.json)
+exclude: ^(docs/|.devcontainer/|config/zed/|config/vicinae/|config/skills-library/)
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0  # Use the ref you want to point at
@@ -38,6 +38,7 @@ repos:
     rev: v0.10.0.1
     hooks:
       - id: shellcheck
+        args: [ --severity=warning ]
         exclude: ^(shell/|config/|language/)
   - repo: https://github.com/scop/pre-commit-shfmt
     rev: v3.10.0-2

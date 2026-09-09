@@ -1,16 +1,16 @@
 {
   // Theme and Appearance
-  "cli_default_open_behavior": "new_window",
+  "cli_default_open_behavior": "existing_window",
   "diff_view_style": "split",
   "minimum_split_diff_width": 0,
   "agent_servers": {
+    "pi-acp": {
+      "type": "registry",
+      "env": {
+        "PATH": "/Users/andrew/.local/share/mise/installs/node/lts/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin"
+      }
+    },
     "claude-acp": {
-      "type": "registry"
-    },
-    "factory-droid": {
-      "type": "registry"
-    },
-    "opencode": {
       "type": "registry"
     }
   },
@@ -18,7 +18,6 @@
   "theme": "Catppuccin Macchiato",
   "icon_theme": "Catppuccin Mocha",
   "title_bar": {
-    "show_branch_icon": false,
     "show_branch_name": true,
     "show_project_items": true,
     "show_onboarding_banner": false,
@@ -61,14 +60,20 @@
       "editor.line_number": "#ffffff80",
       "editor.active_line.background": "#bd93f920",
       "syntax": {
-        "comment":     { "font_style": "italic" },
-        "comment.doc": { "font_style": "italic" },
-        "type":        { "font_style": "italic" }
+        "comment": {
+          "font_style": "italic"
+        },
+        "comment.doc": {
+          "font_style": "italic"
+        },
+        "type": {
+          "font_style": "italic"
+        }
       }
     }
   },
   // Cursor and Line Highlighting
-  "hide_mouse": "on_typing_and_movement",
+  "hide_mouse": "on_typing_and_action",
   "hover_popover_delay": 600,
   "cursor_blink": false,
   "cursor_shape": "block",
@@ -270,16 +275,19 @@
   // AI Assistant Settings
   "agent": {
     "tool_permissions": {
-      "default": "allow"
+      "default": "confirm"
     },
-    "notify_when_agent_waiting": "never",
+    "notify_when_agent_waiting": "primary_screen",
     "default_profile": "write",
     "inline_assistant_model": {
       "provider": "amazon-bedrock",
       "model": "claude-haiku-4.5"
     },
-    "play_sound_when_agent_done": true,
+    "play_sound_when_agent_done": "when_hidden",
+    "single_file_review": true,
     "dock": "right",
+    "sidebar_side": "left",
+    "flexible": false,
     "button": true,
     "default_width": 640,
     "default_model": {

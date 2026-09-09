@@ -4,9 +4,6 @@
     "inactive_opacity": 0.85
   },
   "agent": {
-    "tool_permissions": {
-      "default": "allow"
-    },
     "button": true,
     "default_model": {
       "model": "claude-sonnet-4-5",
@@ -15,7 +12,10 @@
     "default_width": 640,
     "dock": "right",
     "model_parameters": [],
-    "play_sound_when_agent_done": "always"
+    "play_sound_when_agent_done": "always",
+    "tool_permissions": {
+      "default": "allow"
+    }
   },
   "agent_ui_font_size": 18,
   "auto_signature_help": false,
@@ -58,8 +58,8 @@
     "dock": "left"
   },
   "edit_predictions": {
-    "provider": "copilot",
-    "mode": "subtle"
+    "mode": "subtle",
+    "provider": "copilot"
   },
   "enable_language_server": true,
   "experimental.theme_overrides": {

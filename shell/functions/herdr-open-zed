@@ -1,0 +1,6 @@
+#!/bin/sh
+set -eu
+
+cwd=${HERDR_ACTIVE_PANE_CWD:-$PWD}
+root=$(git -C "$cwd" rev-parse --show-toplevel 2>/dev/null || printf '%s\n' "$cwd")
+exec zed "$root"

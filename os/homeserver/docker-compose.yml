@@ -14,6 +14,8 @@ networks:
   dozzle_agent:
     driver: bridge
     internal: true
+  openclaw:
+    driver: bridge
 
 volumes:
   model-cache:
@@ -304,6 +306,47 @@ services:
       - traefik
     extra_hosts:
       - "host.docker.internal:host-gateway"
+
+  # Opt in with COMPOSE_PROFILES=openclaw after setup. No public proxy route.
+  openclaw:
+    image: ghcr.io/openclaw/openclaw:2026.9.2-slim@sha256:a8604855b76cd613cbaa45d6db093dc017b09a2faea5dc9cee023fb7ac262250
+    profiles: [openclaw]
+    restart: unless-stopped
+    init: true
+    user: "${PUID:-1000}:${PGID:-1000}"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp:rw,nosuid,size=512m
+    environment:
+      - HOME=/home/node
+      - OPENCLAW_STATE_DIR=/home/node/.openclaw
+      - OPENCLAW_CONFIG_PATH=/etc/openclaw/openclaw.json
+      - OPENCLAW_DISABLE_BONJOUR=1
+      - NPM_CONFIG_CACHE=/tmp/npm-cache
+      - XDG_CACHE_HOME=/tmp/cache
+      - TZ=${TZ:-Europe/Madrid}
+    env_file:
+      - path: ./secrets/openclaw.env
+        required: false
+    volumes:
+      - ./data/openclaw:/home/node/.openclaw
+      - ./config/openclaw/openclaw.json:/etc/openclaw/openclaw.json:ro
+      - ./config/openclaw/AGENTS.md:/home/node/.openclaw/workspace/AGENTS.md:ro
+      - ../../config/claude/skills/knowledge-capture:/home/node/.openclaw/workspace/skills/knowledge-capture:ro
+    ports:
+      - "127.0.0.1:18789:18789"
+    networks:
+      - openclaw
+    command: [node, dist/index.js, gateway, --port, "18789"]
+    healthcheck:
+      test: [CMD, node, dist/docker-healthcheck.js]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   # Excalidraw Collaborative Whiteboard
   excalidraw:

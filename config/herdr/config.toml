@@ -1,0 +1,200 @@
+# herdr ~ linked to ~/.config/herdr/config.toml by dotbot.
+# Reload without restarting: `herdr server reload-config` (or prefix+shift+r).
+#
+# Herdr plugins (install once):
+#   herdr plugin install razajamil/herdr-plugin-workspace-manager
+#   herdr plugin install tdi/herdr-worktree-from-linear
+#   herdr plugin install persiyanov/herdr-reviewr
+#   herdr plugin install mr04vv/herdr-pane-navigator
+#   herdr plugin install cedrus-8864/herdr-prompt-reply
+#   herdr plugin install ryanlewis/herdr-tab-renamer
+
+onboarding = false
+
+[theme]
+name = "catppuccin"
+
+[theme.custom]
+panel_bg = "#1e1e2e"
+surface0 = "#45475a"
+surface1 = "#585b70"
+surface_dim = "#1b1b2a"
+overlay0 = "#585b70"
+overlay1 = "#a6adc8"
+text = "#cdd6f4"
+subtext0 = "#a6adc8"
+accent = "#89b4fa"
+mauve = "#f5c2e7"
+green = "#a6e3a1"
+yellow = "#f9e2af"
+red = "#f38ba8"
+blue = "#89b4fa"
+teal = "#94e2d5"
+peach = "#f37799"
+
+[terminal]
+new_cwd = "follow"
+
+[worktrees]
+directory = "~/code/worktrees"
+
+[keys]
+# ctrl+b stays free for the witr popup below; ctrl+space is unused by zsh, helix, and nvim.
+prefix = "ctrl+space"
+
+# Ghostty maps Cmd+T/W/D/Shift+D and Cmd+Opt+arrows to the same ESC sequences as
+# Opt+T/W/R/Shift+D and Opt+HJKL, so the alt+ bindings below keep those Cmd combos working.
+new_tab = ["prefix+c", "alt+t"]
+close_tab = ["prefix+shift+x", "alt+shift+w"]
+previous_tab = ["prefix+p", "alt+i"]
+next_tab = ["prefix+n", "alt+o"]
+switch_tab = "alt+1..9"
+split_vertical = ["prefix+v", "alt+r"]
+split_horizontal = ["prefix+minus", "alt+shift+d"]
+close_pane = ["prefix+x", "alt+w"]
+focus_pane_left = "prefix+h"
+focus_pane_down = ["prefix+j", "alt+j", "alt+down"]
+focus_pane_up = ["prefix+k", "alt+k", "alt+up"]
+focus_pane_right = "prefix+l"
+last_pane = "prefix+tab"
+zoom = ["prefix+z", "prefix+f"]
+resize_mode = "prefix+r"
+toggle_sidebar = ["prefix+b", "alt+b"]
+workspace_picker = "prefix+w"
+goto = "prefix+g"
+new_worktree = "prefix+shift+g"
+previous_workspace = "alt+shift+k"
+next_workspace = "alt+shift+j"
+previous_agent = "alt+shift+h"
+next_agent = "alt+shift+l"
+focus_agent = "prefix+alt+1..9"
+edit_scrollback = "prefix+e"
+detach = "prefix+q"
+
+[[keys.command]]
+key = ["alt+h", "alt+left"]
+type = "shell"
+command = "/Users/andrew/code/dotfiles/shell/functions/herdr-focus-or-tab left"
+description = "focus pane left or previous tab"
+
+[[keys.command]]
+key = ["alt+l", "alt+right"]
+type = "shell"
+command = "/Users/andrew/code/dotfiles/shell/functions/herdr-focus-or-tab right"
+description = "focus pane right or next tab"
+
+[[keys.command]]
+key = ["prefix+shift+k", "ctrl+alt+k"]
+type = "plugin_action"
+command = "herdr-bar.open"
+description = "command bar"
+
+[[keys.command]]
+key = "prefix+t"
+type = "plugin_action"
+command = "herdr-theme-picker.open"
+description = "theme picker"
+
+[[keys.command]]
+key = "prefix+shift+e"
+type = "shell"
+command = "/Users/andrew/code/dotfiles/shell/functions/herdr-open-zed"
+description = "open active workspace in Zed"
+
+# Floating TUIs, same keys as the old zellij setup. `q` quits and closes the popup.
+[[keys.command]]
+key = "ctrl+g"
+type = "popup"
+command = "lazygit"
+width = "85%"
+height = "85%"
+
+[[keys.command]]
+key = "ctrl+d"
+type = "popup"
+command = "lazydocker"
+width = "85%"
+height = "85%"
+
+[[keys.command]]
+key = "ctrl+y"
+type = "popup"
+command = "yazi"
+width = "85%"
+height = "85%"
+
+[[keys.command]]
+key = "ctrl+f"
+type = "popup"
+command = "btop"
+width = "85%"
+height = "85%"
+
+[[keys.command]]
+key = "ctrl+b"
+type = "popup"
+command = "witr -i"
+width = "85%"
+height = "85%"
+
+[[keys.command]]
+key = "prefix+/"
+type = "popup"
+command = "glow -p ~/.config/herdr/cheatsheet.md"
+width = "85%"
+height = "85%"
+
+[[keys.command]]
+key = "prefix+i"
+type = "plugin_action"
+command = "tdi.worktree-from-linear.pick"
+
+[[keys.command]]
+key = "prefix+d"
+type = "plugin_action"
+command = "persiyanov.reviewr.toggle"
+
+[[keys.command]]
+key = "prefix+space"
+type = "plugin_action"
+command = "pane-navigator.open"
+
+[[keys.command]]
+key = "prefix+shift+l"
+type = "plugin_action"
+command = "herdr-plugin-workspace-manager.apply"
+
+[ui]
+sidebar_start_collapsed = true
+sidebar_collapsed_mode = "hidden"
+tab_bar_position = "bottom"
+accent = "#89b4fa"
+pane_borders = true
+pane_gaps = true
+show_agent_labels_on_pane_borders = true
+hide_tab_bar_when_single_tab = true
+prompt_new_tab_name = false
+agent_panel_sort = "priority"
+copy_on_select = true
+
+[ui.sidebar.agents]
+rows = [["state_icon", "workspace", "tab"], ["agent"]]
+
+[ui.sidebar.agents.rows_by_agent]
+claude = [["state_icon", "workspace", "tab"], ["terminal_title_stripped"], ["agent"]]
+
+[ui.sidebar.spaces]
+rows = [["state_icon", "workspace"], ["branch", "git_status"]]
+
+# "herdr" (in-app) because herdr-prompt-reply already posts macOS notifications for blocked agents.
+[ui.toast]
+delivery = "herdr"
+
+[ui.sound]
+enabled = true
+
+[session]
+resume_agents_on_restore = true
+
+[experimental]
+pane_history = false

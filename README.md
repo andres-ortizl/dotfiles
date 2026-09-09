@@ -322,6 +322,53 @@ Hyprsunset follows the automatic 19:00 to 06:00 schedule. The Waybar control can
 - `config/waybar/scripts/` - Custom Waybar modules
 - `config/keybindings-helper/` - TUI keybinding viewer
 
+## OpenClaw on the homeserver
+
+OpenClaw is an optional personal knowledge assistant alongside Open WebUI. It uses OpenAI for generation and embeddings, built-in hybrid memory, Memory Wiki, and the pinned WhatsApp plugin. The `knowledge-capture` skill adapts Hippo's capture and source-preservation rules. It has no shell tools, NAS administration, email access, or automatic schedules. Heartbeat and dreaming are disabled until a cadence and API budget are chosen.
+
+Configuration and instructions live in `os/homeserver/config/openclaw/`. Personal data, WhatsApp credentials, and installed plugins live under the ignored `os/homeserver/data/openclaw/`. The existing Backrest `/userdata` mount includes this directory; verify the configured backup plan covers it before relying on recovery. Raw captures are preserved by workflow convention, not filesystem write protection.
+
+### Initial setup
+
+Run these steps on the NAS after committing the configuration. `PUID` and `PGID` in the homeserver `.env` must match the deployment user's `id -u` and `id -g`, so the container can write its state. Docker Compose 2.24 or newer is required for the optional env file.
+
+1. Add an `openclaw.env` attachment to the existing `n33lab-homeserver-runtime` Bitwarden item. It must contain exactly `OPENAI_API_KEY`, `OPENCLAW_GATEWAY_TOKEN`, and `OPENCLAW_OWNER_PHONE`. Generate a token with `openssl rand -hex 32`. Use the owner's E.164 phone number as the permitted sender. Do not put these values in Git.
+2. Restore secrets and prepare private storage:
+
+   ```bash
+   cd os/homeserver
+   ./recover-env.sh --openclaw
+   install -d -m 700 data/openclaw data/openclaw/workspace
+   ```
+
+3. Install the pinned WhatsApp plugin using a temporary writable setup config. The runtime config remains read-only:
+
+   ```bash
+   docker compose run --rm --no-deps \
+     -e OPENCLAW_CONFIG_PATH=/tmp/openclaw-setup/openclaw.json \
+     openclaw node dist/index.js plugins install npm:@openclaw/whatsapp@2026.9.2
+   docker compose run --rm --no-deps openclaw node dist/index.js config validate
+   docker compose run --rm --no-deps openclaw node dist/index.js wiki init
+   ```
+
+4. Pair the assistant's WhatsApp account using the live QR in your terminal. Login material is sensitive; do not post it to logs or chats. The integration uses WhatsApp Web through Baileys, not the Business API:
+
+   ```bash
+   docker compose run --rm --no-deps openclaw node dist/index.js channels login --channel whatsapp
+   ./deploy.sh openclaw
+   docker compose exec openclaw node dist/index.js security audit
+   ```
+
+The gateway publishes only `127.0.0.1:18789` on the NAS, with token authentication. There is no Traefik/public route. Over your existing Tailscale access to the NAS, use `ssh -N -L 18789:127.0.0.1:18789 andrew@192.168.1.33`, then open `http://127.0.0.1:18789` locally and approve browser pairing from the CLI if requested. Do not disable gateway authentication or device pairing. The separate Docker network reduces direct container access but is not an outbound LAN firewall.
+
+The first deployment uses `deploy.sh` because the image-lock workflow requires an already running container. After bootstrap, use `scripts/manage.sh` for operational changes.
+
+Keep `COMPOSE_PROFILES` unset for ordinary stack operations. Use `COMPOSE_PROFILES=openclaw` with `scripts/manage.sh` when managing this service. Read-only config changes require a container restart; image and plugin upgrades remain explicit and version-pinned. Follow `os/homeserver/UPDATE_IMAGES.md` for image changes.
+
+### Validation
+
+From the repository root, pull the exact image pinned in Compose, then run `python3 -m unittest discover -s os/homeserver/tests -v`. The tests install the pinned WhatsApp plugin in temporary storage. All subsequent container commands have networking disabled and use dummy credentials. They validate the real OpenClaw schema, gateway health/authentication, read-only instructions, and source-backed wiki/keyword retrieval across container restarts. They do not test model quality, live WhatsApp delivery, or real secret recovery.
+
 ## 🐛 Troubleshooting
 
 ### Symlinks Not Created

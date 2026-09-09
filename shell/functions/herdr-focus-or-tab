@@ -1,0 +1,68 @@
+#!/usr/bin/env python3
+
+import json
+import os
+import shutil
+import subprocess
+import sys
+
+
+def herdr_command() -> str:
+    configured = os.environ.get("HERDR_BIN_PATH")
+    if configured and os.access(configured, os.X_OK):
+        return configured
+    discovered = shutil.which("herdr")
+    if discovered:
+        return discovered
+    raise RuntimeError("herdr executable not found")
+
+
+def run_json(*args: str) -> dict:
+    result = subprocess.run(
+        [herdr_command(), *args],
+        check=True,
+        capture_output=True,
+        text=True,
+        timeout=2,
+    )
+    return json.loads(result.stdout)
+
+
+def main() -> None:
+    if len(sys.argv) != 2 or sys.argv[1] not in {"left", "right"}:
+        raise RuntimeError("usage: herdr-focus-or-tab <left|right>")
+
+    direction = sys.argv[1]
+    edges = run_json("pane", "edges", "--current")["result"]["edges"]
+    if not edges[direction]:
+        run_json("pane", "focus", "--current", "--direction", direction)
+        return
+
+    layout = edges["layout"]
+    tabs = run_json("tab", "list", "--workspace", layout["workspace_id"])["result"][
+        "tabs"
+    ]
+    tabs.sort(key=lambda tab: tab["number"])
+    if len(tabs) < 2:
+        return
+
+    current_index = next(
+        index for index, tab in enumerate(tabs) if tab["tab_id"] == layout["tab_id"]
+    )
+    offset = -1 if direction == "left" else 1
+    target = tabs[(current_index + offset) % len(tabs)]
+    run_json("tab", "focus", target["tab_id"])
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except (
+        RuntimeError,
+        subprocess.SubprocessError,
+        KeyError,
+        ValueError,
+        StopIteration,
+    ) as error:
+        print(f"herdr-focus-or-tab: {error}", file=sys.stderr)
+        raise SystemExit(1)

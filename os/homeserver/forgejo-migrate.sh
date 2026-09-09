@@ -25,9 +25,12 @@ api() {
 
 code=$(api -X POST "$FORGEJO_URL/api/v1/orgs" -d '{"username":"33TMT","visibility":"private"}')
 case $code in
-  201) echo "org 33TMT: created";;
-  409|422) echo "org 33TMT: already exists";;
-  *) echo "org 33TMT: FAILED (HTTP $code): $(cat "$RESP")" >&2; exit 1;;
+  201) echo "org 33TMT: created" ;;
+  409 | 422) echo "org 33TMT: already exists" ;;
+  *)
+    echo "org 33TMT: FAILED (HTTP $code): $(cat "$RESP")" >&2
+    exit 1
+    ;;
 esac
 
 migrate() { # $1 github-owner, $2 repo, $3 forgejo-owner
@@ -47,9 +50,9 @@ migrate() { # $1 github-owner, $2 repo, $3 forgejo-owner
     \"milestones\": true
   }")
   case $code in
-    201) echo "OK   $3/$2";;
-    409) echo "SKIP $3/$2 (already exists)";;
-    *)   echo "FAIL $3/$2 (HTTP $code): $(cat "$RESP")";;
+    201) echo "OK   $3/$2" ;;
+    409) echo "SKIP $3/$2 (already exists)" ;;
+    *) echo "FAIL $3/$2 (HTTP $code): $(cat "$RESP")" ;;
   esac
 }
 

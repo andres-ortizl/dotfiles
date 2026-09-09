@@ -36,20 +36,24 @@ keybind = shift+down=adjust_selection:down
 keybind = shift+home=adjust_selection:home
 keybind = shift+enter=text:\x1b\r
 
-# Scroll (PageUp/Down pasan a zellij, los cmd+ scrolean el buffer Ghostty)
+# Scroll only Ghostty's scrollback buffer.
+keybind = performable:page_up=scroll_page_up
+keybind = performable:page_down=scroll_page_down
 keybind = cmd+shift+up=scroll_to_top
 keybind = cmd+shift+down=scroll_to_bottom
 keybind = cmd+home=scroll_to_top
 keybind = cmd+end=scroll_to_bottom
 
-# Passthrough to zellij via ESC sequences (matched as Alt+key in zellij)
+# Passthrough to Zellij/Herdr via terminal key sequences
 keybind = cmd+t=text:\x1bt
 keybind = cmd+w=text:\x1bw
 keybind = cmd+shift+w=text:\x1bW
 keybind = cmd+d=text:\x1br
 keybind = cmd+shift+d=text:\x1bD
+keybind = cmd+digit_1=text:\x1bb
+keybind = cmd+k=text:\x1b[107;7u
 
-# Navegación entre panes (cmd+alt+flechas → Alt+hjkl en zellij)
+# Navegación entre panes/tabs (cmd+alt+flechas → Alt+hjkl)
 keybind = cmd+alt+left=text:\x1bh
 keybind = cmd+alt+right=text:\x1bl
 keybind = cmd+alt+up=text:\x1bk

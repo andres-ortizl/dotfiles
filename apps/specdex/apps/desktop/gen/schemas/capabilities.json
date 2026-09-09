@@ -1,1 +1,13 @@
-{"default":{"identifier":"default","description":"Core permissions for the specdex window","local":true,"windows":["main"],"permissions":["core:default"]}}
+{
+  "default": {
+    "description": "Core permissions for the specdex window",
+    "identifier": "default",
+    "local": true,
+    "permissions": [
+      "core:default"
+    ],
+    "windows": [
+      "main"
+    ]
+  }
+}

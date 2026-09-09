@@ -5,8 +5,8 @@
 #        apps/desktop/install.sh --dmg  (also produce a .dmg)
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"   # …/apps/specdex/apps/desktop
-ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"        # …/apps/specdex (the cargo workspace root)
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)" # …/apps/specdex/apps/desktop
+ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"     # …/apps/specdex (the cargo workspace root)
 cd "$SCRIPT_DIR"
 APP="$ROOT/target/release/bundle/macos/specdex.app"
 DEST="/Applications/specdex.app"
@@ -20,7 +20,10 @@ git -C "$ROOT" pull --ff-only || echo "  (skip pull — local ahead/dirty, build
 echo "→ building specdex.app (release)…"
 cargo tauri build --bundles "$BUNDLES"
 
-[ -d "$APP" ] || { echo "build produced no .app at $APP" >&2; exit 1; }
+[ -d "$APP" ] || {
+  echo "build produced no .app at $APP" >&2
+  exit 1
+}
 
 echo "→ installing to $DEST"
 rm -rf "$DEST"

@@ -1,36 +1,39 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "specdex",
-  "version": "0.1.0",
-  "identifier": "ai.anyformat.specdex",
+  "app": {
+    "security": {
+      "csp": null
+    },
+    "windows": [
+      {
+        "height": 740,
+        "label": "main",
+        "minHeight": 480,
+        "minWidth": 640,
+        "title": "specdex",
+        "width": 1100
+      }
+    ],
+    "withGlobalTauri": true
+  },
   "build": {
     "frontendDist": "ui"
   },
-  "app": {
-    "withGlobalTauri": true,
-    "windows": [
-      {
-        "label": "main",
-        "title": "specdex",
-        "width": 1100,
-        "height": 740,
-        "minWidth": 640,
-        "minHeight": 480
-      }
-    ],
-    "security": {
-      "csp": null
-    }
-  },
   "bundle": {
     "active": true,
-    "targets": ["app", "dmg"],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
+    ],
+    "targets": [
+      "app",
+      "dmg"
     ]
-  }
+  },
+  "identifier": "ai.anyformat.specdex",
+  "productName": "specdex",
+  "version": "0.1.0"
 }

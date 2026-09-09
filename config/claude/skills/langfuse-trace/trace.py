@@ -21,6 +21,7 @@ I/O truncation defaults are tuned for typical Anthropic-style messages but
 configurable via --tool-input-max / --tool-result-max / --output-max.
 System prompts are NEVER truncated unless --truncate-system is passed.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -38,8 +39,12 @@ CACHE_TTL_SECONDS = 3600
 
 
 def _creds() -> tuple[str, str, str]:
-    pub = os.environ.get("LANGFUSE_PUBLIC_KEY") or os.environ.get("LANGFUSE_TRACING_PUBLIC_KEY")
-    sec = os.environ.get("LANGFUSE_SECRET_KEY") or os.environ.get("LANGFUSE_TRACING_SECRET_KEY")
+    pub = os.environ.get("LANGFUSE_PUBLIC_KEY") or os.environ.get(
+        "LANGFUSE_TRACING_PUBLIC_KEY"
+    )
+    sec = os.environ.get("LANGFUSE_SECRET_KEY") or os.environ.get(
+        "LANGFUSE_TRACING_SECRET_KEY"
+    )
     host = os.environ.get("LANGFUSE_HOST", "https://langfuse.anyformat.ai").rstrip("/")
     if not pub or not sec:
         sys.exit(
@@ -53,7 +58,11 @@ def _get(path: str, cache_key: str, kind: str, refresh: bool) -> dict:
     """Cached GET against the Langfuse public API. `path` is appended to the host."""
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
     cache = CACHE_DIR / f"{cache_key}.json"
-    if cache.exists() and not refresh and time.time() - cache.stat().st_mtime < CACHE_TTL_SECONDS:
+    if (
+        cache.exists()
+        and not refresh
+        and time.time() - cache.stat().st_mtime < CACHE_TTL_SECONDS
+    ):
         try:
             return json.loads(cache.read_text())
         except json.JSONDecodeError:
@@ -66,7 +75,9 @@ def _get(path: str, cache_key: str, kind: str, refresh: bool) -> dict:
     if resp.status_code == 404:
         sys.exit(f"{kind} not found at {host}.")
     if resp.status_code in (401, 403):
-        sys.exit(f"Auth rejected by {host} ({resp.status_code}). Check the Langfuse keys.")
+        sys.exit(
+            f"Auth rejected by {host} ({resp.status_code}). Check the Langfuse keys."
+        )
     if resp.status_code >= 400:
         sys.exit(f"Fetch failed: HTTP {resp.status_code} — {resp.text[:300]}")
     data = resp.json()
@@ -75,13 +86,20 @@ def _get(path: str, cache_key: str, kind: str, refresh: bool) -> dict:
 
 
 def fetch_trace(trace_id: str, refresh: bool = False) -> dict:
-    data = _get(f"/api/public/traces/{trace_id}", trace_id, f"Trace {trace_id!r}", refresh)
+    data = _get(
+        f"/api/public/traces/{trace_id}", trace_id, f"Trace {trace_id!r}", refresh
+    )
     # Mirror the legacy CLI's `{body: ...}` envelope so cached files are interchangeable.
     return data if "body" in data else {"body": data}
 
 
 def fetch_session(session_id: str, refresh: bool = False) -> dict:
-    return _get(f"/api/public/sessions/{session_id}", f"session-{session_id}", f"Session {session_id!r}", refresh)
+    return _get(
+        f"/api/public/sessions/{session_id}",
+        f"session-{session_id}",
+        f"Session {session_id!r}",
+        refresh,
+    )
 
 
 def build_indices(obs: list[dict]) -> tuple[dict, dict, dict]:
@@ -97,7 +115,9 @@ def build_indices(obs: list[dict]) -> tuple[dict, dict, dict]:
     return by_id, parent_map, children_map
 
 
-def ancestor_names(oid: str, parent_map: dict, by_id: dict, max_depth: int = 12) -> list[str]:
+def ancestor_names(
+    oid: str, parent_map: dict, by_id: dict, max_depth: int = 12
+) -> list[str]:
     parts: list[str] = []
     cur = parent_map.get(oid)
     while cur and cur in by_id and len(parts) < max_depth:
@@ -138,8 +158,15 @@ def _short_id(oid: str) -> str:
 # string that embeds the model's thinking tokens), plus the langchain message
 # envelope (`additional_kwargs`, `response_metadata`, the message `id`).
 _NOISE_KEYS = {
-    "additional_kwargs", "response_metadata", "usage_metadata", "metadata",
-    "invalid_tool_calls", "tool_call_id", "id", "index", "created_at",
+    "additional_kwargs",
+    "response_metadata",
+    "usage_metadata",
+    "metadata",
+    "invalid_tool_calls",
+    "tool_call_id",
+    "id",
+    "index",
+    "created_at",
 }
 
 
@@ -203,7 +230,9 @@ def render_generation(
                     lines.append(_indent(text, 4))
                 else:
                     lines.append(f"  [SYSTEM] ({len(text)} chars, truncated):")
-                    lines.append(_indent(text[:1500] + ("…" if len(text) > 1500 else ""), 4))
+                    lines.append(
+                        _indent(text[:1500] + ("…" if len(text) > 1500 else ""), 4)
+                    )
                 continue
             # Text content — langchain sends a plain string; Anthropic a list of
             # typed blocks. A "tool" role string IS a tool result.
@@ -213,7 +242,9 @@ def render_generation(
                     is_result = msg.get("role") == "tool"
                     cap = tool_result_max if is_result else output_max
                     suffix = "…" if len(t) > cap else ""
-                    lines.append(f"  [{role}] {'tool_result' if is_result else 'text'}: {t[:cap]}{suffix}")
+                    lines.append(
+                        f"  [{role}] {'tool_result' if is_result else 'text'}: {t[:cap]}{suffix}"
+                    )
             elif isinstance(content, list):
                 for block in content:
                     if not isinstance(block, dict):
@@ -230,18 +261,24 @@ def render_generation(
                         seen_tools.add(bid)
                         ti = json.dumps(_strip_noise(block.get("input", {})))
                         suffix = "…" if len(ti) > tool_input_max else ""
-                        lines.append(f"  [{role}] tool_call {block.get('name')}: {ti[:tool_input_max]}{suffix}")
+                        lines.append(
+                            f"  [{role}] tool_call {block.get('name')}: {ti[:tool_input_max]}{suffix}"
+                        )
                     elif btype == "tool_result":
                         text = _flatten(block.get("content", ""))
                         if text.strip():
                             suffix = "…" if len(text) > tool_result_max else ""
-                            lines.append(f"  [{role}] tool_result: {text[:tool_result_max]}{suffix}")
+                            lines.append(
+                                f"  [{role}] tool_result: {text[:tool_result_max]}{suffix}"
+                            )
             # langchain/OpenAI carry tool calls in a separate key — render them
             # too (the gemini tool-call id is dropped as noise).
             for tc in _tool_calls_of(msg):
                 ti = json.dumps(_strip_noise(tc["args"]))
                 suffix = "…" if len(ti) > tool_input_max else ""
-                lines.append(f"  [{role}] tool_call {tc['name']}: {ti[:tool_input_max]}{suffix}")
+                lines.append(
+                    f"  [{role}] tool_call {tc['name']}: {ti[:tool_input_max]}{suffix}"
+                )
 
     if isinstance(out, dict):
         c = out.get("content", "")
@@ -256,7 +293,9 @@ def render_generation(
                 elif block.get("type") == "tool_use":
                     ti = json.dumps(block.get("input", {}))
                     suffix = "…" if len(ti) > tool_input_max else ""
-                    lines.append(f"  →OUT tool_call {block.get('name')}: {ti[:tool_input_max]}{suffix}")
+                    lines.append(
+                        f"  →OUT tool_call {block.get('name')}: {ti[:tool_input_max]}{suffix}"
+                    )
     return lines
 
 
@@ -289,14 +328,20 @@ def render_span_io(o: dict, output_max: int) -> list[str]:
 
 def cmd_overview(d: dict, obs: list[dict], args: argparse.Namespace) -> None:
     by_id, parent_map, children_map = build_indices(obs)
-    roots = [o for o in obs if not o.get("parentObservationId") or o.get("parentObservationId") not in by_id]
+    roots = [
+        o
+        for o in obs
+        if not o.get("parentObservationId") or o.get("parentObservationId") not in by_id
+    ]
     roots.sort(key=lambda o: o.get("startTime", ""))
 
     lat = d.get("latency")
     print(f"Trace:    {d['id']}")
     print(f"Name:     {d.get('name') or '(unnamed)'}")
     print(f"Time:     {d.get('timestamp')}")
-    print(f"Latency:  {lat:.1f}s" if isinstance(lat, (int, float)) else f"Latency:  {lat}")
+    print(
+        f"Latency:  {lat:.1f}s" if isinstance(lat, (int, float)) else f"Latency:  {lat}"
+    )
     print(f"Cost:     ${d.get('totalCost') or 0:.4f}")
     print(f"Env:      {d.get('environment')}")
     host = os.environ.get("LANGFUSE_HOST", "https://langfuse.anyformat.ai")
@@ -304,12 +349,18 @@ def cmd_overview(d: dict, obs: list[dict], args: argparse.Namespace) -> None:
     print(f"Spans:    {len(obs)} total, {len(roots)} root(s)")
     print()
 
-    errors = [o for o in obs if o.get("level") in ("ERROR", "WARNING") or o.get("statusMessage")]
+    errors = [
+        o
+        for o in obs
+        if o.get("level") in ("ERROR", "WARNING") or o.get("statusMessage")
+    ]
     if errors:
         print("=== Errors / Warnings ===")
         for o in errors:
-            print(f"  [{o.get('level')}] {o.get('name')} ({_short_id(o['id'])}): "
-                  f"{o.get('statusMessage') or '(no message)'}")
+            print(
+                f"  [{o.get('level')}] {o.get('name')} ({_short_id(o['id'])}): "
+                f"{o.get('statusMessage') or '(no message)'}"
+            )
         print()
 
     print("=== Span Tree ===")
@@ -322,7 +373,9 @@ def cmd_overview(d: dict, obs: list[dict], args: argparse.Namespace) -> None:
         lat_s = f"{lat:.1f}s" if isinstance(lat, (int, float)) else ""
         model = f" [{o.get('model')}]" if o.get("model") else ""
         tokens = f" {o['totalTokens']}tok" if o.get("totalTokens") else ""
-        cost = f" ${o['calculatedTotalCost']:.4f}" if o.get("calculatedTotalCost") else ""
+        cost = (
+            f" ${o['calculatedTotalCost']:.4f}" if o.get("calculatedTotalCost") else ""
+        )
         warn = " ⚠" if o.get("level") in ("ERROR", "WARNING") else ""
         prefix = "  " * indent
         print(f"{prefix}{typ} {name} ({sid}){model}{tokens}{cost} {lat_s}{warn}")
@@ -470,17 +523,25 @@ def cmd_compare(d: dict, obs: list[dict], args: argparse.Namespace) -> None:
         ("model", a.get("model", "—"), b.get("model", "—")),
         ("latency", f"{a.get('latency') or 0:.2f}s", f"{b.get('latency') or 0:.2f}s"),
         ("tokens", str(a.get("totalTokens", "—")), str(b.get("totalTokens", "—"))),
-        ("cost", f"${a.get('calculatedTotalCost') or 0:.4f}", f"${b.get('calculatedTotalCost') or 0:.4f}"),
+        (
+            "cost",
+            f"${a.get('calculatedTotalCost') or 0:.4f}",
+            f"${b.get('calculatedTotalCost') or 0:.4f}",
+        ),
         ("parent", parent_name(a), parent_name(b)),
-        ("children", str(len(children_map.get(a["id"], []))), str(len(children_map.get(b["id"], [])))),
+        (
+            "children",
+            str(len(children_map.get(a["id"], []))),
+            str(len(children_map.get(b["id"], []))),
+        ),
     ]
     width = 44
     print("=== Compare ===\n")
     print(f"  {'':>10}  {'A':<{width}}  {'B':<{width}}")
-    print(f"  {'':>10}  {'-'*width}  {'-'*width}")
+    print(f"  {'':>10}  {'-' * width}  {'-' * width}")
     for label, va, vb in rows:
         diff = "  " if va == vb else "≠ "
-        print(f"  {label:>10}  {diff}{str(va):<{width-2}}  {str(vb):<{width}}")
+        print(f"  {label:>10}  {diff}{str(va):<{width - 2}}  {str(vb):<{width}}")
     print()
 
     def render(o: dict, label: str) -> None:
@@ -503,7 +564,9 @@ def cmd_compare(d: dict, obs: list[dict], args: argparse.Namespace) -> None:
                 for c in kids:
                     clat = c.get("latency")
                     clat_s = f"{clat:.1f}s" if isinstance(clat, (int, float)) else "?"
-                    print(f"    {c.get('type')} {c.get('name')} ({_short_id(c['id'])}) {clat_s}")
+                    print(
+                        f"    {c.get('type')} {c.get('name')} ({_short_id(c['id'])}) {clat_s}"
+                    )
         print()
 
     render(a, "A")
@@ -528,7 +591,11 @@ def _role(msg: dict) -> str:
 
 
 def _join_text(msgs: list[dict], roles: tuple[str, ...]) -> str:
-    parts = [t for m in msgs if _role(m) in roles and (t := _flatten(m.get("content")).strip())]
+    parts = [
+        t
+        for m in msgs
+        if _role(m) in roles and (t := _flatten(m.get("content")).strip())
+    ]
     return " / ".join(parts)
 
 
@@ -545,23 +612,35 @@ def _turn_tools(tail: list[dict]) -> list[str]:
         tools += [tc["name"] for tc in _tool_calls_of(m)]
         c = m.get("content")
         if isinstance(c, list):
-            tools += [b["name"] for b in c if isinstance(b, dict) and b.get("type") == "tool_use" and b.get("name")]
+            tools += [
+                b["name"]
+                for b in c
+                if isinstance(b, dict) and b.get("type") == "tool_use" and b.get("name")
+            ]
     return tools
 
 
 def cmd_session(session: dict, args: argparse.Namespace) -> None:
     """Conversation transcript across a session's traces (one per turn). Uses each
     trace's top-level input/output, so it needs no per-trace fetch."""
-    traces = sorted(session.get("traces", []), key=lambda t: t.get("timestamp") or t.get("createdAt") or "")
+    traces = sorted(
+        session.get("traces", []),
+        key=lambda t: t.get("timestamp") or t.get("createdAt") or "",
+    )
     print(f"Session:  {session.get('id')}")
     print(f"Turns:    {len(traces)}")
     if traces:
-        print(f"User:     {traces[0].get('userId') or '—'}    Env: {traces[0].get('environment') or '—'}")
+        print(
+            f"User:     {traces[0].get('userId') or '—'}    Env: {traces[0].get('environment') or '—'}"
+        )
     print()
     for i, t in enumerate(traces, 1):
         out_msgs = _messages_of(t.get("output"))
-        last_human = max((j for j, m in enumerate(out_msgs) if _role(m) in ("human", "user")), default=-1)
-        tail = out_msgs[last_human + 1:]
+        last_human = max(
+            (j for j, m in enumerate(out_msgs) if _role(m) in ("human", "user")),
+            default=-1,
+        )
+        tail = out_msgs[last_human + 1 :]
         user = _join_text(_messages_of(t.get("input")), ("human", "user"))
         if not user and last_human >= 0:
             user = _flatten(out_msgs[last_human].get("content")).strip()
@@ -570,38 +649,64 @@ def cmd_session(session: dict, args: argparse.Namespace) -> None:
         ts = (t.get("timestamp") or "")[:19].replace("T", " ")
         print(f"── Turn {i} · {ts} · [{_short_id(t.get('id', ''))}] ──")
         if user:
-            print(f"  USER:  {user[:args.output_max]}")
+            print(f"  USER:  {user[: args.output_max]}")
         if tools:
             print(f"  TOOLS: {' → '.join(tools)}")
         if final:
-            print(f"  ANNIE: {final[:args.output_max]}")
+            print(f"  ANNIE: {final[: args.output_max]}")
         print()
-    print("Drill one turn:  trace.py <trace-id-above> overview   (then drill/compare as usual)")
+    print(
+        "Drill one turn:  trace.py <trace-id-above> overview   (then drill/compare as usual)"
+    )
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("trace_id", help="Trace OR session ID, or full URL (a .../sessions/<id> URL → transcript)")
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument(
+        "trace_id",
+        help="Trace OR session ID, or full URL (a .../sessions/<id> URL → transcript)",
+    )
     parser.add_argument("--refresh", action="store_true", help="Bypass /tmp cache")
-    parser.add_argument("--truncate-system", action="store_true", help="Truncate system prompts (off by default)")
+    parser.add_argument(
+        "--truncate-system",
+        action="store_true",
+        help="Truncate system prompts (off by default)",
+    )
     parser.add_argument("--tool-input-max", type=int, default=2500)
     parser.add_argument("--tool-result-max", type=int, default=600)
     parser.add_argument("--output-max", type=int, default=2000)
-    parser.add_argument("--inline-io-max", type=int, default=400,
-                        help="In overview, inline I/O for non-GENERATION spans up to this many chars")
+    parser.add_argument(
+        "--inline-io-max",
+        type=int,
+        default=400,
+        help="In overview, inline I/O for non-GENERATION spans up to this many chars",
+    )
 
     sub = parser.add_subparsers(dest="cmd", required=True)
     sub.add_parser("overview", help="Span tree + auto-suggestions (default first step)")
-    p_drill = sub.add_parser("drill", help="Show full message history for matching spans")
-    p_drill.add_argument("pattern", help='Substring of name, or id-prefix (≥4 chars). "" matches all.')
-    p_drill.add_argument("--no-descendants", dest="descendants", action="store_false", default=True,
-                         help="Do NOT include children of matching spans")
+    p_drill = sub.add_parser(
+        "drill", help="Show full message history for matching spans"
+    )
+    p_drill.add_argument(
+        "pattern", help='Substring of name, or id-prefix (≥4 chars). "" matches all.'
+    )
+    p_drill.add_argument(
+        "--no-descendants",
+        dest="descendants",
+        action="store_false",
+        default=True,
+        help="Do NOT include children of matching spans",
+    )
     p_cmp = sub.add_parser("compare", help="Side-by-side comparison of two spans")
     p_cmp.add_argument("span_a", help="id-prefix or unique name")
     p_cmp.add_argument("span_b", help="id-prefix or unique name")
     p_raw = sub.add_parser("raw", help="Dump one span as full JSON")
     p_raw.add_argument("span_id", help="id-prefix or unique name")
-    sub.add_parser("session", help="Conversation transcript across all traces in a session")
+    sub.add_parser(
+        "session", help="Conversation transcript across all traces in a session"
+    )
 
     args = parser.parse_args()
 

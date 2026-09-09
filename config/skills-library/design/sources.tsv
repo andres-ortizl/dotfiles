@@ -1,0 +1,29 @@
+# Design skill library manifest. Consumed by bin/design-skills-sync.
+# Tab-separated: repo <TAB> ref <TAB> from <TAB> to <TAB> excludes
+# `excludes` is a comma-separated list of gitignore-style patterns relative to the
+# repo root. They are applied to the sparse fetch, so excluded blobs never download.
+# Everything upstream is MIT. bin/design-skills-sync copies each LICENSE into licenses/.
+emilkowalski/skills	main	skills/emil-design-eng	taste/emil-design-eng
+emilkowalski/skills	main	skills/apple-design	taste/apple-design
+emilkowalski/skills	main	skills/animate	motion/animate
+emilkowalski/skills	main	skills/animate-expo	motion/animate-expo
+emilkowalski/skills	main	skills/animation-vocabulary	motion/animation-vocabulary
+emilkowalski/skills	main	skills/find-animation-opportunities	motion/find-animation-opportunities
+emilkowalski/skills	main	skills/improve-animations	motion/improve-animations
+emilkowalski/skills	main	skills/review-animations	motion/review-animations
+emilkowalski/skills	main	skills/prototype	build/prototype
+emilkowalski/skills	main	skills/pick-ui-library	build/pick-ui-library
+emilkowalski/skills	main	skills/ask-sonner	build/ask-sonner
+ConardLi/garden-skills	main	skills/web-design-engineer	taste/web-design-engineer	skills/web-design-engineer/README.zh-CN.md
+elayadesign/ai-design-skills	main	skills/landing-page-design	build/landing-page-design
+MengTo/Skills	main	agent-skills/web-design	build/mengto-web-design	agent-skills/web-design/**/demo/**,agent-skills/web-design/**/*.png,agent-skills/web-design/**/*.jpg,agent-skills/web-design/**/*.jpeg,agent-skills/web-design/**/*.webp,agent-skills/web-design/**/*.woff2,agent-skills/web-design/**/*.mp4
+jakubkrehel/skills	main	skills/better-ui	fix/better-ui
+jakubkrehel/skills	main	skills/better-typography	fix/better-typography
+jakubkrehel/skills	main	skills/better-colors	fix/better-colors
+jakubkrehel/skills	main	skills/better-layout	fix/better-layout
+jakubkrehel/skills	main	skills/better-accessibility	fix/better-accessibility
+jakubkrehel/skills	main	skills/better-writing	fix/better-writing
+jakubkrehel/skills	main	skills/variant	fix/variant
+jakubkrehel/skills	main	skills/interface-review	judge/interface-review
+codeswithroh/tastemaker	main	skills/tastemaker	taste/tastemaker
+Owl-Listener/designer-skills	main	visual-critique/skills	judge/critique

@@ -15,9 +15,15 @@ cd "$REPO_ROOT" || exit 1
 FAILURES=0
 WARNINGS=0
 
-note_fail() { printf 'FAIL  %s\n' "$1"; FAILURES=$((FAILURES + 1)); }
-note_ok()   { printf 'ok    %s\n' "$1"; }
-note_skip() { printf 'skip  %s\n' "$1"; WARNINGS=$((WARNINGS + 1)); }
+note_fail() {
+  printf 'FAIL  %s\n' "$1"
+  FAILURES=$((FAILURES + 1))
+}
+note_ok() { printf 'ok    %s\n' "$1"; }
+note_skip() {
+  printf 'skip  %s\n' "$1"
+  WARNINGS=$((WARNINGS + 1))
+}
 
 # --- dunst -----------------------------------------------------------------
 if command -v dunst >/dev/null 2>&1; then

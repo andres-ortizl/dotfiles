@@ -1,0 +1,8 @@
+{
+  "base": "default",
+  "fzfLayout": "down",
+  "issueLimit": 50,
+  "placement": "right",
+  "popupHeight": "70%",
+  "popupWidth": "80%"
+}

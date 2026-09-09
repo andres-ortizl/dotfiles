@@ -25,6 +25,7 @@ build/
 venv/
 env/
 config/claude/settings.json
+config/claude/skills/impeccable/
 *.egg-info/
 node_modules/
 config/micro/buffers/

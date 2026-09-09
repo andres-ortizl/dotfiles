@@ -12,9 +12,16 @@ Querying anyformat's observability through `plugin:datadog:mcp`. The thing that 
 - First call each session: do the MCP's own skill discovery — `load_datadog_skill('datadog/logs')` (or `datadog/traces`, `datadog/metrics`) **and** `list_datadog_skills(query=...)` in parallel, per the server's instructions. Then use the tools.
 
 ## ⚠️ The log-structure gotcha (read first)
-`anyformat-core` and `backend` ship **loguru** logs where the human-readable message is in the **`@custom.text`** attribute (also `@custom.record.message`). The standard Datadog **`message` field is EMPTY**, and `@custom.text` is **not a registered facet**.
+Our services ship **loguru** logs where the human-readable message lives in the **`@custom.text`** attribute (also `@custom.record.message`). Whether the standard `message` field is ALSO populated depends on the service — verify with one `extra_fields=['*']` fetch before trusting a zero:
 
-Consequence: **text search on these logs silently returns 0 even when the logs exist.** Do NOT trust a zero result from any of these on core/backend logs:
+| Service | `message` field | Verified |
+|---|---|---|
+| `anyformat-core` | **populated** — free-text search and `analyze_datadog_logs` on `message` (e.g. `SPLIT_PART(message, ' ', 2)`) work | 2026-09-08 |
+| `anyformat-assistant` | **EMPTY** — text only in `custom.text`; request `extra_fields=["text"]` | 2026-09-08 |
+| `backend` | assumed EMPTY (not re-verified) | — |
+| `litellm` | populated (plain proxy stdout; a traceback arrives as one log per line) | 2026-09-08 |
+
+Where `message` is empty, **text search silently returns 0 even when the logs exist.** Do NOT trust a zero result from any of these on such logs:
 - free-text (`"Parse cache HIT"`)
 - attribute search (`@custom.text:"..."`)
 - `analyze_datadog_logs` with `@custom.text` in `extra_columns` (binds to null, or errors `cannot be resolved`)

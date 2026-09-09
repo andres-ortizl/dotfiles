@@ -1,0 +1,23 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/razajamil/herdr-plugin-workspace-manager/main/schema.json
+# herdr-plugin-workspace-manager ~ linked to
+# ~/.config/herdr/plugins/config/herdr-plugin-workspace-manager/config.yml by dotbot.
+# Applied automatically when `herdr worktree create` (prefix+shift+g) or the Linear
+# picker (prefix+i) creates a worktree. Apply by hand with prefix+shift+l.
+# Validate: herdr plugin action invoke herdr-plugin-workspace-manager.validate
+
+layouts:
+  - id: agent
+    tabs:
+      - title: code
+        panes:
+          - title: agent
+          - title: shell
+            split: vertical
+            size: "35%"
+
+# Per-repo overrides go here, e.g.:
+# workspaces:
+#   - repo: ~/code/anyformat-backend
+#     defaultLayout: agent
+
+globalLayout: agent

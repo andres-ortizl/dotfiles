@@ -1,28 +1,35 @@
 {
-  "defaultProvider": "openai",
-  "defaultModel": "gpt-5.6-sol",
-  "defaultThinkingLevel": "xhigh",
-  "theme": "catppuccin-mocha-andrew",
-  "quietStartup": true,
-  "showCacheMissNotices": false,
   "compaction": {
     "enabled": true,
-    "reserveTokens": 8192,
-    "keepRecentTokens": 12000
+    "keepRecentTokens": 12000,
+    "reserveTokens": 128000
   },
+  "defaultModel": "gpt-5.6-sol",
+  "defaultProvider": "openai",
+  "defaultThinkingLevel": "xhigh",
+  "hideThinkingBlock": false,
+  "lastChangelogVersion": "0.85.1",
+  "packages": [
+    "npm:pi-web-access",
+    "npm:pi-subagents",
+    "npm:@juicesharp/rpiv-ask-user-question",
+    "npm:@juicesharp/rpiv-todo",
+    "npm:pi-lens",
+    "npm:pi-powerline-footer",
+    "npm:pi-agent-browser-native",
+    "npm:pi-hashline-edit-pro",
+    "npm:pi-mcp-adapter@2.32.1",
+    "npm:context-mode"
+  ],
+  "quietStartup": true,
   "retry": {
     "enabled": true,
     "maxRetries": 3
   },
-  "terminal": {
-    "showImages": true,
-    "imageWidthCells": 60
-  },
+  "showCacheMissNotices": false,
   "subagents": {
-    "defaultModel": "openai/gpt-5.6-terra",
-    "defaultThinking": "xhigh",
     "agentOverrides": {
-      "scout": {
+      "context-builder": {
         "model": "openai/gpt-5.6-terra",
         "thinking": "xhigh"
       },
@@ -30,19 +37,7 @@
         "model": "openai/gpt-5.6-terra",
         "thinking": "xhigh"
       },
-      "researcher": {
-        "model": "openai/gpt-5.6-terra",
-        "thinking": "xhigh"
-      },
-      "worker": {
-        "model": "openai/gpt-5.6-terra",
-        "thinking": "xhigh"
-      },
-      "context-builder": {
-        "model": "openai/gpt-5.6-terra",
-        "thinking": "xhigh"
-      },
-      "reviewer": {
+      "oracle": {
         "model": "openai/gpt-5.6-terra",
         "thinking": "xhigh"
       },
@@ -50,28 +45,29 @@
         "model": "openai/gpt-5.6-terra",
         "thinking": "xhigh"
       },
-      "oracle": {
+      "researcher": {
+        "model": "openai/gpt-5.6-terra",
+        "thinking": "xhigh"
+      },
+      "reviewer": {
+        "model": "openai/gpt-5.6-terra",
+        "thinking": "xhigh"
+      },
+      "scout": {
+        "model": "openai/gpt-5.6-terra",
+        "thinking": "xhigh"
+      },
+      "worker": {
         "model": "openai/gpt-5.6-terra",
         "thinking": "xhigh"
       }
-    }
+    },
+    "defaultModel": "openai/gpt-5.6-terra",
+    "defaultThinking": "xhigh"
   },
-  "extensions": [
-    "extensions/model-status.ts"
-  ],
-  "packages": [
-    "npm:pi-web-access",
-    "npm:pi-subagents",
-    "npm:pi-lean-ctx",
-    "npm:@juicesharp/rpiv-ask-user-question",
-    "npm:@juicesharp/rpiv-todo",
-    "npm:pi-lens",
-    "npm:pi-powerline-footer",
-    "npm:pi-agent-browser-native",
-    "npm:pi-hashline-edit-pro",
-    "../../code/pi-beacon",
-    "git:github.com/andres-ortizl/pi-beacon@v1.1.0"
-  ],
-  "lastChangelogVersion": "0.85.0",
-  "hideThinkingBlock": false
+  "terminal": {
+    "imageWidthCells": 60,
+    "showImages": true
+  },
+  "theme": "catppuccin-mocha-andrew"
 }

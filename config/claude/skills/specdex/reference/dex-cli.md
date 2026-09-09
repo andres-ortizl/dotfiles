@@ -3,21 +3,23 @@
 `dex` is the spec event substrate. **One operation: record an event; state is derived.**
 Resource-verb grammar, git/gh style.
 
-## Target spec (ambient)
+## Target spec
 
-Every spec-scoped command needs a target spec — `<project>/<spec-name>`. Set it once:
+Every spec-scoped command needs a target spec — `<project>/<spec-name>` — and an actor. **Pass both as flags on every call:**
 
 ```bash
-export DEX_SPEC=anyformat-backend/parse-cache   # or pass -s <project>/<name> per call
+dex -s <project>/<spec-name> --actor lead <verb> ...     # or --actor coder | reviewer
 ```
 
-`ls`, `watch`, `config`, and `install` are global — they ignore `DEX_SPEC`.
+Do **not** rely on `export DEX_SPEC` / `DEX_ACTOR`. A teammate is a separate session whose shell does not persist environment between commands, and some repos' command verifiers reject `VAR=value dex ...` prefixes outright. Either way the call runs with no target and the event is lost silently — and a spec with no events is invisible to `resume`, to the fleet view, and to `dex story next`. The flags are two extra words and they never fail.
+
+`ls`, `watch`, `config`, and `install` are global — they need no spec.
 
 ## Lifecycle / state
 
 | Command | Effect |
 |---|---|
-| `dex init --branch <b> --worktree <path> [--collaborative]` | register the worktree (emits `spec.created`); `--collaborative` marks a human-driven session (badged apart from autonomous minions) |
+| `dex init --branch <b> --worktree <path> [--session <id>] [--collaborative]` | register the worktree (emits `spec.created`); `--session` records the Claude Code session id so `resume` can find the originating session — pass `$CLAUDE_CODE_SESSION_ID`, and omitting it costs resume its pointer; `--collaborative` marks a human-driven session (badged apart from autonomous minions) |
 | `dex phase <name> [--reason <why>]` | set lifecycle phase: `setup` `plan` `build` `review` `ship` `verify` `complete` `accepted` |
 | `dex block "<reason>"` | flag the spec as blocked on the human (health → `needs-you`) |
 | `dex unblock` | clear the blocked flag |
