@@ -200,13 +200,13 @@
       "wiki_get",
       "wiki_apply",
       "wiki_lint",
-      "session_status"
+      "session_status",
+      "cron"
     ],
     "deny": [
       "group:runtime",
       "group:ui",
       "group:nodes",
-      "group:automation",
       "sessions_spawn"
     ],
     "elevated": {
