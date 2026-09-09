@@ -56,7 +56,9 @@
         },
         "workspace": "/home/node/.openclaw/workspace-mail-reader"
       },
-      "main": {}
+      "main": {
+        "workspace": "/home/node/.openclaw/workspace"
+      }
     },
     "ownership": "explicit"
   },
