@@ -77,7 +77,8 @@
         "${OPENCLAW_OWNER_PHONE}"
       ],
       "dmPolicy": "allowlist",
-      "groupPolicy": "disabled"
+      "groupPolicy": "disabled",
+      "sendReadReceipts": false
     }
   },
   "gateway": {
