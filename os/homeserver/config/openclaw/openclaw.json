@@ -78,6 +78,7 @@
       ],
       "dmPolicy": "allowlist",
       "groupPolicy": "disabled",
+      "selfChatMode": true,
       "sendReadReceipts": false
     }
   },

@@ -170,6 +170,7 @@ class OpenClawTest(unittest.TestCase):
         self.assertEqual(config["tools"]["exec"]["security"], "deny")
         self.assertEqual(config["channels"]["whatsapp"]["groupPolicy"], "disabled")
         self.assertEqual(config["channels"]["whatsapp"]["dmPolicy"], "allowlist")
+        self.assertTrue(config["channels"]["whatsapp"]["selfChatMode"])
         self.assertFalse(config["channels"]["whatsapp"]["sendReadReceipts"])
         self.assertEqual(config["plugins"]["slots"]["memory"], "memory-core")
         self.assertIn(
