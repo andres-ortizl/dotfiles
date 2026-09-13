@@ -52,6 +52,7 @@ class OpenClawTest(unittest.TestCase):
         cls.state.mkdir()
         cls.workspace = cls.state / "workspace"
         cls.workspace.mkdir()
+        (cls.workspace / "skills" / "knowledge-capture").mkdir(parents=True)
         cls.test_config = cls.root / "openclaw.json"
         shutil.copyfile(CONFIG, cls.test_config)
         cls.base = [
@@ -131,7 +132,7 @@ class OpenClawTest(unittest.TestCase):
         config["plugins"]["entries"]["imap"]["enabled"] = False
         config["mcp"]["servers"]["composio"]["enabled"] = False
         cls.test_config.write_text(json.dumps(config))
-        cls.cli("wiki", "init")
+        cls.cli("wiki", "init", "--agent", "main")
 
     @classmethod
     def cli(cls, *args: str) -> str:
@@ -171,7 +172,9 @@ class OpenClawTest(unittest.TestCase):
         self.assertEqual(config["channels"]["whatsapp"]["dmPolicy"], "allowlist")
         self.assertFalse(config["channels"]["whatsapp"]["sendReadReceipts"])
         self.assertEqual(config["plugins"]["slots"]["memory"], "memory-core")
-        self.assertIn("knowledge-capture", self.cli("skills", "list"))
+        self.assertIn(
+            "knowledge-capture", self.cli("skills", "list", "--agent", "main")
+        )
         self.assertIn("whatsapp", self.cli("plugins", "list"))
         result = subprocess.run(
             [
@@ -251,7 +254,7 @@ class OpenClawTest(unittest.TestCase):
                     "const headers={'Content-Type':'application/json'};"
                     "if(auth)headers.Authorization='Bearer '+process.env.OPENCLAW_GATEWAY_TOKEN;"
                     "const r=await fetch('http://127.0.0.1:18789/tools/invoke', {method:'POST',"
-                    "headers,body:JSON.stringify({tool,args:{}})});statuses.push(r.status);"
+                    "headers,body:JSON.stringify({tool,args:{},agentId:'main'})});statuses.push(r.status);"
                     "}console.log(JSON.stringify(statuses));})()"
                 ),
             ],
@@ -284,17 +287,30 @@ class OpenClawTest(unittest.TestCase):
             "QuasarMesh supports offline configuration according to the saved field notes.",
             "--source-id",
             "source.quasarmesh-source",
+            "--agent",
+            "main",
         )
         # Each CLI call starts a new container against the same durable state.
-        found = self.cli("wiki", "search", "QuasarMesh", "--backend", "local")
+        found = self.cli(
+            "wiki",
+            "search",
+            "QuasarMesh",
+            "--backend",
+            "local",
+            "--agent",
+            "main",
+        )
         self.assertIn("QuasarMesh", found)
-        page = self.cli("wiki", "get", "synthesis.home-networking")
+        page = self.cli("wiki", "get", "synthesis.home-networking", "--agent", "main")
         self.assertIn("QuasarMesh", page)
         self.assertIn("sources/quasarmesh-source", page)
-        self.cli("memory", "index", "--force")
-        self.assertIn("QuasarMesh", self.cli("memory", "search", "QuasarMesh"))
+        self.cli("memory", "index", "--force", "--agent", "main")
+        self.assertIn(
+            "QuasarMesh",
+            self.cli("memory", "search", "QuasarMesh", "--agent", "main"),
+        )
         self.assertEqual(capture.read_text(), original)
-        self.cli("wiki", "lint")
+        self.cli("wiki", "lint", "--agent", "main")
 
 
 if __name__ == "__main__":
