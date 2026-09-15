@@ -473,49 +473,49 @@ views:
             card_mod:
               style: |
                 ha-card {
-                  min-height: 210px;
                   border: 1px solid color-mix(in srgb, var(--primary-color) 22%, transparent);
                   border-radius: 28px;
                   box-shadow: 0 16px 38px rgba(0, 0, 0, 0.18);
                 }
 
-          - type: grid
-            columns: 3
-            square: false
-            cards:
-              - type: custom:mushroom-template-card
-                entity: button.living_room_rocky_cleaning_no_mop
-                primary: Aspirar
-                secondary: Solo aspiración
-                icon: mdi:vacuum
-                color: blue
-                tap_action:
-                  action: perform-action
-                  perform_action: button.press
-                  target:
-                    entity_id: button.living_room_rocky_cleaning_no_mop
-              - type: custom:mushroom-template-card
-                entity: button.living_room_rocky_cleaning_mop
-                primary: Fregar
-                secondary: Solo mopa
-                icon: mdi:spray-bottle
-                color: teal
-                tap_action:
-                  action: perform-action
-                  perform_action: button.press
-                  target:
-                    entity_id: button.living_room_rocky_cleaning_mop
-              - type: custom:mushroom-template-card
-                entity: button.living_room_rocky_vac_followed_by_mop
-                primary: Completo
-                secondary: Aspirar y fregar
-                icon: mdi:robot-vacuum-variant
-                color: purple
-                tap_action:
-                  action: perform-action
-                  perform_action: button.press
-                  target:
-                    entity_id: button.living_room_rocky_vac_followed_by_mop
+      - type: grid
+        title: Rutinas
+        columns: 3
+        square: false
+        cards:
+          - type: custom:mushroom-template-card
+            entity: button.living_room_rocky_cleaning_no_mop
+            primary: Aspirar
+            secondary: Solo aspiración
+            icon: mdi:vacuum
+            color: blue
+            tap_action:
+              action: perform-action
+              perform_action: button.press
+              target:
+                entity_id: button.living_room_rocky_cleaning_no_mop
+          - type: custom:mushroom-template-card
+            entity: button.living_room_rocky_cleaning_mop
+            primary: Fregar
+            secondary: Solo mopa
+            icon: mdi:spray-bottle
+            color: teal
+            tap_action:
+              action: perform-action
+              perform_action: button.press
+              target:
+                entity_id: button.living_room_rocky_cleaning_mop
+          - type: custom:mushroom-template-card
+            entity: button.living_room_rocky_vac_followed_by_mop
+            primary: Completo
+            secondary: Aspirar y fregar
+            icon: mdi:robot-vacuum-variant
+            color: purple
+            tap_action:
+              action: perform-action
+              perform_action: button.press
+              target:
+                entity_id: button.living_room_rocky_vac_followed_by_mop
 
       - type: grid
         title: Ahora
