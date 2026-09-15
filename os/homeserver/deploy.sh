@@ -135,7 +135,8 @@ awk 'BEGIN { valid = 0 } /^[[:space:]]*($|#)/ { next } /^[A-Za-z0-9._-]+:\$[^[:s
 awk '
   /^[[:space:]]*($|#)/ { next }
   /^user [A-Za-z0-9._-]+$/ { users++; next }
-  /^topic (read|write|readwrite) [^[:space:]#+]+$/ { topics++; next }
+  # Permit only a terminal /# wildcard for scoped device prefixes.
+  /^topic (read|write|readwrite) [^[:space:]#+\/]+(\/[^[:space:]#+\/]+)*(\/#)?$/ { topics++; next }
   { exit 1 }
   END { if (!users || !topics) exit 1 }
 ' "$mqtt_acl" || fail "mqtt-acl has an invalid schema"
