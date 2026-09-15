@@ -92,8 +92,8 @@ pages:
                 icon: di:backrest
               - title: UGREEN NAS
                 url: https://192.168.1.33:9443/desktop/?os=ugospro#/
-                check-url: http://host.docker.internal:9999
-                alt-status-codes: [307]
+                check-url: https://host.docker.internal:9443/desktop/?os=ugospro
+                allow-insecure: true
                 icon: mdi:nas
 
           - type: monitor
