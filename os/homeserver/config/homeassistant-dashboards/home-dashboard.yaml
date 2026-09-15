@@ -172,7 +172,7 @@ views:
         square: false
         cards:
           - type: custom:mushroom-media-player-card
-            entity: media_player.altavoz_salon_4
+            entity: media_player.altavoz_salon_2
             name: Salón
             icon: mdi:speaker-wireless
             layout: horizontal
@@ -600,7 +600,7 @@ views:
         square: false
         cards:
           - type: custom:mushroom-media-player-card
-            entity: media_player.altavoz_salon_4
+            entity: media_player.altavoz_salon_2
             name: WiiM Pro
             icon: mdi:speaker-wireless
             layout: vertical
