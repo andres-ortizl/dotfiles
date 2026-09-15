@@ -440,6 +440,7 @@ services:
     network_mode: host
     volumes:
       - ./config/homeassistant:/config
+      - ./config/homeassistant-dashboards/home-dashboard.yaml:/config/home-dashboard.yaml:ro
       - /etc/localtime:/etc/localtime:ro
     environment:
       - TZ=${TZ:-Europe/Madrid}

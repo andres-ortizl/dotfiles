@@ -1,0 +1,285 @@
+title: Casa
+views:
+  - title: Inicio
+    path: home
+    icon: mdi:home-variant
+    type: sections
+    max_columns: 3
+    sections:
+      - type: grid
+        title: Clima
+        columns: 1
+        square: false
+        background:
+          color: blue
+          opacity: 8
+        cards:
+          - type: thermostat
+            entity: climate.faikinac_e474
+            name: Clima de casa
+            show_current_as_primary: true
+          - type: tile
+            entity: climate.faikinac_e474
+            name: Estado del aire
+            icon: mdi:air-conditioner
+            color: cyan
+            state_content:
+              - state
+              - current_temperature
+
+      - type: grid
+        title: Ahora
+        columns: 2
+        square: false
+        cards:
+          - type: tile
+            entity: sensor.faikinac_e474_room_temperature
+            name: Ambiente
+            icon: mdi:home-thermometer-outline
+            color: orange
+          - type: tile
+            entity: sensor.faikinac_e474_intake_temperature
+            name: Retorno
+            icon: mdi:thermometer-chevron-down
+            color: teal
+          - type: tile
+            entity: sensor.faikinac_e474_fan_rpm
+            name: Ventilador
+            icon: mdi:fan
+            color: blue
+          - type: tile
+            entity: binary_sensor.faikinac_e474_ac_error_present
+            name: Estado técnico
+            icon: mdi:shield-check-outline
+            color: green
+
+      - type: grid
+        title: Exterior
+        columns: 1
+        square: false
+        cards:
+          - type: weather-forecast
+            entity: weather.forecast_home
+            forecast_type: daily
+            show_forecast: true
+
+      - type: grid
+        title: Rocky
+        columns: 1
+        square: false
+        cards:
+          - type: tile
+            entity: vacuum.rocky
+            name: Robot aspirador
+            icon: mdi:robot-vacuum
+            color: teal
+            features:
+              - type: vacuum-commands
+                commands:
+                  - start_pause
+                  - stop
+                  - return_home
+                  - locate
+
+      - type: grid
+        title: Accesos rápidos
+        columns: 2
+        square: false
+        cards:
+          - type: button
+            name: Red doméstica
+            icon: mdi:lan
+            tap_action:
+              action: navigate
+              navigation_path: /network-dashboard/red
+          - type: button
+            name: Glance
+            icon: mdi:view-dashboard-outline
+            tap_action:
+              action: url
+              url_path: https://n33lab.com
+          - type: button
+            name: Pi-hole
+            icon: mdi:shield-check-outline
+            tap_action:
+              action: url
+              url_path: https://pihole.n33lab.com/admin/
+          - type: button
+            name: UGREEN NAS
+            icon: mdi:nas
+            tap_action:
+              action: url
+              url_path: https://192.168.1.33:9443/desktop/?os=ugospro#/
+
+      - type: grid
+        title: Copias de seguridad
+        columns: 2
+        square: false
+        cards:
+          - type: tile
+            entity: sensor.backup_backup_manager_state
+            name: Estado
+            icon: mdi:shield-check-outline
+          - type: tile
+            entity: sensor.backup_last_successful_automatic_backup
+            name: Última copia
+            icon: mdi:backup-restore
+          - type: tile
+            entity: sensor.backup_next_scheduled_automatic_backup
+            name: Próxima copia
+            icon: mdi:calendar-clock
+          - type: tile
+            entity: sensor.backup_last_attempted_automatic_backup
+            name: Último intento
+            icon: mdi:history
+
+  - title: Clima
+    path: clima
+    icon: mdi:thermostat
+    type: sections
+    max_columns: 2
+    sections:
+      - type: grid
+        title: Control
+        columns: 1
+        square: false
+        background:
+          color: blue
+          opacity: 8
+        cards:
+          - type: thermostat
+            entity: climate.faikinac_e474
+            name: Aire acondicionado
+            show_current_as_primary: true
+          - type: tile
+            entity: climate.faikinac_e474
+            name: Daikin DKVAC
+            icon: mdi:air-conditioner
+            color: cyan
+            state_content:
+              - state
+              - current_temperature
+
+      - type: grid
+        title: Temperaturas
+        columns: 3
+        square: false
+        cards:
+          - type: tile
+            entity: sensor.faikinac_e474_room_temperature
+            name: Ambiente
+            icon: mdi:home-thermometer-outline
+            color: orange
+          - type: tile
+            entity: sensor.faikinac_e474_intake_temperature
+            name: Retorno
+            icon: mdi:thermometer-chevron-down
+            color: teal
+          - type: tile
+            entity: sensor.faikinac_e474_indoor_th1
+            name: Líquido
+            icon: mdi:thermometer-lines
+            color: blue
+          - type: tile
+            entity: sensor.faikinac_e474_indoor_th2
+            name: Gas
+            icon: mdi:thermometer-lines
+            color: purple
+          - type: tile
+            entity: sensor.faikinac_e474_indoor_th3
+            name: Intercambiador
+            icon: mdi:heat-wave
+            color: red
+          - type: tile
+            entity: sensor.faikinac_e474_fan_rpm
+            name: Ventilador
+            icon: mdi:fan
+            color: blue
+
+      - type: grid
+        title: Tendencia
+        columns: 1
+        square: false
+        cards:
+          - type: history-graph
+            title: Últimas 24 horas
+            hours_to_show: 24
+            entities:
+              - entity: sensor.faikinac_e474_room_temperature
+                name: Ambiente
+              - entity: sensor.faikinac_e474_intake_temperature
+                name: Retorno
+
+      - type: grid
+        title: Diagnóstico
+        columns: 1
+        square: false
+        cards:
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: binary_sensor.faikinac_e474_ac_error_present
+                name: Error presente
+              - entity: sensor.faikinac_e474_fan_rpm
+                name: Velocidad del ventilador
+              - entity: sensor.faikinac_e474_indoor_th1
+                name: Termistor de líquido
+              - entity: sensor.faikinac_e474_indoor_th2
+                name: Termistor de gas
+              - entity: sensor.faikinac_e474_indoor_th3
+                name: Termistor del intercambiador
+
+  - title: Sistema
+    path: sistema
+    icon: mdi:cog-outline
+    type: sections
+    max_columns: 2
+    sections:
+      - type: grid
+        title: Copias de seguridad
+        columns: 1
+        square: false
+        cards:
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: sensor.backup_backup_manager_state
+                name: Estado del gestor
+              - entity: sensor.backup_last_attempted_automatic_backup
+                name: Último intento
+              - entity: sensor.backup_last_successful_automatic_backup
+                name: Última copia correcta
+              - entity: sensor.backup_next_scheduled_automatic_backup
+                name: Próxima copia
+              - entity: event.backup_automatic_backup
+                name: Evento de backup
+
+      - type: grid
+        title: Administración
+        columns: 2
+        square: false
+        cards:
+          - type: button
+            name: Red doméstica
+            icon: mdi:lan
+            tap_action:
+              action: navigate
+              navigation_path: /network-dashboard/red
+          - type: button
+            name: Glance
+            icon: mdi:view-dashboard-outline
+            tap_action:
+              action: url
+              url_path: https://n33lab.com
+          - type: button
+            name: Pi-hole
+            icon: mdi:shield-check-outline
+            tap_action:
+              action: url
+              url_path: https://pihole.n33lab.com/admin/
+          - type: button
+            name: UGREEN NAS
+            icon: mdi:nas
+            tap_action:
+              action: url
+              url_path: https://192.168.1.33:9443/desktop/?os=ugospro#/
