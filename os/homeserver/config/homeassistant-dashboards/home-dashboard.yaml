@@ -5,6 +5,7 @@ views:
     icon: mdi:home-variant
     type: sections
     max_columns: 3
+    dense_section_placement: true
     sections:
       - type: grid
         title: Casa
@@ -24,7 +25,8 @@ views:
                   {% else %} grey
                   {% endif %}
                 content: >-
-                  {{ state_attr('climate.faikinac_e474', 'current_temperature') | float(0) | round(1) }} °C
+                  {% set temp = state_attr('climate.faikinac_e474', 'current_temperature') %}
+                  {{ temp | round(1) ~ ' °C' if temp is number else 'Clima conectando' }}
                 tap_action:
                   action: more-info
               - type: weather
@@ -41,12 +43,6 @@ views:
                   {{ 'Revisar aire' if is_state('binary_sensor.faikinac_e474_ac_error_present', 'on') else 'Todo bien' }}
                 tap_action:
                   action: more-info
-              - type: entity
-                entity: person.andrew
-                use_entity_picture: true
-                content_info: state
-                tap_action:
-                  action: more-info
             card_mod:
               style: |
                 ha-card {
@@ -59,10 +55,13 @@ views:
           - type: custom:mushroom-template-card
             entity: climate.faikinac_e474
             primary: >-
-              {{ state_attr('climate.faikinac_e474', 'current_temperature') | float(0) | round(1) }} °C
+              {% set temp = state_attr('climate.faikinac_e474', 'current_temperature') %}
+              {{ temp | round(1) ~ ' °C' if temp is number else 'Clima conectando' }}
             secondary: >-
               {% set target = state_attr('climate.faikinac_e474', 'temperature') %}
-              {{ states('climate.faikinac_e474') | title }} · objetivo {{ target if target is not none else 'sin dato' }} °C · {{ states('sensor.faikinac_e474_fan_rpm') }} rpm
+              {% set mode = states('climate.faikinac_e474') %}
+              {% set rpm = states('sensor.faikinac_e474_fan_rpm') %}
+              {{ mode | title if mode not in ['unknown', 'unavailable'] else 'Recuperando estado' }} · objetivo {{ target if target is not none else 'sin dato' }} °C · {{ rpm ~ ' rpm' if rpm not in ['unknown', 'unavailable'] else 'sin telemetría' }}
             icon: mdi:air-conditioner
             color: >-
               {% if is_state('climate.faikinac_e474', 'cool') %} blue
@@ -202,12 +201,13 @@ views:
             square: false
             cards:
               - type: custom:mushroom-template-card
-                entity: sensor.askey_rtf3505vw_connected_devices
+                entity: sensor.living_room_rocky_battery
                 primary: >-
-                  {{ states('sensor.askey_rtf3505vw_connected_devices') }}
-                secondary: En red
-                icon: mdi:access-point-network
-                color: blue
+                  {% set battery = states('sensor.living_room_rocky_battery') %}
+                  {{ battery ~ '%' if battery not in ['unknown', 'unavailable'] else 'Sin datos' }}
+                secondary: Rocky
+                icon: mdi:battery-high
+                color: green
                 tap_action:
                   action: more-info
               - type: custom:mushroom-template-card
@@ -273,6 +273,7 @@ views:
     icon: mdi:thermostat
     type: sections
     max_columns: 3
+    dense_section_placement: true
     sections:
       - type: grid
         title: Control
@@ -296,36 +297,11 @@ views:
             card_mod:
               style: |
                 ha-card {
-                  min-height: 250px;
                   border: 1px solid color-mix(in srgb, var(--primary-color) 28%, transparent);
                   border-radius: 28px;
                   background: color-mix(in srgb, var(--primary-color) 13%, var(--card-background-color));
                   box-shadow: 0 16px 38px rgba(0, 0, 0, 0.18);
                 }
-
-          - type: custom:mushroom-chips-card
-            alignment: center
-            chips:
-              - type: template
-                entity: binary_sensor.faikinac_e474_connection_state
-                icon: mdi:access-point-check
-                icon_color: >-
-                  {{ 'green' if is_state('binary_sensor.faikinac_e474_connection_state', 'on') else 'red' }}
-                content: >-
-                  {{ 'Conectado' if is_state('binary_sensor.faikinac_e474_connection_state', 'on') else 'Sin conexión' }}
-              - type: template
-                entity: binary_sensor.faikinac_e474_compressor_operating
-                icon: mdi:engine
-                icon_color: >-
-                  {{ 'blue' if is_state('binary_sensor.faikinac_e474_compressor_operating', 'on') else 'grey' }}
-                content: >-
-                  {{ 'Compresor activo' if is_state('binary_sensor.faikinac_e474_compressor_operating', 'on') else 'Compresor parado' }}
-              - type: template
-                entity: sensor.faikinac_e474_rssi
-                icon: mdi:wifi
-                icon_color: green
-                content: >-
-                  {{ states('sensor.faikinac_e474_rssi') }} dBm
 
       - type: grid
         title: Temperaturas
@@ -455,6 +431,7 @@ views:
     icon: mdi:robot-vacuum
     type: sections
     max_columns: 3
+    dense_section_placement: true
     sections:
       - type: grid
         title: Mapa
@@ -506,18 +483,39 @@ views:
             columns: 3
             square: false
             cards:
-              - type: tile
+              - type: custom:mushroom-template-card
                 entity: button.living_room_rocky_cleaning_no_mop
-                name: Aspirar
+                primary: Aspirar
+                secondary: Solo aspiración
                 icon: mdi:vacuum
-              - type: tile
+                color: blue
+                tap_action:
+                  action: perform-action
+                  perform_action: button.press
+                  target:
+                    entity_id: button.living_room_rocky_cleaning_no_mop
+              - type: custom:mushroom-template-card
                 entity: button.living_room_rocky_cleaning_mop
-                name: Fregar
+                primary: Fregar
+                secondary: Solo mopa
                 icon: mdi:spray-bottle
-              - type: tile
+                color: teal
+                tap_action:
+                  action: perform-action
+                  perform_action: button.press
+                  target:
+                    entity_id: button.living_room_rocky_cleaning_mop
+              - type: custom:mushroom-template-card
                 entity: button.living_room_rocky_vac_followed_by_mop
-                name: Completo
+                primary: Completo
+                secondary: Aspirar y fregar
                 icon: mdi:robot-vacuum-variant
+                color: purple
+                tap_action:
+                  action: perform-action
+                  perform_action: button.press
+                  target:
+                    entity_id: button.living_room_rocky_vac_followed_by_mop
 
       - type: grid
         title: Ahora
@@ -594,6 +592,7 @@ views:
     icon: mdi:music
     type: sections
     max_columns: 2
+    dense_section_placement: true
     sections:
       - type: grid
         title: Salón
@@ -644,77 +643,13 @@ views:
             volume_controls:
               - volume_mute
               - volume_set
-          - type: custom:mushroom-media-player-card
-            entity: media_player.ordenador_portatil_de_alba
-            name: Portátil de Alba
-            icon: mdi:laptop
-            use_media_info: true
-            show_volume_level: true
-            collapsible_controls: true
-            media_controls:
-              - play_pause_stop
-            volume_controls:
-              - volume_mute
-              - volume_set
-
   - title: Sistema
     path: sistema
     icon: mdi:server-network
     type: sections
     max_columns: 3
+    dense_section_placement: true
     sections:
-      - type: grid
-        title: Red doméstica
-        columns: 2
-        square: false
-        cards:
-          - type: custom:mushroom-template-card
-            entity: sensor.askey_rtf3505vw_connected_devices
-            primary: >-
-              {{ states('sensor.askey_rtf3505vw_connected_devices') }} dispositivos
-            secondary: Conectados ahora
-            icon: mdi:access-point-network
-            color: blue
-            tap_action:
-              action: more-info
-          - type: custom:mushroom-template-card
-            entity: sensor.askey_rtf3505vw_wired_devices
-            primary: >-
-              {{ states('sensor.askey_rtf3505vw_wired_devices') }} por cable
-            secondary: Ethernet
-            icon: mdi:ethernet
-            color: teal
-            tap_action:
-              action: more-info
-          - type: custom:mushroom-template-card
-            entity: sensor.askey_rtf3505vw_wifi_2_4_ghz
-            primary: >-
-              {{ states('sensor.askey_rtf3505vw_wifi_2_4_ghz') }} en 2.4 GHz
-            secondary: Wi-Fi IoT
-            icon: mdi:wifi
-            color: amber
-            tap_action:
-              action: more-info
-          - type: custom:mushroom-template-card
-            entity: sensor.askey_rtf3505vw_wifi_5_ghz
-            primary: >-
-              {{ states('sensor.askey_rtf3505vw_wifi_5_ghz') }} en 5 GHz
-            secondary: Wi-Fi rápido
-            icon: mdi:wifi
-            color: purple
-            tap_action:
-              action: more-info
-          - type: custom:mushroom-entity-card
-            entity: sensor.askey_rtf3505vw_uptime
-            name: Uptime del router
-            icon: mdi:timer-sand
-            icon_color: green
-          - type: custom:mushroom-entity-card
-            entity: sensor.askey_rtf3505vw_guest_network
-            name: Red de invitados
-            icon: mdi:account-group-outline
-            icon_color: blue
-
       - type: grid
         title: Copias de seguridad
         columns: 1
@@ -730,24 +665,36 @@ views:
               {{ 'green' if states('sensor.backup_backup_manager_state') | lower in ['idle', 'backed_up'] else 'orange' }}
             tap_action:
               action: more-info
-          - type: entities
-            show_header_toggle: false
-            entities:
-              - entity: sensor.backup_last_attempted_automatic_backup
-                name: Último intento
-              - entity: sensor.backup_last_successful_automatic_backup
-                name: Última copia correcta
-              - entity: sensor.backup_next_scheduled_automatic_backup
-                name: Próxima copia
-              - entity: event.backup_automatic_backup
-                name: Evento de backup
-            card_mod:
-              style: |
-                ha-card {
-                  border: 1px solid color-mix(in srgb, var(--primary-text-color) 10%, transparent);
-                  border-radius: 22px;
-                  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
-                }
+          - type: custom:mushroom-template-card
+            entity: sensor.backup_last_successful_automatic_backup
+            primary: >-
+              {% set value = states('sensor.backup_last_successful_automatic_backup') %}
+              {{ value if value not in ['unknown', 'unavailable'] else 'Sin registros' }}
+            secondary: Última copia correcta
+            icon: mdi:backup-restore
+            color: blue
+            tap_action:
+              action: more-info
+          - type: custom:mushroom-template-card
+            entity: sensor.backup_next_scheduled_automatic_backup
+            primary: >-
+              {% set value = states('sensor.backup_next_scheduled_automatic_backup') %}
+              {{ value if value not in ['unknown', 'unavailable'] else 'Sin programar' }}
+            secondary: Próxima copia
+            icon: mdi:calendar-clock
+            color: purple
+            tap_action:
+              action: more-info
+          - type: custom:mushroom-template-card
+            entity: sensor.backup_last_attempted_automatic_backup
+            primary: >-
+              {% set value = states('sensor.backup_last_attempted_automatic_backup') %}
+              {{ value if value not in ['unknown', 'unavailable'] else 'Sin intentos' }}
+            secondary: Último intento
+            icon: mdi:history
+            color: teal
+            tap_action:
+              action: more-info
 
       - type: grid
         title: Faikin
@@ -774,14 +721,32 @@ views:
             name: Último reinicio
             icon: mdi:restart-alert
             icon_color: orange
-          - type: tile
+          - type: custom:mushroom-template-card
             entity: button.faikinac_e474_restart
-            name: Reiniciar Faikin
+            primary: Reiniciar Faikin
+            secondary: Mantén pulsado
             icon: mdi:restart
-          - type: tile
+            color: orange
+            tap_action:
+              action: more-info
+            hold_action:
+              action: perform-action
+              perform_action: button.press
+              target:
+                entity_id: button.faikinac_e474_restart
+          - type: custom:mushroom-template-card
             entity: button.faikinac_e474_upgrade
-            name: Actualizar firmware
+            primary: Actualizar firmware
+            secondary: Mantén pulsado
             icon: mdi:update
+            color: blue
+            tap_action:
+              action: more-info
+            hold_action:
+              action: perform-action
+              perform_action: button.press
+              target:
+                entity_id: button.faikinac_e474_upgrade
 
       - type: grid
         title: Administración
