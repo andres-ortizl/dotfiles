@@ -1,0 +1,56 @@
+ac_toggle:
+  alias: AC
+  description: Alterna el aire acondicionado entre frío y apagado.
+  icon: mdi:air-conditioner
+  mode: single
+  sequence:
+    - if:
+        - condition: state
+          entity_id: climate.faikinac_e474
+          state: "off"
+      then:
+        - action: climate.set_hvac_mode
+          target:
+            entity_id: climate.faikinac_e474
+          data:
+            hvac_mode: cool
+      else:
+        - action: climate.turn_off
+          target:
+            entity_id: climate.faikinac_e474
+
+ac_22:
+  alias: 22°
+  description: Enciende el aire acondicionado en frío a 22 °C.
+  icon: mdi:thermometer
+  mode: single
+  sequence:
+    - action: climate.set_temperature
+      target:
+        entity_id: climate.faikinac_e474
+      data:
+        hvac_mode: cool
+        temperature: 22
+
+ac_24:
+  alias: 24°
+  description: Enciende el aire acondicionado en frío a 24 °C.
+  icon: mdi:thermometer
+  mode: single
+  sequence:
+    - action: climate.set_temperature
+      target:
+        entity_id: climate.faikinac_e474
+      data:
+        hvac_mode: cool
+        temperature: 24
+
+ac_off:
+  alias: Apagar
+  description: Apaga el aire acondicionado.
+  icon: mdi:power
+  mode: single
+  sequence:
+    - action: climate.turn_off
+      target:
+        entity_id: climate.faikinac_e474
