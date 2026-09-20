@@ -75,7 +75,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
   authelia:
-    image: authelia/authelia@sha256:b5f415d5f14b154c2aa2b186d9f329d879e223da36e115cd871db4c261d5af54
+    image: authelia/authelia:4.39.28@sha256:bd97cff4fcbf715b5ff1f9ae286afbe6033afce385302520b0368122d43a6f54
     container_name: authelia
     restart: unless-stopped
     environment:
@@ -99,7 +99,7 @@ services:
       - traefik
   # Glance Dashboard
   glance:
-    image: glanceapp/glance@sha256:32ab73d80f2b8b5fb0735b0431deb36b93fbb6b2fb43592449b0178c8b83e350
+    image: glanceapp/glance:v0.8.6@sha256:9dfb09470b207dcb67ac715994bdb1929374ba3f9c0d7df7462c24adf10fd073
     container_name: glance
     restart: unless-stopped
     environment:
@@ -114,7 +114,7 @@ services:
       - "host.docker.internal:host-gateway"
   # Dockhand - Docker Management UI
   dockhand:
-    image: fnsys/dockhand@sha256:29d4183d8aef2cc7fbc50750fa11434ec331e044647288ae47fe15260e68a44c
+    image: fnsys/dockhand:latest@sha256:63ffc7dd086f5d10506ccf488bcb30ce40401975212fcc1bed9ec891243c9fb4
     container_name: dockhand
     restart: unless-stopped
     environment:
@@ -126,7 +126,7 @@ services:
       - traefik
   # Tailscale - VPN Access
   tailscale:
-    image: tailscale/tailscale@sha256:cdf5612ded5be1344f1a704b8c5e53496db97376bb533e5e15f141e48bf60cc0
+    image: tailscale/tailscale:v1.102.4@sha256:2667499ed87ae29218f292556ba062918402dd5e92e93637af14867e4df12dd3
     container_name: tailscale
     hostname: homeserver
     restart: unless-stopped
@@ -147,7 +147,7 @@ services:
 
   # Pi-hole DNS Server
   pihole:
-    image: pihole/pihole@sha256:f7d1be836e3bc608b56d82fc9904f5a831cdfbc0dc9c6d58f94e4c985c70038b
+    image: pihole/pihole:2026.09.0@sha256:5b9c8cf51de7d6d3f2240dbe72baf5f06e1fd39cb4d77a99fab4fa13e23bd1be
     container_name: pihole
     restart: unless-stopped
     environment:
@@ -196,7 +196,7 @@ services:
 
   # qBittorrent Download Client
   qbittorrent:
-    image: lscr.io/linuxserver/qbittorrent@sha256:b024436f8ca665d16d9a997d26fd27fdf867ee5566ba09f32764e7b2976d3e02
+    image: lscr.io/linuxserver/qbittorrent:latest@sha256:457e4eec2ee3f5e4ef59f237ad51f6143deba9f7445ab48bb5204a98888ef9aa
     container_name: qbittorrent
     restart: unless-stopped
     environment:
@@ -228,7 +228,7 @@ services:
 
   # Immich Photo Management
   immich-server:
-    image: ghcr.io/immich-app/immich-server@sha256:b434cb9287eea1471c9974845914d4dd328c9c2d652e446ed4930f99944f0ceb
+    image: ghcr.io/immich-app/immich-server:v3.2.2@sha256:79cc1623323d5894922686d8743b4780181428f98eecbfb58ce12c41ef02d1ea
     container_name: immich_server
     restart: unless-stopped
     volumes:
@@ -250,7 +250,7 @@ services:
 
   # Immich Machine Learning
   immich-machine-learning:
-    image: ghcr.io/immich-app/immich-machine-learning@sha256:5a0839dc5303cd7215bcd2180a26aed3af41675aefb3e75e5157e9f10ad16e6e
+    image: ghcr.io/immich-app/immich-machine-learning:v3.2.2@sha256:60dfcf266a9ef3b7376f5678e8c980d4fb61db5fc48c078fe8a326ab1535d60d
     container_name: immich_machine_learning
     restart: unless-stopped
     volumes:
@@ -292,7 +292,7 @@ services:
 
   # Open WebUI for AI
   openwebui:
-    image: ghcr.io/open-webui/open-webui@sha256:6a773e5c3a246b65cbe74ce942b294292c0e5f81c138f703d111bc162f7d7c3d
+    image: ghcr.io/open-webui/open-webui:v0.11.3@sha256:41daa0cf2561a5d4c8d1ff31ee2a98d93ab4d3ac2605cac69366ff6a3374a933
     container_name: openwebui
     restart: unless-stopped
     environment:
@@ -315,7 +315,7 @@ services:
       - traefik
   # Gatus Monitoring
   gatus:
-    image: ghcr.io/twin/gatus@sha256:c5f210d095fa78e6efaa20ffeb14803f2ba4f10615e16a6d12087697149617f0
+    image: ghcr.io/twin/gatus:v5.36.0@sha256:c5f210d095fa78e6efaa20ffeb14803f2ba4f10615e16a6d12087697149617f0
     container_name: gatus
     restart: unless-stopped
     volumes:
@@ -327,7 +327,7 @@ services:
       - "host.docker.internal:host-gateway"
   # Dozzle - Real-time Log Viewer
   dozzle:
-    image: amir20/dozzle@sha256:1c1060cfb5402093c4e0f03f3534d7deaffeb0a6f6dd034e7c5f244603f35fb3
+    image: amir20/dozzle:v11.1.0@sha256:7c4fb7f8124f5dea15ade881535cc19cc9a03e66639fd28154ff43a93b78944b
     container_name: dozzle
     restart: unless-stopped
     environment:
@@ -336,7 +336,7 @@ services:
       - traefik
       - dozzle_agent
   docker-socket-proxy:
-    image: tecnativa/docker-socket-proxy@sha256:753044cb0851ce53ab44c2504872ff02ae37be9c294fa8abea3754074e61eab4
+    image: tecnativa/docker-socket-proxy:latest@sha256:1f5038b54f06c3e18422902cf00ba21803d1c97805aae032e5e6673d532d3459
     container_name: docker-socket-proxy
     restart: unless-stopped
     read_only: true
@@ -354,7 +354,7 @@ services:
       - dozzle_agent
   # FileBrowser Quantum - File Server Web UI
   filebrowser:
-    image: gtstef/filebrowser@sha256:fc213590ebc090cb8205125cd3ecdfa9066b9ed4a0b53fe2570972d6a3379e73
+    image: gtstef/filebrowser:1.5.6-stable@sha256:7c5d7ac8ffda31294d278063cf9d2e04303b39e6dce1f4c691342240ca7703b8
     container_name: filebrowser
     user: filebrowser
     restart: unless-stopped
@@ -368,7 +368,7 @@ services:
       - traefik
   # Backrest - Restic Backup UI
   backrest:
-    image: garethgeorge/backrest@sha256:b852979754281026230cc69fb11428e6d57c9a97784ab4a444ffc7934c53a215
+    image: garethgeorge/backrest:v1.14.1@sha256:b852979754281026230cc69fb11428e6d57c9a97784ab4a444ffc7934c53a215
     container_name: backrest
     restart: unless-stopped
     environment:
@@ -390,7 +390,7 @@ services:
   # traefik bridge, Traefik routes to it via the file provider instead of
   # labels (see config/traefik/dynamic/homeassistant.yml).
   homeassistant:
-    image: ghcr.io/home-assistant/home-assistant@sha256:5a531753cea96444200158fc2b0ac7ccd739291ec50414877b396de6e0bb29b3
+    image: ghcr.io/home-assistant/home-assistant:2026.9.3@sha256:d8922685169707fd91e8b9729902d975f06157d005e422874d201e0261dda196
     container_name: homeassistant
     restart: unless-stopped
     network_mode: host
@@ -403,7 +403,7 @@ services:
       - TZ=${TZ:-Europe/Madrid}
   # Mosquitto MQTT Broker (message bus for Node-RED, ESPHome, Home Assistant)
   mosquitto:
-    image: eclipse-mosquitto@sha256:6f8d8a947c506f8a2290ec65cd4bd2bc7cb4d43fb5f6271f861cb013e2ef9797
+    image: eclipse-mosquitto:2@sha256:38c0da4f2ef84284d47b3b3eeea1cb3bdeabe81ee10caf0cd5c5ff61ee3ea408
     container_name: mosquitto
     restart: unless-stopped
     ports:
@@ -429,7 +429,7 @@ services:
       - traefik
   # Node-RED - Visual Automation Flows
   node-red:
-    image: nodered/node-red@sha256:10f40d0a83e7e5852b13d4d472b2006b05b1cca6d55e2f29a55a12c25a630cb6
+    image: nodered/node-red:5.0.7@sha256:a649dd711d55490151a2c39a8e48ad0c44325488fbc0e66315f2d2e19e5e1ace
     container_name: node-red
     restart: unless-stopped
     environment:
@@ -442,7 +442,7 @@ services:
   # Host network for device discovery + OTA. Traefik routes via the file
   # provider instead of labels (see config/traefik/dynamic/esphome.yml).
   esphome:
-    image: ghcr.io/esphome/esphome@sha256:de90d689b89e20f171b0fbdd0dfea31b21ef647aa7e83d6efd2916ca6e7a30d2
+    image: ghcr.io/esphome/esphome:2026.9.0@sha256:f6509fcf917a732fd80058567b237d5b9286b9dc6c8dde1b655fbb69ebd600ad
     container_name: esphome
     restart: unless-stopped
     network_mode: host
@@ -457,7 +457,7 @@ services:
   # Host network for player discovery + streaming. Traefik routes via the file
   # provider instead of labels (see config/traefik/dynamic/musicassistant.yml).
   music-assistant:
-    image: ghcr.io/music-assistant/server@sha256:5500c53c5129bbabfb0de2c2c298fd0ef15fe34207bbe5794f49c587b76bde95
+    image: ghcr.io/music-assistant/server:2.10.4@sha256:37a9a2776e838a754c9f5b38c432567389952304e7cb8f6b44b6cd28043de6de
     container_name: music-assistant
     restart: unless-stopped
     network_mode: host
