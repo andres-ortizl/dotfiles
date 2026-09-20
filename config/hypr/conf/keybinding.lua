@@ -93,5 +93,48 @@ hl.define_submap("resize", function()
 end)
 
 bind(mainMod .. " + M", "Applications: Toggle Spotify", hl.dsp.exec_cmd("$HOME/.config/hypr/scripts/scratchpad-spotify.sh"))
+
+bind("Escape", "Applications: Hide focused Spotify", function()
+    local window = hl.get_active_window()
+    local workspace = window and window.workspace
+    if not window or window.class:lower() ~= "spotify" or not workspace
+        or workspace.name ~= "special:music" or not workspace.visible then
+        return { ok = false }
+    end
+
+    workspace.monitor:set_special_workspace({})
+    return { ok = true }
+end, { auto_consuming = true })
+
+local function hide_spotify_on_outside_click()
+    local workspace = hl.get_workspace("special:music")
+    if not workspace or not workspace.visible then
+        return { ok = false }
+    end
+
+    local cursor = hl.get_cursor_pos()
+    if not cursor then
+        return { ok = false }
+    end
+
+    -- Check geometry, not focus: follow_mouse can change focus before a click.
+    for _, window in ipairs(hl.get_workspace_windows(workspace)) do
+        if window.mapped and not window.hidden then
+            local position, size = window.at, window.size
+            if cursor.x >= position.x and cursor.x < position.x + size.x
+                and cursor.y >= position.y and cursor.y < position.y + size.y then
+                return { ok = false }
+            end
+        end
+    end
+
+    workspace.monitor:set_special_workspace({})
+    return { ok = true }
+end
+
+for _, button in ipairs({ "mouse:272", "mouse:273", "mouse:274" }) do
+    bind(button, "Applications: Hide Spotify on outside click", hide_spotify_on_outside_click, { auto_consuming = true })
+end
+
 bind(mainMod .. " + K", "Help: Open keybindings", hl.dsp.exec_cmd("$HOME/.config/hypr/scripts/launch-app ghostty -e $HOME/.local/bin/uv run $HOME/.config/keybindings-helper/show_keybindings.py"))
 bind(mainMod .. " + Escape", "Session: Open power menu", hl.dsp.exec_cmd("$HOME/.config/wlogout/init.sh"))
