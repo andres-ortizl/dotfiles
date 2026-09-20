@@ -8,7 +8,7 @@
     "margin": "8 10 8 10",
     "reload_style_on_change": true,
     "modules-left": [
-      "hyprland/workspaces"
+      "ext/workspaces"
     ],
     "modules-center": [
       "hyprland/window"
@@ -31,15 +31,16 @@
         "custom/notification",
         "custom/night-shift",
         "custom/pi-beacon",
+        "custom/pomodoro",
         "custom/tray",
         "custom/control-center",
         "custom/power-menu"
       ]
     },
-    "hyprland/workspaces": {
+    "ext/workspaces": {
       "on-click": "activate",
-      "on-scroll-up": "hyprctl dispatch workspace e-1",
-      "on-scroll-down": "hyprctl dispatch workspace e+1",
+      "on-scroll-up": "hyprctl eval 'hl.dsp.focus({ workspace = [[e-1]] })'",
+      "on-scroll-down": "hyprctl eval 'hl.dsp.focus({ workspace = [[e+1]] })'",
       "format": "{icon}",
       "format-icons": {
         "1": "1",
@@ -47,15 +48,9 @@
         "3": "3",
         "4": "4"
       },
-      "persistent-workspaces": {
-        "1": [],
-        "2": [],
-        "3": [],
-        "4": []
-      },
+      "sort-by-id": true,
       "all-outputs": false,
-      "active-only": false,
-      "show-special": false
+      "active-only": false
     },
     "hyprland/window": {
       "format": "{}",
@@ -67,6 +62,13 @@
       "format": "󰒓",
       "tooltip-format": "Control center",
       "on-click": "qs -c control-center ipc call controlCenter toggle"
+    },
+    "custom/pomodoro": {
+      "format": "󱎫",
+      "tooltip-format": "Pomodoro\nLeft: open  •  Middle: start/pause  •  Right: reset",
+      "on-click": "qs -c control-center ipc call controlCenter openPage focus",
+      "on-click-middle": "qs -c control-center ipc call pomodoro toggle",
+      "on-click-right": "qs -c control-center ipc call pomodoro reset"
     },
     "custom/tray": {
       "format": "󰀻",

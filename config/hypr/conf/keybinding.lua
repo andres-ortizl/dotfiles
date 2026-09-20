@@ -35,6 +35,7 @@ bind(mainMod .. " + P", "Session: Exit Hyprland", hl.dsp.exit())
 bind(mainMod .. " + V", "Windows: Toggle floating", hl.dsp.window.float({ action = "toggle" }))
 bind(mainMod .. " + E", "Applications: Open file manager", hl.dsp.exec_cmd("$HOME/.config/hypr/scripts/launch-app thunar"))
 bind(mainMod .. " + SPACE", "Applications: Open launcher", hl.dsp.exec_cmd("vicinae toggle"))
+bind(mainMod .. " + comma", "Desktop: Toggle control center", hl.dsp.exec_cmd("qs -c control-center ipc call controlCenter toggle"))
 
 for _, direction in ipairs({ "left", "right", "up", "down" }) do
     bind(mainMod .. " + " .. direction, "Windows: Focus " .. direction, hl.dsp.focus({ direction = direction }))

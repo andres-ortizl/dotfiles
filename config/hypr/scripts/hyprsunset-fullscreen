@@ -3,8 +3,43 @@ set -euo pipefail
 
 readonly socket="$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock"
 
+last_fullscreen_state=""
+
+current_fullscreen_state() {
+    local active_window key value
+
+    active_window=$(hyprctl activewindow 2>/dev/null) || return 1
+    while IFS=: read -r key value; do
+        key=${key//[[:space:]]/}
+        value=${value//[[:space:]]/}
+        case $key in
+            fullscreen | fullscreenClient)
+                if [[ $value != 0 ]]; then
+                    printf 'fullscreen\n'
+                    return
+                fi
+                ;;
+        esac
+    done <<<"$active_window"
+
+    printf 'windowed\n'
+}
+
 apply_state() {
-    "$HOME/.config/hypr/scripts/night-shift" apply >/dev/null 2>&1 || true
+    "$HOME/.config/hypr/scripts/night-shift" apply >/dev/null 2>&1
+}
+
+sync_state() {
+    local fullscreen_state
+
+    fullscreen_state=$(current_fullscreen_state) || return 0
+    if [[ $fullscreen_state == "$last_fullscreen_state" ]]; then
+        return
+    fi
+
+    if apply_state; then
+        last_fullscreen_state=$fullscreen_state
+    fi
 }
 
 for _ in {1..20}; do
@@ -12,11 +47,11 @@ for _ in {1..20}; do
     sleep 0.1
 done
 
-apply_state
+sync_state
 socat -U - UNIX-CONNECT:"$socket" | while IFS= read -r event; do
     case "${event%%>*}" in
         fullscreen | openwindow | closewindow | activewindowv2 | changefloatingmode)
-            apply_state
+            sync_state
             ;;
     esac
 done

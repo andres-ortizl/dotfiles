@@ -96,6 +96,7 @@ window#waybar {
 #custom-notification,
 #custom-night-shift,
 #custom-pi-beacon,
+#custom-pomodoro,
 #custom-control-center,
 #custom-tray,
 #custom-power-menu {
@@ -141,6 +142,7 @@ window#waybar {
 #custom-notification:hover,
 #custom-night-shift:hover,
 #custom-pi-beacon:hover,
+#custom-pomodoro:hover,
 #custom-control-center:hover,
 #custom-tray:hover,
 #custom-power-menu:hover {
@@ -166,6 +168,7 @@ window#waybar {
 #custom-notification,
 #custom-night-shift,
 #custom-pi-beacon,
+#custom-pomodoro,
 #custom-control-center,
 #custom-tray,
 #custom-power-menu {
@@ -173,6 +176,10 @@ window#waybar {
     margin: 6px 0;
     padding: 0;
     border-radius: 999px;
+}
+
+#custom-pomodoro {
+    color: @peach;
 }
 
 #pulseaudio.muted {

@@ -10,6 +10,12 @@ import Quickshell.Services.SystemTray
 import Quickshell.Wayland
 
 ShellRoot {
+    PomodoroService {
+        id: pomodoroService
+
+        presentationActive: popup.open && popup.currentPage === 3 && !popup.showWifi && !popup.showCalendar
+    }
+
     PanelWindow {
         id: controlBackdrop
 
@@ -231,6 +237,24 @@ ShellRoot {
             pageChangeTimer.restart();
         }
 
+        function moveTab(offset: int): void {
+            if (showWifi || showCalendar)
+                return;
+
+            const pages = [0, 1, 3, 2];
+            const currentIndex = Math.max(0, pages.indexOf(currentPage));
+            currentPage = pages[(currentIndex + offset + pages.length) % pages.length];
+        }
+
+        function handleEscape(): void {
+            if (showWifi)
+                showWifi = false;
+            else if (showCalendar)
+                showCalendar = false;
+            else
+                open = false;
+        }
+
         onOpenChanged: {
             grabReady = false;
             previousSampleTime = 0;
@@ -316,7 +340,7 @@ ShellRoot {
                 visible: !popup.showWifi && !popup.showCalendar
 
                 TabButton {
-                    width: (parent.width - 24) / 3
+                    width: (parent.width - 36) / 4
                     icon: "󰋜"
                     label: "Home"
                     active: popup.currentPage === 0
@@ -324,7 +348,7 @@ ShellRoot {
                 }
 
                 TabButton {
-                    width: (parent.width - 24) / 3
+                    width: (parent.width - 36) / 4
                     icon: "󰍛"
                     label: "System"
                     active: popup.currentPage === 1
@@ -332,7 +356,15 @@ ShellRoot {
                 }
 
                 TabButton {
-                    width: (parent.width - 24) / 3
+                    width: (parent.width - 36) / 4
+                    icon: "󱎫"
+                    label: "Focus"
+                    active: popup.currentPage === 3
+                    onClicked: popup.currentPage = 3
+                }
+
+                TabButton {
+                    width: (parent.width - 36) / 4
                     icon: "󰒓"
                     label: "Config"
                     active: popup.currentPage === 2
@@ -350,6 +382,7 @@ ShellRoot {
                         : popup.showCalendar ? calendarComponent
                         : popup.currentPage === 1 ? systemComponent
                         : popup.currentPage === 2 ? configComponent
+                        : popup.currentPage === 3 ? pomodoroComponent
                         : homeComponent
                 }
 
@@ -369,6 +402,11 @@ ShellRoot {
                 }
 
                 Component {
+                    id: pomodoroComponent
+                    PomodoroPage { service: pomodoroService }
+                }
+
+                Component {
                     id: wifiComponent
                     WifiPage { host: popup }
                 }
@@ -380,17 +418,25 @@ ShellRoot {
             }
         }
 
-        Item {
-            anchors.fill: parent
-            focus: popup.open
-            Keys.onEscapePressed: {
-                if (popup.showWifi)
-                    popup.showWifi = false;
-                else if (popup.showCalendar)
-                    popup.showCalendar = false;
-                else
-                    popup.open = false;
-            }
+        Shortcut {
+            sequence: "Left"
+            enabled: popup.open && !popup.showWifi && !popup.showCalendar
+            context: Qt.ApplicationShortcut
+            onActivated: popup.moveTab(-1)
+        }
+
+        Shortcut {
+            sequence: "Right"
+            enabled: popup.open && !popup.showWifi && !popup.showCalendar
+            context: Qt.ApplicationShortcut
+            onActivated: popup.moveTab(1)
+        }
+
+        Shortcut {
+            sequence: "Escape"
+            enabled: popup.open
+            context: Qt.ApplicationShortcut
+            onActivated: popup.handleEscape()
         }
 
         Timer {
@@ -833,6 +879,36 @@ ShellRoot {
                 popup.currentPage = 1;
             else if (page === "config")
                 popup.currentPage = 2;
+            else if (page === "focus")
+                popup.currentPage = 3;
+        }
+    }
+
+    IpcHandler {
+        target: "pomodoro"
+
+        function start(): void {
+            pomodoroService.start();
+        }
+
+        function pause(): void {
+            pomodoroService.pause();
+        }
+
+        function toggle(): void {
+            pomodoroService.toggle();
+        }
+
+        function skip(): void {
+            pomodoroService.skip();
+        }
+
+        function reset(): void {
+            pomodoroService.reset();
+        }
+
+        function status(): string {
+            return pomodoroService.summary();
         }
     }
 

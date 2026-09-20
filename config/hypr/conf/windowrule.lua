@@ -1,3 +1,16 @@
+for workspace = 1, 4 do
+    hl.workspace_rule({
+        workspace = tostring(workspace),
+        persistent = true,
+    })
+end
+
+hl.window_rule({
+    name = "hide-battlenet-helper",
+    match = { class = "^(steam_app_2918147042)$", title = "^$" },
+    workspace = "special:battlenet-helper silent",
+})
+
 hl.window_rule({
     name = "float-volume-control",
     match = { class = "pavucontrol" },
@@ -88,16 +101,12 @@ hl.window_rule({
     fullscreen = true,
 })
 
-for _, namespace in ipairs({ "waybar", "wlogout", "zen" }) do
-    local rule = {
+for _, namespace in ipairs({ "wlogout", "zen" }) do
+    hl.layer_rule({
         name = namespace .. "-blur",
         match = { namespace = namespace },
         blur = true,
-    }
-    if namespace == "waybar" then
-        rule.ignore_alpha = 0.05
-    end
-    hl.layer_rule(rule)
+    })
 end
 
 hl.window_rule({
