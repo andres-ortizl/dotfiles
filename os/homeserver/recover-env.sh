@@ -4,7 +4,6 @@ umask 077
 
 item_name=n33lab-homeserver-runtime
 check_only=false
-include_openclaw=false
 stage_dir=
 install_dir=
 restore_dir=
@@ -89,8 +88,7 @@ cleanup_stage() {
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --check) check_only=true ;;
-    --openclaw) include_openclaw=true ;;
-    *) fail "Usage: $0 [--check] [--openclaw]" ;;
+    *) fail "Usage: $0 [--check]" ;;
   esac
   shift
 done
@@ -105,9 +103,6 @@ stage_dir=$(mktemp -d "${TMPDIR:-/tmp}/n33lab-recovery.XXXXXX")
 chmod 700 "$stage_dir"
 
 attachments="homeserver.env immich-server.env immich-ml.env cloudflare_dns_api_token authelia-jwt authelia-session authelia-storage-encryption authelia-users esphome.env mqtt-passwd mqtt-acl qa-manifest.env qa-nas-credentials.env qa-external.env qa-worker.env"
-if [ "$include_openclaw" = true ]; then
-  attachments="$attachments openclaw.env"
-fi
 
 destination() {
   case "$1" in
@@ -187,14 +182,6 @@ validate_attachment() {
       ;;
     esphome.env)
       validate_env_names "$2" "ESPHOME_USERNAME ESPHOME_PASSWORD ESPHOME_TRUSTED_DOMAINS" "ESPHOME_USERNAME ESPHOME_PASSWORD ESPHOME_TRUSTED_DOMAINS" 0
-      ;;
-    openclaw.env)
-      validate_env_names "$2" \
-        "OPENAI_API_KEY OPENCLAW_GATEWAY_TOKEN OPENCLAW_OWNER_PHONE OPENCLAW_IMAP_USER OPENCLAW_IMAP_PASSWORD OPENCLAW_COMPOSIO_MCP_URL" \
-        "OPENAI_API_KEY OPENCLAW_GATEWAY_TOKEN OPENCLAW_OWNER_PHONE OPENCLAW_IMAP_USER OPENCLAW_IMAP_PASSWORD OPENCLAW_COMPOSIO_MCP_URL OPENCLAW_COMPOSIO_KEY" 0 &&
-        printf '%s\n' "$(env_value "$2" OPENCLAW_OWNER_PHONE)" | grep -Eq '^\+[1-9][0-9]{6,14}$' &&
-        printf '%s\n' "$(env_value "$2" OPENCLAW_GATEWAY_TOKEN)" | grep -Eq '^[A-Za-z0-9_-]{32,}$' &&
-        printf '%s\n' "$(env_value "$2" OPENCLAW_IMAP_USER)" | grep -Eq "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+$"
       ;;
     qa-manifest.env)
       validate_env_names "$2" \

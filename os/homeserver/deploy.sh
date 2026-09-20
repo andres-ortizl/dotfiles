@@ -58,13 +58,6 @@ elif [ "${1-}" != "" ] && [ "${1#--}" != "$1" ]; then
   usage
 fi
 
-openclaw_enabled=false
-case ",${COMPOSE_PROFILES-}," in
-  *,openclaw,* | *,\*,*) openclaw_enabled=true ;;
-esac
-for service in "$@"; do
-  [ "$service" != openclaw ] || openclaw_enabled=true
-done
 
 script_dir=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 repo_root=$(git -C "$script_dir" rev-parse --show-toplevel 2>/dev/null) || fail "unable to locate repository root"
@@ -97,22 +90,6 @@ check_private_file "$authelia_users"
 check_private_file "$mqtt_passwd"
 check_private_file "$mqtt_acl"
 
-if [ "$openclaw_enabled" = true ]; then
-  openclaw_env="$script_dir/secrets/openclaw.env"
-  check_private_file "$openclaw_env"
-  validate_env_names "$openclaw_env" \
-    "OPENAI_API_KEY OPENCLAW_GATEWAY_TOKEN OPENCLAW_OWNER_PHONE OPENCLAW_IMAP_USER OPENCLAW_IMAP_PASSWORD OPENCLAW_COMPOSIO_MCP_URL" \
-    "OPENAI_API_KEY OPENCLAW_GATEWAY_TOKEN OPENCLAW_OWNER_PHONE OPENCLAW_IMAP_USER OPENCLAW_IMAP_PASSWORD OPENCLAW_COMPOSIO_MCP_URL OPENCLAW_COMPOSIO_KEY" ||
-    fail "openclaw.env has an invalid schema"
-  printf '%s\n' "$(file_value "$openclaw_env" OPENCLAW_COMPOSIO_MCP_URL)" | grep -Eq '^https://[A-Za-z0-9./_?=-]+$' ||
-    fail "OpenClaw Composio MCP URL must be a plain https URL"
-  printf '%s\n' "$(file_value "$openclaw_env" OPENCLAW_IMAP_USER)" | grep -Eq "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+$" ||
-    fail "OpenClaw IMAP user must be an email address"
-  printf '%s\n' "$(file_value "$openclaw_env" OPENCLAW_OWNER_PHONE)" | grep -Eq '^\+[1-9][0-9]{6,14}$' ||
-    fail "OpenClaw owner phone must use E.164 format"
-  printf '%s\n' "$(file_value "$openclaw_env" OPENCLAW_GATEWAY_TOKEN)" | grep -Eq '^[A-Za-z0-9_-]{32,}$' ||
-    fail "OpenClaw gateway token must have at least 32 URL-safe characters"
-fi
 
 acme_email=$(file_value "$homeserver_env" ACME_EMAIL 2>/dev/null || true)
 acme_ca_server=$(file_value "$homeserver_env" ACME_CA_SERVER 2>/dev/null || true)
