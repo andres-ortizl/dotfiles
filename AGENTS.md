@@ -151,8 +151,6 @@ For user-facing changes:
 - Never add `Co-Authored-By` trailers.
 - Never add an agent name as a commit co-author.
 - Do not commit, push, or open a pull request unless the user explicitly asks.
-- This repository uses direct commits to `master`. Do not create a feature branch or pull request unless the user explicitly requests one.
-- When the user asks to push changes, validate them, rebase onto `origin/master` if needed, then push `master` directly.
 
 ## Communication
 

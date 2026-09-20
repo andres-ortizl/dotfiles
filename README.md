@@ -376,6 +376,8 @@ This repository has no automatic deployment target. Run `./install` explicitly t
 
 ## 🤝 Contributing
 
+This repository uses direct commits to `master`. Do not create a feature branch or pull request unless explicitly requested. Validate changes and rebase onto `origin/master` before pushing.
+
 Feel free to:
 - Fork and customize for your own use
 - Submit issues for bugs
