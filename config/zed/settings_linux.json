@@ -44,11 +44,6 @@
   },
   "completion_menu_scrollbar": "never",
   "context_servers": {
-    "lean-ctx": {
-      "args": [],
-      "command": "/home/andres/.local/bin/lean-ctx",
-      "env": {}
-    }
   },
   "current_line_highlight": "gutter",
   "cursor_blink": false,

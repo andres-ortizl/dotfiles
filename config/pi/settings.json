@@ -15,7 +15,6 @@
   "packages": [
     "npm:pi-web-access",
     "npm:pi-subagents",
-    "npm:pi-lean-ctx",
     "npm:@juicesharp/rpiv-ask-user-question",
     "npm:@juicesharp/rpiv-todo",
     "npm:pi-lens",
