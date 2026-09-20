@@ -42,7 +42,7 @@ valid_service() {
   awk -v wanted="$1" '$1 == wanted { found=1 } END { exit !found }' "$services_file"
 }
 
-check_pins() {
+check_images() {
   images_file=$temporary_dir/images
   compose config --images >"$images_file" || fail 'unable to enumerate Compose images'
   [ "$(wc -l <"$services_file")" -eq "$(wc -l <"$images_file")" ] || fail 'every service must define one image'
@@ -50,10 +50,12 @@ check_pins() {
     NF != 1 { exit 1 }
     {
       count=split($1, parts, "@sha256:")
-      if (count != 2 || parts[1] !~ /^[A-Za-z0-9][A-Za-z0-9._:/-]*$/ || parts[2] !~ /^[0-9a-f]+$/ || length(parts[2]) != 64) exit 1
+      if (count == 2) {
+        if (parts[1] !~ /^[A-Za-z0-9][A-Za-z0-9._:/-]*$/ || parts[2] !~ /^[0-9a-f]+$/ || length(parts[2]) != 64) exit 1
+      } else if (count != 1 || $1 !~ /^[A-Za-z0-9][A-Za-z0-9._:/-]*:[A-Za-z0-9_][A-Za-z0-9_.-]*$/) exit 1
     }
   ' "$images_file" ||
-    fail 'every service image must be exactly digest-pinned'
+    fail 'every service image must have an explicit tag or an exact digest'
 }
 
 check() {
@@ -63,7 +65,7 @@ check() {
   "$project_dir/deploy.sh" --check >/dev/null || fail 'deployment preflight failed'
   compose config --quiet || fail 'Compose configuration validation failed'
   list_services
-  check_pins
+  check_images
 }
 
 validate_output() {
@@ -103,14 +105,17 @@ lock_images() {
     printf '%s\n' "$configured" | grep -Eq '^[A-Za-z0-9][A-Za-z0-9._/:@+-]*$' || fail 'configured image reference is invalid'
     running_id=$(run_bounded docker inspect --type container --format '{{.Image}}' "$container_id") || fail 'unable to inspect running image identity'
     printf '%s\n' "$running_id" | grep -Eq '^sha256:[0-9a-f]{64}$' || fail 'running image ID is invalid'
-    local_id=$(run_bounded docker image inspect --format '{{.Id}}' "$configured") || fail 'configured image is unavailable locally'
-    [ "$running_id" = "$local_id" ] || fail 'running container does not use configured local image'
     repository=$(repo_name "$configured")
-    configured_digest=${configured##*@sha256:}
-    printf '%s\n' "$configured_digest" | grep -Eq '^[0-9a-f]{64}$' || fail 'configured image digest is invalid'
-    run_bounded docker image inspect --format '{{range .RepoDigests}}{{println .}}{{end}}' "$configured" >"$temporary_dir/digests" || fail 'unable to inspect RepoDigests'
+    configured_digest=
+    case $configured in
+      *@sha256:*)
+        configured_digest=${configured##*@sha256:}
+        printf '%s\n' "$configured_digest" | grep -Eq '^[0-9a-f]{64}$' || fail 'configured image digest is invalid'
+        ;;
+    esac
+    run_bounded docker image inspect --format '{{range .RepoDigests}}{{println .}}{{end}}' "$running_id" >"$temporary_dir/digests" || fail 'unable to inspect RepoDigests'
     awk -v repository="$repository" -v configured_digest="$configured_digest" '
-      $0 ~ /^[A-Za-z0-9][A-Za-z0-9._/:+-]*@sha256:[0-9a-f]+$/ { digest=$0; sub(/^.*@sha256:/, "", digest); if (length(digest) != 64) next; name=$0; sub(/@sha256:.*/, "", name); sub(/^docker.io\//, "", name); sub(/^index.docker.io\//, "", name); if (name == repository && digest == configured_digest) print $0 }
+      $0 ~ /^[A-Za-z0-9][A-Za-z0-9._/:+-]*@sha256:[0-9a-f]+$/ { digest=$0; sub(/^.*@sha256:/, "", digest); if (length(digest) != 64) next; name=$0; sub(/@sha256:.*/, "", name); sub(/^docker.io\//, "", name); sub(/^index.docker.io\//, "", name); if (name == repository && (configured_digest == "" || digest == configured_digest)) print $0 }
     ' "$temporary_dir/digests" | sort -u >"$temporary_dir/matches"
     [ "$(wc -l <"$temporary_dir/matches")" -eq 1 ] || fail 'matching RepoDigest is missing or ambiguous'
     repo_digest=$(cat "$temporary_dir/matches")

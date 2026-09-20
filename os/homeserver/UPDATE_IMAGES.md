@@ -1,13 +1,21 @@
 # Homeserver image updates
 
-Use `scripts/manage.sh` for every operational step. Read `AGENTS.md`, `docker-compose.yml`, and a live mode-600 lock captured with `scripts/manage.sh lock-images --output FILE` before editing anything.
+## Automatic updates
 
-Update one service at a time. Treat the selected service's `repo_digest` record in the live lock as the source of truth for its prior immutable digest; do not infer it from a tag. Use the same release channel and compare the current version with official release notes and upstream image metadata. Pin the exact intended digest in Compose. Never guess a digest. Floating tags are not an acceptable final state.
+Dockhand updates application images within their configured moving tags. Use verified upstream stable channels or version-family tags. Keep Traefik on `v3.5` and Forgejo on `12` until their separate migration reviews; a moving tag does not advance to another release family.
 
-Preserve all volumes, bind mounts, storage paths, databases, networks, ports, capabilities, and unrelated services. Do not perform bulk upgrades. Do not add Watchtower or another automatic updater.
+Keep `immich-server`, `immich-machine-learning`, `redis`, and `database` pinned to exact digests with `dockhand.update=false`. Review and update these services manually. Keep the Immich server and machine-learning versions aligned.
 
-Run `scripts/manage.sh check`, use the pre-deploy lock as the rollback backup, then `scripts/manage.sh deploy SERVICE`. Verify the same channel, relevant release notes, service tests, and manual QA through the service's real user-facing surface. These gates must pass before any commit or push. If validation, tests, health, or manual QA fails, run `scripts/manage.sh rollback SERVICE IMAGE_REF@sha256:DIGEST` with the prior lock digest and verify recovery.
+After deploying the Compose changes, enable update checks and automatic updates in Dockhand under **Settings > Environments > the local environment > Updates**. Set the schedule to 04:00 in `Europe/Madrid`. Configure a notification channel and enable update-failure alerts. These settings persist in `./data/dockhand`; include that directory in backups. Do not add another updater.
 
-Do not print secrets, container environments, logs containing credentials, or full inspect output. Never run `docker compose down -v`, any prune command, force-push, or destructive storage operation.
+## Manual deployments and recovery
 
-After successful verification, create one atomic commit for that service. Push normally to `origin master` only after all gates pass; never force-push. After operator confirmation and evidence, run `scripts/manage.sh prune-images --yes`. Never prune before confirmation or use any volume, build, network, or container prune.
+Use `scripts/manage.sh` for operational steps. Before deployment, run `scripts/manage.sh check` and capture a mode-600 lock outside Git with `scripts/manage.sh lock-images --output FILE`. The lock records the immutable digest of each running image, even when its configured tag has moved.
+
+Use `scripts/manage.sh deploy SERVICE` for one service or `scripts/manage.sh deploy all` for an operator-approved stack deployment. Preserve all volumes, bind mounts, storage paths, databases, networks, ports, capabilities, and unrelated configuration.
+
+For a manually managed service, compare official release notes and upstream image metadata before changing its digest. Never guess a digest. Verify health, relevant tests, and the real user-facing application after deployment. A running container is not sufficient proof of success.
+
+If an update fails, pause automatic updates for the affected service before recovery. Use `scripts/manage.sh rollback SERVICE IMAGE_REF@sha256:DIGEST` with the prior lock digest and verify recovery. Image rollback does not reverse database migrations; those can require a data backup.
+
+Do not print secrets, container environments, logs containing credentials, or full inspect output. Never run `docker compose down -v`, force-push, or destructive storage operations. Never prune before operator confirmation. After confirmation and verification, only `scripts/manage.sh prune-images --yes` is allowed. Do not prune volumes, builds, networks, or containers.
