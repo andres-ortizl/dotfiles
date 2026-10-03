@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Hyprland
+import Quickshell.Io
 import Quickshell.Services.Pipewire
 import Quickshell.Wayland
 
@@ -16,6 +17,9 @@ PanelWindow {
         .filter(node => node.audio !== null && node.isSink && !node.isStream)
         .sort((left, right) => rankOutput(left) - rankOutput(right))
     readonly property string switchScript: Quickshell.env("HOME") + "/.config/quickshell/control-center/switch-audio-output.sh"
+    readonly property bool hyperxSelected: defaultSink !== null && outputName(defaultSink) === "HyperX Cloud Flight"
+    readonly property string eqScript: Quickshell.env("HOME") + "/.config/quickshell/control-center/easyeffects-profile.sh"
+    property bool eqActive: false
 
     visible: open
     color: "transparent"
@@ -98,6 +102,18 @@ PanelWindow {
             defaultSink.audio.muted = false;
     }
 
+    function refreshEqStatus() {
+        if (!eqStatusProcess.running)
+            eqStatusProcess.running = true;
+    }
+
+    function runEqAction(action) {
+        if (eqActionProcess.running || (action !== "off" && !hyperxSelected))
+            return;
+        eqActionProcess.requestedAction = action;
+        eqActionProcess.running = true;
+    }
+
     PwObjectTracker {
         objects: root.outputNodes
     }
@@ -170,7 +186,7 @@ PanelWindow {
             Text {
                 x: 14
                 y: 12
-                width: parent.width - 92
+                width: parent.width - 176
                 text: root.defaultSink ? root.outputName(root.defaultSink) : "No audio output"
                 color: Theme.primaryText
                 elide: Text.ElideRight
@@ -182,8 +198,10 @@ PanelWindow {
             Text {
                 x: 14
                 y: 37
-                text: root.defaultMuted ? "Muted" : `${root.defaultVolume}%`
-                color: root.defaultMuted ? Theme.danger : Theme.mutedText
+                width: parent.width - 176
+                elide: Text.ElideRight
+                text: (root.defaultMuted ? "Muted" : `${root.defaultVolume}%`) + (root.hyperxSelected ? (eqActionProcess.running ? " • AUTOEQ • RAP …" : root.eqActive ? " • AUTOEQ • RAP ON" : " • AUTOEQ • RAP OFF") : "")
+                color: root.defaultMuted ? Theme.danger : root.eqActive ? Theme.accentText : Theme.mutedText
                 font.family: Ui.fontFamily
                 font.pixelSize: Ui.caption
             }
@@ -214,6 +232,58 @@ PanelWindow {
                     cursorShape: Qt.PointingHandCursor
                     enabled: root.defaultSink?.audio !== null
                     onClicked: root.defaultSink.audio.muted = !root.defaultSink.audio.muted
+                }
+            }
+
+            Rectangle {
+                id: eqButton
+
+                anchors.right: muteButton.left
+                anchors.rightMargin: 8
+                y: 12
+                width: 76
+                height: 38
+                radius: 11
+                scale: eqButtonMouse.pressed ? 0.96 : 1
+                color: root.eqActive ? Theme.alpha(Theme.accent, 0.30) : eqButtonMouse.containsMouse && root.hyperxSelected ? Theme.alpha(Theme.hoverSurface, 0.40) : Theme.alpha(Theme.surface, 0.28)
+                border.width: 1
+                border.color: root.eqActive ? Theme.accent : Theme.alpha(Theme.surface, 0.35)
+                opacity: root.hyperxSelected ? 1 : 0.45
+
+                Behavior on color {
+                    ColorAnimation { duration: 140 }
+                }
+
+                Behavior on scale {
+                    NumberAnimation { duration: 90; easing.type: Easing.OutCubic }
+                }
+
+                Text {
+                    x: 10
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: "󰇠"
+                    color: root.eqActive ? Theme.accentText : Theme.mutedText
+                    font.family: Ui.fontFamily
+                    font.pixelSize: 18
+                }
+
+                Text {
+                    x: 36
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: eqActionProcess.running ? "…" : root.eqActive ? "ON" : "OFF"
+                    color: root.eqActive ? Theme.accentText : Theme.mutedText
+                    font.family: Ui.fontFamily
+                    font.pixelSize: Ui.caption
+                    font.bold: true
+                }
+
+                MouseArea {
+                    id: eqButtonMouse
+                    anchors.fill: parent
+                    enabled: root.hyperxSelected && !eqActionProcess.running
+                    hoverEnabled: true
+                    cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+                    onClicked: root.runEqAction("toggle")
                 }
             }
 
@@ -250,6 +320,7 @@ PanelWindow {
                 }
             }
         }
+
 
         Text {
             width: parent.width
@@ -359,6 +430,45 @@ PanelWindow {
         }
     }
 
+    Process {
+        id: eqStatusProcess
+        command: [root.eqScript, "status"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                root.eqActive = text.trim() === "on";
+                if (root.eqActive && !root.hyperxSelected)
+                    root.runEqAction("off");
+            }
+        }
+    }
+
+    Process {
+        id: eqActionProcess
+        property string requestedAction: "toggle"
+        command: [root.eqScript, requestedAction]
+        stdout: StdioCollector {
+            onStreamFinished: root.eqActive = text.trim() === "on"
+        }
+        onExited: eqRefreshDelay.restart()
+    }
+
+    Timer {
+        id: eqRefreshDelay
+        interval: 150
+        onTriggered: root.refreshEqStatus()
+    }
+
+    Timer {
+        interval: 3000
+        repeat: true
+        running: root.open
+        onTriggered: root.refreshEqStatus()
+    }
+
+    onHyperxSelectedChanged: runEqAction(hyperxSelected ? "resume" : "suspend")
+
+    Component.onCompleted: runEqAction(hyperxSelected ? "resume" : "suspend")
+
     Timer {
         id: focusDelay
         interval: 150
@@ -367,8 +477,10 @@ PanelWindow {
 
     onOpenChanged: {
         grabReady = false;
-        if (open)
+        if (open) {
+            refreshEqStatus();
             focusDelay.restart();
+        }
     }
 
     Shortcut {

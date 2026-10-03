@@ -1,4 +1,9 @@
 {
+  "agent_servers": {
+    "pi-acp": {
+      "type": "registry"
+    }
+  },
   "active_pane_modifiers": {
     "border_size": 2.0,
     "inactive_opacity": 0.85
@@ -53,6 +58,7 @@
     "dock": "left"
   },
   "edit_predictions": {
+    "allow_data_collection": "no",
     "mode": "subtle",
     "provider": "copilot"
   },
@@ -282,11 +288,11 @@
   },
   "preferred_line_length": 100,
   "project_panel": {
+    "folder_indicator": "icon",
     "button": true,
     "default_width": 280,
     "dock": "left",
     "file_icons": true,
-    "folder_icons": true,
     "git_status": true,
     "indent_size": 20,
     "scrollbar": {

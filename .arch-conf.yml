@@ -22,6 +22,7 @@
     ~/.config/atuin: config/atuin/**
     ~/.config/dunst/dunstrc: config/dunst/dunstrc
     ~/.config/dunst/dunstrc.d: config/dunst/dunstrc.d/**
+    ~/.local/share/easyeffects/output: config/easyeffects/output/**
     ~/.config/hypr: config/hypr/**
     ~/.config/lazyt/themes: config/lazyt/themes/**
     ~/.config/systemd/user: config/systemd/user/**
