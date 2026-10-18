@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls.Basic as Controls
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Wayland
@@ -24,7 +25,7 @@ PanelWindow {
     visible: false
     color: "transparent"
     implicitWidth: 260
-    implicitHeight: Math.min(360, 52 + menuItems.implicitHeight)
+    implicitHeight: Math.min(360, 53 + menuItems.implicitHeight)
     exclusionMode: ExclusionMode.Ignore
     focusable: true
     WlrLayershell.layer: WlrLayer.Overlay
@@ -50,10 +51,16 @@ PanelWindow {
         radius: 14
     }
 
+    function resetScroll() {
+        menuFlickable.cancelFlick();
+        menuFlickable.contentY = 0;
+    }
+
     function resetMenu() {
         history = [];
         currentMenu = menu;
         currentTitle = title;
+        resetScroll();
     }
 
     function showMenu() {
@@ -85,6 +92,7 @@ PanelWindow {
     }
 
     onMenuChanged: resetMenu()
+    onCurrentMenuChanged: resetScroll()
     onTitleChanged: {
         if (history.length === 0)
             currentTitle = title;
@@ -167,18 +175,47 @@ PanelWindow {
     }
 
     Flickable {
+        id: menuFlickable
+
         x: 8
         y: 45
         width: parent.width - 16
         height: parent.height - 53
         clip: true
+        contentWidth: width
+        flickableDirection: Flickable.VerticalFlick
+        boundsBehavior: Flickable.StopAtBounds
         contentHeight: menuItems.implicitHeight
         interactive: contentHeight > height
+
+        Controls.ScrollBar.vertical: Controls.ScrollBar {
+            id: menuScrollBar
+
+            width: 12
+            padding: 3
+            minimumSize: 0.12
+            hoverEnabled: true
+            policy: menuFlickable.contentHeight > menuFlickable.height ? Controls.ScrollBar.AlwaysOn : Controls.ScrollBar.AlwaysOff
+            visible: policy === Controls.ScrollBar.AlwaysOn
+
+            contentItem: Rectangle {
+                implicitWidth: 6
+                implicitHeight: 24
+                radius: 3
+                color: menuScrollBar.pressed ? Theme.accent : menuScrollBar.hovered ? Theme.primaryText : Theme.mutedText
+                opacity: menuScrollBar.hovered || menuScrollBar.pressed ? 1 : 0.75
+            }
+
+            background: Rectangle {
+                radius: width / 2
+                color: Theme.alpha(Theme.surface, 0.25)
+            }
+        }
 
         Column {
             id: menuItems
 
-            width: parent.width
+            width: menuFlickable.width - (menuScrollBar.visible ? 16 : 0)
             spacing: 2
 
             Repeater {
@@ -389,6 +426,30 @@ PanelWindow {
                 font.family: Ui.fontFamily
                 font.pixelSize: Ui.body
             }
+        }
+    }
+
+    Rectangle {
+        x: menuFlickable.x
+        y: menuFlickable.y
+        width: menuItems.width
+        height: 24
+        visible: menuScrollBar.visible && !menuFlickable.atYBeginning
+        gradient: Gradient {
+            GradientStop { position: 0; color: Theme.alpha(Theme.panel, 0.96) }
+            GradientStop { position: 1; color: Theme.alpha(Theme.panel, 0) }
+        }
+    }
+
+    Rectangle {
+        x: menuFlickable.x
+        y: menuFlickable.y + menuFlickable.height - height
+        width: menuItems.width
+        height: 24
+        visible: menuScrollBar.visible && !menuFlickable.atYEnd
+        gradient: Gradient {
+            GradientStop { position: 0; color: Theme.alpha(Theme.panel, 0) }
+            GradientStop { position: 1; color: Theme.alpha(Theme.panel, 0.96) }
         }
     }
 

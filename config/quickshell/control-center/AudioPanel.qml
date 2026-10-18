@@ -123,7 +123,7 @@ PanelWindow {
 
         anchors.fill: parent
         radius: 18
-        color: Theme.alpha(Theme.panel, 0.94)
+        color: Theme.alpha(Theme.panel, 0.96)
         border.width: 1
         border.color: Theme.alpha(Theme.surface, 0.45)
     }
@@ -376,7 +376,7 @@ PanelWindow {
                     y: 34
                     width: parent.width - 120
                     text: outputRow.active ? "ACTIVE • Discord stays on HyperX" : outputRow.modelData.name
-                    color: outputRow.active ? Theme.success : Theme.quietText
+                    color: outputRow.active ? Theme.success : outputMouse.containsMouse ? Theme.mutedText : Theme.quietText
                     elide: Text.ElideMiddle
                     font.family: Ui.fontFamily
                     font.pixelSize: Ui.caption

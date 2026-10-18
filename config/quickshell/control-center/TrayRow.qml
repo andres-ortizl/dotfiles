@@ -143,7 +143,7 @@ Rectangle {
         anchorItem: menuButton
         menu: root.trayItem.menu
         title: root.trayItem.tooltipTitle || root.trayItem.title || root.trayItem.id || "Application"
-        extraActionText: root.isSteam ? "Exit Steam" : ""
+        extraActionText: root.isSteam && !root.trayItem.hasMenu ? "Exit Steam" : ""
         onExtraActionTriggered: root.quitSteam()
         onActionTriggered: root.host.open = false
     }

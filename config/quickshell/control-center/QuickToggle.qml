@@ -64,7 +64,7 @@ Rectangle {
         width: 30
         height: 16
         radius: 8
-        color: root.active ? Theme.accent : Theme.quietText
+        color: root.active ? Theme.accent : Theme.surface
         z: 2
 
         Rectangle {

@@ -5,63 +5,56 @@ Rectangle {
 
     required property var weather
 
-    height: 200
+    implicitHeight: Math.max(88, details.implicitHeight + 24)
+    height: implicitHeight
     radius: 16
     color: Theme.alpha(Theme.surface, 0.30)
     border.width: 1
     border.color: Theme.alpha(Theme.surface, 0.20)
 
     Text {
-        x: 14
-        y: 13
-        text: "MADRID"
-        color: Theme.mutedText
-        font.family: Ui.fontFamily
-        font.pixelSize: 12
-        font.bold: true
-        font.letterSpacing: 1
-    }
-
-    Text {
-        anchors.horizontalCenter: parent.horizontalCenter
-        y: 44
+        x: 16
+        anchors.verticalCenter: parent.verticalCenter
         text: root.weather.icon
         color: Theme.accentText
         font.family: Ui.fontFamily
-        font.pixelSize: 44
+        font.pixelSize: Ui.icon
     }
 
-    Text {
-        anchors.horizontalCenter: parent.horizontalCenter
-        y: 96
-        text: `${root.weather.temperature}°`
-        color: Theme.primaryText
-        font.family: Ui.fontFamily
-        font.pixelSize: Ui.display
-        font.bold: true
-    }
+    Column {
+        id: details
 
-    Text {
-        anchors.horizontalCenter: parent.horizontalCenter
-        y: 144
-        width: parent.width - 20
-        text: root.weather.description
-        color: Theme.primaryText
-        elide: Text.ElideRight
-        font.family: Ui.fontFamily
-        horizontalAlignment: Text.AlignHCenter
-        font.pixelSize: 14
-        font.bold: true
-    }
+        x: 64
+        anchors.verticalCenter: parent.verticalCenter
+        width: parent.width - 80
+        spacing: 4
 
-    Text {
-        anchors.horizontalCenter: parent.horizontalCenter
-        y: 173
-        width: parent.width - 16
-        text: `Feels ${root.weather.feels}°  |  ${root.weather.min}°/${root.weather.max}°  |  Rain ${root.weather.rain}%`
-        color: Theme.mutedText
-        font.family: Ui.fontFamily
-        horizontalAlignment: Text.AlignHCenter
-        font.pixelSize: Ui.caption
+        Text {
+            text: "MADRID"
+            color: Theme.mutedText
+            font.family: Ui.fontFamily
+            font.pixelSize: Ui.caption
+            font.bold: true
+            font.letterSpacing: 1
+        }
+
+        Text {
+            width: parent.width
+            text: `${root.weather.temperature}° · ${root.weather.description}`
+            color: Theme.primaryText
+            elide: Text.ElideRight
+            font.family: Ui.fontFamily
+            font.pixelSize: Ui.title
+            font.bold: true
+        }
+
+        Text {
+            width: parent.width
+            text: `Feels ${root.weather.feels}°  |  ${root.weather.min}°/${root.weather.max}°  |  Rain ${root.weather.rain}%`
+            color: Theme.mutedText
+            wrapMode: Text.WordWrap
+            font.family: Ui.fontFamily
+            font.pixelSize: Ui.caption
+        }
     }
 }

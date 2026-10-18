@@ -57,6 +57,7 @@ ShellRoot {
         property bool showWifi: false
         property bool showCalendar: false
         property int currentPage: 0
+        readonly property bool homePageVisible: currentPage === 0 && !showWifi && !showCalendar
         property int openMenuCount: 0
         property real previousRx: 0
         property real previousTx: 0
@@ -75,30 +76,8 @@ ShellRoot {
         property bool calendarAuthenticated: false
         property var calendarEvents: []
         property string calendarError: ""
-        property var hardwareStats: ({
-            cpu: 0,
-            cpuTemp: 0,
-            cpuModel: "CPU",
-            memoryPercent: 0,
-            memoryUsed: "0.0",
-            memoryTotal: "0.0",
-            gpu: 0,
-            gpuTemp: 0,
-            gpuMemoryUsed: 0,
-            gpuMemoryTotal: 0,
-            gpuModel: "GPU",
-            nvme0: 0,
-            nvme1: 0,
-            nvme0Model: "NVMe 0",
-            nvme1Model: "NVMe 1",
-            pumpRpm: 0,
-            aioFanRpm: 0,
-            boardFan2Rpm: 0,
-            boardFan7Rpm: 0,
-            coolantTemp: 0,
-            pumpModel: "Pump",
-            boardModel: "Fans"
-        })
+        property var hardwareStats: null
+        property bool hardwareStatsFailed: false
 
         readonly property var networking: Networking
         readonly property int itemCount: SystemTray.items.values.length
@@ -265,8 +244,7 @@ ShellRoot {
                 showWifi = false;
                 showCalendar = false;
                 sampleNetwork();
-                if (!systemStats.running)
-                    systemStats.running = true;
+                systemStats.refresh();
                 focusGrabDelay.restart();
             }
             updateScanner();
@@ -285,8 +263,8 @@ ShellRoot {
         onWifiDeviceChanged: updateScanner()
         onCurrentPageChanged: {
             markPageChange();
-            if (currentPage === 1 && !systemStats.running)
-                systemStats.running = true;
+            if (currentPage === 1)
+                systemStats.refresh();
         }
 
         Connections {
@@ -299,7 +277,7 @@ ShellRoot {
         visible: open
         color: "transparent"
         implicitWidth: 880
-        implicitHeight: 498
+        implicitHeight: homePageVisible && pageLoader.item ? pageColumn.implicitHeight + 36 : 498
         exclusionMode: ExclusionMode.Ignore
         focusable: true
         WlrLayershell.layer: WlrLayer.Overlay
@@ -322,12 +300,14 @@ ShellRoot {
             id: card
             anchors.fill: parent
             radius: 18
-            color: Theme.alpha(Theme.panel, 0.85)
+            color: Theme.alpha(Theme.panel, 0.96)
             border.width: 1
             border.color: Theme.alpha(Theme.surface, 0.40)
         }
 
         Column {
+            id: pageColumn
+
             x: 18
             y: 18
             width: parent.width - 36
@@ -374,9 +354,11 @@ ShellRoot {
 
             Item {
                 width: parent.width
-                height: popup.showWifi || popup.showCalendar ? 462 : 412
+                height: popup.showWifi || popup.showCalendar ? 462 : popup.homePageVisible && pageLoader.item ? pageLoader.item.implicitHeight : 412
 
                 Loader {
+                    id: pageLoader
+
                     anchors.fill: parent
                     sourceComponent: popup.showWifi ? wifiComponent
                         : popup.showCalendar ? calendarComponent
@@ -462,10 +444,7 @@ ShellRoot {
             interval: 5000
             repeat: true
             running: popup.open
-            onTriggered: {
-                if (!systemStats.running)
-                    systemStats.running = true;
-            }
+            onTriggered: systemStats.refresh()
         }
 
         Timer {
@@ -499,14 +478,62 @@ ShellRoot {
 
         Process {
             id: systemStats
+
+            property string sampleOutput: ""
+            property bool awaitingSample: false
             command: [Quickshell.env("HOME") + "/.config/quickshell/control-center/system-stats.sh"]
+
+            function refresh() {
+                if (running || awaitingSample)
+                    return;
+                sampleOutput = "";
+                awaitingSample = true;
+                if (popup.hardwareStats === null)
+                    popup.hardwareStatsFailed = false;
+                running = true;
+            }
+
+            function failSample(reason) {
+                awaitingSample = false;
+                popup.hardwareStats = null;
+                popup.hardwareStatsFailed = true;
+                console.warn("Could not read system stats:", reason);
+            }
+
             stdout: SplitParser {
-                onRead: data => {
-                    try {
-                        popup.hardwareStats = JSON.parse(data);
-                    } catch (error) {
-                        console.warn("Could not parse system stats:", error);
-                    }
+                onRead: data => systemStats.sampleOutput = data
+            }
+
+            onRunningChanged: {
+                if (!running && awaitingSample)
+                    failSample("Collector could not be started");
+            }
+
+            onExited: (exitCode, exitStatus) => {
+                awaitingSample = false;
+                if (exitCode !== 0 || exitStatus !== 0) {
+                    failSample(`Collector exited with code ${exitCode} (status ${exitStatus})`);
+                    return;
+                }
+                try {
+                    const sample = JSON.parse(sampleOutput);
+                    const numericFields = [
+                        "cpu", "cpuTemp", "memoryPercent", "gpu", "gpuTemp",
+                        "gpuMemoryUsed", "gpuMemoryTotal", "nvme0", "nvme1",
+                        "pumpRpm", "aioFanRpm", "boardFan2Rpm", "boardFan7Rpm", "coolantTemp"
+                    ];
+                    const textFields = [
+                        "cpuModel", "gpuModel", "memoryUsed", "memoryTotal",
+                        "nvme0Model", "nvme1Model", "pumpModel", "boardModel"
+                    ];
+                    if (sample === null || typeof sample !== "object" || Array.isArray(sample)
+                        || !numericFields.every(field => typeof sample[field] === "number" && Number.isFinite(sample[field]))
+                        || !textFields.every(field => typeof sample[field] === "string"))
+                        throw new Error("Incomplete or invalid metric sample");
+                    popup.hardwareStats = sample;
+                    popup.hardwareStatsFailed = false;
+                } catch (error) {
+                    failSample(error);
                 }
             }
         }
@@ -592,7 +619,7 @@ ShellRoot {
             id: trayCard
             anchors.fill: parent
             radius: 18
-            color: Theme.alpha(Theme.panel, 0.90)
+            color: Theme.alpha(Theme.panel, 0.96)
             border.width: 1
             border.color: Theme.alpha(Theme.surface, 0.40)
         }

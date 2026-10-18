@@ -121,6 +121,7 @@ window#waybar {
 
 #custom-spotify-previous,
 #custom-spotify-next {
+    font-size: 1.25em;
     min-width: 28px;
     margin: 6px 2px;
     padding: 0;
@@ -151,6 +152,7 @@ window#waybar {
 }
 
 #pulseaudio.icon {
+    font-size: 1.25em;
     min-width: 28px;
     margin: 6px 0;
     padding: 0;
@@ -172,6 +174,7 @@ window#waybar {
 #custom-control-center,
 #custom-tray,
 #custom-power-menu {
+    font-size: 1.25em;
     min-width: 28px;
     margin: 6px 0;
     padding: 0;
