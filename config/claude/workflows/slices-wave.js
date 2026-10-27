@@ -31,11 +31,31 @@ const CODER_SCHEMA = {
     branch: { type: 'string' },
     head: { type: 'string' },
     worktree_path: { type: 'string' },
+    decisions: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          chosen: { type: 'string' },
+          over: { type: 'string' },
+          why: { type: 'string' },
+          revert: { type: 'string' },
+        },
+        required: ['chosen', 'over', 'why', 'revert'],
+      },
+    },
+    stop: {
+      type: 'object',
+      properties: { gate: { type: 'string' }, reason: { type: 'string' } },
+      required: ['gate', 'reason'],
+    },
     not_checked: { type: 'string' },
     signals: { type: 'array', items: { type: 'string' } },
   },
-  required: ['acceptance', 'files_changed', 'not_checked', 'signals'],
+  required: ['acceptance', 'files_changed', 'decisions', 'not_checked', 'signals'],
 }
+
+const DECIDE_OR_STOP = `Decide reversible choices inside the slice's goal yourself: take the simplest option that meets the goal and report it in decisions. Fill stop, and leave the change unfinished, only before you add a dependency, change a public API or contract outside the slice, delete data, touch security, permissions or production infrastructure, launch a run expected to take more than 20 minutes, or when an acceptance criterion cannot be met as written.`
 
 const REVIEW_SCHEMA = {
   type: 'object',
@@ -96,20 +116,24 @@ function coderPrompt(s, findings, previous) {
   const fix = findings
     ? `\n\nThe reviewer asked for fixes. Address each one, then re-prove every acceptance criterion:\n${JSON.stringify(findings, null, 2)}`
     : ''
-  return `${sliceBlock(s)}\n\n${workspaceRule(s, previous)}\n\nImplement this slice. Prove each acceptance criterion by running its command; put the real output in your report.${fix}`
+  return `${sliceBlock(s)}\n\n${workspaceRule(s, previous)}\n\nImplement this slice. Prove each acceptance criterion by running its command; put the real output in your report.\n\n${DECIDE_OR_STOP}${fix}`
 }
 
-function reviewerPrompt(s, coded) {
+function reviewerPrompt(s, coded, earlierFindings) {
   const where = coded.branch
     ? `Review branch ${coded.branch} at ${coded.head} against its merge base, from ${args.repo_path}.`
     : `Review the uncommitted changes in ${args.repo_path} to these files only: ${coded.files_changed.join(', ')}.`
   // The coder's worktree holds the branch; reviewing from it avoids depending on the shared checkout's state.
   const from = coded.worktree_path ? ` Run git from ${coded.worktree_path}.` : ''
-  return `${sliceBlock(s)}\n\n${where}${from}\n\nThe coder's report:\n${JSON.stringify(coded, null, 2)}\n\nRe-run each acceptance criterion command yourself before you pass it.`
+  const earlier = earlierFindings
+    ? `\n\nThe findings of the earlier round:\n${JSON.stringify(earlierFindings, null, 2)}`
+    : ''
+  return `${sliceBlock(s)}\n\n${where}${from}\n\nThe coder's report:\n${JSON.stringify(coded, null, 2)}${earlier}\n\nRe-run each acceptance criterion command yourself before you pass it.`
 }
 
 async function runSlice(s) {
   const signals = []
+  const decisions = []
   let findings = null
   let coded = null
   let review = null
@@ -121,27 +145,33 @@ async function runSlice(s) {
       schema: CODER_SCHEMA,
       ...(s.isolation === 'worktree' && round === 1 ? { isolation: 'worktree' } : {}),
     })
-    if (!coded) return { id: s.id, status: 'blocked', reason: 'coder died', rounds: round, signals }
+    if (!coded) return { id: s.id, status: 'blocked', reason: 'coder died', rounds: round, decisions, signals }
     signals.push(...coded.signals.map(x => `[coder] ${x}`))
+    decisions.push(...coded.decisions.map(d => ({ ...d, round })))
+    if (coded.stop) {
+      log(`${s.id}: stopped at gate "${coded.stop.gate}"`)
+      return { id: s.id, status: 'stopped', gate: coded.stop.gate, reason: coded.stop.reason, rounds: round, coded, decisions, signals }
+    }
 
-    review = await agent(reviewerPrompt(s, coded), {
+    review = await agent(reviewerPrompt(s, coded, findings), {
       label: `review ${s.id} r${round}`,
       phase: 'Review',
       agentType: 'reviewer',
       schema: REVIEW_SCHEMA,
     })
-    if (!review) return { id: s.id, status: 'blocked', reason: 'reviewer died', rounds: round, coded, signals }
+    if (!review) return { id: s.id, status: 'blocked', reason: 'reviewer died', rounds: round, coded, decisions, signals }
     signals.push(...review.signals.map(x => `[reviewer] ${x}`))
 
     const acsPass = review.acceptance.length > 0 && review.acceptance.every(a => a.pass)
     if (review.verdict === 'ship' && acsPass) {
       log(`${s.id}: ship after ${round} round(s)`)
-      return { id: s.id, status: 'done', rounds: round, coded, review, signals }
+      const follow_ups = review.findings.filter(f => f.severity === 'P2')
+      return { id: s.id, status: 'done', rounds: round, coded, review, follow_ups, decisions, signals }
     }
     findings = review.findings
     log(`${s.id}: round ${round} -> ${review.verdict_line}`)
   }
-  return { id: s.id, status: 'blocked', reason: `no ship after ${MAX_ROUNDS} rounds`, rounds: MAX_ROUNDS, coded, review, signals }
+  return { id: s.id, status: 'blocked', reason: `no ship after ${MAX_ROUNDS} rounds`, rounds: MAX_ROUNDS, coded, review, decisions, signals }
 }
 
 log(`epic ${args.epic}, wave ${args.wave}: ${args.slices.map(s => s.id).join(', ')}`)

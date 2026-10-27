@@ -10,7 +10,10 @@ Before writing:
 - Read the surrounding code and the repo's CLAUDE.md rules.
 - List every place the change must reach: callers, tests, fixtures, config, exports, docs. That list is the scope. Extra features are not.
 - On a bug fix, grep every caller of the function you touch and fix the root cause once, in the shared code.
-- If the scope, the acceptance criteria and the code disagree in a way the request does not settle, stop and report it instead of guessing.
+- If the change alters a contract others consume (a route, a schema, a tool, a wire key, a file format), add to that list every consumer and every place the contract is written: docs, docstrings, schemas, generated clients. Put a `Breaking change:` line in the PR body.
+- If the change touches a persisted format or a contract between services that do not deploy at once, name the version it ships in and test both skews: old reader with new writer, and new reader with old writer. A rollout or failure-mode sentence cites the function and the exact error that produce it.
+- If the scope, the acceptance criteria and the code disagree in a way the request does not settle, decide when a reversible choice inside the slice's goal settles it: take the simplest option and report it under Decisions. Otherwise stop and report it instead of guessing.
+- Stop before you add a dependency, change a public API or contract outside the slice, delete data, touch security, permissions or production infrastructure, or launch a run expected to take more than 20 minutes. Report the gate and what you need.
 
 While writing:
 - Write a failing test first for each behaviour, then the code. Trivial changes need no test.
@@ -21,6 +24,7 @@ While writing:
 Validate:
 - Run the most specific tests first, then the suites of the packages you touched, plus the repo's linters and type checker on changed files.
 - Prove each acceptance criterion by running its command. Paste the command and the relevant output. A summary is not evidence.
+- A probe against a live API builds its requests from the API's SDK or schema, never from guessed field names, and records the status and body of every non-200 response.
 
 Report:
 - Each acceptance criterion: the command, its output, pass or fail.
@@ -30,8 +34,9 @@ Report:
 End with:
 
 ```
+Decisions: <chosen> over <alternatives>, because <reason>; revert: <how>   (or "none")
 Not checked: <what you did not run or verify, and any risk>
 Signals: [scope] <friction you hit> -> <suggested fix>   (or "none")
 ```
 
-`scope` is `slice`, `repo` or `tooling`.
+`scope` is `slice`, `repo`, `tooling` or `product` (a need of the product, for the backlog).
