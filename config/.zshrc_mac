@@ -52,6 +52,7 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 export EDITOR=nano
 
 alias claude-mem='bun "$HOME/.claude/plugins/marketplaces/thedotmack/plugin/scripts/worker-service.cjs"'
+alias writer='open -a Writer'
 
 # Added by LM Studio CLI (lms)
 export PATH="$PATH:$HOME/.lmstudio/bin"
@@ -63,15 +64,3 @@ export PATH="$PATH:$HOME/.lmstudio/bin"
 export PATH="$HOME/.local/bin:$PATH"
 # kilo
 export PATH=/Users/andrew/.kilo/bin:$PATH
-# lean-ctx shell hook — begin
-if [ -f "/Users/andrew/.config/lean-ctx/shell-hook.zsh" ]; then
-. "/Users/andrew/.config/lean-ctx/shell-hook.zsh"
-fi
-# lean-ctx shell hook — end
-
-# >>> lean-ctx agent aliases >>>
-alias claude='LEAN_CTX_AGENT=1 BASH_ENV="$HOME/.bashenv" claude'
-alias codebuddy='LEAN_CTX_AGENT=1 BASH_ENV="$HOME/.bashenv" codebuddy'
-alias codex='LEAN_CTX_AGENT=1 BASH_ENV="$HOME/.bashenv" codex'
-alias gemini='LEAN_CTX_AGENT=1 BASH_ENV="$HOME/.bashenv" gemini'
-# <<< lean-ctx agent aliases <<<

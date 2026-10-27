@@ -11,7 +11,7 @@
     "extensions/model-status.ts"
   ],
   "hideThinkingBlock": false,
-  "lastChangelogVersion": "0.85.1",
+  "lastChangelogVersion": "1.3.0",
   "packages": [
     "npm:pi-web-access",
     "npm:pi-subagents",
@@ -21,7 +21,6 @@
     "npm:pi-powerline-footer",
     "npm:pi-agent-browser-native",
     "npm:pi-hashline-edit-pro",
-    "npm:pi-mcp-adapter@2.32.1",
     "npm:context-mode",
     "../../code/pi-beacon",
     "git:github.com/andres-ortizl/pi-beacon@v1.1.0"

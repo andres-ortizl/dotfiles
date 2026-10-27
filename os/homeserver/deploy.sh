@@ -58,7 +58,6 @@ elif [ "${1-}" != "" ] && [ "${1#--}" != "$1" ]; then
   usage
 fi
 
-
 script_dir=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 repo_root=$(git -C "$script_dir" rev-parse --show-toplevel 2>/dev/null) || fail "unable to locate repository root"
 cd "$repo_root"
@@ -89,7 +88,6 @@ check_private_file "$authelia_storage_encryption"
 check_private_file "$authelia_users"
 check_private_file "$mqtt_passwd"
 check_private_file "$mqtt_acl"
-
 
 acme_email=$(file_value "$homeserver_env" ACME_EMAIL 2>/dev/null || true)
 acme_ca_server=$(file_value "$homeserver_env" ACME_CA_SERVER 2>/dev/null || true)
