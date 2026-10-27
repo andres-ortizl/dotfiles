@@ -30,6 +30,10 @@ case "$MODE" in
     [ -f "$STATE_FILE" ] || exit 0
     IFS=$'\t' read -r id clean < "$STATE_FILE"
     [ -n "$id" ] || exit 0
+    tabs=$(zellij action list-tabs 2>/dev/null) || exit 0
+    name=$(printf '%s\n' "$tabs" | sed -n "s/^$id  [0-9][0-9]*  //p")
+    [ -n "$name" ] || exit 0
+    clean=${name#"$MARK"}
     zellij action rename-tab --tab-id "$id" "$MARK$clean" 2>/dev/null
     afplay "$SOUND" >/dev/null 2>&1 &
     ;;

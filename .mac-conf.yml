@@ -53,6 +53,7 @@
     ~/.claude/commands: config/claude/commands/**
     ~/.claude/skills: config/claude/skills/**
     ~/.claude/agents: config/claude/agents/**
+    ~/.claude/workflows: config/claude/workflows/**
     ~/.config/nvim/init.lua: config/nvim/init.lua
     ~/.config/nvim/stylua.toml: config/nvim/stylua.toml
     ~/.config/nvim/lua: config/nvim/lua/**
@@ -73,3 +74,8 @@
 
 - shell:
     - [git submodule update --init --recursive, Installing submodules]
+    - command: sudo install -d -m 755 "/Library/Application Support/ClaudeCode" && sudo install -m 644 config/claude/managed-settings.json "/Library/Application Support/ClaudeCode/managed-settings.json"
+      description: Installing Claude Code managed settings
+      stdin: true
+      stdout: true
+      stderr: true

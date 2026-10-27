@@ -41,7 +41,7 @@ Every gated issue gets its own GH issue in the current cycle's milestone / filte
 <low confidence | too large | not-our-bug | architectural call needed | ...>
 
 ## Triage notes
-<anything unusual from the Explore agent report>
+<anything unusual from the explorer agent report>
 ```
 
 Labels: `sentry-triage`, `bug`, `Backend` / `Core`, plus `needs-human-decision` on gated ones.

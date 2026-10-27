@@ -35,7 +35,7 @@ User invokes /sentry-fix
         ▼
 ┌─ STAGE A: Triage ────────┐    → reference/triage.md
 │  Fetch ALL unresolved    │
-│  Explore agents in       │
+│  explorer agents in       │
 │  parallel (one per       │
 │  cluster, top 10 only)   │
 └───────┬──────────────────┘
@@ -73,7 +73,7 @@ Read only what you need for the current stage:
 | Env vars, Slack MCP load, multiplexer check | `reference/prereqs.md` |
 | Sentry API URL forms + canonical resolve call | `reference/sentry-api.md` |
 | Stage -1 reconcile + Stage 0 changelog scan | `reference/reconcile.md` |
-| Stage A triage (cluster, fan-out, Explore briefs) | `reference/triage.md` |
+| Stage A triage (cluster, fan-out, explorer briefs) | `reference/triage.md` |
 | Rank/gate rules + GH dashboard writeup | `reference/ranking.md` |
 | Stage B dispatch (plan file, zellij, PR label) | `reference/dispatch.md` |
 | Reviewer raffle, self-nomination, author-collapse | `reference/raffle.md` |

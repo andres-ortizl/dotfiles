@@ -19,7 +19,7 @@ Where `<ref>` is **one** of:
 
 1. **Still run Stage -1 (reconcile)** — cheap, high value, and you want the celebrations for anything that merged since last run. Don't skip this. See `reconcile.md`.
 2. **Skip Stage 0 (changelog scan)** — you already know which issue you're targeting; scanning the changelog for unrelated issues wastes time.
-3. **Skip Stage A (triage)** — if a plan already exists at `~/.spec/<project-name>/sentry-fix-<issue-id>/plan.md`, use it. If not, run ONE Explore agent on just this issue to produce a plan (mini-triage of one).
+3. **Skip Stage A (triage)** — if a plan already exists at `~/.spec/<project-name>/sentry-fix-<issue-id>/plan.md`, use it. If not, run ONE explorer agent on just this issue to produce a plan (mini-triage of one).
 4. **Skip the gate and raffle decisions** — single-issue mode always dispatches. The user invoking single mode is explicitly overriding the H+M DM-for-approval gate.
 5. **Run Stage B for exactly one issue** — worktree + zellij pane + `/spec --auto-approve <plan>` (see `dispatch.md`).
 6. **Run the raffle for one PR** and post Message 2 (the playful review announcement) tagging one reviewer. No dashboard list, no batch counts — just this PR.
@@ -33,7 +33,7 @@ When resolving `<ref>` to a plan, try in order:
 2. Extract the Sentry numeric ID from `<ref>` (path, URL, or bare number).
 3. Look for `~/.spec/<project-name>/sentry-fix-<id>/plan.md` → use it if exists (backlogged plans from earlier runs land here).
 4. Look for an open GH issue in the current repo with title matching `[Sentry * <short-id>]` and a `plan file:` line pointing at an on-disk path → use that.
-5. If nothing found, run a one-shot Explore agent to generate a plan from scratch, write it to `~/.spec/<project-name>/sentry-fix-<id>/plan.md`, then dispatch.
+5. If nothing found, run a one-shot explorer agent to generate a plan from scratch, write it to `~/.spec/<project-name>/sentry-fix-<id>/plan.md`, then dispatch.
 
 ## When to prefer single-issue over full-cycle
 

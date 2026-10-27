@@ -20,6 +20,17 @@ case "$remotes" in
   *) skip ;;
 esac
 
+# The shell inherits the main checkout's .env (ports, flags); in a worktree that overrides the
+# worktree's own .env in docker compose, so unset every main .env key for this session's Bash.
+if [ "$event" = SessionStart ] && [ -n "${CLAUDE_ENV_FILE:-}" ]; then
+  main_env="$(dirname "$(git -C "$cwd" rev-parse --path-format=absolute --git-common-dir 2>/dev/null)")/.env"
+  case "$cwd" in
+    */.claude/worktrees/*)
+      [ -r "$main_env" ] && sed -n 's/^\([A-Za-z_][A-Za-z0-9_]*\)=.*/unset \1/p' "$main_env" >> "$CLAUDE_ENV_FILE"
+      ;;
+  esac
+fi
+
 case "$event" in
   SessionStart) role=main ;;
   SubagentStart)

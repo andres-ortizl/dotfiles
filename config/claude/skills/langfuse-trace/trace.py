@@ -161,13 +161,15 @@ _NOISE_KEYS = {
     "additional_kwargs",
     "response_metadata",
     "usage_metadata",
-    "metadata",
     "invalid_tool_calls",
     "tool_call_id",
-    "id",
-    "index",
     "created_at",
 }
+# Only a message / tool-call / content-block envelope loses these: a domain payload
+# (an extraction field named `id`, an evidence `metadata`) must keep them, or a
+# drill silently hides real output.
+_ENVELOPE_NOISE_KEYS = {"metadata", "id", "index"}
+_ENVELOPE_MARKERS = {"content", "tool_calls", "args", "role", "type"}
 
 
 def _strip_noise(obj: Any) -> Any:
@@ -175,12 +177,13 @@ def _strip_noise(obj: Any) -> Any:
     tool-call rendering shows content, not envelope. Applied to rendered I/O
     only — never to the observation objects the tree walk relies on."""
     if isinstance(obj, dict):
+        is_envelope = bool(_ENVELOPE_MARKERS & obj.keys())
         out: dict = {}
         for k, v in obj.items():
-            if k in _NOISE_KEYS:
+            if k in _NOISE_KEYS or (is_envelope and k in _ENVELOPE_NOISE_KEYS):
                 continue
             v = _strip_noise(v)
-            if v in (None, {}, [], ""):
+            if is_envelope and v in (None, {}, [], ""):
                 continue
             out[k] = v
         return out
