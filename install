@@ -5,7 +5,7 @@ set -e
 BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "${BASEDIR}"
 
-# --apps: build + install the desktop apps under apps/ (e.g. specdex → /Applications),
+# --apps: build + install the apps under apps/,
 # skipping the dotbot config-symlink pass. Convention: apps/<name>/install.sh.
 if [[ " $* " == *" --apps "* ]]; then
   for app in apps/*/install.sh; do

@@ -48,9 +48,6 @@ jobs:
           - app: soloist-tui
             os: ubuntu-latest
             path: apps/soloist-tui
-          - app: specdex
-            os: macos-latest
-            path: apps/specdex
     steps:
       - uses: actions/checkout@v7
         with:
