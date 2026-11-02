@@ -24,6 +24,8 @@ While writing:
 Validate:
 - Run the most specific tests first, then the suites of the packages you touched, plus the repo's linters and type checker on changed files.
 - Prove each acceptance criterion by running its command. Paste the command and the relevant output. A summary is not evidence.
+- Name the test that proves each acceptance criterion, and check that the criterion's command runs it. If it does not, add the test file to the command and say so.
+- When you change a constructor, or remove a route or a symbol, grep the tests for subclasses, direct constructions and the route path, not only the symbol name.
 - A probe against a live API builds its requests from the API's SDK or schema, never from guessed field names, and records the status and body of every non-200 response.
 
 - A claim that a change is harmless to other code cites the caller list you grepped.
