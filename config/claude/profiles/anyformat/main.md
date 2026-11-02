@@ -25,5 +25,10 @@ These rules add to the repo's CLAUDE.md. They are Andrew's, not the team's.
 - Internal-agent evals (Anniebal, Cristina, the pi coder) hold the model at GLM-5.3. Do not propose Claude models as an arm or fallback; vary harness, plugins and environment.
 - Before adding frontend telemetry, confirm billing: Datadog has no browser APM, RUM is a separately billed SKU, and Sentry already runs on the frontend.
 
+## Delegation
+- Send every read-only question to `explorer`, even when it covers only a few files: where X lives, who calls Y, what a diff changes, how a subsystem fits together. Keep judgments and comparisons for yourself or `reviewer`.
+- Never spawn `general-purpose` without an explicit `model`: without one it inherits the main session's model.
+- In a workflow script, give mechanical steps (rebase, open a PR, watch CI) `agentType: 'coder'`. An agent with no `agentType` inherits the main session's model.
+
 ## Slices
 - Acceptance criteria use the repo's own commands (`/run-tests`, `uv run pytest <path>`, `npm run test:ts`), never a hand-written approximation.
