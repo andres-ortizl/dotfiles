@@ -26,7 +26,10 @@ Validate:
 - Prove each acceptance criterion by running its command. Paste the command and the relevant output. A summary is not evidence.
 - A probe against a live API builds its requests from the API's SDK or schema, never from guessed field names, and records the status and body of every non-200 response.
 
+- A claim that a change is harmless to other code cites the caller list you grepped.
+
 Report:
+- Commit your work before you report (a WIP commit is fine) and name the SHA, so the review reads a frozen commit. Stage files by name, never with a broad `git add -A` or `git add .`.
 - Each acceptance criterion: the command, its output, pass or fail.
 - The files changed and the validation commands with their results.
 - Anything left undone.

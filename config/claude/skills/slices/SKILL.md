@@ -47,8 +47,9 @@ Stop and ask only at these gates:
 
 ## status (also on "retoma", "cómo va", "qué falta")
 
-1. Read `loop.md`, then verify each slice that is past `coding` against its source: the PR state, CI, the review bot's latest verdict on the head commit. Never answer from memory.
+1. Read `loop.md`, then run [`status.sh`](status.sh) `<loop dir>`: one line per PR linked in `loop.md` with its state, base, head, CI, review-bot score, open bot threads and mergeability. Never answer from memory, and never rebuild this with ad-hoc `gh` calls.
    - CI is green only when every expected check has completed and passed on the head SHA. A pending, queued or missing check is not green: right after a push, "no failing checks" and "nothing has run yet" look the same. The same bar applies before a slice is marked `done`.
+   - For a failed check, fetch only that job's log to a scratchpad file and `grep` it for the failing test names; never read a whole CI log into context. A job killed by a timeout prints no per-test reason: check whether other branches fail the same tests in the same window before blaming the slice.
 2. Update `loop.md` with what changed.
 3. Answer with one table: slice | goal in plain words | status | evidence or blocker | PR link. Then the "Decided for you" rows added since the last status, and the next step.
 
@@ -68,7 +69,9 @@ Workflow({ name: "slices-wave", args: { epic, repo_path, wave, slices: [ { id, g
 - A slice that ended with `Verdict: fix ...` after 3 rounds is `blocked`. Report it to the user with the open findings; do not start a fourth round on your own.
 - Every defect a brief states carries its evidence: a `file:symbol` citation of the code as it is on the base today, or the output of a probe that reproduces it. A defect without one stays out of the brief. A probe against a live API builds its requests from the API's SDK or schema, never from guessed field names, and records the status and body of every non-200 response.
 - Every coder and reviewer brief carries the worktree block: the absolute worktree path, that `uv sync --all-packages` and the `.env` copy are done there, one plain command per call, and multi-step scripts written as files in the scratchpad.
-- Stacked slices get one worktree per open PR, so a fix to a lower PR never waits on the coder working the upper one. The reviewer reviews in a detached worktree at the reviewed SHA (`git worktree add --detach <path> <sha>`), never in a tree someone is still editing.
+- Every slice that commits while another slice is active gets its own worktree, stacked or not. Two slices committing from one checkout clash on the index, on pre-commit stashes and on whole-tree hooks, and a broad `git add` sweeps up the other slice's files.
+- The coder commits its work (a WIP commit is fine) before the review starts, and names the SHA. Checks that diff against the git index (`--check` modes, generated-client checks) cannot pass before a commit. The reviewer reviews in a detached worktree at that SHA (`git worktree add --detach <path> <sha>`), never in a tree someone is still editing, and may mutate code there to prove a finding.
+- Stacked slices become a GitHub stack: after their PRs exist, run `gh stack link --base <trunk> <bottom-pr> ... <top-pr>`. GitHub then rebases the upper PRs and retargets them when a lower one merges, and `gh stack merge <top-pr>` merges the whole stack atomically. If the repository has stacks disabled, the command says so: fall back to merging bottom-up and retargeting each child yourself.
 
 ## retro
 
