@@ -17,6 +17,7 @@
 - **Out of scope:** <list>
 - **Touches:** <files or areas>
 - **Depends on:** <slice ids, or none>
+- **Packs:** <matched packs from slices and the repo profile, or none>
 - **Acceptance:**
   - AC1: `<command>` -> <expected result>
   - AC2: `<command>` -> <expected result>

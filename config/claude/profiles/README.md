@@ -10,6 +10,7 @@ Personal rules per repository, added on top of the generic stack. They are Andre
 | Generic agents | `config/claude/agents/{explorer,coder,reviewer}.md` | the agent of that name, every repo |
 | Repo rules (team) | the repo's own `CLAUDE.md`, `CONTRIBUTING.md`, `.greptile/` | everyone working in that repo |
 | Repo profile (personal) | `config/claude/profiles/<repo>/<role>.md` | Andrew's sessions in that repo only |
+| Repo packs (personal) | `config/claude/profiles/<repo>/packs/<topic>.md`, indexed in `main.md` | only a task or slice whose trigger matches |
 | Facts | auto-memory (`~/.claude/projects/.../memory/`) | the main agent only; subagents never see it |
 
 A rule goes in the narrowest layer that holds it: a rule for every repo goes in `AGENTS.md`, a rule for one repo goes in its profile, and a fact that is not an instruction stays in memory.
@@ -42,4 +43,4 @@ The hook finds the profile from the session's directory: `git remote -v` must co
 
 ## Change a rule
 
-Edit the file; it applies from the next session or subagent. Rules come from the retro of a loop (`slices retro`): a signal that repeats becomes a line in the narrowest layer that holds it.
+Edit the file; it applies from the next session or subagent. Rules come from the retro of a loop (`slices retro`): a signal that repeats becomes a line in the narrowest layer that holds it. A rule that applies only to some tasks goes in a pack with a trigger, not in a role file.

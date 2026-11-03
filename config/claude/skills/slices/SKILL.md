@@ -18,6 +18,23 @@ Only the main agent writes these files. Subagents report; the main agent copies.
 
 Templates: [`templates/`](templates/). Copy them; do not invent another shape.
 
+## Packs
+
+This file holds only what every slice needs. Everything else is a pack: a short file loaded only for the slices its trigger matches. Generic packs live in [`packs/`](packs/); packs for one repository live in its profile, `~/code/dotfiles/config/claude/profiles/<repo>/packs/`, indexed in that profile's `main.md`. Lessons about a repository's code live in the repository itself (its memory or rule files), never here.
+
+| Pack | Trigger |
+|---|---|
+| [`contract-change`](packs/contract-change.md) | a slice changes a route, schema, tool, wire key, file format, or user-visible behaviour |
+| [`rename`](packs/rename.md) | a slice removes or renames a name or value across the tree |
+| [`generated-files`](packs/generated-files.md) | a slice regenerates a committed file |
+| [`stacked-prs`](packs/stacked-prs.md) | slices whose PRs build on each other |
+| [`worktrees`](packs/worktrees.md) | the session is isolated in a worktree, or two slices commit at once |
+| [`live-probe`](packs/live-probe.md) | a criterion or brief calls a live API, or a finding claims what a class accepts |
+| [`measurement`](packs/measurement.md) | a criterion compares a number, or a slice adds telemetry |
+| [`ci-failure`](packs/ci-failure.md) | a check fails on a slice's PR |
+
+When you write a slice, match it against both indexes. Turn each matched pack into acceptance criteria and brief lines of that slice, and list the packs in its `Packs:` line. A brief carries only its slice's packs.
+
 ## Decide or stop
 
 Approval of the plan is a standing approval to decide inside it. When a decision is reversible and stays inside the plan's goal, out-of-scope list and locked decisions, take the recommended option and continue. Log it in `logbook.md` as `decided:` with the alternatives, the reason and how to revert it, and add a row to "Decided for you" in `loop.md`. The user can veto any row; a veto becomes a fix slice.
@@ -33,10 +50,9 @@ Stop and ask only at these gates:
 
 1. Create the folder and copy the four templates into it.
 2. Send `explorer` to map the code the epic touches. Put its map in `plan.md` under "Code map": key files by symbol, never by line number.
-3. Write `plan.md`: the goal, out of scope, locked decisions, and every slice with its goal, out-of-scope list, acceptance criteria (a command and its expected result), the files or areas it touches, and the slices it depends on.
-   - Each acceptance criterion is the command that produces the result where it will run, against the real artifact, never against a constant from the code. A comparison uses a baseline measured the same day, not a historical number. A slice that adds telemetry has the signal visible in the environment's observability tool as its criterion.
+3. Write `plan.md`: the goal, out of scope, locked decisions, and every slice with its goal, out-of-scope list, acceptance criteria (a command and its expected result), the files or areas it touches, the slices it depends on, and its packs.
+   - Each acceptance criterion is the command that produces the result where it will run, against the real artifact, never against a constant from the code.
    - Before approval, grep every symbol, file and test the plan names, and every claim that a mechanism is missing. Mark files the slice creates with `(new)`. A code-map line that states a rule cites the function or ADR that defines it.
-   - A slice that changes a contract others consume (a route, a schema, a tool, a wire key, a file format) lists its consumers and every place the contract is written (docs, docstrings, schemas, generated clients), and updates them in the same slice. A consumer cannot sit in the out-of-scope list of the slice that changes its contract. The PR body carries a `Breaking change:` line.
 4. Group the slices into waves: a wave holds slices with no dependency between them. Mark two slices in one wave that touch the same files with `isolation: worktree`.
 5. Send `reviewer` the plan, not a diff, with two questions per slice: does a much simpler change reach the same goal, and does the slice fix the root cause of a need users have? Change the plan for each finding with a concrete case, and show the user the findings you rejected and why.
 6. Rehearse the plan when it has three or more slices, or any acceptance criterion that runs a benchmark or an eval:
@@ -48,9 +64,8 @@ Stop and ask only at these gates:
 
 ## status (also on "retoma", "cómo va", "qué falta")
 
-1. Read `loop.md`, then run [`status.sh`](status.sh) `<loop dir>`: one line per PR linked in `loop.md` with its state, base, head, CI, review-bot score, open bot threads and mergeability. Never answer from memory, and never rebuild this with ad-hoc `gh` calls.
-   - CI is green only when every expected check has completed and passed on the head SHA. A pending, queued or missing check is not green: right after a push, "no failing checks" and "nothing has run yet" look the same. The same bar applies before a slice is marked `done`.
-   - For a failed check, fetch only that job's log to a scratchpad file and `grep` it for the failing test names; never read a whole CI log into context. A job killed by a timeout prints no per-test reason: check whether other branches fail the same tests in the same window before blaming the slice.
+1. Read `loop.md`, then run [`status.sh`](status.sh) `<loop dir>`: one line per PR linked in `loop.md` with its state, base, head, CI, review-bot score, open bot threads, mergeability and commits behind its base. Never answer from memory, and never rebuild this with ad-hoc `gh` calls.
+   - CI is green only when every expected check has completed and passed on the head SHA. A pending, queued or missing check is not green. The same bar applies before a slice is marked `done`. After a push or a rerun, wait until the expected checks appear before reading their state.
 2. Update `loop.md` with what changed.
 3. Answer with one table: slice | goal in plain words | status | evidence or blocker | PR link. Then the "Decided for you" rows added since the last status, and the next step.
 
@@ -62,31 +77,28 @@ Run one slice inline (coder, then reviewer) when the wave has one slice. Run a w
 Workflow({ name: "slices-wave", args: { epic, repo_path, wave, slices: [ { id, goal, out_of_scope, acceptance: [{id, command, expected}], touches, isolation } ] } })
 ```
 
-- Two slices that run in parallel always run through `slices-wave`, even when the plan put them in separate waves. Never hand-spawn parallel coders, and never fold a slice's own review into the PR review.
-- Pass the slice blocks from `plan.md` verbatim. Record the run id in `loop.md` next to the wave; resume a broken wave with `resumeFromRunId`.
-- From a session isolated in a worktree, do not launch `slices-wave` with `isolation: worktree`: the guard refuses git to the fix-round agents. Run the wave's slices serially in the session's worktree.
-- If the named workflow is not found, pass `scriptPath: "~/code/dotfiles/config/claude/workflows/slices-wave.js"` instead of `name`.
-- When it returns, check each slice's evidence yourself before marking it `done`: the AC commands, the reviewer's verdict line. Copy every `signals` entry into `signals.md` with the slice id, and every `follow_ups` entry (the P2 findings left on a slice that shipped) into the "Follow-ups" table of `loop.md`. A slice run inline does the same with its reviewer's P2 findings. Copy every `decisions` entry as "Decide or stop" says. A slice that returned `stopped` hit a gate: report the gate and the coder's reason to the user.
+- Two slices that run in parallel always run through `slices-wave`. Never hand-spawn parallel coders, and never fold a slice's own review into the PR review.
+- Pass the slice blocks from `plan.md` verbatim, with their packs' lines. Record the run id in `loop.md` next to the wave; resume a broken wave with `resumeFromRunId`. If the named workflow is not found, pass `scriptPath: "~/code/dotfiles/config/claude/workflows/slices-wave.js"`.
+- When it returns, check each slice's evidence yourself before marking it `done`: the AC commands, the reviewer's verdict line. Copy every `signals` entry into `signals.md` with the slice id, every `follow_ups` entry (the P2 findings left on a slice that shipped) into the "Follow-ups" table of `loop.md`, and every `decisions` entry as "Decide or stop" says. A slice run inline does the same with its reviewer's report. A slice that returned `stopped` hit a gate: report the gate and the coder's reason to the user.
 - A slice that ended with `Verdict: fix ...` after 3 rounds is `blocked`. Report it to the user with the open findings; do not start a fourth round on your own.
-- Every defect a brief states carries its evidence: a `file:symbol` citation of the code as it is on the base today, or the output of a probe that reproduces it. A defect without one stays out of the brief. A probe against a live API builds its requests from the API's SDK or schema, never from guessed field names, and records the status and body of every non-200 response.
-- Every coder and reviewer brief carries the worktree block: the absolute worktree path, that `uv sync --all-packages` and the `.env` copy are done there, one plain command per call, and multi-step scripts written as files in the scratchpad. A test wrapper takes the worktree path as an argument, never a hard-coded `cd`. A suite that can run past the foreground timeout runs with `run_in_background`.
-- Every slice that commits while another slice is active gets its own worktree, stacked or not. Two slices committing from one checkout clash on the index, on pre-commit stashes and on whole-tree hooks, and a broad `git add` sweeps up the other slice's files.
-- The coder commits its work (a WIP commit is fine) before the review starts, and names the SHA, so the review reads a frozen commit. Drift checks that compare the working tree with the git index (`--check` modes, generated-client checks) pass once the regenerated files are staged; run them before the commit, not after. The reviewer reviews in a detached worktree at that SHA (`git worktree add --detach <path> <sha>`), never in a tree someone is still editing, and may mutate code there to prove a finding.
-- Stacked slices become a GitHub stack: after their PRs exist, run `gh stack link --base <trunk> <bottom-pr> ... <top-pr>`. GitHub then rebases the upper PRs and retargets them when a lower one merges, and `gh stack merge <top-pr>` merges the whole stack atomically. If the repository has stacks disabled, the command says so: fall back to merging bottom-up and retargeting each child yourself.
+- Every defect a brief states carries its evidence: a `file:symbol` citation of the code as it is on the base today, or the output of a probe that reproduces it.
+- The coder commits its work (a WIP commit is fine) before the review starts, and names the SHA. The reviewer reviews in a detached worktree at that SHA (`git worktree add --detach <path> <sha>`), never in a tree someone is still editing, and may mutate code there to prove a finding.
 
 ## retro
 
 Run it as the last slice of every loop, and when the user asks.
 
 1. Read `signals.md`, `logbook.md` and the "Follow-ups" table of `loop.md`.
-2. Group the signals that repeat or that cost a round. Ignore one-offs with scope `slice`. Count the findings a reviewer reported late (on code unchanged since an earlier round) as a reviewer signal. Count the vetoed "Decided for you" rows as signals against the decision rule.
-3. Triage each group by where its fix lives:
-   - **Loop**: how we work. A skill, a generic agent, the workflow, `AGENTS.md` or a memory fact, in `~/code/dotfiles`. Usually scope `tooling`.
-   - **Project**: how this repository works. Its profile under `~/code/dotfiles/config/claude/profiles/<repo>/`, or its own rules, tests or CI through a PR in the repository. Usually scope `repo`.
-   - **Backlog**: what the product needs. An issue, never a rule. Usually scope `product`.
+2. Group the signals that repeat or that cost a round. Ignore the rest. Count the findings a reviewer reported late (on code unchanged since an earlier round) as a reviewer signal, and the vetoed "Decided for you" rows as signals against the decision rule.
+3. Route each group by the first question it answers yes to:
+   - Does it make sense for a slice in another repository? A generic pack, or this file only if every slice needs it.
+   - Is it about this repository's code? The repository's own memory or rule files, through a PR.
+   - Is it about how the user works in this repository? A pack in its profile.
+   - Is it a need of the product? An issue, never a rule.
 4. For each group, propose one concrete change: the file or the issue, the exact line, and the evidence (which signals, how many times).
-   - Write a loop line for the pattern, not for this epic: it must make sense to a slice of unrelated work in another repository. Name no module, route or format of this epic. If it only makes sense here, it is a project line.
-   - Write every proposed line in English, whatever language the conversation uses.
-5. Show one table per destination (loop, project, backlog): what happened (count) | proposed change | file or issue. Apply what the user approves, mark those signals `[used]`, and log the retro in `logbook.md`.
-6. Show the follow-ups in a last table: finding | location | proposal (open an issue, or drop it and why). Open the issues the user approves and mark each row `issue <link>` or `dropped`.
-7. On the next loop, check whether the same signal came back. If it did, the rule did not work: say so in the next retro.
+   - First grep this file, the packs, the agent profiles and the repository's rules for a line that already covers it. If one does, the rule failed: replace it with a mechanism (a check in a script, a field in a template) or rewrite it, never add a second line.
+   - Prefer a mechanism to a sentence. A new line replaces or merges an old one: this file and each pack do not grow.
+   - A generic line names no module, route or format of this epic. Write every line in English, whatever language the conversation uses.
+5. Set `Last used:` to this epic in every pack a slice of this loop loaded. Propose deleting a pack, or a line in it, that no slice loaded in the last three loops.
+6. Show one table per destination: what happened (count) | proposed change | file or issue. Apply what the user approves, mark those signals `[used]`, and log the retro in `logbook.md`.
+7. Show the follow-ups in a last table: finding | location | proposal (open an issue, or drop it and why). Open the issues the user approves and mark each row `issue <link>` or `dropped`.

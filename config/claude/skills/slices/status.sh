@@ -36,7 +36,11 @@ grep -oE 'github\.com/[^/ ]+/[^/ ]+/pull/[0-9]+' "$loop" | sort -u -t/ -k5,5n | 
          | select(.isResolved | not)
          | select(.comments.nodes[0].author.login | test("greptile"; "i"))] | length')
 
-  printf '#%-6s %-8s →%-24s %s  %-34s Greptile %-4s %s open  %s\n' \
-    "$n" "$state" "$(jq -r .baseRefName <<<"$pr")" "$(jq -r '.headRefOid[0:8]' <<<"$pr")" \
-    "$ci" "${score:--}" "$open" "$(jq -r .mergeable <<<"$pr")"
+  base=$(jq -r .baseRefName <<<"$pr")
+  head=$(jq -r .headRefOid <<<"$pr")
+  behind=$(gh api "repos/$repo/compare/$base...$head" -q .behind_by 2>/dev/null || echo "?")
+
+  printf '#%-6s %-8s →%-24s %s  %-34s Greptile %-4s %s open  %-11s %s behind\n' \
+    "$n" "$state" "$base" "${head:0:8}" \
+    "$ci" "${score:--}" "$open" "$(jq -r .mergeable <<<"$pr")" "$behind"
 done

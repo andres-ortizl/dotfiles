@@ -5,7 +5,7 @@ These rules add to the repo's CLAUDE.md. They are Andrew's, not the team's.
 ## Branches, PRs and pushes
 - Branch from `origin/dev` and open PRs against `dev`. `main` is production; only `/prod-release` targets it.
 - Before extending a branch, run `git rev-list --left-right --count origin/dev...HEAD`. More than about 50 behind: merge dev in and re-check the patterns you rely on first.
-- Before every push to an open PR: `git fetch origin dev && git merge-tree --write-tree --name-only HEAD origin/dev`. For a stacked PR, `git rebase --onto <new-base> <old-base-tip>`.
+- Before every push to an open PR: `git fetch origin dev && git merge-tree --write-tree --name-only HEAD origin/dev`. merge-tree misses two number collisions, so also compare the highest migration per Django app and the highest ADR number per module against `origin/dev`. For a stacked PR, `git rebase --onto <new-base> <old-base-tip>`.
 - Address Greptile with the `react-to-greptile` skill.
 - Never push to `~/code/devops` main without a fresh, explicit yes on the prepared diff. An earlier deferral is not consent, and red CI is not authority.
 - Create only one side of a Linear/GitHub issue pair, preferably Linear (`save_issue`). Never also run `gh issue create`: the sync mirrors it.
@@ -21,9 +21,13 @@ These rules add to the repo's CLAUDE.md. They are Andrew's, not the team's.
 - Run no git command in the worktree while pre-commit hooks run (index lock). If the TypeScript hook is OOM-killed, retry the commit.
 - Compose tests bind-mount the live tree. To verify a commit, test in a throwaway worktree at that exact SHA.
 
-## Product and tooling facts that change decisions
-- Internal-agent evals (Anniebal, Cristina, the pi coder) hold the model at GLM-5.3. Do not propose Claude models as an arm or fallback; vary harness, plugins and environment.
-- Before adding frontend telemetry, confirm billing: Datadog has no browser APM, RUM is a separately billed SKU, and Sentry already runs on the frontend.
+## Packs
+Load a pack only when its trigger matches the task; a slice lists it in its `Packs:` line. Lessons about the code go to the repo's `docs/memory`, not here.
+
+| Pack | Trigger |
+|---|---|
+| [`agent-evals`](packs/agent-evals.md) | evaluating, benchmarking or spiking an internal agent |
+| [`frontend-telemetry`](packs/frontend-telemetry.md) | adding metrics, traces or logs to the frontend |
 
 ## Delegation
 - Send every read-only question to `explorer`, even when it covers only a few files: where X lives, who calls Y, what a diff changes, how a subsystem fits together. Keep judgments and comparisons for yourself or `reviewer`.
