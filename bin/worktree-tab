@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+# Opens or closes the zellij tab of a T3 Code thread. A worktree tab is named after its branch.
+set -euo pipefail
+
+session=${WORKTREE_TAB_SESSION:-default}
+linked_worktree=${T3CODE_WORKTREE_PATH:-}
+worktree=${linked_worktree:-$PWD}
+
+name=$(basename "$worktree")
+
+act() { zellij --session "$session" action "$@"; }
+
+thread_title() {
+  local id title
+  for id in $(t3 thread list --project "$T3CODE_PROJECT_ROOT" --json | jq -r '.[] | select(.settled | not) | .threadId'); do
+    title=$(t3 thread show "$id" --json | jq -r --arg dir "$worktree" 'select(.thread.worktreePath == $dir) | .thread.title')
+    if [ -n "$title" ]; then
+      printf '%s\n' "$title"
+      return
+    fi
+  done
+}
+
+# T3 generates the title shortly after the first message, so the branch is the fallback.
+worktree_tab_name() {
+  local label
+  label=$(thread_title 2>/dev/null || true)
+  [ -n "$label" ] || label=$(git -C "$worktree" branch --show-current 2>/dev/null || true)
+  [ -z "$label" ] || name=$label
+}
+
+# A worktree tab is found by directory, because T3 and agents rename branches.
+# The project root cannot be: every `claude -w` tab has its shell there, so a thread
+# without a worktree is found by name. The notify hook prefixes names with an alert mark.
+tab_ids() {
+  if [ -n "$linked_worktree" ]; then
+    act list-panes --json --all | jq -r --arg dir "$worktree" \
+      '[.[] | select((.is_plugin | not) and .pane_cwd != null
+        and (.pane_cwd == $dir or (.pane_cwd | startswith($dir + "/")))) | .tab_id] | unique | .[]'
+  else
+    act list-tabs --json | jq -r --arg name "$name" \
+      '.[] | select(.name == $name or .name == "❗ " + $name) | .tab_id'
+  fi
+}
+
+open_tab() {
+  # Fails when the session already exists. A real failure surfaces in the next action.
+  zellij attach --create-background "$session" >/dev/null 2>&1 || true
+  [ -z "$linked_worktree" ] || worktree_tab_name
+  local id
+  id=$(tab_ids | head -n 1)
+  if [ -n "$id" ]; then
+    act rename-tab-by-id "$id" "$name"
+    act go-to-tab-by-id "$id"
+  else
+    # Without an explicit command, a long-running session ignores --cwd.
+    act new-tab --cwd "$worktree" --name "$name" --close-on-exit -- "${SHELL:-/bin/zsh}" -l >/dev/null
+  fi
+  open -a Ghostty
+}
+
+close_tab() {
+  local id
+  for id in $(tab_ids); do
+    act close-tab-by-id "$id"
+  done
+}
+
+case "${1:-}" in
+  open) open_tab ;;
+  close) close_tab ;;
+  *)
+    echo "usage: worktree-tab open|close" >&2
+    exit 2
+    ;;
+esac
