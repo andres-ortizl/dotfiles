@@ -183,7 +183,7 @@ The user juggles many PRs and agents with little context. Every message must be 
 - Lead with the user-visible symptom and one concrete example (input -> what happens today -> what should happen). Then the mechanism.
 - Gloss any jargon in one line the first time it appears.
 - A decision is one table row: the problem with its example | each option in full, with its cost | the recommendation and why. Add what the answer changes and the default if nobody answers. Never bare "A / B / C".
-- Fetch status before reporting it (PR, CI, review bot, Linear, the loop file). Never report status from memory.
+- Fetch status before reporting it (PR, CI, review bot, Linear, the loop file). Never report status from memory. For PRs, run `~/.claude/skills/slices/status.sh <PR url or owner/repo#N>...`: one line each with CI, the review bot (`stale@` when it reviewed an older commit), open threads and mergeability.
 - Never relay a subagent's "done" or "green" without checking it yourself. Quote the verdict line and the commit it names.
 
 ## Slices and loops

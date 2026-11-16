@@ -1,12 +1,29 @@
 #!/usr/bin/env bash
-# One line per PR linked in a loop's loop.md: state, base, head, CI, review bot, mergeability.
-# Usage: status.sh <loop dir or loop.md>
+# One line per PR: state, base, head, CI, review bot, mergeability.
+# Usage: status.sh <loop dir or loop.md>       every PR linked in the loop, then its open signals
+#        status.sh <PR url | owner/repo#N>...   those PRs only
 set -euo pipefail
 
-loop="${1:?usage: status.sh <loop dir or loop.md>}"
-[ -d "$loop" ] && loop="$loop/loop.md"
+usage="usage: status.sh <loop dir or loop.md> | <PR url | owner/repo#N>..."
+loop=""
+if [ -e "${1:?$usage}" ]; then
+  loop="$1"
+  [ -d "$loop" ] && loop="$loop/loop.md"
+  urls=$(grep -oE 'github\.com/[^/ ]+/[^/ ]+/pull/[0-9]+' "$loop" | sort -u -t/ -k5,5n)
+else
+  urls=$(for ref in "$@"; do
+    if [[ "$ref" =~ ^([^/#[:space:]]+/[^/#[:space:]]+)#([0-9]+)$ ]]; then
+      echo "github.com/${BASH_REMATCH[1]}/pull/${BASH_REMATCH[2]}"
+    elif [[ "$ref" =~ github\.com/[^/]+/[^/]+/pull/[0-9]+ ]]; then
+      echo "${BASH_REMATCH[0]}"
+    else
+      echo "not a PR: $ref ($usage)" >&2
+      exit 2
+    fi
+  done)
+fi
 
-grep -oE 'github\.com/[^/ ]+/[^/ ]+/pull/[0-9]+' "$loop" | sort -u -t/ -k5,5n | while read -r url; do
+while read -r url; do
   repo=$(cut -d/ -f2-3 <<<"$url")
   n=$(cut -d/ -f5 <<<"$url")
 
@@ -48,11 +65,11 @@ grep -oE 'github\.com/[^/ ]+/[^/ ]+/pull/[0-9]+' "$loop" | sort -u -t/ -k5,5n | 
   printf '#%-6s %-8s →%-24s %s  %-34s Greptile %-19s %s open  %-11s %s behind\n' \
     "$n" "$state" "$base" "${head:0:8}" \
     "$ci" "${score:--}" "$open" "$(jq -r .mergeable <<<"$pr")" "$behind"
-done
+done <<<"$urls"
 
 # A retro gives every signal an outcome; the rest are signals no retro has looked at.
 signals="$(dirname "$loop")/signals.md"
-if [ -f "$signals" ]; then
+if [ -n "$loop" ] && [ -f "$signals" ]; then
   pending=$(grep -E '^- ' "$signals" | grep -cvE '\[(used|dup|dropped)' || true)
   echo "signals: $pending without outcome"
 fi
