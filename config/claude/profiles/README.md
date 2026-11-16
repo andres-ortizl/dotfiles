@@ -21,8 +21,8 @@ A rule goes in the narrowest layer that holds it: a rule for every repo goes in 
 |---|---|---|---|
 | main | the session you talk to | your session model | `main.md` |
 | explorer | `explorer` | Haiku | `explorer.md` |
-| coder | `coder`, `claude-pm:project-developer` | Sonnet | `coder.md` |
-| reviewer | `reviewer`, `claude-pm:code-review-reporter` | Opus | `reviewer.md` |
+| coder | `coder` | Sonnet | `coder.md` |
+| reviewer | `reviewer` | Opus | `reviewer.md` |
 
 Any other agent type gets no profile. The built-in `Explore` agent is denied (`permissions.deny: ["Agent(Explore)"]`) because it skips `CLAUDE.md`.
 

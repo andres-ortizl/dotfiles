@@ -36,8 +36,8 @@ case "$event" in
   SubagentStart)
     case "$agent" in
       explorer) role=explorer ;;
-      coder | claude-pm:project-developer) role=coder ;;
-      reviewer | claude-pm:code-review-reporter) role=reviewer ;;
+      coder) role=coder ;;
+      reviewer) role=reviewer ;;
       *) skip ;;
     esac
     ;;
