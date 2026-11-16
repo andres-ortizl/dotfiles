@@ -26,9 +26,11 @@ grep -oE 'github\.com/[^/ ]+/[^/ ]+/pull/[0-9]+' "$loop" | sort -u -t/ -k5,5n | 
       elif $pending > 0 then "CI \($pending) pending"
       else "CI ok" end' <<<"$pr")
 
-  score=$(gh api "repos/$repo/issues/$n/comments" --paginate \
-      -q '[.[] | select(.user.login | test("greptile"; "i"))] | last | .body // ""' \
-    | grep -oE 'Confidence Score: [0-9]/5' | head -1 | sed 's/Confidence Score: //' || true)
+  summary=$(gh api "repos/$repo/issues/$n/comments" --paginate \
+      -q '[.[] | select(.user.login | test("greptile"; "i"))] | last | .body // ""')
+  score=$(grep -oE 'Confidence Score: [0-9]/5' <<<"$summary" | head -1 | sed 's/Confidence Score: //' || true)
+  # The score belongs to the commit the summary reviewed, which may be older than the head.
+  reviewed=$(grep -oE 'Last reviewed commit:.*/commit/[0-9a-f]{7,40}' <<<"$summary" | grep -oE '[0-9a-f]{7,40}$' | head -1 || true)
   open=$(gh api graphql -F owner="${repo%/*}" -F name="${repo#*/}" -F n="$n" -f query='
       query($owner:String!,$name:String!,$n:Int!){ repository(owner:$owner,name:$name){ pullRequest(number:$n){
         reviewThreads(first:100){ nodes{ isResolved comments(first:1){ nodes{ author{login} } } } } } } }' \
@@ -38,9 +40,12 @@ grep -oE 'github\.com/[^/ ]+/[^/ ]+/pull/[0-9]+' "$loop" | sort -u -t/ -k5,5n | 
 
   base=$(jq -r .baseRefName <<<"$pr")
   head=$(jq -r .headRefOid <<<"$pr")
+  if [ -n "$score" ] && [[ "$head" != "$reviewed"* || -z "$reviewed" ]]; then
+    score="$score stale@${reviewed:0:8}"
+  fi
   behind=$(gh api "repos/$repo/compare/$base...$head" -q .behind_by 2>/dev/null || echo "?")
 
-  printf '#%-6s %-8s →%-24s %s  %-34s Greptile %-4s %s open  %-11s %s behind\n' \
+  printf '#%-6s %-8s →%-24s %s  %-34s Greptile %-19s %s open  %-11s %s behind\n' \
     "$n" "$state" "$base" "${head:0:8}" \
     "$ci" "${score:--}" "$open" "$(jq -r .mergeable <<<"$pr")" "$behind"
 done
