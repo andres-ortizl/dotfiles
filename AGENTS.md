@@ -160,7 +160,7 @@ For user-facing changes:
 - Never add `Co-Authored-By` trailers.
 - Never add an agent name as a commit co-author.
 - Never add AI-attribution labels (`claude-code-assisted`, `ai-generated` and similar) to a PR.
-- Order before a PR: commit, have `reviewer` review the whole diff, fix, then push and open the PR. A slice's reviewer pass counts as that review when the PR holds only that slice's commits. Never open a PR, not even a draft, while the review runs. Review every review-bot fix that changes logic before its push.
+- Order before a PR: commit, have `reviewer` review the whole diff, fix, then push and open the PR. A slice's reviewer pass counts as that review when the PR holds only that slice's commits. A mechanical change skips it: its grep, its tests, CI and the review bot gate it. Never open a PR, not even a draft, while the review runs. Review every review-bot fix that changes logic before its push.
 - Do not commit, push, or open a pull request unless the user explicitly asks. An approved slice plan that says a slice ends in a PR counts as asking.
 - Follow the repository's own branch and PR conventions (its CLAUDE.md or CONTRIBUTING.md). Do not assume `main` or `master`.
 
