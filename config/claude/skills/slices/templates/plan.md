@@ -22,6 +22,7 @@
   - AC1: `<command>` -> <expected result>
   - AC2: `<command>` -> <expected result>
 - **Ends in:** <a PR against <base> | a local change | no code>
+- **Merge:** manual | auto (only with a PR; manual unless the user says auto)
 
 ## Waves
 

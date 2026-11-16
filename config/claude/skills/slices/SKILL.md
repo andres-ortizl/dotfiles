@@ -87,12 +87,13 @@ Workflow({ name: "slices-wave", args: { epic, repo_path, wave, slices: [ { id, g
 
 ## ship `<slice>`
 
-Run it for each slice whose **Ends in** line names a PR, once its reviewer passed it and you checked its evidence. Merging stays with the user.
+Run it for each slice whose **Ends in** line names a PR, once its reviewer passed it and you checked its evidence. The user merges, unless the slice's **Merge** line says `auto`.
 
 1. Push the slice's branch and open the PR against the base the repository's CLAUDE.md or CONTRIBUTING.md names. Use the repository's `pr` skill when it has one; otherwise run `gh pr create` with `--body-file`. The slice reviewer's pass is the review before the PR when the PR holds only this slice's commits. A PR that also holds other work gets a reviewer pass on its whole diff first. Link the PR in `loop.md` and set the status to `pr`.
 2. Wait for CI with `status.sh`. Fix a red check on the slice's branch, with the repository's CI skill when it has one (`react-to-pipelines`). Send every fix that changes logic to the reviewer before its push.
 3. With CI green, set the status to `bot-review`. Answer the review bot with the repository's skill for it when it has one (`react-to-greptile`). Send every bot-driven fix that changes logic to the reviewer before its push.
 4. Set the status to `ready` when `status.sh` shows `READY yes`, and tell the user. Otherwise fix what its `no:` names. A 3/5 counts only when the user accepts it for that PR; log it in `logbook.md` as `decided:`.
+5. With `Merge: auto` and `READY yes`, run `gh pr merge <n> --repo <repo> --merge --match-head-commit <full head SHA from `gh pr view <n> --json headRefOid`>`, then run `land`. In a stack, merge the bottom PR first, then run `status.sh` again for the next one. With `Merge: manual`, stop at `ready`.
 
 ## land `<slice>` (also on "mergeado", "merged")
 
