@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# Run pi with its API keys loaded from the dotfiles .env.
+# GUI apps such as T3 Code start pi without the interactive shell, so the
+# `pi` shell function in shell/functions.sh never runs there.
+set -euo pipefail
+
+env_file="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/.env"
+
+if [[ -f "$env_file" ]]; then
+  for var_name in OPENAI_API_KEY OPENCODE_API_KEY; do
+    if [[ -z "${!var_name:-}" ]]; then
+      value=$(grep "^${var_name}=" "$env_file" | cut -d= -f2- | sed "s/^[\"']//; s/[\"']\$//" || true)
+      [[ -n "$value" ]] && export "$var_name=$value"
+    fi
+  done
+fi
+
+exec pi "$@"
