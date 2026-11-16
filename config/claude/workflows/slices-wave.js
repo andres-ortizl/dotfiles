@@ -107,7 +107,7 @@ function workspaceRule(s, previous) {
     return `Work in ${previous.worktree_path}, on branch ${previous.branch}. Commit your fixes there and report the branch, the new head SHA and the worktree path.`
   }
   if (s.isolation === 'worktree') {
-    return `You run in your own git worktree. Commit your work on a branch named slices/${args.epic}-${s.id} and report the branch, the head SHA and the worktree path (git rev-parse --show-toplevel).`
+    return `You run in your own git worktree. Before anything else, append the output of git rev-parse --show-toplevel as one line to the file slices-children inside the directory that git -C ${args.repo_path} rev-parse --absolute-git-dir prints: the thread's settle tears down the worktrees listed there. If that write is refused, say so in your signals and go on. Commit your work on a branch named slices/${args.epic}-${s.id} and report the branch, the head SHA and the worktree path (git rev-parse --show-toplevel).`
   }
   return `Work in ${args.repo_path}. Other slices run in the same checkout at the same time: edit only the files this slice touches, and do not commit, stash, reset or switch branches.`
 }

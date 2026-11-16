@@ -14,7 +14,7 @@ One epic = one loop folder: `~/.artifacts/<repo>/loops/<epic>/`. `<repo>` is the
 | `logbook.md` | dated decisions and events, one line each | append only |
 | `signals.md` | friction the agents hit, one line each | append only, consumed by the retro |
 
-Only the main agent writes these files. Subagents report; the main agent copies.
+Only the main agent writes these files. Subagents report; the main agent copies. Set a table cell with [`loop-row.py`](loop-row.py) `<file> <section> <row key> <column> <value>`, never with a prefix match.
 
 Templates: [`templates/`](templates/). Copy them; do not invent another shape.
 
@@ -27,6 +27,7 @@ This file holds only what every slice needs. Everything else is a pack: a short 
 | [`contract-change`](packs/contract-change.md) | a slice changes a route, schema, tool, wire key, file format, or user-visible behaviour |
 | [`rename`](packs/rename.md) | a slice removes or renames a name or value across the tree |
 | [`generated-files`](packs/generated-files.md) | a slice regenerates a committed file |
+| [`dependency-upgrade`](packs/dependency-upgrade.md) | a slice changes a lock file |
 | [`stacked-prs`](packs/stacked-prs.md) | slices whose PRs build on each other |
 | [`worktrees`](packs/worktrees.md) | the session is isolated in a worktree, or two slices commit at once |
 | [`live-probe`](packs/live-probe.md) | a criterion or brief calls a live API, or a finding claims what a class accepts |
@@ -82,7 +83,7 @@ Workflow({ name: "slices-wave", args: { epic, repo_path, wave, slices: [ { id, g
 - When it returns, check each slice's evidence yourself before marking it `done`: the AC commands, the reviewer's verdict line. Copy every `signals` entry into `signals.md` with the slice id, every `follow_ups` entry (the P2 findings left on a slice that shipped) into the "Follow-ups" table of `loop.md`, and every `decisions` entry as "Decide or stop" says. A slice run inline does the same with its reviewer's report. A slice that returned `stopped` hit a gate: report the gate and the coder's reason to the user.
 - A slice that ended with `Verdict: fix ...` after 3 rounds is `blocked`. Report it to the user with the open findings; do not start a fourth round on your own.
 - Every defect a brief states carries its evidence: a `file:symbol` citation of the code as it is on the base today, or the output of a probe that reproduces it.
-- The coder commits its work (a WIP commit is fine) before the review starts, and names the SHA. The reviewer reviews in a detached worktree at that SHA (`git worktree add --detach <path> <sha>`), never in a tree someone is still editing, and may mutate code there to prove a finding.
+- The coder commits its work (a WIP commit is fine) before the review starts, and names the SHA. The reviewer reviews in the coder's worktree at that SHA while the coder is stopped, and does not edit it. It creates a detached worktree (`git worktree add --detach <main checkout>/.claude/worktrees/review-<slice> <sha>`) only to mutate code to prove a finding, or when other slices are still editing that checkout, and removes it with `git worktree remove --force <path>` when the review ends.
 
 ## retro
 

@@ -1,7 +1,7 @@
 # Pack: stacked PRs
 
 Trigger: two or more slices whose PRs build on each other.
-Last used: code-node-rename-and-costs
+Last used: page-owns-its-blocks
 
 - After the PRs exist, run `gh stack link --base <trunk> <every PR, merged ones included>`. GitHub then rebases and retargets the upper PRs when a lower one merges. If the repository has stacks disabled, merge bottom-up and retarget each child yourself.
 - Open every PR ready for review, never as a draft, and link the stack as soon as the PRs exist.

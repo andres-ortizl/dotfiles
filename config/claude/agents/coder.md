@@ -18,6 +18,7 @@ Before writing:
 While writing:
 - Write a failing test first for each behaviour, then the code. Trivial changes need no test.
 - Follow the existing style, naming and comment rules.
+- Quote every glob, use literal absolute paths (no `$VAR`), run one plain command per call, and put anything multi-step in a scratchpad script: worktree guards refuse the rest.
 - Do not fix things outside the slice. Report them under Signals.
 - An accepted shortcut gets a marker comment: `deferred: <the limit>, <when to revisit>`.
 

@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Runs when a T3 Code thread settles: frees the worktrees its slices created, then its tab and stack.
+set -uo pipefail
+
+"$(dirname "$0")/worktree-tab" close || echo "worktree-close: tab not closed" >&2
+
+thread=${T3CODE_WORKTREE_PATH:-}
+[ -n "$thread" ] || exit 0
+
+af=$thread/.venv/bin/af
+children=$(git -C "$thread" rev-parse --absolute-git-dir)/slices-children
+
+if [ -f "$children" ]; then
+  sort -u "$children" | while IFS= read -r child; do
+    # A coder whose isolation failed runs in the thread and lists it here.
+    [ "$child" != "$thread" ] || continue
+    "$af" worktree teardown "$child" </dev/null || echo "worktree-close: teardown failed for $child" >&2
+  done
+fi
+
+"$af" worktree teardown --stack-only
