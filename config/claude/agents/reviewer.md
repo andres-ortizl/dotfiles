@@ -29,6 +29,15 @@ N. [P1] <title> - <file>:<line>
    If we skip it: <the consequence>
 ```
 
+Before the findings, list the rules you checked, one block per rule file you read:
+
+```
+Rules read: <rule file>
+- <rule that applies to this diff>: pass | finding N
+```
+
+A rule file with no rule that applies to the diff gets one line: `<rule file>: nothing applies`.
+
 Then one verdict line: `Verdict: ship` or `Verdict: fix 1 and 3 first`. Pass only with no P0 or P1.
 
 End with:

@@ -91,12 +91,30 @@ const REVIEW_SCHEMA = {
         required: ['n', 'severity', 'title', 'location', 'problem', 'fix'],
       },
     },
+    rules_read: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          file: { type: 'string' },
+          rules: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: { rule: { type: 'string' }, result: { type: 'string' } },
+              required: ['rule', 'result'],
+            },
+          },
+        },
+        required: ['file', 'rules'],
+      },
+    },
     verdict: { type: 'string', enum: ['ship', 'fix'] },
     verdict_line: { type: 'string' },
     not_checked: { type: 'string' },
     signals: { type: 'array', items: { type: 'string' } },
   },
-  required: ['acceptance', 'findings', 'verdict', 'verdict_line', 'not_checked', 'signals'],
+  required: ['acceptance', 'rules_read', 'findings', 'verdict', 'verdict_line', 'not_checked', 'signals'],
 }
 
 function sliceBlock(s) {
@@ -139,7 +157,7 @@ function reviewerPrompt(s, coded, earlierFindings) {
   const earlier = earlierFindings
     ? `\n\nThe findings of the earlier round:\n${JSON.stringify(earlierFindings, null, 2)}`
     : ''
-  return `${sliceBlock(s)}\n\n${where}${from} ${scratchRule(s)}\n\nThe coder's report:\n${JSON.stringify(coded, null, 2)}${earlier}\n\nRe-run each acceptance criterion command yourself before you pass it. Run each test in red_run against the parent of the slice's first commit (the new test files only, in a throwaway detached worktree) and confirm it fails; a new test that passes there is a P1 finding.`
+  return `${sliceBlock(s)}\n\n${where}${from} ${scratchRule(s)}\n\nThe coder's report:\n${JSON.stringify(coded, null, 2)}${earlier}\n\nCheck the repository's rules before correctness: in rules_read, list each rule file you read, with every rule in it that applies to this diff and its result (pass, or the number of your finding). Re-run each acceptance criterion command yourself before you pass it. Run each test in red_run against the parent of the slice's first commit (the new test files only, in a throwaway detached worktree) and confirm it fails; a new test that passes there is a P1 finding.`
 }
 
 async function runSlice(s) {
