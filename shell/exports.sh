@@ -70,5 +70,3 @@ export PSPG="-s 22 -X -F -c 1 --no-mouse"
 export "MICRO_TRUECOLOR=1"
 export STARSHIP_CONFIG="$HOME/.config/starship/config.toml"
 export BAT_CONFIG_PATH="$HOME/.config/bat/bat.conf"
-# lean-ctx wraps cat/ls/k with aliases; only do that inside agent shells so bat/eza aliases survive
-export LEAN_CTX_SHELL_ACTIVATION="agents-only"

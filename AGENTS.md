@@ -91,7 +91,7 @@ Do not pause for approval during routine autonomous work.
 
 ## Principles
 
-- When making technical decisions, do not give much weight to development cost. Instead, prefer quality, simplicity, robustness, scalability, and long term maintainability.
+- When making technical decisions, do not give much weight to development cost. Instead, prefer quality, simplicity, robustness, and long term maintainability. Design for the load that exists today.
 - For one-off or infrequent operational work, start with the simplest direct end-to-end path. Do not build wrappers, control planes, policy layers, custom verifiers, or automation unless the direct path exposes a concrete blocker or repeated need that justifies the added machinery.
 - Solve the current problem. Do not pre-build for hypothetical future needs.
 - Prefer straightforward solutions over clever solutions.
@@ -171,7 +171,7 @@ For user-facing changes:
 - State assumptions before acting on them.
 - Separate verified facts from inference.
 - In the final response, state changed files and validation performed.
-- Never use an em dash. Use a plain hyphen instead.
+- Write every dash as a plain hyphen (-).
 - Answer in the language the user writes in.
 
 ### Status reports and decisions
