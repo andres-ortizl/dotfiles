@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# One line per PR: state, base, head, CI, review bot, mergeability.
+# One line per PR: state, base, head, CI, review bot, mergeability, and READY:
+# yes, or no with the first condition that fails. A PR stacked on a listed PR is ready only when that PR is.
 # Usage: status.sh <loop dir or loop.md>       every PR linked in the loop, then its open signals
 #        status.sh <PR url | owner/repo#N>...   those PRs only
 set -euo pipefail
@@ -23,14 +24,19 @@ else
   done)
 fi
 
+# Rows print after the loop, so a stacked PR can check the PR it sits on.
+rows=() branches=()
+declare -A own base_of num_of stale_note
+
 while read -r url; do
   repo=$(cut -d/ -f2-3 <<<"$url")
   n=$(cut -d/ -f5 <<<"$url")
 
-  pr=$(gh pr view "$n" --repo "$repo" --json state,baseRefName,headRefOid,mergeable,mergeCommit,statusCheckRollup)
+  pr=$(gh pr view "$n" --repo "$repo" --json state,isDraft,baseRefName,headRefName,headRefOid,mergeable,mergeCommit,statusCheckRollup)
   state=$(jq -r '.state | ascii_downcase' <<<"$pr")
   if [ "$state" = merged ]; then
-    printf '#%-6s merged   %s\n' "$n" "$(jq -r '.mergeCommit.oid[0:8]' <<<"$pr")"
+    rows+=("$(printf '#%-6s merged   %s' "$n" "$(jq -r '.mergeCommit.oid[0:8]' <<<"$pr")")")
+    branches+=("")
     continue
   fi
 
@@ -57,15 +63,56 @@ while read -r url; do
 
   base=$(jq -r .baseRefName <<<"$pr")
   head=$(jq -r .headRefOid <<<"$pr")
+  mergeable=$(jq -r .mergeable <<<"$pr")
+  # GitHub computes mergeability on the first request and answers UNKNOWN until it is done.
+  if [ "$mergeable" = UNKNOWN ]; then
+    sleep 3
+    mergeable=$(gh pr view "$n" --repo "$repo" --json mergeable -q .mergeable)
+  fi
+  stale=""
   if [ -n "$score" ] && [[ "$head" != "$reviewed"* || -z "$reviewed" ]]; then
-    score="$score stale@${reviewed:0:8}"
+    stale="${reviewed:0:8}"
+    score="$score stale@$stale"
   fi
   behind=$(gh api "repos/$repo/compare/$base...$head" -q .behind_by 2>/dev/null || echo "?")
 
-  printf '#%-6s %-8s →%-24s %s  %-34s Greptile %-19s %s open  %-11s %s behind\n' \
+  # A 4/5 with every thread closed counts as 5/5, even when the score belongs to an older commit.
+  if [ "$(jq -r .isDraft <<<"$pr")" = true ]; then why="draft"
+  elif [[ "$ci" == "CI FAIL"* ]]; then why="CI FAIL"
+  elif [ "$ci" != "CI ok" ]; then why="$ci"
+  elif [ -z "$score" ]; then why="no Greptile score"
+  elif [ "${score%%/*}" -lt 4 ]; then why="Greptile ${score%% *}"
+  elif [ "$open" -gt 0 ]; then why="$open Greptile threads open"
+  elif [ "$mergeable" != MERGEABLE ]; then why="mergeable $mergeable"
+  else why=""
+  fi
+
+  branch=$(jq -r .headRefName <<<"$pr")
+  own[$branch]=$why
+  base_of[$branch]=$base
+  num_of[$branch]=$n
+  stale_note[$branch]=${stale:+(score @$stale)}
+  rows+=("$(printf '#%-6s %-8s →%-24s %s  %-34s Greptile %-19s %s open  %-11s %s behind' \
     "$n" "$state" "$base" "${head:0:8}" \
-    "$ci" "${score:--}" "$open" "$(jq -r .mergeable <<<"$pr")" "$behind"
+    "$ci" "${score:--}" "$open" "$mergeable" "$behind")")
+  branches+=("$branch")
 done <<<"$urls"
+
+for i in "${!rows[@]}"; do
+  branch=${branches[$i]}
+  if [ -z "$branch" ]; then
+    echo "${rows[$i]}"
+    continue
+  fi
+  why=${own[$branch]}
+  b=${base_of[$branch]}
+  while [ -z "$why" ] && [ -n "${num_of[$b]+set}" ]; do
+    [ -n "${own[$b]}" ] && why="base #${num_of[$b]} not ready"
+    b=${base_of[$b]}
+  done
+  if [ -n "$why" ]; then ready="no: $why"; else ready="yes ${stale_note[$branch]:-}"; fi
+  echo "${rows[$i]}  READY ${ready% }"
+done
 
 # A retro gives every signal an outcome; the rest are signals no retro has looked at.
 signals="$(dirname "$loop")/signals.md"

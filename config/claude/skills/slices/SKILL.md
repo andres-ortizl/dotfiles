@@ -66,7 +66,7 @@ Stop and ask only at these gates:
 ## status (also on "retoma", "cómo va", "qué falta")
 
 1. Read `loop.md`, then run [`status.sh`](status.sh) `<loop dir>`: one line per PR linked in `loop.md` with its state, base, head, CI, review-bot score, open bot threads, mergeability and commits behind its base, then the number of signals without an outcome. Never answer from memory, and never rebuild this with ad-hoc `gh` calls.
-   - CI is green only when every expected check has completed and passed on the head SHA. A pending, queued or missing check is not green. The same bar applies before a slice is marked `done`. After a push or a rerun, wait until the expected checks appear before reading their state.
+   - CI is green only when every expected check has completed and passed on the head SHA. A pending, queued or missing check is not green. The same bar applies before a slice is marked `ready` or `done`. After a push or a rerun, wait until the expected checks appear before reading their state.
 2. Update `loop.md` with what changed.
 3. Answer with one table: slice | goal in plain words | status | evidence or blocker | PR link. Then the "Decided for you" rows added since the last status, and the next step.
 
@@ -92,7 +92,7 @@ Run it for each slice whose **Ends in** line names a PR, once its reviewer passe
 1. Push the slice's branch and open the PR against the base the repository's CLAUDE.md or CONTRIBUTING.md names. Use the repository's `pr` skill when it has one; otherwise run `gh pr create` with `--body-file`. The slice reviewer's pass is the review before the PR when the PR holds only this slice's commits. A PR that also holds other work gets a reviewer pass on its whole diff first. Link the PR in `loop.md` and set the status to `pr`.
 2. Wait for CI with `status.sh`. Fix a red check on the slice's branch, with the repository's CI skill when it has one (`react-to-pipelines`). Send every fix that changes logic to the reviewer before its push.
 3. With CI green, set the status to `bot-review`. Answer the review bot with the repository's skill for it when it has one (`react-to-greptile`). Send every bot-driven fix that changes logic to the reviewer before its push.
-4. Set the status to `done` when `status.sh` shows, for the current head: CI ok, the bot's review of that head, and 0 open bot threads.
+4. Set the status to `ready` when `status.sh` shows `READY yes`, and tell the user. Otherwise fix what its `no:` names. A 3/5 counts only when the user accepts it for that PR; log it in `logbook.md` as `decided:`.
 
 ## land `<slice>` (also on "mergeado", "merged")
 
