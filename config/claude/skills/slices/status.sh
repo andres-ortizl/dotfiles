@@ -49,3 +49,10 @@ grep -oE 'github\.com/[^/ ]+/[^/ ]+/pull/[0-9]+' "$loop" | sort -u -t/ -k5,5n | 
     "$n" "$state" "$base" "${head:0:8}" \
     "$ci" "${score:--}" "$open" "$(jq -r .mergeable <<<"$pr")" "$behind"
 done
+
+# A retro gives every signal an outcome; the rest are signals no retro has looked at.
+signals="$(dirname "$loop")/signals.md"
+if [ -f "$signals" ]; then
+  pending=$(grep -E '^- ' "$signals" | grep -cvE '\[(used|dup|dropped)' || true)
+  echo "signals: $pending without outcome"
+fi

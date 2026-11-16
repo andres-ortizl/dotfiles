@@ -65,7 +65,7 @@ Stop and ask only at these gates:
 
 ## status (also on "retoma", "cómo va", "qué falta")
 
-1. Read `loop.md`, then run [`status.sh`](status.sh) `<loop dir>`: one line per PR linked in `loop.md` with its state, base, head, CI, review-bot score, open bot threads, mergeability and commits behind its base. Never answer from memory, and never rebuild this with ad-hoc `gh` calls.
+1. Read `loop.md`, then run [`status.sh`](status.sh) `<loop dir>`: one line per PR linked in `loop.md` with its state, base, head, CI, review-bot score, open bot threads, mergeability and commits behind its base, then the number of signals without an outcome. Never answer from memory, and never rebuild this with ad-hoc `gh` calls.
    - CI is green only when every expected check has completed and passed on the head SHA. A pending, queued or missing check is not green. The same bar applies before a slice is marked `done`. After a push or a rerun, wait until the expected checks appear before reading their state.
 2. Update `loop.md` with what changed.
 3. Answer with one table: slice | goal in plain words | status | evidence or blocker | PR link. Then the "Decided for you" rows added since the last status, and the next step.
@@ -119,5 +119,5 @@ Run it as the last slice of every loop, and when the user asks.
    - Prefer a mechanism to a sentence. A new line replaces or merges an old one: this file and each pack do not grow.
    - A generic line names no module, route or format of this epic. Write every line in English, whatever language the conversation uses.
 5. Set `Last used:` to this epic in every pack a slice of this loop loaded. Propose deleting a pack, or a line in it, that no slice loaded in the last three loops.
-6. Show one table per destination: what happened (count) | proposed change | file or issue. Apply what the user approves, mark those signals `[used]`, and log the retro in `logbook.md`.
+6. Show one table per destination: what happened (count) | proposed change | file or issue. Apply what the user approves and log the retro in `logbook.md`. Then give every signal you read an outcome at the end of its line: `[used]` when an approved change came from it, `[dup]` when another signal or an existing line already covers it, `[dropped: <why>]` otherwise. `status.sh` counts the signals left without one.
 7. Show the follow-ups in a last table: finding | location | proposal (open an issue, or drop it and why). Open the issues the user approves and mark each row `issue <link>` or `dropped`.
