@@ -1,29 +1,110 @@
 [
-  {"emoji": ":thinking_face:", "text": "Pondering..."},
-  {"emoji": ":brain:", "text": "Contemplating..."},
-  {"emoji": ":moyai:", "text": "Pontificating..."},
-  {"emoji": ":cow:", "text": "Ruminating..."},
-  {"emoji": ":scales:", "text": "Deliberating..."},
-  {"emoji": ":thought_balloon:", "text": "Mulling it over..."},
-  {"emoji": ":books:", "text": "Consulting the archives..."},
-  {"emoji": ":mag:", "text": "Cross-referencing..."},
-  {"emoji": ":dna:", "text": "Synthesizing..."},
-  {"emoji": ":microscope:", "text": "Formulating a hypothesis..."},
-  {"emoji": ":nerd_face:", "text": "Peer-reviewing myself..."},
-  {"emoji": ":hole:", "text": "Staring into the void..."},
-  {"emoji": ":duck:", "text": "Asking the rubber duck..."},
-  {"emoji": ":zap:", "text": "Shuffling neurons..."},
-  {"emoji": ":link:", "text": "Connecting dots..."},
-  {"emoji": ":spaghetti:", "text": "Untangling spaghetti..."},
-  {"emoji": ":couch_and_lamp:", "text": "Rearranging mental furniture..."},
-  {"emoji": ":cave:", "text": "Descending into the codebase..."},
-  {"emoji": ":scroll:", "text": "Channeling ancient wisdom..."},
-  {"emoji": ":crystal_ball:", "text": "Summoning the context window..."},
-  {"emoji": ":oracle:", "text": "Consulting the oracle..."},
-  {"emoji": ":sparkles:", "text": "Entering the flow state..."},
-  {"emoji": ":eyes:", "text": "Reading the error message this time..."},
-  {"emoji": ":electric_plug:", "text": "Checking if it's plugged in..."},
-  {"emoji": ":bug:", "text": "Wondering if this is a feature..."},
-  {"emoji": ":shushing_face:", "text": "Pretending I knew that..."},
-  {"emoji": ":no_good:", "text": "Resisting the urge to refactor..."}
+  {
+    "emoji": ":thinking_face:",
+    "text": "Pondering..."
+  },
+  {
+    "emoji": ":brain:",
+    "text": "Contemplating..."
+  },
+  {
+    "emoji": ":moyai:",
+    "text": "Pontificating..."
+  },
+  {
+    "emoji": ":cow:",
+    "text": "Ruminating..."
+  },
+  {
+    "emoji": ":scales:",
+    "text": "Deliberating..."
+  },
+  {
+    "emoji": ":thought_balloon:",
+    "text": "Mulling it over..."
+  },
+  {
+    "emoji": ":books:",
+    "text": "Consulting the archives..."
+  },
+  {
+    "emoji": ":mag:",
+    "text": "Cross-referencing..."
+  },
+  {
+    "emoji": ":dna:",
+    "text": "Synthesizing..."
+  },
+  {
+    "emoji": ":microscope:",
+    "text": "Formulating a hypothesis..."
+  },
+  {
+    "emoji": ":nerd_face:",
+    "text": "Peer-reviewing myself..."
+  },
+  {
+    "emoji": ":hole:",
+    "text": "Staring into the void..."
+  },
+  {
+    "emoji": ":duck:",
+    "text": "Asking the rubber duck..."
+  },
+  {
+    "emoji": ":zap:",
+    "text": "Shuffling neurons..."
+  },
+  {
+    "emoji": ":link:",
+    "text": "Connecting dots..."
+  },
+  {
+    "emoji": ":spaghetti:",
+    "text": "Untangling spaghetti..."
+  },
+  {
+    "emoji": ":couch_and_lamp:",
+    "text": "Rearranging mental furniture..."
+  },
+  {
+    "emoji": ":cave:",
+    "text": "Descending into the codebase..."
+  },
+  {
+    "emoji": ":scroll:",
+    "text": "Channeling ancient wisdom..."
+  },
+  {
+    "emoji": ":crystal_ball:",
+    "text": "Summoning the context window..."
+  },
+  {
+    "emoji": ":oracle:",
+    "text": "Consulting the oracle..."
+  },
+  {
+    "emoji": ":sparkles:",
+    "text": "Entering the flow state..."
+  },
+  {
+    "emoji": ":eyes:",
+    "text": "Reading the error message this time..."
+  },
+  {
+    "emoji": ":electric_plug:",
+    "text": "Checking if it's plugged in..."
+  },
+  {
+    "emoji": ":bug:",
+    "text": "Wondering if this is a feature..."
+  },
+  {
+    "emoji": ":shushing_face:",
+    "text": "Pretending I knew that..."
+  },
+  {
+    "emoji": ":no_good:",
+    "text": "Resisting the urge to refactor..."
+  }
 ]
