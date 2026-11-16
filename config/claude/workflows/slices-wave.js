@@ -110,6 +110,11 @@ function sliceBlock(s) {
   ].join('\n')
 }
 
+// Slices in one wave share the session scratchpad; a folder per slice keeps their scripts apart.
+function scratchRule(s) {
+  return `Write every script and scratch file in the folder ${args.epic}-${s.id} inside your scratchpad directory (create it), never at the scratchpad's top level. Start each script with a chdir to an absolute path.`
+}
+
 function workspaceRule(s, previous) {
   if (s.isolation === 'worktree' && previous && previous.worktree_path) {
     return `Work in ${previous.worktree_path}, on branch ${previous.branch}. Commit your fixes there and report the branch, the new head SHA and the worktree path.`
@@ -124,7 +129,7 @@ function coderPrompt(s, findings, previous) {
   const fix = findings
     ? `\n\nThe reviewer asked for fixes. Address each one, then re-prove every acceptance criterion:\n${JSON.stringify(findings, null, 2)}`
     : ''
-  return `${sliceBlock(s)}\n\n${workspaceRule(s, previous)}\n\nImplement this slice. Write each new test first and run it before the code: put its command and failing output in red_run. Leave red_run empty only for a change with no new test, and say why in not_checked. Prove each acceptance criterion by running its command; put the real output in your report.\n\n${DECIDE_OR_STOP}${fix}`
+  return `${sliceBlock(s)}\n\n${workspaceRule(s, previous)} ${scratchRule(s)}\n\nImplement this slice. Write each new test first and run it before the code: put its command and failing output in red_run. Leave red_run empty only for a change with no new test, and say why in not_checked. Prove each acceptance criterion by running its command; put the real output in your report.\n\n${DECIDE_OR_STOP}${fix}`
 }
 
 function reviewerPrompt(s, coded, earlierFindings) {
@@ -134,7 +139,7 @@ function reviewerPrompt(s, coded, earlierFindings) {
   const earlier = earlierFindings
     ? `\n\nThe findings of the earlier round:\n${JSON.stringify(earlierFindings, null, 2)}`
     : ''
-  return `${sliceBlock(s)}\n\n${where}${from}\n\nThe coder's report:\n${JSON.stringify(coded, null, 2)}${earlier}\n\nRe-run each acceptance criterion command yourself before you pass it. Run each test in red_run against the parent of the slice's first commit (the new test files only, in a throwaway detached worktree) and confirm it fails; a new test that passes there is a P1 finding.`
+  return `${sliceBlock(s)}\n\n${where}${from} ${scratchRule(s)}\n\nThe coder's report:\n${JSON.stringify(coded, null, 2)}${earlier}\n\nRe-run each acceptance criterion command yourself before you pass it. Run each test in red_run against the parent of the slice's first commit (the new test files only, in a throwaway detached worktree) and confirm it fails; a new test that passes there is a P1 finding.`
 }
 
 async function runSlice(s) {
