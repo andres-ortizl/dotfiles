@@ -61,9 +61,9 @@ Do NOT propose interfaces yet. Ask the user: "Which of these would you like to e
 
 Once the user picks a candidate, walk the design tree with them — constraints, dependencies, the shape of the deepened module, what sits behind the seam, what tests survive.
 
-Stay in conversation; don't go off and refactor unilaterally. The output of this skill is a clear refactor plan the user can hand to `/spec` or `/chunked-review`, not the refactor itself.
+Stay in conversation; don't go off and refactor unilaterally. The output of this skill is a clear refactor plan the user can hand to `/slices` or `/chunked-review`, not the refactor itself.
 
 ## Companion skills
 
 - `/diagnose` — when an architectural problem was uncovered while debugging ("no good test seam exists for this bug"), `/diagnose` Phase 6 hands the finding here. Treat that as a prioritised candidate.
-- `/spec` or `/chunked-review` — once a candidate is agreed, the actual implementation goes through one of those loops, not this skill.
+- `/slices` or `/chunked-review` — once a candidate is agreed, the actual implementation goes through one of those loops, not this skill.
