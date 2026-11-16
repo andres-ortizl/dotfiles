@@ -1,0 +1,5 @@
+{
+  "description": "Personal hooks: role profiles, report and signal checks, stack teardown, zellij tab alerts",
+  "name": "personal",
+  "version": "1.0.0"
+}

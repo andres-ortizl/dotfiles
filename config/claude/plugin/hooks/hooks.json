@@ -1,0 +1,92 @@
+{
+  "hooks": {
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "command": "/Users/andrew/.claude/hooks/zellij-tab-notify.sh alert",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "command": "/Users/andrew/code/dotfiles/config/claude/hooks/signals-append.py",
+            "timeout": 10,
+            "type": "command"
+          }
+        ],
+        "matcher": "^Agent$"
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "command": "/Users/andrew/code/dotfiles/config/claude/hooks/worktree-stack-down.sh",
+            "timeout": 5,
+            "type": "command"
+          }
+        ],
+        "matcher": "prompt_input_exit|other"
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "command": "/Users/andrew/code/dotfiles/config/claude/hooks/profile.sh",
+            "timeout": 10,
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "command": "/Users/andrew/.claude/hooks/zellij-tab-notify.sh alert",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "command": "/Users/andrew/code/dotfiles/config/claude/hooks/profile.sh",
+            "timeout": 10,
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "command": "/Users/andrew/code/dotfiles/config/claude/hooks/report-check.sh",
+            "timeout": 10,
+            "type": "command"
+          }
+        ],
+        "matcher": "^(coder|reviewer|explorer)$"
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "command": "/Users/andrew/.claude/hooks/zellij-tab-notify.sh prompt",
+            "type": "command"
+          }
+        ]
+      }
+    ]
+  }
+}

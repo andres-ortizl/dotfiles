@@ -1,0 +1,13 @@
+{
+  "name": "dotfiles",
+  "owner": {
+    "name": "dotfiles"
+  },
+  "plugins": [
+    {
+      "description": "Personal hooks: role profiles, report and signal checks, stack teardown, zellij tab alerts",
+      "name": "personal",
+      "source": "./"
+    }
+  ]
+}
