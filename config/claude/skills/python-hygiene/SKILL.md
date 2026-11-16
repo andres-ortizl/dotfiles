@@ -1,6 +1,6 @@
 ---
 name: python-hygiene
-description: "Hygiene pass for Python: run Astral's ty (type check) + ruff (lint + autofix + format). Autofix what's fixable, report what's not. Use after editing Python or before committing."
+description: "Hygiene pass for Python: run Astral's ty (type check) + ruff (lint + autofix, and format only when the repo formats), the way the repo's own pre-commit runs them. Autofix what's fixable, report what's not. Use after editing Python or before committing."
 triggers:
   - python hygiene
   - check python
@@ -15,13 +15,13 @@ triggers:
 
 # Python hygiene (ty + ruff)
 
-Run Astral's two tools to catch and fix Python issues:
+Run Astral's two tools the way the repo itself runs them, so the findings match its CI:
 
 - `ruff check --fix` — lints with the project's rules and autofixes anything fixable.
-- `ruff format` — applies the project's format.
-- `ty check` — runs Astral's type checker.
+- `ruff format` — only when the repo formats with ruff (see step 2).
+- `ty` — Astral's type checker.
 
-Project rules come from `pyproject.toml` / `ruff.toml` / `ty.toml`. Don't override them on the command line.
+Project rules come from `pyproject.toml` / `ruff.toml` / `ty.toml` and the repo's `.pre-commit-config.yaml`. Don't override them on the command line.
 
 ## When to invoke
 
@@ -33,30 +33,31 @@ Project rules come from `pyproject.toml` / `ruff.toml` / `ty.toml`. Don't overri
 
 1. **Identify scope.** Prefer the files Claude just edited. If unclear, fall back to the package directory; only run on the whole repo if the user asks for it.
 
-2. **Autofix with ruff first** (cheap, removes noise before type-checking):
+2. **Find how the repo runs ruff and ty.**
+
+   - **The repo has `.pre-commit-config.yaml`:** use its hooks. They pin the tool versions and carry the repo's arguments (a ty hook may check the whole tree, a strict ruff config may apply to changed files only). List the hook ids whose `entry` runs `ruff` or `ty`. Format only if one of them runs `ruff format` (often the id `ruff-format`).
+   - **No pre-commit config:** run the tools through the project's environment (`uv run ruff`, `uv run ty`), not a global install, so the versions match the lockfile. Format only if the repo shows it formats with ruff: a `[tool.ruff.format]` section, or a `ruff format --check` step in CI.
+   - Never format a repo that does not format: it rewrites lines the change never touched.
+
+3. **Autofix and lint.** With pre-commit, run each Python hook on the changed files, one hook per call. Pass the paths literally or through `xargs` (zsh does not split `$VAR`):
 
    ```bash
-   ruff check --fix <paths>
-   ruff format <paths>
+   git diff --name-only --diff-filter=d HEAD -- '*.py' '*.pyi' | xargs uv run --frozen pre-commit run <hook-id> --files
    ```
 
-   Anything fixable is now fixed on disk.
+   Use `uv run --frozen pre-commit` when `pre-commit` is a project dependency; otherwise call `pre-commit` directly.
 
-3. **Re-run ruff in check-only mode** to surface what couldn't be autofixed:
+   Without pre-commit:
 
    ```bash
-   ruff check <paths>
+   uv run ruff check --fix <paths>
+   uv run ruff format <paths>     # only when step 2 found that the repo formats
+   uv run ruff check <paths>      # what autofix could not fix
    ```
 
    Read the remaining findings. They are real issues, not stylistic noise.
 
-4. **Type-check with ty:**
-
-   ```bash
-   ty check <paths>
-   ```
-
-   Treat ty errors as authoritative — fix the code, not the type annotation, unless the annotation is genuinely wrong.
+4. **Type-check with ty** — the pre-commit hook from step 2, or `uv run ty check <paths>`. Treat ty errors as authoritative — fix the code, not the type annotation, unless the annotation is genuinely wrong. A ty error in a file you did not touch that also fails on the base branch is not yours: report it, don't fix it.
 
 5. **Smell check (manual — ruff and ty don't catch these).** Open each file you touched and look for:
 
@@ -97,7 +98,7 @@ Project rules come from `pyproject.toml` / `ruff.toml` / `ty.toml`. Don't overri
 - **Don't commit on RED.** If ty or ruff still reports errors after autofix, surface them to the user before continuing.
 - **Don't run on third-party / vendored code** (`.venv`, `node_modules`, `dist`, generated migrations). `ruff` and `ty` already exclude these via project config — don't pass them explicitly.
 - **No `--unsafe-fixes`** unless the user explicitly opts in. Default ruff autofix is safe; unsafe fixes can change semantics.
-- **`ty` exits non-zero on errors.** Inspect output carefully — a single 500 in CI usually traces back to a ty error that wasn't surfaced locally.
+- **`ty` exits non-zero on errors.** Read its output; don't stop at the exit code.
 
 ## Why this exists
 
