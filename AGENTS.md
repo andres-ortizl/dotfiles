@@ -194,7 +194,7 @@ Delegate by role: `explorer` (Haiku) reads and maps, `coder` (Sonnet) implements
 
 - Every slice has a goal in one sentence, an out-of-scope list, and acceptance criteria written as a command and its expected result. Write them before any code, and get the user's approval.
 - A slice is done only when every acceptance criterion has its evidence pasted (the command and its output) and the reviewer passed it. A slice that ends in a PR is `ready` only when `slices/status.sh` shows `READY yes` for it.
-- Every subagent report ends with `Not checked:` and `Signals:` lines. Copy the signals into the loop's `signals.md`.
+- Every subagent report ends with `Not checked:` and `Signals:` lines. Name the loop folder in every brief: a hook then copies the signals into its `signals.md`.
 - When the user asks "how is it going" or "resume", read `loop.md` first.
 - Close every loop with a retro (`slices retro`): turn the repeated signals into proposed rule or skill changes, and apply the ones the user approves.
 
