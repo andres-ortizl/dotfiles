@@ -157,20 +157,24 @@ def _short_id(oid: str) -> str:
     return oid[:8] if oid else "?"
 
 
-# Keys that carry no diagnostic signal and bloat the output. The big one for
-# gemini-via-litellm traces is the tool-call `id` (a call_…__thought__<blob>
-# string that embeds the model's thinking tokens), plus the langchain message
-# envelope (`additional_kwargs`, `response_metadata`, the message `id`).
-_NOISE_KEYS = {
+# Keys of a message or tool-call envelope that carry no diagnostic signal and
+# bloat the output. The big one for gemini-via-litellm traces is the tool-call
+# `id` (a call_…__thought__<blob> string that embeds the model's thinking
+# tokens), plus the langchain message fields (`additional_kwargs`,
+# `response_metadata`). Only an envelope loses them: a domain payload (an
+# extraction field named `id`, an evidence `metadata`, a run's `created_at`, a
+# record's `response_metadata`) must keep them, or a drill silently hides real output.
+_ENVELOPE_NOISE_KEYS = {
     "additional_kwargs",
     "response_metadata",
     "usage_metadata",
     "invalid_tool_calls",
+    "metadata",
+    "id",
+    "index",
+    "tool_call_id",
+    "created_at",
 }
-# Only a message or tool-call envelope loses these: a domain payload (an
-# extraction field named `id`, an evidence `metadata`, a run's `created_at`)
-# must keep them, or a drill silently hides real output.
-_ENVELOPE_NOISE_KEYS = {"metadata", "id", "index", "tool_call_id", "created_at"}
 _MESSAGE_TYPES = {"human", "ai", "system", "tool", "function", "chat", "AIMessageChunk"}
 # Tool arguments are domain data: an envelope keeps them verbatim.
 _PAYLOAD_KEYS = {"args", "input"}
@@ -180,7 +184,11 @@ def _is_envelope(d: dict) -> bool:
     return (
         ("role" in d and ("content" in d or "tool_calls" in d))
         or "tool_calls" in d
-        or (d.get("type") in _MESSAGE_TYPES and "content" in d)
+        or (
+            isinstance(d.get("type"), str)
+            and d["type"] in _MESSAGE_TYPES
+            and "content" in d
+        )
         or {"name", "args"} <= d.keys()
     )
 
@@ -193,7 +201,7 @@ def _strip_noise(obj: Any) -> Any:
         envelope = _is_envelope(obj)
         out: dict = {}
         for k, v in obj.items():
-            if k in _NOISE_KEYS or (envelope and k in _ENVELOPE_NOISE_KEYS):
+            if envelope and k in _ENVELOPE_NOISE_KEYS:
                 continue
             if not (envelope and k in _PAYLOAD_KEYS):
                 v = _strip_noise(v)
