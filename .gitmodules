@@ -1,6 +1,3 @@
 [submodule "modules/dotbot"]
 	path = modules/dotbot
 	url = https://github.com/anishathalye/dotbot.git
-[submodule "config/skills-library/langchain-skills"]
-	path = config/skills-library/langchain-skills
-	url = https://github.com/langchain-ai/langchain-skills

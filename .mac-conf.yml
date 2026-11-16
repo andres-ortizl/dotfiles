@@ -66,7 +66,6 @@
     ~/.pi/agent/settings.json: config/pi/settings.json
     ~/.pi/agent/AGENTS.md: AGENTS.md
     ~/.pi/agent/skills: config/claude/skills
-    ~/.skills-library/langchain: config/skills-library/langchain-skills/config/skills
     ~/.skills-library/design: config/skills-library/design
     ~/.pi/agent/themes: config/pi/themes
     ~/.config/kilo/kilo.jsonc: config/kilo/kilo.jsonc
