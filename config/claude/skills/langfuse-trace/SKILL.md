@@ -37,7 +37,7 @@ Pass the ID as a bare ID OR a full URL — the last path segment is taken either
 
 ### Useful flags
 
-- `--refresh` — bypass the `/tmp/langfuse-traces/<id>.json` cache (1h TTL).
+- `--refresh` — bypass the `/tmp/langfuse-traces/<id>.json` trace cache (1h TTL). `session` always fetches fresh, because a live chat keeps adding turns.
 - `--truncate-system` — truncate system prompts to 1500 chars. **Do NOT use** when the user is investigating prompt content; system prompts are full by default precisely because they are usually the answer.
 - `--tool-input-max N`, `--tool-result-max N`, `--output-max N` — adjust per-message truncation. Defaults: 2500 / 600 / 2000 chars. Bump these when the user's question depends on a specific tool's full input.
 - `--inline-io-max N` (overview only) — inline I/O for non-GENERATION spans up to N chars; default 400.
@@ -75,7 +75,7 @@ If the script exits with a credentials error, tell the user which env var is mis
 
 So you know what to expect without reading the script:
 
-- **`session`** — header (session id, turn count, user, env), then one block per turn in time order: `── Turn N · <time> · [trace-id8] ──` with `USER:`, `TOOLS:` (names, ` → `-joined), `ANNIE:` (final reply). Uses each trace's top-level input/output, so no per-trace fetch. Drill a turn via its printed trace id.
+- **`session`** — header (session id, turn count, user, env), then one block per turn in time order: `── Turn N · <time> · [trace-id] ──` with `USER:`, `TOOLS:` (names, ` → `-joined), `ANNIE:` (final reply). Uses each trace's top-level input/output, so no per-trace fetch. Drill a turn via its printed trace id.
 - **`overview`** — header (id, name, latency, cost, env, URL), errors block (if any), span tree with id-prefixes and per-node latency/tokens/cost, "Suggested next drills" (errors first, then spans >30% of total latency), and a list of drill targets.
 - **`drill`** — per matching span: `━━━ [id8] TYPE name path latency ━━━` header, then either GENERATION message history (system, user, assistant text, `tool_call`, `tool_result`, `→OUT`) or non-GENERATION `IN:` / `OUT:` blocks.
 - **`compare`** — two-column metadata table with `≠` markers on differing fields, then each span rendered as in `drill`.

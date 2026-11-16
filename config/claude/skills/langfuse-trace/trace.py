@@ -13,9 +13,12 @@ Subcommands:
   compare <a> <b>     Side-by-side metadata + message history for two spans.
                       Args are id prefixes or unique names.
   raw <span_id>       Dump one span verbatim (full JSON, no truncation).
+  session             Turn-by-turn transcript of a session's traces. A
+                      .../sessions/<id> URL routes here whatever the subcommand.
 
 Trace JSON is cached at /tmp/langfuse-traces/<trace_id>.json (1h TTL).
-Pass --refresh to force re-fetch. Trace ID can be a bare ID or a URL.
+Pass --refresh to force re-fetch. Sessions are always fetched fresh, since a
+live chat keeps adding turns. The ID can be a bare ID or a URL.
 
 I/O truncation defaults are tuned for typical Anthropic-style messages but
 configurable via --tool-input-max / --tool-result-max / --output-max.
@@ -31,6 +34,7 @@ import sys
 import time
 from pathlib import Path
 from typing import Any
+from urllib.parse import parse_qs, urlsplit
 
 import httpx
 
@@ -93,12 +97,12 @@ def fetch_trace(trace_id: str, refresh: bool = False) -> dict:
     return data if "body" in data else {"body": data}
 
 
-def fetch_session(session_id: str, refresh: bool = False) -> dict:
+def fetch_session(session_id: str) -> dict:
     return _get(
         f"/api/public/sessions/{session_id}",
         f"session-{session_id}",
         f"Session {session_id!r}",
-        refresh,
+        refresh=True,
     )
 
 
@@ -162,28 +166,38 @@ _NOISE_KEYS = {
     "response_metadata",
     "usage_metadata",
     "invalid_tool_calls",
-    "tool_call_id",
-    "created_at",
 }
-# Only a message / tool-call / content-block envelope loses these: a domain payload
-# (an extraction field named `id`, an evidence `metadata`) must keep them, or a
-# drill silently hides real output.
-_ENVELOPE_NOISE_KEYS = {"metadata", "id", "index"}
-_ENVELOPE_MARKERS = {"content", "tool_calls", "args", "role", "type"}
+# Only a message or tool-call envelope loses these: a domain payload (an
+# extraction field named `id`, an evidence `metadata`, a run's `created_at`)
+# must keep them, or a drill silently hides real output.
+_ENVELOPE_NOISE_KEYS = {"metadata", "id", "index", "tool_call_id", "created_at"}
+_MESSAGE_TYPES = {"human", "ai", "system", "tool", "function", "chat", "AIMessageChunk"}
+# Tool arguments are domain data: an envelope keeps them verbatim.
+_PAYLOAD_KEYS = {"args", "input"}
+
+
+def _is_envelope(d: dict) -> bool:
+    return (
+        ("role" in d and ("content" in d or "tool_calls" in d))
+        or "tool_calls" in d
+        or (d.get("type") in _MESSAGE_TYPES and "content" in d)
+        or {"name", "args"} <= d.keys()
+    )
 
 
 def _strip_noise(obj: Any) -> Any:
-    """Recursively drop noise keys and empty values from a payload so message /
-    tool-call rendering shows content, not envelope. Applied to rendered I/O
+    """Recursively drop noise keys and empty values from message and tool-call
+    envelopes so rendering shows content, not envelope. Applied to rendered I/O
     only — never to the observation objects the tree walk relies on."""
     if isinstance(obj, dict):
-        is_envelope = bool(_ENVELOPE_MARKERS & obj.keys())
+        envelope = _is_envelope(obj)
         out: dict = {}
         for k, v in obj.items():
-            if k in _NOISE_KEYS or (is_envelope and k in _ENVELOPE_NOISE_KEYS):
+            if k in _NOISE_KEYS or (envelope and k in _ENVELOPE_NOISE_KEYS):
                 continue
-            v = _strip_noise(v)
-            if is_envelope and v in (None, {}, [], ""):
+            if not (envelope and k in _PAYLOAD_KEYS):
+                v = _strip_noise(v)
+            if envelope and v in (None, {}, []):
                 continue
             out[k] = v
         return out
@@ -258,11 +272,11 @@ def render_generation(
                         if t:
                             lines.append(f"  [{role}] text: {t[:output_max]}")
                     elif btype == "tool_use":
-                        bid = block.get("id", "")
-                        if bid in seen_tools:
+                        bid = block.get("id")
+                        if bid and bid in seen_tools:
                             continue
                         seen_tools.add(bid)
-                        ti = json.dumps(_strip_noise(block.get("input", {})))
+                        ti = json.dumps(block.get("input", {}))
                         suffix = "…" if len(ti) > tool_input_max else ""
                         lines.append(
                             f"  [{role}] tool_call {block.get('name')}: {ti[:tool_input_max]}{suffix}"
@@ -277,7 +291,7 @@ def render_generation(
             # langchain/OpenAI carry tool calls in a separate key — render them
             # too (the gemini tool-call id is dropped as noise).
             for tc in _tool_calls_of(msg):
-                ti = json.dumps(_strip_noise(tc["args"]))
+                ti = json.dumps(tc["args"])
                 suffix = "…" if len(ti) > tool_input_max else ""
                 lines.append(
                     f"  [{role}] tool_call {tc['name']}: {ti[:tool_input_max]}{suffix}"
@@ -299,6 +313,12 @@ def render_generation(
                     lines.append(
                         f"  →OUT tool_call {block.get('name')}: {ti[:tool_input_max]}{suffix}"
                     )
+        for tc in _tool_calls_of(out):
+            ti = json.dumps(tc["args"])
+            suffix = "…" if len(ti) > tool_input_max else ""
+            lines.append(
+                f"  →OUT tool_call {tc['name']}: {ti[:tool_input_max]}{suffix}"
+            )
     return lines
 
 
@@ -650,7 +670,7 @@ def cmd_session(session: dict, args: argparse.Namespace) -> None:
         tools = _turn_tools(tail)
         final = _last_text(tail, ("ai", "assistant"))
         ts = (t.get("timestamp") or "")[:19].replace("T", " ")
-        print(f"── Turn {i} · {ts} · [{_short_id(t.get('id', ''))}] ──")
+        print(f"── Turn {i} · {ts} · [{t.get('id') or '?'}] ──")
         if user:
             print(f"  USER:  {user[: args.output_max]}")
         if tools:
@@ -713,13 +733,17 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    # Accept a bare ID or a URL — take the last path segment.
-    ident = args.trace_id.rstrip("/").rsplit("/", 1)[-1]
+    # Accept a bare ID or a URL. A URL's ID is its last path segment, except on
+    # the trace list, which names the open trace in `?peek=<id>`.
+    url = urlsplit(args.trace_id)
+    is_session = "/sessions/" in url.path
+    peek = "" if is_session else parse_qs(url.query).get("peek", [""])[0]
+    ident = peek or url.path.rstrip("/").rsplit("/", 1)[-1]
 
     # A `.../sessions/<id>` URL, or the `session` subcommand, → conversation
     # transcript across the session's traces.
-    if args.cmd == "session" or "/sessions/" in args.trace_id:
-        cmd_session(fetch_session(ident, refresh=args.refresh), args)
+    if args.cmd == "session" or is_session:
+        cmd_session(fetch_session(ident), args)
         return
 
     outer = fetch_trace(ident, refresh=args.refresh)
