@@ -28,6 +28,14 @@ const CODER_SCHEMA = {
       },
     },
     files_changed: { type: 'array', items: { type: 'string' } },
+    red_run: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: { test: { type: 'string' }, command: { type: 'string' }, output: { type: 'string' } },
+        required: ['test', 'command', 'output'],
+      },
+    },
     branch: { type: 'string' },
     head: { type: 'string' },
     worktree_path: { type: 'string' },
@@ -52,7 +60,7 @@ const CODER_SCHEMA = {
     not_checked: { type: 'string' },
     signals: { type: 'array', items: { type: 'string' } },
   },
-  required: ['acceptance', 'files_changed', 'decisions', 'not_checked', 'signals'],
+  required: ['acceptance', 'files_changed', 'red_run', 'decisions', 'not_checked', 'signals'],
 }
 
 const DECIDE_OR_STOP = `Decide reversible choices inside the slice's goal yourself: take the simplest option that meets the goal and report it in decisions. Fill stop, and leave the change unfinished, only before you add a dependency, change a public API or contract outside the slice, delete data, touch security, permissions or production infrastructure, launch a run expected to take more than 20 minutes, or when an acceptance criterion cannot be met as written.`
@@ -116,7 +124,7 @@ function coderPrompt(s, findings, previous) {
   const fix = findings
     ? `\n\nThe reviewer asked for fixes. Address each one, then re-prove every acceptance criterion:\n${JSON.stringify(findings, null, 2)}`
     : ''
-  return `${sliceBlock(s)}\n\n${workspaceRule(s, previous)}\n\nImplement this slice. Prove each acceptance criterion by running its command; put the real output in your report.\n\n${DECIDE_OR_STOP}${fix}`
+  return `${sliceBlock(s)}\n\n${workspaceRule(s, previous)}\n\nImplement this slice. Write each new test first and run it before the code: put its command and failing output in red_run. Leave red_run empty only for a change with no new test, and say why in not_checked. Prove each acceptance criterion by running its command; put the real output in your report.\n\n${DECIDE_OR_STOP}${fix}`
 }
 
 function reviewerPrompt(s, coded, earlierFindings) {
@@ -126,7 +134,7 @@ function reviewerPrompt(s, coded, earlierFindings) {
   const earlier = earlierFindings
     ? `\n\nThe findings of the earlier round:\n${JSON.stringify(earlierFindings, null, 2)}`
     : ''
-  return `${sliceBlock(s)}\n\n${where}${from}\n\nThe coder's report:\n${JSON.stringify(coded, null, 2)}${earlier}\n\nRe-run each acceptance criterion command yourself before you pass it.`
+  return `${sliceBlock(s)}\n\n${where}${from}\n\nThe coder's report:\n${JSON.stringify(coded, null, 2)}${earlier}\n\nRe-run each acceptance criterion command yourself before you pass it. Run each test in red_run against the parent of the slice's first commit (the new test files only, in a throwaway detached worktree) and confirm it fails; a new test that passes there is a P1 finding.`
 }
 
 async function runSlice(s) {

@@ -16,7 +16,7 @@ Before writing:
 - Stop before you add a dependency, change a public API or contract outside the slice, delete data, touch security, permissions or production infrastructure, or launch a run expected to take more than 20 minutes. Report the gate and what you need.
 
 While writing:
-- Write a failing test first for each behaviour, then the code. Trivial changes need no test.
+- Write a failing test first for each behaviour, run it and keep its failing output, then write the code. Trivial changes need no test.
 - Follow the existing style, naming and comment rules.
 - Quote every glob, use literal absolute paths (no `$VAR`), run one plain command per call, and put anything multi-step in a scratchpad script: worktree guards refuse the rest.
 - Do not fix things outside the slice. Report them under Signals.
@@ -34,6 +34,7 @@ Validate:
 Report:
 - Commit your work before you report (a WIP commit is fine) and name the SHA, so the review reads a frozen commit. Stage files by name, never with a broad `git add -A` or `git add .`.
 - Each acceptance criterion: the command, its output, pass or fail.
+- Red run: for each new test, the command and its failing output from before the code. A trivial change with no test says why.
 - The files changed and the validation commands with their results.
 - Anything left undone.
 
