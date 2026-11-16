@@ -78,6 +78,7 @@ Run one slice inline (coder, then reviewer) when the wave has one slice. Run a w
 Workflow({ name: "slices-wave", args: { epic, repo_path, wave, slices: [ { id, goal, out_of_scope, acceptance: [{id, command, expected}], touches, isolation } ] } })
 ```
 
+- When a slice starts, set it to `coding` in `loop.md`, and set its **Linear** ticket to In Progress with the Linear MCP.
 - Two slices that run in parallel always run through `slices-wave`. Never hand-spawn parallel coders, and never fold a slice's own review into the PR review.
 - Pass the slice blocks from `plan.md` verbatim, with their packs' lines. Record the run id in `loop.md` next to the wave; resume a broken wave with `resumeFromRunId`. If the named workflow is not found, pass `scriptPath: "~/code/dotfiles/config/claude/workflows/slices-wave.js"`.
 - When it returns, check each slice's evidence yourself before you move it on: to `ship` when its **Ends in** line names a PR, otherwise to `done`. Check the AC commands and the reviewer's verdict line. Copy every `signals` entry into `signals.md` with the slice id, every `follow_ups` entry (the P2 findings left on a slice that shipped) into the "Follow-ups" table of `loop.md`, and every `decisions` entry as "Decide or stop" says. A slice run inline does the same with its reviewer's report. A slice that returned `stopped` hit a gate: report the gate and the coder's reason to the user.
@@ -89,7 +90,7 @@ Workflow({ name: "slices-wave", args: { epic, repo_path, wave, slices: [ { id, g
 
 Run it for each slice whose **Ends in** line names a PR, once its reviewer passed it and you checked its evidence. The user merges, unless the slice's **Merge** line says `auto`.
 
-1. Push the slice's branch and open the PR against the base the repository's CLAUDE.md or CONTRIBUTING.md names. Use the repository's `pr` skill when it has one; otherwise run `gh pr create` with `--body-file`. The slice reviewer's pass is the review before the PR when the PR holds only this slice's commits. A PR that also holds other work gets a reviewer pass on its whole diff first. Link the PR in `loop.md` and set the status to `pr`.
+1. Push the slice's branch and open the PR against the base the repository's CLAUDE.md or CONTRIBUTING.md names. Use the repository's `pr` skill when it has one; otherwise run `gh pr create` with `--body-file`. With a **Linear** ticket, put its ID in the branch name and the PR body, so Linear's GitHub integration links them. The slice reviewer's pass is the review before the PR when the PR holds only this slice's commits. A PR that also holds other work gets a reviewer pass on its whole diff first. Link the PR in `loop.md` and set the status to `pr`.
 2. Wait for CI with `status.sh`. Fix a red check on the slice's branch, with the repository's CI skill when it has one (`react-to-pipelines`). Send every fix that changes logic to the reviewer before its push.
 3. With CI green, set the status to `bot-review`. Answer the review bot with the repository's skill for it when it has one (`react-to-greptile`). Send every bot-driven fix that changes logic to the reviewer before its push.
 4. Set the status to `ready` when `status.sh` shows `READY yes`, and tell the user. Otherwise fix what its `no:` names. A 3/5 counts only when the user accepts it for that PR; log it in `logbook.md` as `decided:`.
@@ -100,7 +101,7 @@ Run it for each slice whose **Ends in** line names a PR, once its reviewer passe
 Run it when the user says a slice's PR merged.
 
 1. Run `status.sh` and check that the PR shows `merged`. If it does not, say so and stop.
-2. Set the slice to `merged` in `loop.md` and log the merge commit in `logbook.md`.
+2. Set the slice to `merged` in `loop.md` and log the merge commit in `logbook.md`. Check its **Linear** ticket: Linear's integration usually moves it to Done on merge; if it did not, set Done with the Linear MCP.
 3. When the slice has its own worktree, stop its stack the way the repository's profile says, then remove the worktree and its local branch. Before you remove anything, check that `git status --porcelain` in the worktree prints nothing; if it prints anything, keep the worktree and report the files.
 4. Name the next wave whose slices the merge unblocked, or say that the loop has only the retro left.
 
