@@ -16,7 +16,7 @@ Run [`scan.py`](scan.py) (`python3 -I ~/.claude/skills/setup-audit/scan.py`). It
 - dangling links under `~/.claude`;
 - files in `~/.claude/skills` that git does not track;
 - tracked skill files that are not linked;
-- personal skills that hide a repo skill of the same name;
+- personal skills that hide a repo skill of the same name on its upstream branch, and main checkouts that lag behind it;
 - personal skill uses in the last 28 days;
 - loops whose signals no retro has given an outcome.
 

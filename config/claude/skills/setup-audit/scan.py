@@ -84,17 +84,39 @@ def personal_skills() -> list[str]:
     )
 
 
+def git(repo: Path, *args: str) -> str:
+    return subprocess.run(
+        ["git", "-C", str(repo), *args], capture_output=True, text=True
+    ).stdout.strip()
+
+
 def shadowed(personal: list[str]) -> list[str]:
-    """A personal skill with the same name as a repo skill hides the repo's copy."""
+    """A personal skill with the same name as a repo skill hides the repo's copy.
+
+    Reads the skills on the checkout's upstream branch, which new worktrees start from,
+    and flags a checkout whose working tree lags behind it.
+    """
     found = []
     for repo in sorted((HOME / "code").iterdir()):
-        skills = repo / ".claude" / "skills"
-        if skills.is_dir():
-            found += [
-                f"{name} hides {repo.name}/.claude/skills/{name}"
-                for name in personal
-                if (skills / name).is_dir()
-            ]
+        if not (repo / ".git").exists():
+            continue
+        upstream = git(repo, "rev-parse", "--abbrev-ref", "@{upstream}")
+        ref = upstream or "HEAD"
+        skills = set(
+            git(repo, "ls-tree", "--name-only", f"{ref}:.claude/skills").split()
+        )
+        found += [
+            f"{name} hides {repo.name}/.claude/skills/{name} (on {ref})"
+            for name in personal
+            if name in skills
+        ]
+        behind = (
+            git(repo, "rev-list", "--count", f"HEAD..{upstream}") if upstream else ""
+        )
+        if behind and int(behind) > 0:
+            found.append(
+                f"{repo.name}: the main checkout is {behind} commits behind {upstream}, so its sessions load old repo skills"
+            )
     return found
 
 
@@ -140,7 +162,10 @@ def main() -> None:
         unlinked_tracked_files(),
     )
     names = personal_skills()
-    section("Personal skills that hide a repo skill", shadowed(names))
+    section(
+        "Personal skills that hide a repo skill, and stale main checkouts",
+        shadowed(names),
+    )
     counts = usage(names, days)
     section(
         f"Personal skill uses in the last {days} days",
