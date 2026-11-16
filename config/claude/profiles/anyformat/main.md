@@ -35,4 +35,4 @@ Load a pack only when its trigger matches the task; a slice lists it in its `Pac
 - In a workflow script, give mechanical steps (rebase, open a PR, watch CI) `agentType: 'coder'`. An agent with no `agentType` inherits the main session's model.
 
 ## Slices
-- Acceptance criteria use the repo's own commands (`/run-tests`, `uv run pytest <path>`, `npm run test:ts`), never a hand-written approximation.
+- Acceptance criteria use the repo's own commands (a test command chosen as the testing guide in `profiles/anyformat/coder.md` says, `npm run test:ts`), never a hand-written approximation.

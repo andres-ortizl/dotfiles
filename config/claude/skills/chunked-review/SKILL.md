@@ -72,7 +72,7 @@ Rules:
 
 ### 4. After all chunks
 
-Run tests using the `/run-tests` skill. Show summary:
+Run the tests the way the repository's own guide says (its CONTRIBUTING.md or CLAUDE.md). Show summary:
 
 ```
 Applied: #1, #2, #4

@@ -103,7 +103,7 @@ For each bucket (2) root cause:
 
 - **Lint / formatting failures** (ruff, black, etc. on a Python project) — run `/python-hygiene` and let it autofix. Stage the result.
 - **Type-check failures** (ty, mypy, pyright) — run `/python-hygiene` first; fix anything it surfaces but can't autofix.
-- **Test failures** — reproduce locally with `/run-tests` (anyformat monorepo) or the project's native runner. If the failure is a genuine behavioral bug with no existing test coverage, write the failing test first (RED → GREEN). Do NOT delete or `@pytest.mark.skip` a failing test to turn CI green — that's bucket (3), not (2).
+- **Test failures** — reproduce locally the way the repository's own guide says (its CONTRIBUTING.md or CLAUDE.md). If the failure is a genuine behavioral bug with no existing test coverage, write the failing test first (RED → GREEN). Do NOT delete or `@pytest.mark.skip` a failing test to turn CI green — that's bucket (3), not (2).
 - **Build / dependency failures** — for missing/wrong Python deps use `uv add` / `uv remove` so `uv.lock` stays in sync. Never hand-edit `pyproject.toml`.
 
 Rules:

@@ -93,7 +93,7 @@ Implement fixes for bucket (2):
 - If a suggestion conflicts with the codebase design, move the item to bucket (3).
 - If Greptile flagged a bug with no test coverage, write the failing test first (RED, then GREEN).
 
-Run the affected tests with the `/run-tests` skill, default suite only (no `-m llm` or `-m slow`).
+Run the affected tests the way the repository's own guide says (its CONTRIBUTING.md or CLAUDE.md), including which markers to deselect.
 
 ---
 

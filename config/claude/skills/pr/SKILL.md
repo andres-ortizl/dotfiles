@@ -107,7 +107,7 @@ If conflicts arise, resolve them carefully — understand what both sides intend
 
 ### 7. Run tests
 
-Use the `/run-tests` skill to run tests for affected packages. Do NOT include markers like `-m llm` or `-m slow` — only run the default test suite.
+Run the tests of the affected packages the way the repository's own guide says (its CONTRIBUTING.md or CLAUDE.md), including which markers to deselect.
 
 ### 8. Push
 
