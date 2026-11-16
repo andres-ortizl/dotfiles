@@ -53,11 +53,15 @@ def parse(diff: str) -> list[dict]:
         if raw.startswith("deleted file mode"):
             cur["status"] = "deleted"
             continue
+        if raw.startswith("rename from "):
+            cur["status"] = "renamed"
+            cur["old_path"] = raw.removeprefix("rename from ")
+            continue
         m = HUNK.match(raw)
         if m:
             n = len(cur["hunks"]) + 1
             hunk = {
-                "id": f"{cur['name']}#{n}",
+                "id": f"{cur['path']}#{n}",
                 "old_start": int(m[1]),
                 "old_lines": int(m[2] or 1),
                 "new_start": int(m[3]),
@@ -91,9 +95,10 @@ def main() -> None:
     for f in files:
         adds = sum(1 for h in f["hunks"] for line in h["lines"] if line["t"] == "+")
         dels = sum(1 for h in f["hunks"] for line in h["lines"] if line["t"] == "-")
-        print(f"{f['path']} [{f['status']}] +{adds}/-{dels}")
+        moved = f"{f['old_path']} → " if f.get("old_path") else ""
+        print(f"{moved}{f['path']} [{f['status']}] +{adds}/-{dels}")
         for h in f["hunks"]:
-            print(f"   {h['id']:<40} @{h['new_start']:<5} {h['context'][:70]}")
+            print(f"   {h['id']:<60} @{h['new_start']:<5} {h['context'][:60]}")
 
 
 if __name__ == "__main__":

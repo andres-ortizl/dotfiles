@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Assemble a PR tour page: tour.json (stops, narration) + hunks.json (diff) + template.html -> out.html.
 
-Hunk refs: "file.py#3" (whole hunk) or "file.py#3:10-42" (line indexes within the hunk, inclusive).
-Test refs: "test_file.py::test_name" (the def and its body, sliced out of whichever hunk adds it).
-`build.py index hunks.json file.py#3` prints the hunk's lines with their indexes, for writing slices.
+Hunk refs: "path/to/file.py#3" (whole hunk) or "path/to/file.py#3:10-42" (line indexes within the hunk, inclusive).
+Test refs: "path/to/test_file.py::test_name" (the def and its body, sliced out of whichever hunk adds it).
+Paths are repo-relative, as hunks.py prints them.
+`build.py index hunks.json path/to/file.py#3` prints the hunk's lines with their indexes, for writing slices.
 """
 
 import hashlib
@@ -18,7 +19,7 @@ REF = re.compile(r"^(?P<hunk>[^:]+#\d+)(?::(?P<a>\d+)-(?P<b>\d+))?$")
 def load_hunks(path: str) -> tuple[dict, dict[str, dict], dict[str, dict]]:
     data = json.load(open(path))
     by_id = {h["id"]: {**h, "file": f} for f in data["files"] for h in f["hunks"]}
-    files = {f["name"]: f for f in data["files"]}
+    files = {f["path"]: f for f in data["files"]}
     return data, by_id, files
 
 
@@ -52,8 +53,8 @@ def resolve_hunk(ref: str, by_id: dict[str, dict]) -> dict:
 
 
 def resolve_test(ref: str, files: dict[str, dict]) -> dict:
-    file_name, _, test_name = ref.partition("::")
-    f = files.get(file_name)
+    file_path, _, test_name = ref.partition("::")
+    f = files.get(file_path)
     if f is None:
         raise SystemExit(f"unknown test file: {ref}")
     for h in f["hunks"]:
