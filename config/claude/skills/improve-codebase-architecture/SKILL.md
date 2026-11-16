@@ -67,4 +67,3 @@ Stay in conversation; don't go off and refactor unilaterally. The output of this
 
 - `/diagnose` — when an architectural problem was uncovered while debugging ("no good test seam exists for this bug"), `/diagnose` Phase 6 hands the finding here. Treat that as a prioritised candidate.
 - `/spec` or `/chunked-review` — once a candidate is agreed, the actual implementation goes through one of those loops, not this skill.
-- `/zoom-out` — if the user is unfamiliar with the area you're proposing to refactor, run `/zoom-out` first to give them a map.

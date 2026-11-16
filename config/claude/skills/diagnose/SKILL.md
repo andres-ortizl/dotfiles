@@ -102,7 +102,7 @@ If a correct seam exists:
 4. Watch it pass.
 5. Re-run the Phase 1 feedback loop against the original (un-minimised) scenario.
 
-For the test-writing discipline (vertical slices, public-interface-only, integration over implementation), defer to `/tdd`.
+For the test-writing discipline (vertical slices, public-interface-only, integration over implementation), follow the repo's own testing guide (its CONTRIBUTING.md, or a `/tdd` skill when the repo has one).
 
 ## Phase 6 — Cleanup + post-mortem
 
@@ -115,8 +115,3 @@ Required before declaring done:
 - [ ] The hypothesis that turned out correct is stated in the commit / PR message — so the next debugger learns
 
 **Then ask: what would have prevented this bug?** If the answer involves architectural change (no good test seam, tangled callers, hidden coupling) hand off to `/improve-codebase-architecture` with the specifics. Make the recommendation **after** the fix is in, not before — you have more information now than when you started.
-
-## When this skill is invoked from another skill
-
-- `/sentry-fix` dispatches Sentry issues into autonomous `/spec` loops. If you're manually attached to a hard Sentry bug rather than letting `/spec` auto-dispatch, run `/diagnose` first to nail the repro and root cause, then hand off the findings.
-- `/spec` Phase 2 implementation can lean on `/diagnose` Phase 1 (build a feedback loop) before writing the fix when the bug is non-trivial.
