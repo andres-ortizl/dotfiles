@@ -1,6 +1,6 @@
 # <epic> - loop
 
-Status values: todo | coding | review | pr | bot-review | done | blocked | stopped (hit a gate). Prefix `added` for a slice added after approval.
+Status values: todo | coding | review | pr | bot-review | done | merged | blocked | stopped (hit a gate). Prefix `added` for a slice added after approval.
 
 | Slice | Goal | Status | Evidence | PR | Run |
 |---|---|---|---|---|---|

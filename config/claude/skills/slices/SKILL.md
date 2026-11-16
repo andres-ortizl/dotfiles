@@ -1,6 +1,6 @@
 ---
 name: slices
-description: Plan, run, track and close a multi-slice change (an epic) with explicit goals and acceptance criteria per slice, a loop folder that survives sessions, parallel waves through the slices-wave workflow, and a retro that turns signals into rule changes. Use when work spans more than one slice, when the user says "slices", "plan this", "retoma", "cómo va", "qué falta", or asks to run slices in parallel.
+description: Plan, run, track and close a multi-slice change (an epic) with explicit goals and acceptance criteria per slice, a loop folder that survives sessions, parallel waves through the slices-wave workflow, and a retro that turns signals into rule changes. Use when work spans more than one slice, when the user says "slices", "plan this", "retoma", "cómo va", "qué falta", "mergeado", or asks to run slices in parallel.
 ---
 
 # Slices
@@ -93,6 +93,15 @@ Run it for each slice whose **Ends in** line names a PR, once its reviewer passe
 2. Wait for CI with `status.sh`. Fix a red check on the slice's branch, with the repository's CI skill when it has one (`react-to-pipelines`). Send every fix that changes logic to the reviewer before its push.
 3. With CI green, set the status to `bot-review`. Answer the review bot with the repository's skill for it when it has one (`react-to-greptile`). Send every bot-driven fix that changes logic to the reviewer before its push.
 4. Set the status to `done` when `status.sh` shows, for the current head: CI ok, the bot's review of that head, and 0 open bot threads.
+
+## land `<slice>` (also on "mergeado", "merged")
+
+Run it when the user says a slice's PR merged.
+
+1. Run `status.sh` and check that the PR shows `merged`. If it does not, say so and stop.
+2. Set the slice to `merged` in `loop.md` and log the merge commit in `logbook.md`.
+3. When the slice has its own worktree, stop its stack the way the repository's profile says, then remove the worktree and its local branch. Before you remove anything, check that `git status --porcelain` in the worktree prints nothing; if it prints anything, keep the worktree and report the files.
+4. Name the next wave whose slices the merge unblocked, or say that the loop has only the retro left.
 
 ## retro
 

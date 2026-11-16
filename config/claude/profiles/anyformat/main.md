@@ -12,6 +12,7 @@ These rules add to the repo's CLAUDE.md. They are Andrew's, not the team's.
 
 ## Worktrees and the local stack
 - Bring up every fresh worktree with `./scripts/agent-prepare.sh` before anything else. Do not re-run it mid-session: it overwrites `.env` edits.
+- Stop a worktree's stack with `uv run af worktree teardown --stack-only`, run from that worktree, before you remove it.
 - `cd` into the worktree's nested path (`.claude/worktrees/<name>/...`), never the main checkout, which runs against dev.
 - Give every subagent the absolute worktree path in every command, and have it check that `docker compose port backend 8080` matches the worktree's port. A subagent's working directory defaults to the main checkout.
 - Do not create a branch mid-session in a worktree: the compose project name follows the branch and the first stack is orphaned.
