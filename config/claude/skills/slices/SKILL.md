@@ -80,10 +80,19 @@ Workflow({ name: "slices-wave", args: { epic, repo_path, wave, slices: [ { id, g
 
 - Two slices that run in parallel always run through `slices-wave`. Never hand-spawn parallel coders, and never fold a slice's own review into the PR review.
 - Pass the slice blocks from `plan.md` verbatim, with their packs' lines. Record the run id in `loop.md` next to the wave; resume a broken wave with `resumeFromRunId`. If the named workflow is not found, pass `scriptPath: "~/code/dotfiles/config/claude/workflows/slices-wave.js"`.
-- When it returns, check each slice's evidence yourself before marking it `done`: the AC commands, the reviewer's verdict line. Copy every `signals` entry into `signals.md` with the slice id, every `follow_ups` entry (the P2 findings left on a slice that shipped) into the "Follow-ups" table of `loop.md`, and every `decisions` entry as "Decide or stop" says. A slice run inline does the same with its reviewer's report. A slice that returned `stopped` hit a gate: report the gate and the coder's reason to the user.
+- When it returns, check each slice's evidence yourself before you move it on: to `ship` when its **Ends in** line names a PR, otherwise to `done`. Check the AC commands and the reviewer's verdict line. Copy every `signals` entry into `signals.md` with the slice id, every `follow_ups` entry (the P2 findings left on a slice that shipped) into the "Follow-ups" table of `loop.md`, and every `decisions` entry as "Decide or stop" says. A slice run inline does the same with its reviewer's report. A slice that returned `stopped` hit a gate: report the gate and the coder's reason to the user.
 - A slice that ended with `Verdict: fix ...` after 3 rounds is `blocked`. Report it to the user with the open findings; do not start a fourth round on your own.
 - Every defect a brief states carries its evidence: a `file:symbol` citation of the code as it is on the base today, or the output of a probe that reproduces it.
 - The coder commits its work (a WIP commit is fine) before the review starts, and names the SHA. The reviewer reviews in the coder's worktree at that SHA while the coder is stopped, and does not edit it. It creates a detached worktree (`git worktree add --detach <main checkout>/.claude/worktrees/review-<slice> <sha>`) only to mutate code to prove a finding, and removes it with `git worktree remove --force <path>` when the review ends.
+
+## ship `<slice>`
+
+Run it for each slice whose **Ends in** line names a PR, once its reviewer passed it and you checked its evidence. Merging stays with the user.
+
+1. Push the slice's branch and open the PR against the base the repository's CLAUDE.md or CONTRIBUTING.md names. Use the repository's `pr` skill when it has one; otherwise run `gh pr create` with `--body-file`. The slice reviewer's pass is the review before the PR when the PR holds only this slice's commits. A PR that also holds other work gets a reviewer pass on its whole diff first. Link the PR in `loop.md` and set the status to `pr`.
+2. Wait for CI with `status.sh`. Fix a red check on the slice's branch, with the repository's CI skill when it has one (`react-to-pipelines`). Send every fix that changes logic to the reviewer before its push.
+3. With CI green, set the status to `bot-review`. Answer the review bot with the repository's skill for it when it has one (`react-to-greptile`). Send every bot-driven fix that changes logic to the reviewer before its push.
+4. Set the status to `done` when `status.sh` shows, for the current head: CI ok, the bot's review of that head, and 0 open bot threads.
 
 ## retro
 
