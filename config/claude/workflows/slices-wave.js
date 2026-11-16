@@ -109,7 +109,7 @@ function workspaceRule(s, previous) {
   if (s.isolation === 'worktree') {
     return `You run in your own git worktree. Before anything else, append the output of git rev-parse --show-toplevel as one line to the file slices-children inside the directory that git -C ${args.repo_path} rev-parse --absolute-git-dir prints: the thread's settle tears down the worktrees listed there. If that write is refused, say so in your signals and go on. Commit your work on a branch named slices/${args.epic}-${s.id} and report the branch, the head SHA and the worktree path (git rev-parse --show-toplevel).`
   }
-  return `Work in ${args.repo_path}. Other slices run in the same checkout at the same time: edit only the files this slice touches, and do not commit, stash, reset or switch branches.`
+  return `Work in ${args.repo_path}, on its current branch. No other slice runs in this wave. Commit your work there and report the branch, the head SHA and the files changed.`
 }
 
 function coderPrompt(s, findings, previous) {
@@ -120,9 +120,7 @@ function coderPrompt(s, findings, previous) {
 }
 
 function reviewerPrompt(s, coded, earlierFindings) {
-  const where = coded.branch
-    ? `Review branch ${coded.branch} at ${coded.head} against its merge base, from ${args.repo_path}.`
-    : `Review the uncommitted changes in ${args.repo_path} to these files only: ${coded.files_changed.join(', ')}.`
+  const where = `Review branch ${coded.branch} at ${coded.head}, from ${args.repo_path}: the coder's commits to these files: ${coded.files_changed.join(', ')}.`
   // The coder's worktree holds the branch; reviewing from it avoids depending on the shared checkout's state.
   const from = coded.worktree_path ? ` Run git from ${coded.worktree_path}.` : ''
   const earlier = earlierFindings
@@ -152,6 +150,7 @@ async function runSlice(s) {
       log(`${s.id}: stopped at gate "${coded.stop.gate}"`)
       return { id: s.id, status: 'stopped', gate: coded.stop.gate, reason: coded.stop.reason, rounds: round, coded, decisions, signals }
     }
+    if (!coded.head) return { id: s.id, status: 'blocked', reason: 'coder reported no commit to review', rounds: round, coded, decisions, signals }
 
     review = await agent(reviewerPrompt(s, coded, findings), {
       label: `review ${s.id} r${round}`,
@@ -172,6 +171,12 @@ async function runSlice(s) {
     log(`${s.id}: round ${round} -> ${review.verdict_line}`)
   }
   return { id: s.id, status: 'blocked', reason: `no ship after ${MAX_ROUNDS} rounds`, rounds: MAX_ROUNDS, coded, review, decisions, signals }
+}
+
+// Slices sharing one checkout cannot each commit, so a review would have no frozen SHA.
+const shared = args.slices.length > 1 ? args.slices.filter(s => s.isolation !== 'worktree').map(s => s.id) : []
+if (shared.length) {
+  throw new Error(`A wave of ${args.slices.length} slices needs isolation: 'worktree' on every slice; missing on ${shared.join(', ')}. From a session already isolated in a worktree, run the slices one per wave instead (see the worktrees pack).`)
 }
 
 log(`epic ${args.epic}, wave ${args.wave}: ${args.slices.map(s => s.id).join(', ')}`)
