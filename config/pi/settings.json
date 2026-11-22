@@ -9,9 +9,9 @@
   "defaultThinkingLevel": "xhigh",
   "extensionChangelogVersions": {
     "{\"source\":\"npm:pi-agent-browser-native\",\"scope\":\"user\"}": "0.9.18",
-    "{\"source\":\"npm:pi-lens\",\"scope\":\"user\"}": "4.4.11",
+    "{\"source\":\"npm:pi-lens\",\"scope\":\"user\"}": "4.4.12",
     "{\"source\":\"npm:pi-powerline-footer\",\"scope\":\"user\"}": "0.22.0",
-    "{\"source\":\"npm:pi-subagents\",\"scope\":\"user\"}": "0.87.0",
+    "{\"source\":\"npm:pi-subagents\",\"scope\":\"user\"}": "0.88.0",
     "{\"source\":\"npm:pi-web-access\",\"scope\":\"user\"}": "0.47.0"
   },
   "extensions": [
