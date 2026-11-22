@@ -27,3 +27,6 @@ export PATH="$PATH:$HOME/.lmstudio/bin"
 
 # Added by Antigravity CLI installer
 export PATH="$HOME/.local/bin:$PATH"
+
+# Added by Kiri: its docker and kiri commands (kiri setup --uninstall removes this)
+case ":$PATH:" in *":$HOME/.kiri/bin:"*) ;; *) export PATH="$PATH:$HOME/.kiri/bin" ;; esac
