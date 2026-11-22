@@ -70,6 +70,9 @@
     ~/.pi/agent/themes: config/pi/themes
     ~/.config/kilo/kilo.jsonc: config/kilo/kilo.jsonc
     ~/.config/kilo/tui.jsonc: config/kilo/tui.jsonc
+    ~/.t3/userdata/settings.json: config/t3/settings_mac.json
+    ~/.t3/userdata/client-settings.json: config/t3/client-settings_mac.json
+    ~/.t3/userdata/keybindings.json: config/t3/keybindings_mac.json
 
 - shell:
     - [git submodule update --init --recursive, Installing submodules]

@@ -1,0 +1,164 @@
+{
+  "branchNamingMode": "semantic",
+  "defaultModelSelection": {
+    "instanceId": "claudeAgent",
+    "model": "claude-opus-5-5",
+    "options": [
+      {
+        "id": "effort",
+        "value": "medium"
+      }
+    ]
+  },
+  "defaultTheme": "ember-black",
+  "defaultThemeSetAt": "2026-11-18T10:01:22.689Z",
+  "defaultThreadEnvMode": "worktree",
+  "idleCompaction": "onReturn",
+  "projectScriptOverrides": {
+    "6e38e1f6-b2c7-44d0-948a-b2ce2b358f05": [
+      {
+        "command": "./scripts/agent-prepare.sh --no-stack",
+        "icon": "play",
+        "id": "setup",
+        "name": "Setup",
+        "runOnWorktreeCreate": true
+      },
+      {
+        "command": "/Users/andrew/code/dotfiles/bin/worktree-tab open; exit",
+        "icon": "play",
+        "id": "terminal",
+        "name": "Terminal",
+        "runOnWorktreeCreate": false
+      },
+      {
+        "command": "/Users/andrew/code/dotfiles/bin/worktree-close",
+        "icon": "play",
+        "id": "close",
+        "name": "Close",
+        "runOnSettle": true,
+        "runOnWorktreeCreate": false
+      }
+    ]
+  },
+  "projectSettingsFolded": true,
+  "projectSettingsOverrides": {
+    "6e38e1f6-b2c7-44d0-948a-b2ce2b358f05": {
+      "defaultProjectScripts": [
+        {
+          "command": "./scripts/agent-prepare.sh --no-stack",
+          "icon": "play",
+          "id": "setup",
+          "name": "Setup",
+          "runOnWorktreeCreate": true
+        },
+        {
+          "command": "/Users/andrew/code/dotfiles/bin/worktree-tab open; exit",
+          "icon": "play",
+          "id": "terminal",
+          "name": "Terminal",
+          "runOnWorktreeCreate": false
+        },
+        {
+          "command": "/Users/andrew/code/dotfiles/bin/worktree-close",
+          "icon": "play",
+          "id": "close",
+          "name": "Close",
+          "runOnSettle": true,
+          "runOnWorktreeCreate": false
+        }
+      ]
+    }
+  },
+  "providerInstances": {
+    "codex": {
+      "driver": "codex",
+      "enabled": false
+    },
+    "opencode": {
+      "driver": "opencode",
+      "enabled": true
+    },
+    "pi": {
+      "config": {
+        "binaryPath": "/Users/andrew/code/dotfiles/bin/pi-env"
+      },
+      "driver": "pi",
+      "enabled": true
+    }
+  },
+  "providerModelPreferences": {
+    "pi": {
+      "hiddenModels": [
+        "default",
+        "anthropic/claude-fable-5",
+        "anthropic/claude-fable-5-1",
+        "anthropic/claude-fable-5-2",
+        "anthropic/claude-haiku-4-5",
+        "anthropic/claude-haiku-4-5-20251001",
+        "anthropic/claude-haiku-5-5",
+        "anthropic/claude-opus-4-5",
+        "anthropic/claude-opus-4-5-20251101",
+        "anthropic/claude-opus-4-6",
+        "anthropic/claude-opus-4-7",
+        "anthropic/claude-opus-4-8",
+        "anthropic/claude-opus-5",
+        "anthropic/claude-opus-5-5",
+        "anthropic/claude-sonnet-4-5",
+        "anthropic/claude-sonnet-4-5-20250929",
+        "anthropic/claude-sonnet-4-6",
+        "anthropic/claude-sonnet-5",
+        "anthropic/claude-sonnet-5-5",
+        "openai/chat-latest",
+        "openai/gpt-4",
+        "openai/gpt-4-turbo",
+        "openai/gpt-4.1",
+        "openai/gpt-4.1-mini",
+        "openai/gpt-4.1-nano",
+        "openai/gpt-4o",
+        "openai/gpt-4o-2024-05-13",
+        "openai/gpt-4o-2024-08-06",
+        "openai/gpt-4o-2024-11-20",
+        "openai/gpt-4o-mini",
+        "openai/gpt-5",
+        "openai/gpt-5-chat-latest",
+        "openai/gpt-5-mini",
+        "openai/gpt-5-nano",
+        "openai/gpt-5-pro",
+        "openai/gpt-5.1",
+        "openai/gpt-5.2",
+        "openai/gpt-5.2-pro",
+        "openai/gpt-5.3-codex",
+        "openai/gpt-5.3-codex-spark",
+        "openai/gpt-5.4",
+        "openai/gpt-5.4-mini",
+        "openai/gpt-5.4-nano",
+        "openai/gpt-5.4-pro",
+        "openai/gpt-5.5",
+        "openai/gpt-5.5-pro",
+        "openai/gpt-5.6-cyber",
+        "openai/gpt-5.6-luna",
+        "openai/gpt-5.6-sol",
+        "openai/gpt-5.6-terra",
+        "openai/gpt-6-astra",
+        "openai/gpt-6-sol",
+        "openai/gpt-daybreak-blue-latest",
+        "openai/gpt-daybreak-red-latest",
+        "openai/o1",
+        "openai/o1-pro",
+        "openai/o3",
+        "openai/o3-mini",
+        "openai/o3-pro",
+        "openai/o4-mini"
+      ],
+      "modelOrder": []
+    }
+  },
+  "sidebarAutoSettleAfterDays": null,
+  "sidebarAutoSettleKeepPullRequests": true,
+  "storageCleanup": {
+    "worktreeOnDelete": true,
+    "worktreeSettledAfterDays": 1
+  },
+  "threadTitleInstructions": "Format: type(area): subject. Type is one of feat, fix, refactor, chore, docs, debug, spike, chat. Area is the main module or package in one lowercase word, or general if unclear. Subject is a concrete noun phrase in the language of the first message. Lowercase ASCII only, no accents, no emoji, no quotes. Maximum 45 characters. Never use words like request, unclear, initial or greeting.",
+  "worktreeSubmodules": "none"
+}
