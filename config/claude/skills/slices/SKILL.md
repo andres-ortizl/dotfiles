@@ -14,7 +14,7 @@ One epic = one loop folder: `~/.artifacts/<repo>/loops/<epic>/`. `<repo>` is the
 | `logbook.md` | dated decisions and events, one line each | append only |
 | `signals.md` | friction the agents hit, one line each | append only, consumed by the retro |
 
-Only the main agent writes these files. Subagents report; the main agent copies. Set a table cell with [`loop-row.py`](loop-row.py) `<file> <section> <row key> <column> <value>`, never with a prefix match.
+Only the main agent writes these files. Subagents report; the main agent copies. Set a table cell with [`slices row`](slices) `<file> <section> <row key> <column> <value>`; the row key matches exactly, never as a prefix.
 
 Templates: [`templates/`](templates/). Copy them; do not invent another shape.
 
@@ -65,7 +65,7 @@ Stop and ask only at these gates:
 
 ## status (also on "retoma", "cómo va", "qué falta")
 
-1. Read `loop.md`, then run [`status.sh`](status.sh) `<loop dir>`: one line per PR linked in `loop.md` with its state, base, head, CI, review-bot score, open bot threads, mergeability and commits behind its base, then the number of signals without an outcome. Never answer from memory, and never rebuild this with ad-hoc `gh` calls.
+1. Read `loop.md`, then run [`slices status`](slices) `<loop dir> --json` (the `slices` script; tests: `uv run --no-project --with pytest pytest <this folder>/tests`). Per PR linked in `loop.md` it gives state, base, head, CI, review-bot score, open bot threads, mergeability, commits behind its base, `ready` and the `blockers` (`kind` and `detail`); a `notes` entry such as `bot_stale` does not block. `signals_open` counts the signals without an outcome. Without `--json` it prints one plain line per PR. `--check` exits 3 when an open PR is not ready, and `--wait` polls until no PR has `ci_pending` or `bot_missing`. A merged PR has `ready` false and no blockers. Never answer from memory, and never rebuild this with ad-hoc `gh` calls.
    - CI is green only when every expected check has completed and passed on the head SHA. A pending, queued or missing check is not green. The same bar applies before a slice is marked `ready` or `done`. After a push or a rerun, wait until the expected checks appear before reading their state.
 2. Update `loop.md` with what changed.
 3. Answer with one table: slice | goal in plain words | status | evidence or blocker | PR link. Then the "Decided for you" rows added since the last status, and the next step.
@@ -84,23 +84,23 @@ Workflow({ name: "slices-wave", args: { epic, repo_path, wave, slices: [ { id, g
 - When it returns, check each slice's evidence yourself before you move it on: to `ship` when its **Ends in** line names a PR, otherwise to `done`. Check the AC commands and the reviewer's verdict line. Copy every `signals` entry into `signals.md` with the slice id, every `follow_ups` entry (the P2 findings left on a slice that shipped) into the "Follow-ups" table of `loop.md`, and every `decisions` entry as "Decide or stop" says. For a slice run inline, the `signals-append.py` hook copies its coder's and reviewer's `Signals:` lines into `signals.md` when the brief names the loop folder: name it in every brief, and copy only the follow-ups and decisions. A slice that returned `stopped` hit a gate: report the gate and the coder's reason to the user.
 - A slice that ended with `Verdict: fix ...` after 3 rounds is `blocked`. Report it to the user with the open findings; do not start a fourth round on your own.
 - Every defect a brief states carries its evidence: a `file:symbol` citation of the code as it is on the base today, or the output of a probe that reproduces it.
-- The coder commits its work (a WIP commit is fine) before the review starts, and names the SHA. The reviewer reviews in the coder's worktree at that SHA while the coder is stopped, and does not edit it. It creates a detached worktree (`git worktree add --detach <main checkout>/.claude/worktrees/review-<slice> <sha>`) only to mutate code to prove a finding, and removes it with `git worktree remove --force <path>` when the review ends.
+- The coder commits its work (a WIP commit is fine) before the review starts, and names the SHA. The reviewer reviews in the coder's worktree at that SHA while the coder is stopped, and does not edit it. It creates a detached worktree (`git worktree add --detach <main checkout>/.claude/worktrees/review-<slice> <sha>`) only to mutate code to prove a finding, and removes it with `git worktree remove --force <path>` when the review ends. To show that a new test fails on the old source, run `slices run-at-sha <worktree> <sha> -- <pytest args>`: it does this and removes the detached worktree itself.
 
 ## ship `<slice>`
 
 Run it for each slice whose **Ends in** line names a PR, once its reviewer passed it and you checked its evidence. The user merges, unless the slice's **Merge** line says `auto`.
 
 1. Push the slice's branch and open the PR against the base the repository's CLAUDE.md or CONTRIBUTING.md names. Use the repository's `pr` skill when it has one; otherwise run `gh pr create` with `--body-file`. With a **Linear** ticket, put its ID in the branch name and the PR body, so Linear's GitHub integration links them. The slice reviewer's pass is the review before the PR when the PR holds only this slice's commits. A PR that also holds other work gets a reviewer pass on its whole diff first. Link the PR in `loop.md` and set the status to `pr`.
-2. Wait for CI with `status.sh`. Fix a red check on the slice's branch, with the repository's CI skill when it has one (`react-to-pipelines`). Send every fix that changes logic to the reviewer before its push.
+2. Wait for CI with `slices status <PR> --wait`. Fix a red check on the slice's branch, with the repository's CI skill when it has one (`react-to-pipelines`). Send every fix that changes logic to the reviewer before its push.
 3. With CI green, set the status to `bot-review`. Answer the review bot with the repository's skill for it when it has one (`react-to-greptile`). Send every bot-driven fix that changes logic to the reviewer before its push.
-4. Set the status to `ready` when `status.sh` shows `READY yes`, and tell the user. Otherwise fix what its `no:` names. A 3/5 counts only when the user accepts it for that PR; log it in `logbook.md` as `decided:`.
-5. With `Merge: auto` and `READY yes`, run `gh pr merge <n> --repo <repo> --merge --match-head-commit <full head SHA from `gh pr view <n> --json headRefOid`>`, then run `land`. In a stack, merge the bottom PR first, then run `status.sh` again for the next one. With `Merge: manual`, stop at `ready`.
+4. Set the status to `ready` when `slices status` shows `ready` true, and tell the user. Otherwise fix what its `blockers` name. A 3/5 counts only when the user accepts it for that PR; log it in `logbook.md` as `decided:`.
+5. With `Merge: auto` and `ready` true, run `gh pr merge <n> --repo <repo> --merge --match-head-commit <full head SHA from `gh pr view <n> --json headRefOid`>`, then run `land`. In a stack, merge the bottom PR first, then run `slices status` again for the next one. With `Merge: manual`, stop at `ready`.
 
 ## land `<slice>` (also on "mergeado", "merged")
 
 Run it when the user says a slice's PR merged.
 
-1. Run `status.sh` and check that the PR shows `merged`. If it does not, say so and stop.
+1. Run `slices status` and check that the PR shows `merged`. If it does not, say so and stop.
 2. Set the slice to `merged` in `loop.md` and log the merge commit in `logbook.md`. Check its **Linear** ticket: Linear's integration usually moves it to Done on merge; if it did not, set Done with the Linear MCP.
 3. When the slice has its own worktree, stop its stack the way the repository's profile says, then remove the worktree and its local branch. Before you remove anything, check that `git status --porcelain` in the worktree prints nothing; if it prints anything, keep the worktree and report the files.
 4. Name the next wave whose slices the merge unblocked, or say that the loop has only the retro left.
@@ -121,5 +121,5 @@ Run it as the last slice of every loop, and when the user asks.
    - Prefer a mechanism to a sentence. A new line replaces or merges an old one: this file and each pack do not grow.
    - A generic line names no module, route or format of this epic. Write every line in English, whatever language the conversation uses.
 5. Set `Last used:` to this epic in every pack a slice of this loop loaded. Propose deleting a pack, or a line in it, that no slice loaded in the last three loops.
-6. Show one table per destination: what happened (count) | proposed change | file or issue. Apply what the user approves and log the retro in `logbook.md`. Then give every signal you read an outcome at the end of its line: `[used]` when an approved change came from it, `[dup]` when another signal or an existing line already covers it, `[dropped: <why>]` otherwise. `status.sh` counts the signals left without one.
+6. Show one table per destination: what happened (count) | proposed change | file or issue. Apply what the user approves and log the retro in `logbook.md`. Then give every signal you read an outcome at the end of its line: `[used]` when an approved change came from it, `[dup]` when another signal or an existing line already covers it, `[dropped: <why>]` otherwise. `slices status` counts the signals left without one (`signals_open`).
 7. Show the follow-ups in a last table: finding | location | proposal (open an issue, or drop it and why). Open the issues the user approves and mark each row `issue <link>` or `dropped`.

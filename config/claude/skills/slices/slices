@@ -1,0 +1,537 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.12"
+# dependencies = ["typer>=0.12", "rich>=13"]
+# ///
+"""slices: PR status with a JSON contract, loop-table edits and tests against another commit's source."""
+
+import json
+import os
+import re
+import subprocess
+import sys
+import time
+from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass, field
+from enum import StrEnum
+from pathlib import Path
+from typing import Annotated, Any
+
+import typer
+from rich.console import Console
+from rich.table import Table
+
+SCHEMA = 1
+EXIT_NOT_READY = 3
+BOT_THRESHOLD = 4
+FAILED_CONCLUSIONS = {"FAILURE", "ERROR", "CANCELLED", "TIMED_OUT"}
+PENDING_STATES = {"IN_PROGRESS", "QUEUED", "PENDING", "WAITING", "REQUESTED"}
+PR_URL = re.compile(r"github\.com/([^/\s]+)/([^/\s]+)/pull/(\d+)")
+PR_SHORT = re.compile(r"^([^/#\s]+/[^/#\s]+)#(\d+)$")
+OUTCOME_TAG = re.compile(r"\[(used|dup|dropped)")
+
+app = typer.Typer(
+    add_completion=False,
+    pretty_exceptions_enable=False,
+    no_args_is_help=True,
+    help="PR status for slice loops, loop-table edits, and tests against another commit's source.",
+)
+
+
+class CliError(Exception):
+    """A failure the user can act on; main() prints it as one line."""
+
+
+class Kind(StrEnum):
+    CI_PENDING = "ci_pending"
+    CI_FAILED = "ci_failed"
+    BOT_MISSING = "bot_missing"
+    BOT_BELOW_THRESHOLD = "bot_below_threshold"
+    BOT_STALE = "bot_stale"
+    OPEN_THREADS = "open_threads"
+    CONFLICT = "conflict"
+    BASE_MOVED = "base_moved"
+    STACK_PARENT_NOT_READY = "stack_parent_not_ready"
+    DRAFT = "draft"
+
+
+@dataclass
+class Finding:
+    kind: Kind
+    detail: str
+    data: dict[str, Any] = field(default_factory=dict)
+
+    def to_json(self) -> dict[str, Any]:
+        return {"kind": self.kind.value, "detail": self.detail, **self.data}
+
+
+@dataclass
+class PrStatus:
+    pr: int
+    repo: str
+    url: str
+    state: str
+    base: str
+    head: str
+    head_ref: str
+    merge_commit: str | None = None
+    ci_state: str | None = None
+    ci_failed: list[str] = field(default_factory=list)
+    ci_pending: list[str] = field(default_factory=list)
+    score: int | None = None
+    reviewed_sha: str | None = None
+    stale: bool = False
+    open_threads: int = 0
+    mergeable: str | None = None
+    behind: int | None = None
+    blockers: list[Finding] = field(default_factory=list)
+    notes: list[Finding] = field(default_factory=list)
+
+    @property
+    def ready(self) -> bool:
+        return self.state == "open" and not self.blockers
+
+    def kinds(self) -> set[Kind]:
+        return {b.kind for b in self.blockers}
+
+    def to_json(self) -> dict[str, Any]:
+        return {
+            "pr": self.pr,
+            "repo": self.repo,
+            "url": self.url,
+            "state": self.state,
+            "base": self.base,
+            "head": self.head,
+            "head_ref": self.head_ref,
+            "merge_commit": self.merge_commit,
+            "ci": {"state": self.ci_state, "failed": self.ci_failed, "pending": self.ci_pending},
+            "bot": {"score": self.score, "reviewed_sha": self.reviewed_sha, "stale": self.stale},
+            "open_threads": self.open_threads,
+            "mergeable": self.mergeable,
+            "behind": self.behind,
+            "ready": self.ready,
+            "blockers": [b.to_json() for b in self.blockers],
+            "notes": [n.to_json() for n in self.notes],
+        }
+
+
+def gh_raw(*args: str) -> subprocess.CompletedProcess[str]:
+    try:
+        return subprocess.run(["gh", *args], capture_output=True, text=True)
+    except FileNotFoundError:
+        raise CliError("gh is not installed; install the GitHub CLI and run `gh auth login`") from None
+
+
+def gh(*args: str) -> Any:
+    done = gh_raw(*args)
+    if done.returncode:
+        reason = (done.stderr.strip().splitlines() or ["no error output"])[0]
+        raise CliError(f"`gh {' '.join(args[:3])}` failed ({reason}); check `gh auth status` and the PR reference")
+    return json.loads(done.stdout) if done.stdout.strip() else None
+
+
+def gh_or_none(*args: str) -> Any:
+    done = gh_raw(*args)
+    if done.returncode or not done.stdout.strip():
+        return None
+    return json.loads(done.stdout)
+
+
+def parse_targets(targets: list[str]) -> tuple[Path | None, list[tuple[str, int]]]:
+    """A loop dir or loop.md gives every PR linked in it; otherwise each target is one PR reference."""
+    first = Path(targets[0]).expanduser()
+    if first.exists():
+        loop = first / "loop.md" if first.is_dir() else first
+        if not loop.is_file():
+            raise CliError(f"no loop.md at {loop}; pass the loop folder or PR references")
+        found = {(f"{o}/{r}", int(n)) for o, r, n in PR_URL.findall(loop.read_text())}
+        return loop, sorted(found, key=lambda ref: ref[1])
+    refs: list[tuple[str, int]] = []
+    for target in targets:
+        if short := PR_SHORT.match(target):
+            refs.append((short[1], int(short[2])))
+        elif url := PR_URL.search(target):
+            refs.append((f"{url[1]}/{url[2]}", int(url[3])))
+        else:
+            raise CliError(f"not a PR reference: {target}; use a PR URL, owner/repo#N, or a loop folder")
+    return None, refs
+
+
+def check_names(entries: list[dict[str, Any]], pick: Any) -> list[str]:
+    names: list[str] = []
+    for entry in entries:
+        name = entry.get("name") or entry.get("context") or "?"
+        if pick(entry) and name not in names:
+            names.append(name)
+    return names
+
+
+def read_ci(status: PrStatus, rollup: list[dict[str, Any]]) -> None:
+    def conclusion(e: dict[str, Any]) -> str:
+        return e.get("conclusion") or e.get("state") or ""
+
+    status.ci_failed = check_names(rollup, lambda e: conclusion(e) in FAILED_CONCLUSIONS)
+    status.ci_pending = check_names(
+        rollup, lambda e: (e.get("status") or "") in PENDING_STATES or conclusion(e) == "PENDING"
+    )
+    if not rollup:
+        status.ci_state = "none"
+    elif status.ci_failed:
+        status.ci_state = "failed"
+    elif status.ci_pending:
+        status.ci_state = "pending"
+    else:
+        status.ci_state = "ok"
+
+
+def read_bot(repo: str, number: int, status: PrStatus) -> None:
+    pages = gh("api", f"repos/{repo}/issues/{number}/comments", "--paginate", "--slurp") or []
+    comments = [c for page in pages for c in page if re.search("greptile", (c.get("user") or {}).get("login", ""), re.I)]
+    body = (comments[-1].get("body") or "") if comments else ""
+    if score := re.search(r"Confidence Score: (\d)/5", body):
+        status.score = int(score[1])
+    if reviewed := re.search(r"Last reviewed commit:.*/commit/([0-9a-f]{7,40})", body):
+        status.reviewed_sha = reviewed[1]
+    # The score belongs to the commit the summary reviewed, which may be older than the head.
+    status.stale = status.score is not None and not (
+        status.reviewed_sha and status.head.startswith(status.reviewed_sha)
+    )
+
+
+THREADS_QUERY = """
+query($owner:String!,$name:String!,$n:Int!){ repository(owner:$owner,name:$name){ pullRequest(number:$n){
+  reviewThreads(first:100){ nodes{ isResolved comments(first:1){ nodes{ author{login} } } } } } } }
+"""
+
+
+def count_open_bot_threads(repo: str, number: int) -> int:
+    owner, name = repo.split("/")
+    data = gh("api", "graphql", "-F", f"owner={owner}", "-F", f"name={name}", "-F", f"n={number}", "-f", f"query={THREADS_QUERY}")
+    threads = data["data"]["repository"]["pullRequest"]["reviewThreads"]["nodes"]
+    return sum(
+        1
+        for t in threads
+        if not t["isResolved"]
+        and re.search("greptile", ((t["comments"]["nodes"] or [{}])[0].get("author") or {}).get("login") or "", re.I)
+    )
+
+
+def base_moved(repo: str, number: int, status: PrStatus, rollup: list[dict[str, Any]]) -> Finding | None:
+    """Commits that landed on the base after the head's latest CI run and touch a file the PR changes."""
+    if not status.behind:
+        return None
+    stamps = [e.get("completedAt") or e.get("startedAt") or "" for e in rollup]
+    ci_at = max((s for s in stamps if s and not s.startswith("0001")), default=None)
+    if not ci_at:
+        return None
+    at_ci = gh_or_none("api", f"repos/{repo}/commits?sha={status.base}&until={ci_at}&per_page=1")
+    if not at_ci:
+        return None
+    moved = gh_or_none("api", f"repos/{repo}/compare/{at_ci[0]['sha']}...{status.base}")
+    if not moved or not moved.get("ahead_by"):
+        return None
+    pages = gh("api", f"repos/{repo}/pulls/{number}/files", "--paginate", "--slurp") or []
+    mine = {f["filename"] for page in pages for f in page}
+    overlap = sorted(mine & {f["filename"] for f in moved.get("files", [])})
+    if not overlap:
+        return None
+    commits = moved["ahead_by"]
+    return Finding(Kind.BASE_MOVED, f"{commits} commits on {status.base} since CI touch {len(overlap)} files of this PR", {"commits": commits, "files": overlap})
+
+
+def fetch(repo: str, number: int) -> PrStatus:
+    fields = "state,isDraft,baseRefName,headRefName,headRefOid,mergeable,mergeCommit,statusCheckRollup"
+    pr = gh("pr", "view", str(number), "--repo", repo, "--json", fields)
+    status = PrStatus(
+        pr=number,
+        repo=repo,
+        url=f"https://github.com/{repo}/pull/{number}",
+        state=pr["state"].lower(),
+        base=pr["baseRefName"],
+        head=pr["headRefOid"],
+        head_ref=pr["headRefName"],
+        merge_commit=(pr.get("mergeCommit") or {}).get("oid"),
+    )
+    if status.state != "open":
+        return status
+    rollup = pr.get("statusCheckRollup") or []
+    read_ci(status, rollup)
+    read_bot(repo, number, status)
+    status.open_threads = count_open_bot_threads(repo, number)
+    status.mergeable = pr["mergeable"]
+    if status.mergeable == "UNKNOWN":
+        # GitHub answers UNKNOWN while it computes mergeability on the first request.
+        time.sleep(3)
+        status.mergeable = gh("pr", "view", str(number), "--repo", repo, "--json", "mergeable")["mergeable"]
+    compare = gh_or_none("api", f"repos/{repo}/compare/{status.base}...{status.head}")
+    status.behind = compare.get("behind_by") if compare else None
+
+    if pr["isDraft"]:
+        status.blockers.append(Finding(Kind.DRAFT, "the PR is a draft"))
+    if status.ci_state == "failed":
+        status.blockers.append(Finding(Kind.CI_FAILED, "CI failed: " + ",".join(status.ci_failed)))
+    elif status.ci_state in ("none", "pending"):
+        detail = "no CI checks yet" if status.ci_state == "none" else f"{len(status.ci_pending)} CI checks pending"
+        status.blockers.append(Finding(Kind.CI_PENDING, detail))
+    if status.score is None:
+        status.blockers.append(Finding(Kind.BOT_MISSING, "no Greptile score"))
+    elif status.score < BOT_THRESHOLD:
+        status.blockers.append(Finding(Kind.BOT_BELOW_THRESHOLD, f"{status.score}/5"))
+    if status.stale:
+        # Today's rule: a 4/5 with every thread closed counts as 5/5 even on an older commit, so it is a note.
+        reviewed = (status.reviewed_sha or "")[:8] or "unknown commit"
+        status.notes.append(Finding(Kind.BOT_STALE, f"score reviewed {reviewed}, not the head"))
+    if status.open_threads:
+        status.blockers.append(Finding(Kind.OPEN_THREADS, f"{status.open_threads} Greptile threads open", {"count": status.open_threads}))
+    if status.mergeable != "MERGEABLE":
+        status.blockers.append(Finding(Kind.CONFLICT, f"mergeable {status.mergeable}"))
+    if moved := base_moved(repo, number, status, rollup):
+        status.blockers.append(moved)
+    return status
+
+
+def mark_stacked(statuses: list[PrStatus]) -> None:
+    """A PR stacked on a listed open PR is ready only when that PR is; merged parents do not block."""
+    by_head = {(s.repo, s.head_ref): s for s in statuses if s.state == "open"}
+    own_blocked = {key for key, s in by_head.items() if s.blockers}
+    for status in statuses:
+        if status.state != "open":
+            continue
+        seen = {status.head_ref}
+        parent = by_head.get((status.repo, status.base))
+        while parent and parent.head_ref not in seen:
+            if (parent.repo, parent.head_ref) in own_blocked:
+                status.blockers.append(Finding(Kind.STACK_PARENT_NOT_READY, f"base #{parent.pr} not ready", {"parent": parent.pr}))
+                break
+            seen.add(parent.head_ref)
+            parent = by_head.get((parent.repo, parent.base))
+
+
+def collect(refs: list[tuple[str, int]]) -> list[PrStatus]:
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        statuses = list(pool.map(lambda ref: fetch(*ref), refs))
+    mark_stacked(statuses)
+    return statuses
+
+
+def count_open_signals(loop: Path | None) -> int | None:
+    signals = loop.parent / "signals.md" if loop else None
+    if not signals or not signals.is_file():
+        return None
+    lines = [line for line in signals.read_text().splitlines() if line.startswith("- ")]
+    return sum(1 for line in lines if not OUTCOME_TAG.search(line))
+
+
+def plain_line(s: PrStatus) -> str:
+    if s.state != "open":
+        tail = (s.merge_commit or "")[:8] if s.state == "merged" else ""
+        return f"#{s.pr} {s.state} {tail}".rstrip()
+    score = "-" if s.score is None else f"{s.score}/5" + (f" stale@{(s.reviewed_sha or '')[:8]}" if s.stale else "")
+    behind = "?" if s.behind is None else s.behind
+    ready = "yes" + "".join(f" ({n.detail})" for n in s.notes) if s.ready else "no: " + "; ".join(b.detail for b in s.blockers)
+    return (
+        f"#{s.pr} {s.state} ->{s.base} {s.head[:8]} CI {s.ci_state} Greptile {score} "
+        f"{s.open_threads} open {s.mergeable} {behind} behind READY {ready}"
+    )
+
+
+def render(statuses: list[PrStatus], signals_open: int | None) -> None:
+    if sys.stdout.isatty() and "NO_COLOR" not in os.environ:
+        table = Table()
+        for column in ("PR", "State", "Base", "Head", "CI", "Greptile", "Threads", "Mergeable", "Behind", "Ready"):
+            table.add_column(column)
+        for s in statuses:
+            if s.state != "open":
+                table.add_row(f"#{s.pr}", s.state, "", (s.merge_commit or "")[:8], "", "", "", "", "", "")
+                continue
+            score = "-" if s.score is None else f"{s.score}/5" + (" (stale)" if s.stale else "")
+            ready = "[green]yes[/green]" if s.ready else "[red]no[/red] " + "; ".join(b.detail for b in s.blockers)
+            behind = "?" if s.behind is None else str(s.behind)
+            table.add_row(f"#{s.pr}", s.state, s.base, s.head[:8], s.ci_state or "", score, str(s.open_threads), s.mergeable or "", behind, ready)
+        Console().print(table)
+    else:
+        for s in statuses:
+            print(plain_line(s))
+    if signals_open is not None:
+        print(f"signals: {signals_open} without outcome")
+
+
+def waiting(statuses: list[PrStatus]) -> list[PrStatus]:
+    return [s for s in statuses if s.kinds() & {Kind.CI_PENDING, Kind.BOT_MISSING}]
+
+
+@app.command(
+    epilog="Example: slices status ~/.artifacts/myrepo/loops/my-epic --check --wait",
+)
+def status(
+    targets: Annotated[list[str], typer.Argument(help="A loop folder or loop.md, or PR URLs / owner/repo#N")],
+    as_json: Annotated[bool, typer.Option("--json", help="Print the JSON contract (schema 1) instead of text")] = False,
+    check: Annotated[bool, typer.Option("--check", help="Exit 3 when any open PR is not ready")] = False,
+    wait: Annotated[bool, typer.Option("--wait", help="Poll until no PR has ci_pending or bot_missing")] = False,
+    timeout: Annotated[int, typer.Option("--timeout", help="Seconds --wait polls before it exits 1")] = 1800,
+    interval: Annotated[int, typer.Option("--interval", help="Seconds between --wait polls")] = 60,
+) -> None:
+    """One result per PR: state, CI, review bot, threads, mergeability and every blocker.
+
+    A merged or closed PR has ready false and no blockers. A stale bot score is a note, not a blocker.
+    """
+    loop, refs = parse_targets(targets)
+    if not refs:
+        raise CliError("no PR links in the loop file; add the PR URLs to loop.md or pass PR references")
+    deadline = time.monotonic() + timeout
+    statuses = collect(refs)
+    while wait and (pending := waiting(statuses)):
+        if time.monotonic() >= deadline:
+            names = ", ".join(f"#{s.pr}" for s in pending)
+            raise CliError(f"timed out after {timeout}s waiting for CI or the review bot on {names}; rerun with a longer --timeout")
+        time.sleep(interval)
+        statuses = collect(refs)
+    signals_open = count_open_signals(loop)
+    if as_json:
+        print(json.dumps({"schema": SCHEMA, "prs": [s.to_json() for s in statuses], "signals_open": signals_open}, indent=2))
+    else:
+        render(statuses, signals_open)
+    if check and any(s.state == "open" and not s.ready for s in statuses):
+        raise typer.Exit(EXIT_NOT_READY)
+
+
+def cells(line: str) -> list[str]:
+    return [cell.strip() for cell in line.strip().strip("|").split("|")]
+
+
+@app.command(
+    epilog='Example: slices row loop.md "Slices" S1 Status "done (merged 2026-11-11)"',
+)
+def row(
+    file: Annotated[Path, typer.Argument(help="The loop file")],
+    section: Annotated[str, typer.Argument(help="Heading text of the section that holds the table")],
+    key: Annotated[str, typer.Argument(help="First cell of the row, matched exactly")],
+    column: Annotated[str, typer.Argument(help="Column name")],
+    value: Annotated[str, typer.Argument(help="New cell value")],
+) -> None:
+    """Set one cell of one row in a markdown table, found by section heading and exact first cell."""
+    if not file.is_file():
+        raise CliError(f"no file {file}")
+    lines = file.read_text().split("\n")
+    start = next((i for i, line in enumerate(lines) if line.startswith("#") and line.lstrip("#").strip() == section), None)
+    if start is None:
+        raise CliError(f"no section '{section}' in {file}; use the heading text without the #")
+    header = next((i for i in range(start + 1, len(lines)) if lines[i].startswith("|")), None)
+    if header is None:
+        raise CliError(f"section '{section}' has no table")
+    names = cells(lines[header])
+    if column not in names:
+        raise CliError(f"no column '{column}' in section '{section}'; columns are {names}")
+    matches = []
+    for i in range(header + 2, len(lines)):
+        if not lines[i].startswith("|"):
+            break
+        if cells(lines[i])[0] == key:
+            matches.append(i)
+    if len(matches) != 1:
+        raise CliError(f"expected one row '{key}' in section '{section}', found {len(matches)}")
+    updated = cells(lines[matches[0]])
+    updated[names.index(column)] = value.replace("|", "\\|")
+    lines[matches[0]] = "| " + " | ".join(updated) + " |"
+    file.write_text("\n".join(lines))
+    print(lines[matches[0]])
+
+
+def git(*args: str, cwd: Path) -> str:
+    try:
+        done = subprocess.run(["git", "-C", str(cwd), *args], capture_output=True, text=True)
+    except FileNotFoundError:
+        raise CliError("git is not installed") from None
+    if done.returncode:
+        reason = (done.stderr.strip().splitlines() or ["no error output"])[0]
+        raise CliError(f"`git {' '.join(args[:2])}` failed in {cwd} ({reason})")
+    return done.stdout.strip()
+
+
+PRUNED_DIRS = {"node_modules", "__pycache__", "site-packages"}
+
+
+def source_dirs(tree: Path) -> list[Path]:
+    """Relative paths of the `src` dirs under tree that hold Python files."""
+    found: list[Path] = []
+    for current, dirs, _ in os.walk(tree):
+        dirs[:] = sorted(d for d in dirs if not d.startswith(".") and d not in PRUNED_DIRS)
+        if Path(current).name == "src" and next(Path(current).rglob("*.py"), None):
+            found.append(Path(current).relative_to(tree))
+            dirs[:] = []
+    return found
+
+
+def probe_module(src: Path) -> str:
+    """Dotted name of the shallowest package (or first module) in a src dir."""
+    files = sorted(src.rglob("*.py"), key=lambda p: (len(p.relative_to(src).parts), str(p)))
+    inits = [p for p in files if p.name == "__init__.py"]
+    chosen = (inits or files)[0].relative_to(src)
+    parts = list(chosen.with_suffix("").parts)
+    if parts[-1] == "__init__":
+        parts.pop()
+    return ".".join(parts)
+
+
+@app.command(
+    "run-at-sha",
+    epilog="Example: slices run-at-sha ~/code/repo/.claude/worktrees/my-slice 274e756313 -- cli/tests/test_x.py -q",
+)
+def run_at_sha(
+    worktree: Annotated[Path, typer.Argument(help="The worktree whose test files run")],
+    sha: Annotated[str, typer.Argument(help="Commit whose source the tests import")],
+    pytest_args: Annotated[list[str] | None, typer.Argument(help="Arguments for pytest, after --")] = None,
+) -> None:
+    """Run the worktree's own tests against another commit's source, so a new test fails at the parent commit.
+
+    Adds a detached worktree at SHA, puts its src dirs first on PYTHONPATH, runs the worktree's
+    .venv pytest, and always removes the detached worktree. Exits with pytest's code.
+    """
+    tree = worktree.expanduser().resolve()
+    if sha.startswith("-"):
+        raise CliError(f"not a commit: {sha}")
+    python = tree / ".venv" / "bin" / "python"
+    if not python.is_file():
+        raise CliError(f"no {python}; run `uv sync` in {tree} first")
+    full = git("rev-parse", "--verify", "--end-of-options", f"{sha}^{{commit}}", cwd=tree)
+    common = Path(git("rev-parse", "--path-format=absolute", "--git-common-dir", cwd=tree))
+    dest = common.parent / ".claude" / "worktrees" / f"run-at-sha-{full[:10]}"
+    if dest.exists():
+        raise CliError(f"{dest} exists; remove it with `git worktree remove --force {dest}`")
+    git("worktree", "add", "--detach", str(dest), full, cwd=tree)
+    try:
+        mirrored = [rel for rel in source_dirs(tree) if (dest / rel).is_dir()]
+        if not mirrored:
+            raise CliError(f"no src dir of {tree} exists at {full[:10]}; the tests cannot import the old source")
+        old_src = [str(dest / rel) for rel in mirrored]
+        env = {**os.environ, "PYTHONPATH": os.pathsep.join([*old_src, *filter(None, [os.environ.get("PYTHONPATH")])])}
+        module = probe_module(Path(old_src[0]))
+        probe = subprocess.run(
+            [str(python), "-c", f"import {module} as m; print(m.__file__ or list(m.__path__))"],
+            cwd=tree, env=env, capture_output=True, text=True,
+        )
+        if probe.returncode:
+            reason = (probe.stderr.strip().splitlines() or ["no error output"])[-1]
+            raise CliError(f"cannot import {module} from {old_src[0]} ({reason})")
+        print(f"run-at-sha: {module} resolves to {probe.stdout.strip()}", flush=True)
+        result = subprocess.run([str(python), "-m", "pytest", *(pytest_args or [])], cwd=tree, env=env)
+    finally:
+        removal = subprocess.run(["git", "-C", str(tree), "worktree", "remove", "--force", str(dest)], capture_output=True, text=True)
+        if removal.returncode:
+            print(f"slices: could not remove {dest}; run `git worktree remove --force {dest}`", file=sys.stderr)
+    raise typer.Exit(result.returncode)
+
+
+def main() -> None:
+    try:
+        app()
+    except CliError as error:
+        print(f"slices: {error}", file=sys.stderr)
+        sys.exit(1)
+    except Exception as error:
+        print(f"slices: unexpected {type(error).__name__}: {error}; rerun with a PR reference or loop folder, and report this", file=sys.stderr)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

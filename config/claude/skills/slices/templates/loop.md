@@ -1,6 +1,6 @@
 # <epic> - loop
 
-Status values: todo | coding | review | pr | bot-review | ready (PR slice: READY yes in status.sh) | done (slice without a PR) | merged | blocked | stopped (hit a gate). Prefix `added` for a slice added after approval.
+Status values: todo | coding | review | pr | bot-review | ready (PR slice: `ready` true in `slices status`) | done (slice without a PR) | merged | blocked | stopped (hit a gate). Prefix `added` for a slice added after approval.
 
 | Slice | Goal | Status | Evidence | PR | Run |
 |---|---|---|---|---|---|

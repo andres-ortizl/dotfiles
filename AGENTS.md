@@ -183,7 +183,7 @@ The user juggles many PRs and agents with little context. Every message must be 
 - Lead with the user-visible symptom and one concrete example (input -> what happens today -> what should happen). Then the mechanism.
 - Gloss any jargon in one line the first time it appears.
 - A decision is one table row: the problem with its example | each option in full, with its cost | the recommendation and why. Add what the answer changes and the default if nobody answers. Never bare "A / B / C".
-- Fetch status before reporting it (PR, CI, review bot, Linear, the loop file). Never report status from memory. For PRs, run `~/.claude/skills/slices/status.sh <PR url or owner/repo#N>...`: one line each with CI, the review bot (`stale@` when it reviewed an older commit), open threads and mergeability.
+- Fetch status before reporting it (PR, CI, review bot, Linear, the loop file). Never report status from memory. For PRs, run `slices status <PR url or owner/repo#N>... --json` and read the JSON: per PR its CI, the review bot (`stale` when it reviewed an older commit), open threads, mergeability and `blockers`.
 - Never relay a subagent's "done" or "green" without checking it yourself. Quote the verdict line and the commit it names.
 
 ## Slices and loops
@@ -193,7 +193,7 @@ Use the `slices` skill for any work split into more than one slice. It keeps the
 Delegate by role: `explorer` (Haiku) reads and maps, `coder` (Sonnet) implements one slice, `reviewer` (Opus) reviews it. Do not use the built-in `Explore` agent.
 
 - Every slice has a goal in one sentence, an out-of-scope list, and acceptance criteria written as a command and its expected result. Write them before any code, and get the user's approval.
-- A slice is done only when every acceptance criterion has its evidence pasted (the command and its output) and the reviewer passed it. A slice that ends in a PR is `ready` only when `slices/status.sh` shows `READY yes` for it.
+- A slice is done only when every acceptance criterion has its evidence pasted (the command and its output) and the reviewer passed it. A slice that ends in a PR is `ready` only when `slices status --json` shows `ready` true for it.
 - Every subagent report ends with `Not checked:` and `Signals:` lines. Name the loop folder in every brief: a hook then copies the signals into its `signals.md`.
 - When the user asks "how is it going" or "resume", read `loop.md` first.
 - Close every loop with a retro (`slices retro`): turn the repeated signals into proposed rule or skill changes, and apply the ones the user approves.
