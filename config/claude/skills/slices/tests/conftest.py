@@ -58,10 +58,55 @@ class Fake:
         threads: int = 0,
         behind: int = 0,
         merge_commit: str | None = None,
+        mergeable_retry: str | None = None,
+        merge_base: str = "m" * 40,
+        moved: dict | None = None,
+        pr_files: list[str] | None = None,
+        parent_prs: list[dict] | None = None,
+        default_branch: str = "dev",
+        thread_page2: int = 0,
+        base_protected: bool = False,
     ) -> None:
         ref = ref or f"branch-{number}"
+        if thread_page2:
+            more = [
+                {
+                    "isResolved": False,
+                    "comments": {"nodes": [{"author": {"login": "greptile-apps"}}]},
+                }
+                for _ in range(thread_page2)
+            ]
+            self.add(
+                f"n={number} -f",
+                "after=c1",
+                out={
+                    "data": {
+                        "repository": {
+                            "pullRequest": {
+                                "reviewThreads": {
+                                    "pageInfo": {
+                                        "hasNextPage": False,
+                                        "endCursor": None,
+                                    },
+                                    "nodes": more,
+                                }
+                            }
+                        }
+                    }
+                },
+            )
         if checks is None:
             checks = [{"name": "test", "status": "COMPLETED", "conclusion": "SUCCESS"}]
+        self.add(
+            f"repo view {repo} --json defaultBranchRef",
+            out={"defaultBranchRef": {"name": default_branch}},
+        )
+        self.add(f"repos/{repo}/branches/{base}", out={"protected": base_protected})
+        self.add(f"pr list --repo {repo} --head {base}", out=parent_prs or [])
+        self.add(
+            f"pr view {number} --repo {repo} --json mergeable",
+            out={"mergeable": mergeable_retry or mergeable},
+        )
         self.add(
             f"pr view {number} --repo {repo} --json state",
             out={
@@ -106,11 +151,32 @@ class Fake:
             "graphql",
             out={
                 "data": {
-                    "repository": {"pullRequest": {"reviewThreads": {"nodes": nodes}}}
+                    "repository": {
+                        "pullRequest": {
+                            "reviewThreads": {
+                                "pageInfo": {
+                                    "hasNextPage": bool(thread_page2),
+                                    "endCursor": "c1",
+                                },
+                                "nodes": nodes,
+                            }
+                        }
+                    }
                 }
             },
         )
-        self.add(f"repos/{repo}/compare/{base}...{head}", out={"behind_by": behind})
+        self.add(
+            f"repos/{repo}/compare/{base}...{head}",
+            out={"behind_by": behind, "merge_base_commit": {"sha": merge_base}},
+        )
+        self.add(
+            f"repos/{repo}/compare/{merge_base}...{base}",
+            out=moved or {"ahead_by": 0, "files": []},
+        )
+        self.add(
+            f"repos/{repo}/pulls/{number}/files",
+            out=[[{"filename": name} for name in pr_files or []]],
+        )
 
     def run(
         self, *args: str, extra_env: dict | None = None
@@ -122,6 +188,7 @@ class Fake:
             "FAKE_GH_FIXTURES": str(self.path),
         }
         env.pop("NO_COLOR", None)
+        env["SLICES_RETRY_SLEEP"] = "0"
         env.update(extra_env or {})
         return subprocess.run(
             [str(SLICES), *args], capture_output=True, text=True, env=env
