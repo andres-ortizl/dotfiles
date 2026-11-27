@@ -1,6 +1,6 @@
 # Personal profile: anyformat monorepo, coder
 
-- Work only in the worktree path you were given. Bring a fresh worktree up with `./scripts/agent-prepare.sh` first.
+- Work only in the worktree path you were given. Create or switch to your branch first, then bring the worktree up with `./scripts/agent-prepare.sh`: the compose project name follows the branch, so a branch made after the first prepare orphans that stack and its ports.
 - When the slice needs the local API or MCP, run `./scripts/agent-prepare.sh --api` once and call it with `uv run --frozen --package anyformat-cli af mcp call <tool> '<json args>'`. Never use `mcp__anyformat-local__*` (another checkout's stack), and never run `af mcp ack`.
 - Before you edit a file in a new directory, read the rule files for that path, as `~/code/dotfiles/config/claude/profiles/anyformat/rule-files.md` lists them. Greptile enforces them as must-fix.
 - Run tests where they can run, and choose what to run per change:
