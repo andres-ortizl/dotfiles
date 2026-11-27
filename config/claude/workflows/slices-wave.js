@@ -109,12 +109,26 @@ const REVIEW_SCHEMA = {
         required: ['file', 'rules'],
       },
     },
+    gates: {
+      type: 'array',
+      description: 'One per check, readiness probe, lock or guard the diff adds; empty only when it adds none.',
+      items: {
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+          location: { type: 'string' },
+          accepts_wrongly: { type: 'string', description: 'The input or state it should refuse that you tried, or "none found".' },
+          evidence: { type: 'string', description: 'The command you ran and its output.' },
+        },
+        required: ['name', 'location', 'accepts_wrongly', 'evidence'],
+      },
+    },
     verdict: { type: 'string', enum: ['ship', 'fix'] },
     verdict_line: { type: 'string' },
     not_checked: { type: 'string' },
     signals: { type: 'array', items: { type: 'string' } },
   },
-  required: ['acceptance', 'rules_read', 'findings', 'verdict', 'verdict_line', 'not_checked', 'signals'],
+  required: ['acceptance', 'rules_read', 'findings', 'gates', 'verdict', 'verdict_line', 'not_checked', 'signals'],
 }
 
 function sliceBlock(s) {
