@@ -1,6 +1,7 @@
 # Personal profile: anyformat monorepo, coder
 
 - Work only in the worktree path you were given. Bring a fresh worktree up with `./scripts/agent-prepare.sh` first.
+- When the slice needs the local API or MCP, run `./scripts/agent-prepare.sh --api` once and call it with `uv run --frozen --package anyformat-cli af mcp call <tool> '<json args>'`. Never use `mcp__anyformat-local__*` (another checkout's stack), and never run `af mcp ack`.
 - Before you edit a file in a new directory, read the rule files for that path, as `~/code/dotfiles/config/claude/profiles/anyformat/rule-files.md` lists them. Greptile enforces them as must-fix.
 - Run tests where they can run, and choose what to run per change:
   - Where: domain, libs, engine and api run on the host: `cd anyformat/<pkg> && uv run pytest <path>`. Core runs on the host for tests that touch no S3, database or broker; run the rest of core, and its whole suite, in the container: the `make test-core` target's `compose up` once, then `docker compose run --rm --no-deps anyformat-core pytest <path>`. Backend always runs in the container (every test needs Postgres). A host run that fails with `InvalidAccessKeyId`, an S3 403 or a refused connection ran in the wrong place, not on broken code: rerun it in the container.

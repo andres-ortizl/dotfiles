@@ -11,7 +11,9 @@ These rules add to the repo's CLAUDE.md. They are Andrew's, not the team's.
 - Create only one side of a Linear/GitHub issue pair, preferably Linear (`save_issue`). Never also run `gh issue create`: the sync mirrors it.
 
 ## Worktrees and the local stack
-- Bring up every fresh worktree with `./scripts/agent-prepare.sh` before anything else. Do not re-run it mid-session: it overwrites `.env` edits.
+- Bring up every fresh worktree with `./scripts/agent-prepare.sh` before anything else. Run it again only as `./scripts/agent-prepare.sh --api`, once, when the work needs the local API or MCP, and before any `.env` edit: every run rewrites `.env`.
+- Call this worktree's MCP from the shell: `uv run --frozen --package anyformat-cli af mcp call <tool> '<json args>'` (`af mcp tools` lists them). Never use the inherited `mcp__anyformat-local__*` tools: they point at the stack of the checkout the session started in.
+- Calls to the real `anyformat` and `anyformat-dev` MCP servers are denied until Andrew runs `af mcp ack`. An agent never runs `af mcp ack` itself: ask for it.
 - Stop a worktree's stack with `uv run af worktree teardown --stack-only`, run from that worktree, before you remove it.
 - `cd` into the worktree's nested path (`.claude/worktrees/<name>/...`), never the main checkout, which runs against dev.
 - Give every subagent the absolute worktree path in every command, and have it check that `docker compose port backend 8080` matches the worktree's port. A subagent's working directory defaults to the main checkout.
