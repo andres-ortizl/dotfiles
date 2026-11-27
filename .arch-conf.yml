@@ -35,6 +35,7 @@
     ~/.config/pi-beacon: config/pi-beacon/**
     ~/.config/starship/config.toml: config/starship/config.toml
     ~/.config/ghostty/config: config/ghostty/config
+    ~/.config/worktrunk/config.toml: config/worktrunk/config.toml
     ~/.config/herdr/config.toml: config/herdr/config.toml
     ~/.config/herdr/cheatsheet.md: config/herdr/cheatsheet.md
     ~/.config/herdr/plugins/config/herdr-plugin-workspace-manager/config.yml: config/herdr/workspace-manager.yml

@@ -1,0 +1,12 @@
+# Matches the path Claude Code uses for isolation: worktree; hooks/profile.sh relies on it.
+worktree-path = "{{ repo_path }}/.claude/worktrees/{{ branch | sanitize }}"
+
+# Personal hooks for the anyformat monorepo (see claude/profiles/anyformat/main.md).
+[projects."github.com/anyformat-ai/anyformat-monorepo"]
+# wt branches from local dev, which lags; a branch still at dev's tip has no work yet, so move it to origin/dev.
+pre-start.prepare = """
+git fetch -q origin dev
+if [ "$(git rev-parse HEAD)" = "$(git rev-parse dev)" ]; then git reset -q --hard origin/dev; fi
+./scripts/agent-prepare.sh
+"""
+pre-remove.teardown = "uv run af worktree teardown --stack-only"
